@@ -1,4 +1,5 @@
-import { computePayableAmount } from "@/modules/applications/domain/pricing"
+import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { computeSummaryPayableAmount } from "@/modules/applications/domain/pricing"
 import { parseVariableSymbol } from "@/modules/applications/domain/variable-symbol"
 
 /**
@@ -172,7 +173,7 @@ export type UnmatchedReason =
 /** What matching needs to know about the application a variable symbol points to. */
 export type MatchableApplication = {
   id: string
-  terms: { termId: string; termNumber: number; status: string; owedCzk: number }[]
+  terms: { termId: string; termNumber: number; status: ApplicationTermStatus; owedCzk: number }[]
 }
 
 export type MatchDecision =
@@ -208,7 +209,12 @@ export function decideMatch(
   // D-088: money for a term without a debt (substitute, cancelled, paid) is an overpayment of that
   // application in the term, nothing is refused. So any term of the application can be paid.
   if (parsed.termNumber === null) {
-    const payable = computePayableAmount(application.terms.map((term) => term.owedCzk))
+    // D-087: the split skips archived (closed) terms; with none left the money has no place to go,
+    // so it is left for the organizer instead of failing the whole import.
+    if (application.terms.every((term) => term.status === "ARCHIVED"))
+      return { kind: "unmatched", reason: "UNKNOWN_VARIABLE_SYMBOL", applicationId: application.id }
+    // The same amount the split settles (confirmed debt only); the rest is the overpayment (D-088).
+    const payable = computeSummaryPayableAmount(application.terms)
     return {
       kind: "matched",
       applicationId: application.id,

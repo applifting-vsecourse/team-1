@@ -1,7 +1,7 @@
 {
   "applications": {
-    "description": "Přihlášky vedené pod účtem {{name}}.",
-    "title": "Vaše přihlášky"
+    "description": "Všechny přihlášky vašeho účtu, včetně přihlášek dalších účastníků.",
+    "title": "Moje přihlášky"
   },
   "change": {
     "allTerms": "Celá přihláška · všechny termíny ({{count}})",
@@ -22,7 +22,7 @@
     "confirmChange": "Potvrdit změnu",
     "discard": "Zrušit",
     "impact": "Dopad změny",
-    "impactNew": "Nový termín · nová částka k úhradě",
+    "impactNew": "Nový termín · nová úhrada",
     "impactOriginal": "Původní termín · vratka",
     "impactOriginalRequest": "Původní termín",
     "loadError": "Dostupné termíny se nepodařilo načíst",
@@ -51,23 +51,28 @@
     "waitlistedNoPayment": "Náhradník · bez platebního dopadu"
   },
   "contact": {
-    "email": "E-mail",
+    "email": "Napsat e-mail",
     "none": "Organizace zatím nezveřejnila kontakt.",
-    "phone": "Telefon",
+    "phone": "Zavolat",
     "title": "Kontakt organizace"
   },
   "detail": {
+    "applicantContact": "Kontakt přihlašovatele",
     "archivedText": "Termín skončil, už není co vyřizovat.",
     "archivedTitle": "Archivovaná přihláška",
-    "back": "← Všechny přihlášky",
+    "back": "Zpět na Moje přihlášky",
+    "birthGender": "Datum narození a pohlaví",
     "errorTitle": "Přihlášku se nepodařilo načíst",
+    "female": "žena",
     "health": "Zdravotní omezení",
+    "male": "muž",
     "meals": "Stravování",
+    "participantCard": "Údaje účastníka",
     "program": "Program",
     "roomNotAssigned": "Zatím nemáte přiřazený pokoj.",
     "sections": {
       "room": "Pokoj",
-      "terms": "Termíny a platby"
+      "terms": "Termíny"
     },
     "steps": {
       "done": "Hotovo",
@@ -80,13 +85,15 @@
       "payment": "Zaplacení",
       "paymentPay": "Zaplatit {{amount}}",
       "paymentView": "Zobrazit platební údaje",
+      "roomView": "Zobrazit pokoj",
       "title": "Kroky před akcí",
       "todo": "Zbývá",
       "transport": "Doprava",
       "transportChoose": "Vybrat dopravu",
-      "transportView": "Zobrazit dopravu"
+      "transportView": "Zobrazit dopravu",
+      "wishesView": "Zobrazit přání"
     },
-    "title": "Moje přihláška",
+    "title": "Detail přihlášky",
     "toEvaluate": {
       "alertText": "Platební údaje dostanete po potvrzení účasti.",
       "alertTitle": "Zatím nic neplaťte.",
@@ -94,17 +101,37 @@
     }
   },
   "edit": {
-    "accommodationRequest": "Poznámka pro organizátora",
+    "accommodationHeading": "Individuální řešení ubytování",
+    "accommodationIndividual": "Individuální řešení",
+    "accommodationRequest": "Poznámka pro organizátora (nepovinné)",
     "accommodationRequestTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
+    "accommodationSummary": "Ubytování · {{request}}",
+    "accommodationSummaryTitle": "Požadavek na ubytování",
+    "backToApplication": "Zpět na přihlášku",
     "birthDate": "Datum narození *",
+    "birthDateInvalid": "Zadejte platné datum narození.",
     "cancel": "Zrušit",
+    "contactHeading": "Kontakt přihlášky",
+    "contactHint": "Tato změna upraví kontakt přihlášky. Přihlašovací e-mail se mění v nastavení účtu.",
+    "discard": "Zahodit změny",
+    "discardDescription": "Změny v přihlášce ještě nejsou uložené. Pokud odejdete, o rozepsané úpravy přijdete.",
+    "discardTitle": "Zahodit změny?",
     "firstName": "Jméno *",
+    "historyAccommodation": "požadavek na ubytování",
+    "historyContact": "kontakt",
+    "historyContactAccommodation": "Upraven kontakt a požadavek na ubytování.",
+    "historyHeading": "Historie změn",
+    "historyLoadFailed": "Historii změn se nepodařilo načíst.",
+    "historyOther": "Upraveno: {{fields}}.",
+    "historyPersonal": "osobní údaje",
     "individualAccommodation": "Chci ubytování řešit individuálně",
     "individualAccommodationHint": "Tuto informaci uvidí jen organizátor akce.",
+    "keepEditing": "Pokračovat v úpravách",
     "lastName": "Příjmení *",
     "loadError": "Přihlášku se nepodařilo načíst",
+    "noAccommodationRequest": "Bez požadavku na individuální řešení ubytování.",
     "open": "Upravit přihlášku",
-    "participant": "Účastník",
+    "participant": "Údaje účastníka",
     "phone": "Telefon",
     "phoneInvalid": "Zadejte platné telefonní číslo, například +420 777 123 456.",
     "retry": "Zkusit znovu",
@@ -120,7 +147,12 @@
   },
   "list": {
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",
-    "errorTitle": "Přihlášky se nepodařilo načíst"
+    "errorTitle": "Přihlášky se nepodařilo načíst",
+    "female": "žena",
+    "male": "muž",
+    "paymentNote": "Platí jen pro potvrzený termín; za náhradnický termín zatím neplaťte.",
+    "remaining": "Zbývá zaplatit",
+    "termPrice": "Cena termínů"
   },
   "notifications": {
     "empty": "Zatím nemáte žádná upozornění.",
@@ -144,10 +176,13 @@
     "qrAlt": "QR kód pro souhrnnou platbu",
     "saveQr": "Stáhnout QR kód",
     "simulation": {
+      "failed": "Simulaci se nepodařilo zapsat.",
+      "heading": "Zkušební prostředí · simulace platby",
       "logDescription": "Zkušební platby vytvořené tlačítkem „Zaplatil jsem“. Nejde o skutečné bankovní převody.",
       "logLine": "+{{amount}} · {{term}} · zdroj: simulace",
       "logTitle": "Historie simulovaných plateb",
-      "paid": "Zaplatil jsem"
+      "paid": "Zaplatil jsem",
+      "termAmount": "Simulovat doplatek tohoto termínu: {{amount}}"
     },
     "summaryBreakdown": "Rozpis",
     "summaryQrExplanation": "Platí pro všechny potvrzené termíny. Souhrnný VS se liší od VS jednotlivých termínů.",
@@ -163,6 +198,7 @@
   "request": {
     "cancelTitle": "Požadované odhlášení",
     "changeTitle": "Požadovaná změna termínu",
+    "createdDate": "Podáno {{date}}",
     "current": "Původní termín",
     "loadError": "Žádosti se nepodařilo načíst",
     "message": {
@@ -188,6 +224,7 @@
     "reason": "Důvod: {{reason}}",
     "request": "Žádost",
     "requested": "Nový termín",
+    "reviewedDate": "Vyřízeno {{date}}",
     "status": {
       "APPROVED": "Schváleno",
       "PENDING": "Čeká na schválení",
@@ -212,7 +249,7 @@
   },
   "status": {
     "archived": "Archivováno",
-    "cancelled": "Zrušená",
+    "cancelled": "Zrušeno",
     "confirmed": "Potvrzeno",
     "toEvaluate": "Čeká na vyhodnocení",
     "waitlisted": "Náhradník"

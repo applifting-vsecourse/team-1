@@ -35,6 +35,7 @@ export class PublicCatalogRepository {
         publicToken: true,
         name: true,
         location: true,
+        evaluationModePending: true,
         organization: { select: { id: true, name: true } },
         terms: termsInclude,
         photo: { select: { id: true } },
@@ -43,7 +44,10 @@ export class PublicCatalogRepository {
 
     return events
       .map((event) => {
-        const isOpen = isOpenForTerms(event.terms.map((term) => ({ roomCount: term._count.rooms })))
+        const isOpen = isOpenForTerms(
+          event.terms.map((term) => ({ roomCount: term._count.rooms })),
+          event.evaluationModePending,
+        )
         return {
           publicToken: event.publicToken,
           name: event.name,
@@ -78,6 +82,7 @@ export class PublicCatalogRepository {
       where: { publicToken },
       select: {
         publicToken: true,
+        evaluationModePending: true,
         name: true,
         description: true,
         location: true,
@@ -89,7 +94,13 @@ export class PublicCatalogRepository {
       },
     })
     if (!event) return null
-    if (!isOpenForTerms(event.terms.map((term) => ({ roomCount: term._count.rooms })))) return null
+    if (
+      !isOpenForTerms(
+        event.terms.map((term) => ({ roomCount: term._count.rooms })),
+        event.evaluationModePending,
+      )
+    )
+      return null
 
     return {
       publicToken: event.publicToken,
@@ -117,12 +128,19 @@ export class PublicCatalogRepository {
     const event = await this.prisma.event.findUnique({
       where: { publicToken },
       select: {
+        evaluationModePending: true,
         photo: { select: { contentType: true, data: true, updatedAt: true } },
         terms: { where: termsInclude.where, select: { _count: { select: { rooms: true } } } },
       },
     })
     if (!event?.photo) return null
-    if (!isOpenForTerms(event.terms.map((term) => ({ roomCount: term._count.rooms })))) return null
+    if (
+      !isOpenForTerms(
+        event.terms.map((term) => ({ roomCount: term._count.rooms })),
+        event.evaluationModePending,
+      )
+    )
+      return null
     return event.photo
   }
 }

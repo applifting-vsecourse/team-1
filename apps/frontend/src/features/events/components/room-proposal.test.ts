@@ -67,4 +67,11 @@ describe("room proposal draft", () => {
     const beds = movableBeds(rooms, draft, { applicationTermId: "a", gender: "FEMALE" })
     expect(beds.map((bed) => `${bed.room.id}:${bed.number}`)).toEqual(["r2:2", "r2:3", "r4:1"])
   })
+
+  // US-145: an individual room has no gender, but it is filled by hand only.
+  it("never offers a bed of an individual room", () => {
+    const rooms = [room("r2", 3, [], "FEMALE"), { ...room("r5", 4, [], null), individual: true }]
+    const beds = movableBeds(rooms, draft, { applicationTermId: "a", gender: "FEMALE" })
+    expect(beds.map((bed) => bed.room.id)).toEqual(["r2", "r2", "r2"])
+  })
 })

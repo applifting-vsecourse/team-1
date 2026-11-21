@@ -2,14 +2,15 @@ import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate } from "@tanstack/react-router"
 import type { TFunction } from "i18next"
-import { CircleAlert, Loader2 } from "lucide-react"
+import { CircleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { PendingButton } from "@/components/atoms/PendingButton"
+import { PasswordInput } from "@/components/molecules/PasswordInput"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -19,7 +20,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 
 import { useSetPassword } from "@/features/auth/hooks/useSetPassword"
 
@@ -27,16 +27,9 @@ const MIN_PASSWORD_LENGTH = 8
 
 // Built per render language so validation messages follow the UI language.
 const createSchema = (t: TFunction<"auth">) =>
-  z
-    .object({
-      email: z.string(),
-      newPassword: z.string().min(MIN_PASSWORD_LENGTH, t("setPassword.errors.tooShort")),
-      repeatPassword: z.string(),
-    })
-    .refine(({ newPassword, repeatPassword }) => newPassword === repeatPassword, {
-      path: ["repeatPassword"],
-      message: t("setPassword.errors.mismatch"),
-    })
+  z.object({
+    newPassword: z.string().min(MIN_PASSWORD_LENGTH, t("setPassword.errors.tooShort")),
+  })
 
 type FormValues = z.infer<ReturnType<typeof createSchema>>
 
@@ -46,16 +39,14 @@ type SetPasswordFormProps = {
 }
 
 /** First access: the participant who came in by magic link chooses their own password (US-04). */
-// Figma (Design system): S09 První přístup a nové heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11968-221
-// Figma (Design system): S09 Validace · krátké heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12051-159
-// Figma (Design system): S09 Validace · neshodná hesla · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12051-204
+// Figma (Design system v2): US-04 / První nastavení / Desktop · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15316-10038 (mobil 15316-10075)
 export function SetPasswordForm({ email }: SetPasswordFormProps) {
   const { t } = useTranslation("auth")
   const navigate = useNavigate()
   const schema = useMemo(() => createSchema(t), [t])
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email, newPassword: "", repeatPassword: "" },
+    defaultValues: { newPassword: "" },
   })
   const setPassword = useSetPassword()
 
@@ -73,27 +64,12 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
       <form
         noValidate
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-5"
+        className="flex flex-col gap-4"
       >
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("form.email")}</FormLabel>
-              <FormControl>
-                <Input
-                  type="email"
-                  disabled
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription className="text-xs font-medium">
-                {t("setPassword.emailHint")}
-              </FormDescription>
-            </FormItem>
-          )}
-        />
+        <dl className="flex flex-col gap-2 rounded-control bg-wash p-4">
+          <dt className="text-sm">{t("setPassword.emailLabel")}</dt>
+          <dd className="min-w-0 [overflow-wrap:anywhere]">{email}</dd>
+        </dl>
 
         <FormField
           control={form.control}
@@ -102,15 +78,15 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
             <FormItem>
               <FormLabel>{t("setPassword.newPassword")}</FormLabel>
               <FormControl>
-                <Input
-                  type="password"
+                <PasswordInput
                   autoComplete="new-password"
+                  placeholder={t("setPassword.newPasswordPlaceholder")}
                   {...field}
                 />
               </FormControl>
               <FormMessage />
               {form.formState.errors.newPassword ? null : (
-                <FormDescription className="text-xs font-medium">
+                <FormDescription className="text-foreground">
                   {t("setPassword.newPasswordHint")}
                 </FormDescription>
               )}
@@ -118,51 +94,24 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="repeatPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("setPassword.repeatPassword")}</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  autoComplete="new-password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-              {form.formState.errors.repeatPassword ? null : (
-                <FormDescription className="text-xs font-medium">
-                  {t("setPassword.repeatPasswordHint")}
-                </FormDescription>
-              )}
-            </FormItem>
-          )}
-        />
-
         {setPassword.isError ? (
-          <Alert
-            variant="destructive"
-            className="border-destructive/30 bg-destructive/10"
-          >
+          <Alert variant="destructive">
             <CircleAlert />
             <AlertTitle>{t("setPassword.errors.failedTitle")}</AlertTitle>
-            <AlertDescription className="text-destructive/90">
+            <AlertDescription className="min-w-0 [overflow-wrap:anywhere]">
               {setPassword.error.message}
             </AlertDescription>
           </Alert>
         ) : null}
 
-        <Button
+        <PendingButton
           type="submit"
           size="lg"
           className="w-full"
-          disabled={setPassword.isPending}
+          isPending={setPassword.isPending}
         >
-          {setPassword.isPending ? <Loader2 className="animate-spin" /> : null}
-          {t("setPassword.submit")}
-        </Button>
+          {setPassword.isPending ? t("state.saving", { ns: "common" }) : t("setPassword.submit")}
+        </PendingButton>
       </form>
     </Form>
   )

@@ -35,7 +35,17 @@ const room = (
   participants: ReturnType<typeof person>[] = [],
   extraBeds = 0,
   gender: "FEMALE" | "MALE" | null = "FEMALE",
-) => ({ id, name, capacity, extraBeds, beds: capacity + extraBeds, gender, participants })
+  isIndividual = false,
+) => ({
+  id,
+  name,
+  capacity,
+  extraBeds,
+  beds: capacity + extraBeds,
+  gender,
+  individual: isIndividual,
+  participants,
+})
 const warning = (over: Partial<RoomWarning> = {}): RoomWarning => ({
   kind: "OVERCROWDED",
   roomId: "r2",
@@ -111,6 +121,28 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals())
 
 describe("RoomsOverview (US-36)", () => {
+  // US-145: the organizer sees where everybody sleeps, the individual room is marked.
+  it("shows an individual room with its people and a label instead of a gender", async () => {
+    data.rooms.push(
+      room(
+        "r3",
+        "Family room",
+        4,
+        [person("p6", "Petra", "Rodinná"), person("p7", "Pavel", "Rodinný")],
+        0,
+        null,
+        true,
+      ),
+    )
+    renderOverview()
+    const family = within(await roomCard("Family room"))
+    expect(family.getByText("Petra Rodinná")).toBeInTheDocument()
+    expect(family.getByText("Pavel Rodinný")).toBeInTheDocument()
+    expect(family.getByText("2 / 4")).toBeInTheDocument()
+    expect(family.getByText("Individual")).toBeInTheDocument()
+    expect(family.queryByText("Mixed")).not.toBeInTheDocument()
+  })
+
   it("lists every room with its people, birth years, free beds and extra beds (AC1, AC2)", async () => {
     renderOverview()
     const a = within(await roomCard("Room A"))
@@ -122,7 +154,7 @@ describe("RoomsOverview (US-36)", () => {
     expect(a.getByText("b. 2011")).toBeInTheDocument()
     expect(a.getAllByText("Free bed")).toHaveLength(2)
     // The one still to evaluate is marked.
-    expect(a.getAllByText("To evaluate")).toHaveLength(1)
+    expect(a.getAllByText("Awaiting evaluation")).toHaveLength(1)
 
     const b = within(await roomCard("Room B"))
     expect(b.getByText("1 / 3")).toBeInTheDocument()
@@ -238,7 +270,7 @@ describe("RoomsOverview (US-36)", () => {
   it("puts the to-evaluate label next to the name, not into the year of birth", async () => {
     renderOverview()
     const card = within(await roomCard("Room A"))
-    const label = card.getByText("To evaluate")
+    const label = card.getByText("Awaiting evaluation")
     const name = card.getByText("Eva Horká")
     expect(label.parentElement).toBe(name.parentElement)
     expect(label.parentElement).not.toContainElement(card.getByText("b. 2010"))

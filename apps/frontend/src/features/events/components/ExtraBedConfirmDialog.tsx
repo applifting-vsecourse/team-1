@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -67,7 +67,7 @@ export function ExtraBedConfirmDialog({
   term: { termId: string; startsOn: string; endsOn: string }
   request: ExtraBedRequest
   onClose: () => void
-  onDone: (result: { roomTitle: string; isMoved: boolean }) => Promise<void>
+  onDone: (result: { room: AssignmentRoom; isMoved: boolean }) => void
 }) {
   const { t } = useTranslation("events")
   const { roomTitle } = useAssignmentLabels()
@@ -95,7 +95,7 @@ export function ExtraBedConfirmDialog({
     } catch {
       return
     }
-    await onDone({ roomTitle: roomTitle(room), isMoved: request.isMove })
+    onDone({ room, isMoved: request.isMove })
     onClose()
   }
   // The terms the participant ends up in, and those among them that get an extra bed.
@@ -274,16 +274,15 @@ export function ExtraBedConfirmDialog({
                 {t("roomAssignments.cancel")}
               </Button>
             </DialogClose>
-            <Button
+            <PendingButton
+              isPending={isPending}
               type="button"
               size="lg"
               className="max-sm:flex-1 sm:w-55"
-              disabled={isPending}
               onClick={() => void confirm()}
             >
-              {isPending ? <Loader2 className="animate-spin" /> : null}
               {t(withBed.length > 0 ? "extraBedDialog.confirm" : "roomAssignments.save")}
-            </Button>
+            </PendingButton>
           </DialogFooter>
         </div>
       </DialogContent>

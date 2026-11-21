@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DetailItem } from "@/components/molecules/DetailItem"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -40,7 +41,7 @@ import {
 
 export type ChangeMode = "change" | "cancel"
 
-// Figma (Design system): Detail přihlášky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15649-211 (mobile: 15649-293)
+// Figma (Design system v2): Detail přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-211 (mobile: 15649-293)
 export function ParticipantTermActions({
   application,
   onStart,
@@ -83,9 +84,9 @@ export function ParticipantTermActions({
  * US-84 / #408: the participant changes a term or cancels from a dialog over the application
  * detail. The result is a toast; there is no result page.
  */
-// Figma (Design system): #408 Dialog · změna termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22640-37880 (mobile: 22640-38042)
-// Figma (Design system): #408 Dialog · odhlášení termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22640-38153 (mobile: 22640-38316)
-// Figma (Design system): #408 Dialog · žádost o odhlášení · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22640-38428 (mobile: 22640-38601)
+// Figma (Design system v2): #408 Dialog · změna termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-37880 (mobile: 22640-38042)
+// Figma (Design system v2): #408 Dialog · odhlášení termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-38153 (mobile: 22640-38316)
+// Figma (Design system v2): #408 Dialog · žádost o odhlášení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-38428 (mobile: 22640-38601)
 export function ParticipantTermChange({
   application,
   mode,
@@ -384,7 +385,8 @@ export function ParticipantTermChange({
               {t("change.discard")}
             </Button>
             {!options.isPending && !options.isError ? (
-              <Button
+              <PendingButton
+                isPending={mutation.isPending}
                 size="lg"
                 className="flex-2"
                 variant={mode === "cancel" && isImmediate ? "destructive" : "default"}
@@ -400,7 +402,7 @@ export function ParticipantTermChange({
                         ? "change.confirmCancel"
                         : "change.confirmChange",
                 )}
-              </Button>
+              </PendingButton>
             ) : null}
           </DialogFooter>
         </div>

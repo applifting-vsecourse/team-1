@@ -6,7 +6,7 @@ import {
   ProgramOverlap,
   TermInfo,
 } from "@/modules/program/domain/program"
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
+import { ApiProperty, ApiPropertyOptional, OmitType } from "@nestjs/swagger"
 import { Transform } from "class-transformer"
 import { IsIn, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
@@ -111,12 +111,16 @@ export class ProgramCopyRequestDto {
 }
 
 export class ProgramOverlapDto implements ProgramOverlap {
+  @ApiProperty() startTime!: string
+  @ApiProperty() endTime!: string
   @ApiProperty({ example: "2027-07-12" }) date!: string
   @ApiProperty({ description: "Name of the copied block" }) first!: string
   @ApiProperty({ description: "Name of the block it overlaps" }) second!: string
 }
 
+export class CopiedProgramBlockDto extends OmitType(ProgramBlockDto, ["id"] as const) {}
 export class ProgramCopyResponseDto {
+  @ApiProperty({ type: [CopiedProgramBlockDto] }) blocks!: CopiedProgramBlockDto[]
   @ApiProperty() copied!: number
   @ApiProperty({ description: "Source blocks from days the target term does not have" })
   skipped!: number

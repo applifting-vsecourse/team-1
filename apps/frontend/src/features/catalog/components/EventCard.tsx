@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { LogoSymbol } from "@/components/atoms/Logo"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
@@ -11,9 +10,7 @@ import { termName } from "@/lib/term-label"
 
 import { catalogEventPhotoUrl, type CatalogEvent } from "@/features/catalog/api/catalog"
 
-// Figma (Design system): Togena / Event card v katalogu
-// desktop · Katalog organizací · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10083
-// mobil · Katalog organizací · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16146-10109
+// Figma v2: public catalog event cards · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-12072 (mobile 22640-12173)
 /** One published event; the whole card opens the event page. */
 export function EventCard({ event }: { event: CatalogEvent }) {
   const { t } = useTranslation("catalog")
@@ -22,9 +19,9 @@ export function EventCard({ event }: { event: CatalogEvent }) {
     <Link
       to={ROUTES.event}
       params={{ publicToken: event.publicToken }}
-      className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="group block rounded-lg outline-none"
     >
-      <Card className="h-full gap-0 overflow-hidden p-0 transition-colors group-hover:border-primary">
+      <Card className="h-full min-h-[214px] gap-0 overflow-hidden p-0 shadow-none transition-colors group-hover:border-field-border group-focus-visible:min-h-[216px] group-focus-visible:border-2 group-focus-visible:border-ring">
         {event.hasPhoto ? (
           <img
             src={catalogEventPhotoUrl(event.publicToken)}
@@ -32,14 +29,10 @@ export function EventCard({ event }: { event: CatalogEvent }) {
             loading="lazy"
             className="h-44 w-full border-b border-border object-cover"
           />
-        ) : (
-          <div className="flex h-44 items-center justify-center border-b border-border bg-accent">
-            <LogoSymbol className="size-14 text-primary" />
-          </div>
-        )}
+        ) : null}
         <div className="flex flex-1 flex-col gap-3 p-5">
-          <p className="text-sm text-muted-foreground">{event.organizationName}</p>
-          <h2 className="text-2xl/8 font-bold tracking-tight">{event.name}</h2>
+          <span className="sr-only">{event.organizationName}</span>
+          <h3 className="text-2xl/8 font-bold">{event.name}</h3>
           {event.terms.length > 0 ? (
             <ul>
               {event.terms.map((term) => (
@@ -58,7 +51,11 @@ export function EventCard({ event }: { event: CatalogEvent }) {
           {event.location ? (
             <p className="text-sm text-muted-foreground">{event.location}</p>
           ) : null}
-          <Badge>
+          <Badge
+            className={
+              event.isOpenForApplications ? "bg-primary text-primary-foreground" : undefined
+            }
+          >
             {event.isOpenForApplications ? t("list.badgeOpen") : t("list.badgePublished")}
           </Badge>
           {event.termCount > 0 && event.fromPriceCzk !== null ? (

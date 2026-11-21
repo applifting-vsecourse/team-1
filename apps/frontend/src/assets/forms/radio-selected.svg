@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Control">
+<mask id="path-1-inside-1_0_7" fill="white">
+<path d="M0 12C0 5.37258 5.37258 0 12 0V0C18.6274 0 24 5.37258 24 12V12C24 18.6274 18.6274 24 12 24V24C5.37258 24 0 18.6274 0 12V12Z"/>
+</mask>
+<path d="M0 12C0 5.37258 5.37258 0 12 0V0C18.6274 0 24 5.37258 24 12V12C24 18.6274 18.6274 24 12 24V24C5.37258 24 0 18.6274 0 12V12Z" fill="white"/>
+<path d="M0 12M24 12M24 12M0 12M12 0M24 12M12 24M0 12M12 24V23C5.92487 23 1 18.0751 1 12H0H-1C-1 19.1797 4.8203 25 12 25V24ZM24 12H23C23 18.0751 18.0751 23 12 23V24V25C19.1797 25 25 19.1797 25 12H24ZM12 0V1C18.0751 1 23 5.92487 23 12H24H25C25 4.8203 19.1797 -1 12 -1V0ZM12 0V-1C4.8203 -1 -1 4.8203 -1 12H0H1C1 5.92487 5.92487 1 12 1V0Z" fill="#007F72" mask="url(#path-1-inside-1_0_7)"/>
+<circle id="Ellipse" cx="12" cy="12" r="6" fill="#007F72"/>
+</g>
+</svg>

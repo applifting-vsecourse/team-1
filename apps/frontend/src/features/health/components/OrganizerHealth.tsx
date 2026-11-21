@@ -1,18 +1,22 @@
 import { useQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { PageHeader } from "@/components/molecules/PageHeader"
+import { SectionHeader } from "@/components/molecules/SectionHeader"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 
 import { organizerHealthQueryOptions } from "@/features/health/api/health"
 
 /** The participant's health restriction with the time of the explicit consent — organizers only. */
-// Figma (Design system): #68 / Zdravotní omezení · Adam Dvořák · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13718 (360 px: node-id=19795-13852)
+// Figma v2: US-68 Zdravotní omezení poskytnuto · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21218-65048 (mobile 21218-65162, empty 21218-65214 / 21218-65318).
 export function OrganizerHealth({
   eventId,
   applicationId,
@@ -42,20 +46,50 @@ export function OrganizerHealth({
       >
         {t("backToApplication")}
       </BackLink>
-      <PageHeader title={t("organizerTitle", { name: `${data.firstName} ${data.lastName}` })} />
-      <Card className="gap-4 p-4 shadow-none">
-        <h2 className="text-2xl font-bold">{t("organizerCardTitle")}</h2>
+      <SectionHeader
+        title={t("title")}
+        description={`${data.firstName} ${data.lastName} · ${data.eventName}`}
+      />
+      <Card className="gap-4 p-4 md:p-6">
+        <h3 className="text-xl font-bold tracking-tight md:text-2xl">{t("organizerCardTitle")}</h3>
         {data.note !== null && data.consentAt !== null ? (
           <>
             <p className="break-words whitespace-pre-line">{data.note}</p>
-            <p>{t("consentGiven", { at: formatDateTime(data.consentAt) })}</p>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm text-muted-foreground">{t("consentGiven")}</p>
+              <p>{formatDateTime(data.consentAt)}</p>
+            </div>
           </>
         ) : data.noRestriction ? (
           <p>{t("organizerNoRestriction")}</p>
         ) : (
-          <p>{t("notFilled")}</p>
+          <>
+            <p>{t("notFilled")}</p>
+            <p className="text-muted-foreground">{t("notFilledHint")}</p>
+          </>
         )}
       </Card>
+      <Alert
+        role="note"
+        className="bg-muted"
+      >
+        <TriangleAlert aria-hidden="true" />
+        <AlertTitle>{t("organizerAccessTitle")}</AlertTitle>
+        <AlertDescription>{t("organizerAccessText")}</AlertDescription>
+      </Alert>
+      <Button
+        asChild
+        variant="outline"
+        size="lg"
+        className="self-start"
+      >
+        <Link
+          to={ROUTES.organizer.eventMeals}
+          params={{ eventId }}
+        >
+          {t("goMeals")}
+        </Link>
+      </Button>
     </div>
   )
 }

@@ -259,7 +259,11 @@ function RoomOverviewCard({ room }: { room: AssignmentRoom }) {
                   variant="secondary"
                   className="print:border-0 print:bg-transparent print:p-0 print:font-normal print:text-black/70 print:lowercase"
                 >
-                  {room.gender ? roomGenderLabel(room.gender) : t("roomOverview.mixed")}
+                  {room.individual
+                    ? t("rooms.individual")
+                    : room.gender
+                      ? roomGenderLabel(room.gender)
+                      : t("roomOverview.mixed")}
                 </Badge>
               </div>
               <div className="flex items-center gap-3">
@@ -414,7 +418,7 @@ function WithoutRoomCard({ people }: { people: UnassignedParticipant[] }) {
             <span className="flex min-w-0 flex-col gap-0.5">
               <span className="font-medium break-words">{participantName(person)}</span>
               <span className="text-sm text-muted-foreground print:hidden">
-                {genderLabel(person.gender)} · {statusLabel(person.status, person.gender)}
+                {genderLabel(person.gender)} · {statusLabel(person.status)}
               </span>
             </span>
             <BirthYear year={person.birthYear} />

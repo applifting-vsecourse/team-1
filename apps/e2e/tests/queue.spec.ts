@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test"
 import { MANUAL_EVENT_LINK, ORGANIZER } from "./support/accounts"
 import { openEventList, signIn } from "./support/auth"
 
-// US-103: in the manual mode a submitted application waits for the organizer in the queue "To evaluate".
+// US-103: in the manual mode a submitted application waits for the organizer in the queue "Awaiting evaluation".
 test.describe("Queue to evaluate", () => {
   test("applicant submits in the manual mode, organizer sees the application in the queue", async ({
     page,
@@ -16,12 +16,13 @@ test.describe("Queue to evaluate", () => {
     await page.getByLabel("Gender").click()
     await page.getByRole("option", { name: "Woman", exact: true }).click()
     await page
-      .getByRole("group", { name: /Choose terms/ })
+      .getByRole("group", { name: /Choose at least one term/ })
       .getByRole("checkbox")
       .first()
       .check()
     await page.getByLabel("Contact e-mail").fill(`fronta-${unique}@example.com`)
     await page.getByLabel(/I agree to the processing/).check()
+    await page.getByRole("button", { name: "Continue to review" }).click()
     await page.getByRole("button", { name: "Submit application" }).click()
     await expect(page).toHaveURL(/\/apply\/confirmation\//)
 
@@ -33,7 +34,7 @@ test.describe("Queue to evaluate", () => {
       .getByRole("navigation", { name: "Event sections" })
       .getByRole("link", { name: "Applications" })
       .click()
-    await page.getByRole("radio", { name: "To evaluate" }).click()
+    await page.getByRole("radio", { name: "Awaiting evaluation" }).click()
 
     const row = page.getByRole("row", { name: new RegExp(`Lenka Fronta ${unique}`) })
     await expect(row).toBeVisible()

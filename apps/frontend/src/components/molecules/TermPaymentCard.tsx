@@ -50,7 +50,7 @@ type TermPaymentCardProps = {
 
 const badgeVariant = {
   NOTHING_DUE: "secondary",
-  UNPAID: "secondary",
+  UNPAID: "neutral",
   PARTIALLY_PAID: "warning",
   PAID: "success",
   OVERPAID: "info",
@@ -65,7 +65,7 @@ const badgeVariant = {
 // Figma (Design system): #311 Moje přihláška · Adam Dvořák · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15345 (360 px: node-id=19799-15493)
 // Figma (Design system): #311 Moje přihláška · Zaplaceno a termín zdarma · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15771 (360 px: node-id=19799-15884)
 // Figma (Design system): #311 Moje přihláška · Přeplatek a dluh · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15947 (360 px: node-id=19799-16073)
-// Figma (Design system): Karta termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19446-14246
+// Figma (Design system v2): Karta termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19446-14022
 // Figma (Design system): Detail přihlášky · Platby · Dluh 500 + 700 Kč · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-628 (360 px: node-id=15845-736)
 // Figma (Design system): Detail přihlášky · Platby · Oba termíny zaplacené #203 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19446-22050 (360 px: node-id=19446-22404)
 // Figma (Design system): Detail přihlášky · Platby · Jeden termín rozbalený #203 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19446-22213 (360 px: node-id=19446-22517)
@@ -89,8 +89,8 @@ export function TermPaymentCard({
 
   if (status === "WAITLISTED" || status === "TO_EVALUATE" || status === "CANCELLED") {
     return (
-      <Card className="gap-2 p-6">
-        <h3 className="text-lg font-semibold">
+      <Card className="gap-4 p-4 shadow-none">
+        <h3 className="flex min-h-11 items-center text-xl/7 font-bold">
           {title}
           {isStatusSeparate ? null : <> · {t(`termPayment.status.${status}`)}</>}
         </h3>
@@ -110,8 +110,8 @@ export function TermPaymentCard({
     <Badge variant={badgeVariant[status]}>{t(`termPayment.status.${status}`)}</Badge>
   )
   const heading = (
-    <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
-      <span className="text-lg font-semibold">
+    <span className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1">
+      <span className="text-xl/7 font-bold">
         {title}
         {/* The accessible name reads "12.–18. 7. 2027, Paid". */}
         <span className="sr-only">{", "}</span>
@@ -136,9 +136,9 @@ export function TermPaymentCard({
         </Row>
       </dl>
       {status === "UNPAID" || status === "PARTIALLY_PAID" || status === "PAID" ? (
-        <div className="flex flex-col gap-1">
-          <h4 className="text-sm font-semibold">{t("termPayment.paymentDetails")}</h4>
-          <dl className={isStacked ? "flex flex-col gap-3 text-sm" : "flex flex-col text-sm"}>
+        <div className="flex flex-col gap-2">
+          <h4 className="text-sm font-medium">{t("termPayment.paymentDetails")}</h4>
+          <dl className={isStacked ? "flex flex-col gap-3 text-sm" : "flex flex-col gap-2 text-sm"}>
             {owedCzk > 0 ? (
               <CopyRow
                 isStacked={isStacked}
@@ -186,7 +186,7 @@ export function TermPaymentCard({
   // A paid term, or one with a payment QR (US-41), starts collapsed so the cards of a list read alike.
   if (status === "PAID" || qr !== undefined) {
     return (
-      <Card className="gap-0 p-0">
+      <Card className="gap-0 p-4 shadow-none">
         <Accordion
           type="single"
           defaultValue={isInitiallyOpen ? "detail" : undefined}
@@ -196,10 +196,10 @@ export function TermPaymentCard({
             value="detail"
             className="border-b-0"
           >
-            <AccordionTrigger className="min-h-11 items-center px-6 hover:no-underline">
+            <AccordionTrigger className="min-h-11 items-center gap-3 rounded-md px-2 py-0 hover:bg-action-subtle hover:no-underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset [&>svg]:size-5 [&>svg]:translate-y-0">
               {heading}
             </AccordionTrigger>
-            <AccordionContent className="flex flex-col gap-4 px-6">
+            <AccordionContent className="flex flex-col gap-4 pt-4 pb-0">
               {detail}
               {action}
             </AccordionContent>
@@ -210,7 +210,7 @@ export function TermPaymentCard({
   }
 
   return (
-    <Card className="gap-4 p-6">
+    <Card className="gap-4 p-4 shadow-none">
       <h3>{heading}</h3>
       {detail}
       {action}
@@ -248,9 +248,9 @@ function Row({
   children: ReactNode
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-4">
+    <div className="flex min-h-6 items-center justify-between gap-3">
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className={isLarge ? "text-base font-medium" : undefined}>{children}</dd>
+      <dd className={isLarge ? "text-base" : undefined}>{children}</dd>
     </div>
   )
 }
@@ -284,9 +284,9 @@ function CopyRow({
     )
   }
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex items-center justify-between gap-3">
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className="flex min-w-0 items-center gap-2">
+      <dd className="flex min-w-0 items-center gap-3">
         {children}
         <CopyButton
           value={value}

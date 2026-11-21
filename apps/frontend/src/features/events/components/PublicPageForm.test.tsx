@@ -1,4 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRouter,
+  RouterContextProvider,
+} from "@tanstack/react-router"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
@@ -22,6 +28,11 @@ vi.stubGlobal(
   },
 )
 
+// Form tests share the HTTP responder below. The upload transport is exercised in a browser.
+vi.mock("@/features/events/api/photo-upload", () => ({
+  photoUploadTransport: () => globalThis.fetch,
+}))
+
 const event: OrganizerEvent = {
   id: "e1",
   organizationId: "o1",
@@ -41,6 +52,7 @@ const event: OrganizerEvent = {
   endsOn: "2027-07-25",
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
+  evaluationModePending: false,
   cancellationStartsOn: null,
   cancellationTerms: null,
   evaluationModeLocked: false,
@@ -115,11 +127,14 @@ function renderForm(
     sent.push(item)
     return respond(item)
   })
+  const router = createRouter({ routeTree: createRootRoute(), history: createMemoryHistory() })
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <PublicPageForm event={current} />
+      <RouterContextProvider router={router}>
+        <PublicPageForm event={current} />
+      </RouterContextProvider>
     </QueryClientProvider>,
   )
   return sent
@@ -150,6 +165,19 @@ describe("PublicPageForm", () => {
     await open(user)
 
     expect(screen.getByLabelText("Event name")).toHaveValue("Letní kemp Lipno 2027")
+  })
+
+  it("links to term management and previews an accessible event", async () => {
+    renderForm({ ...event, applicationsOpen: true })
+    await open(userEvent.setup())
+    expect(screen.getByRole("link", { name: "Edit terms and prices" })).toHaveAttribute(
+      "href",
+      "/organizer/events/e1/terms",
+    )
+    expect(screen.getByRole("link", { name: "Preview public page" })).toHaveAttribute(
+      "href",
+      "/events/tok123",
+    )
   })
 
   it("shows the saved content with the catalog switched off by default", async () => {
@@ -226,7 +254,7 @@ describe("PublicPageForm", () => {
     await vi.waitFor(() =>
       expect(notify.success).toHaveBeenCalledWith(
         "Public details are saved.",
-        "The event is listed in the catalog.",
+        "The event is listed in the catalog. The public event page shows the same details.",
       ),
     )
     expect(screen.getByRole("button", { name: "Public details" })).toHaveAttribute(

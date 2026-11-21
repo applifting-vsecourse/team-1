@@ -47,6 +47,8 @@ export type TermStatusDetail = {
   endsOn: Date
   status: ApplicationTermStatus
   priceCzk: number
+  /** Current 1-based place in the term and bed group, null unless waitlisted. */
+  waitlistPosition: number | null
   history: StatusChangeEntry[]
   /** Records of confirmations from the waitlist in which the application was confirmed or skipped. */
   substituteRecords: SubstituteRecord[]
@@ -81,6 +83,7 @@ export type StatusChangeResult = {
   bankAccount: string
   /** The changed term: its name, else its dates. */
   termName: string
+  hadPayment?: boolean
   /** Of the participant: the Czech copy of the e-mail is gendered. */
   gender: Gender
   application: {

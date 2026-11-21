@@ -126,17 +126,30 @@ describe("DateField", () => {
     expect(screen.getByRole("button", { name: /, 10 May 2014$/ })).toBeEnabled()
     expect(screen.getByRole("button", { name: /, 25 May 2014$/ })).toBeEnabled()
     expect(screen.getByRole("button", { name: /, 26 May 2014$/ })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Next month" })).toBeDisabled()
+    await userEvent.click(screen.getByRole("button", { name: "May 2014" }))
+    expect(screen.getByRole("button", { name: "June" })).toBeDisabled()
+    await userEvent.click(screen.getByRole("button", { name: "2014" }))
+    expect(screen.getByRole("button", { name: "2013" })).toBeDisabled()
+    await userEvent.click(screen.getByRole("button", { name: "Back to day selection" }))
+    expect(value()).toBe("2014-05-18")
   })
 
-  it("starts the week on Monday and offers month and year selects", async () => {
+  it("starts on Monday and navigates the month and year grids without changing the selected day", async () => {
     render(<Harness initial="2014-05-18" />)
     await userEvent.click(screen.getByRole("button", { name: "Choose a date in the calendar" }))
 
     const headers = screen.getAllByRole("columnheader", { hidden: true })
     expect(headers).toHaveLength(7)
     expect(headers[0]).toHaveTextContent(/^Mo/)
-    expect(screen.getByRole("combobox", { name: "Month" })).toHaveTextContent("May")
-    expect(screen.getByRole("combobox", { name: "Year" })).toHaveTextContent("2014")
+    await userEvent.click(screen.getByRole("button", { name: "May 2014" }))
+    expect(screen.getByRole("button", { name: "May" })).toHaveAttribute("aria-pressed", "true")
+    await userEvent.click(screen.getByRole("button", { name: "2014" }))
+    await userEvent.click(screen.getByRole("button", { name: "Next 12 years" }))
+    await userEvent.click(screen.getByRole("button", { name: "2027" }))
+    await userEvent.click(screen.getByRole("button", { name: "July" }))
+    expect(screen.getByRole("button", { name: "July 2027" })).toHaveFocus()
+    expect(value()).toBe("2014-05-18")
   })
 
   it("shows the Czech format and names, and re-renders the value when the language changes", async () => {
@@ -150,7 +163,7 @@ describe("DateField", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Vybrat datum v kalendáři" }))
     expect(screen.getAllByRole("columnheader", { hidden: true })[0]).toHaveTextContent(/^Po$/)
-    expect(screen.getByRole("combobox", { name: "Měsíc" })).toHaveTextContent("květen")
+    expect(screen.getByRole("button", { name: "Květen 2014" })).toBeInTheDocument()
     expect(
       screen.getAllByRole("columnheader", { hidden: true }).map((header) => header.textContent),
     ).toEqual(["Po", "Út", "St", "Čt", "Pá", "So", "Ne"])

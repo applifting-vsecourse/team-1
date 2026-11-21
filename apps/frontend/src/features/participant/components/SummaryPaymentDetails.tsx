@@ -1,22 +1,18 @@
 import type { ReactNode } from "react"
-import { Download } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { CopyButton } from "@/components/atoms/CopyButton"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
-import { Button } from "@/components/ui/button"
+import { PaymentQrDownload } from "@/components/molecules/PaymentQrDownload"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
+import { summaryPaymentSpayd } from "@/lib/payment-qr"
 
 import type { MyApplication } from "@/features/participant/api/applications"
-import { usePaymentQr } from "@/features/participant/hooks/usePaymentQr"
-import { summaryPaymentSpayd } from "@/features/participant/lib/payment-qr"
 
 type Props = { application: MyApplication }
 
-// Figma (Design system): US-127 / Detail přihlášky · Dialog: Platby · souhrnné QR · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16290-2854
-// Figma (Design system): US-127 / Detail přihlášky · Dialog: Platby · souhrnné QR / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16290-2921
-// Figma (Design system): #311 Moje přihláška · Adam Dvořák · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15345 (360 px: node-id=19799-15493)
+// Figma (Design system v2): #311 Moje přihláška · Dluh ve dvou termínech · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22448-25936 (360 px: node-id=22448-26089)
 export function SummaryPaymentDetails({ application }: Props) {
   const { t } = useTranslation(["participant", "common"])
   const details = application.paymentDetails!
@@ -33,17 +29,7 @@ export function SummaryPaymentDetails({ application }: Props) {
     details.summary.variableSymbol,
     application.eventName,
   )
-  const qrImage = usePaymentQr(spayd)
 
-  const saveQr = () => {
-    if (!qrImage) return
-    const link = document.createElement("a")
-    link.href = qrImage
-    link.download = `qr-${details.summary.variableSymbol}.png`
-    link.click()
-  }
-
-  // #311 explicitly places the combined payment QR on the page; the linked Figma still draws a dialog.
   return (
     <Card className="gap-4 p-6">
       <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
@@ -92,26 +78,10 @@ export function SummaryPaymentDetails({ application }: Props) {
           </dd>
         </div>
       </dl>
-      <div className="flex flex-col items-center gap-2">
-        {qrImage ? (
-          <img
-            src={qrImage}
-            width={200}
-            height={200}
-            className="size-40 sm:size-32"
-            alt={t("payment.qrAlt")}
-          />
-        ) : null}
-        <Button
-          type="button"
-          variant="outline"
-          disabled={!qrImage}
-          onClick={saveQr}
-        >
-          <Download aria-hidden="true" />
-          {t("payment.saveQr")}
-        </Button>
-      </div>
+      <PaymentQrDownload
+        spayd={spayd}
+        variableSymbol={details.summary.variableSymbol}
+      />
       <p className="text-sm text-muted-foreground">{t("payment.summaryQrExplanation")}</p>
       {details.terms.some((term) => term.owedCzk < 0) ? (
         <p className="text-sm">{t("payment.overpaymentNotTransferred")}</p>

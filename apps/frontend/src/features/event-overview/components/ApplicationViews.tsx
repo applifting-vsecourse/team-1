@@ -17,6 +17,7 @@ const VIEWS = [
 const isView = (status: ApplicationsSearch["status"]): status is "TO_EVALUATE" | "WAITLISTED" =>
   status === "TO_EVALUATE" || status === "WAITLISTED"
 
+// Figma v2: https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=25587-109801
 // Figma (Design system): US-103 Přihlášky · Fronta od nejstarších, chips "Pohledy přihlášek podle dema" · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16852-31378
 // The chips and the status filter read and write the same `status` param, so they cannot disagree.
 export function ApplicationViews({
@@ -34,10 +35,10 @@ export function ApplicationViews({
   return (
     <ToggleGroup
       type="single"
-      variant="outline"
+      variant="default"
       spacing={2}
       aria-label={t("queue.views")}
-      className="flex-wrap"
+      className="max-w-full flex-wrap justify-start rounded-none border-b"
       // The queue and the waitlist are views of their own; any other status is still "All".
       value={
         filters.view === "CHANGE_REQUESTS"
@@ -74,7 +75,7 @@ export function ApplicationViews({
               ? t("queue.proposalCount", { view: t(`queue.${view.key}`), count: proposalCount })
               : undefined
           }
-          className="h-9 rounded-full px-3 data-[state=on]:border-border data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
+          className="h-auto rounded-none border-0 border-b border-border px-3 py-2 text-sm leading-5 font-medium shadow-none hover:bg-wash hover:text-foreground focus-visible:border-2 focus-visible:border-ring focus-visible:ring-0 data-[state=on]:border-b-2 data-[state=on]:border-primary data-[state=on]:bg-transparent data-[state=on]:text-link"
         >
           {t(`queue.${view.key}`)}
           {view.value === "WAITLISTED" && proposalCount > 0 ? (

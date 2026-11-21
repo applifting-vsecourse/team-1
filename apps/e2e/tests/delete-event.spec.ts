@@ -19,7 +19,7 @@ test.describe("Delete event", () => {
     await page.getByRole("dialog").getByRole("button", { name: "Delete event" }).click()
 
     await expect(page.getByText(`Event ${name} has been deleted`)).toBeVisible()
-    await expect(page.getByRole("heading", { level: 1, name: "Event list" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Events" })).toBeVisible()
     await expect(page.getByRole("link", { name: new RegExp(name) })).toHaveCount(0)
   })
 

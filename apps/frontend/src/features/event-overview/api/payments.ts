@@ -76,7 +76,12 @@ const path = (id: string) => `organizer/applications/${encodeURIComponent(id)}/p
 const correctionPreviewSchema = z.object({
   amountOwedCzk: z.number().int(),
   terms: z.array(
-    z.object({ termId: z.string(), owedCzk: z.number().int(), changeCzk: z.number().int() }),
+    z.object({
+      termId: z.string(),
+      owedCzk: z.number().int(),
+      changeCzk: z.number().int(),
+      allocatedCzk: z.number().int().optional(),
+    }),
   ),
 })
 

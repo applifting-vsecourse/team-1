@@ -23,6 +23,7 @@ const term = (id: string, name: string, startsOn: string, endsOn: string) =>
     allowedStatuses: [],
     history: [],
     substituteRecords: [],
+    waitlistPosition: null,
   }) as TermStatusDetail
 const terms = [
   term("t1", "First", "2027-07-12", "2027-07-18"),
@@ -94,7 +95,12 @@ describe("OrganizerWithdrawal", () => {
     expect(within(dialog).getByRole("heading", { name: "Withdraw participant" })).toBeVisible()
     expect(await within(dialog).findByText("Debt after withdrawal")).toBeVisible()
     expect(within(dialog).getByText("Overpayment")).toBeVisible()
-    expect(within(dialog).getByText("The other term stays unchanged.")).toBeVisible()
+    // Only the impact and the refund warning: no reassurances, no e-mail or history notes.
+    expect(within(dialog).getByText("The payment is not refunded automatically")).toBeVisible()
+    expect(within(dialog).getByText("Record the refund manually.")).toBeVisible()
+    expect(within(dialog).queryByText(/other term/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/e-mail/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/history/i)).not.toBeInTheDocument()
     expect(get).toHaveBeenCalledWith(
       "organizer/applications/a1/terms/withdraw-preview",
       expect.objectContaining({ searchParams: { termIds: "t1" } }),
@@ -109,6 +115,27 @@ describe("OrganizerWithdrawal", () => {
     })
   })
 
+  it("explains that withdrawing a waitlisted term releases no bed and has no financial impact", async () => {
+    get.mockImplementation((path: string) => ({
+      json: () =>
+        Promise.resolve(
+          path.endsWith("withdraw-preview")
+            ? {
+                terms: [
+                  { ...row("t2", true, 0, 0), status: "WAITLISTED", hasFinancialImpact: false },
+                ],
+                overpaymentCzk: 0,
+              }
+            : application,
+        ),
+    }))
+    setup("t2")
+    expect(
+      await screen.findByText("No bed is assigned. The financial impact is zero."),
+    ).toBeVisible()
+    expect(screen.queryByText("The payment is not refunded automatically")).toBeNull()
+    expect(screen.getByRole("button", { name: "Withdraw waitlisted participant" })).toBeEnabled()
+  })
   it("withdraws from the whole application with the impact per term", async () => {
     const onClose = setup(null)
     const user = userEvent.setup()

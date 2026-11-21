@@ -197,4 +197,19 @@ describe("room proposal (integration)", () => {
     expect((await prisma.room.findUniqueOrThrow({ where: { id: boysRoom } })).extraBeds).toBe(0)
     expect(await prisma.roomAssignment.count({ where: { room: { termId } } })).toBe(0)
   })
+
+  // US-145: a room that became individual after the proposal is no target any more.
+  it("refuses to save a proposal into an individual room", async () => {
+    const family = await prisma.room.create({
+      data: { organizationId, termId, name: "Rodinný US-145", capacity: 4, individual: true },
+    })
+    const girl = await makePerson("Iva", "Rodinná", "FEMALE")
+    const response = await call(`${base()}/bulk`, "POST", {
+      assignments: [{ applicationTermId: girl, roomId: family.id }],
+    })
+    expect(response.status).toBe(409)
+    expect(((await response.json()) as { code: string }).code).toBe("ROOM_PROPOSAL_OUTDATED")
+    expect(await prisma.roomAssignment.count({ where: { roomId: family.id } })).toBe(0)
+    await prisma.room.delete({ where: { id: family.id } })
+  })
 })

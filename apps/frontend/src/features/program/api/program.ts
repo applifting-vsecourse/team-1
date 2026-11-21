@@ -87,9 +87,18 @@ export async function deleteProgramBlock(eventId: string, id: string): Promise<v
 export type ProgramCopyStrategy = "ADD" | "REPLACE"
 const copyResultSchema = z.object({
   copied: z.number(),
+  blocks: z.array(blockSchema.omit({ id: true })).optional(),
   /** Source blocks from days the target term does not have. */
   skipped: z.number(),
-  overlaps: z.array(z.object({ date: z.string(), first: z.string(), second: z.string() })),
+  overlaps: z.array(
+    z.object({
+      date: z.string(),
+      first: z.string(),
+      second: z.string(),
+      startTime: z.string().optional(),
+      endTime: z.string().optional(),
+    }),
+  ),
 })
 export type ProgramCopyResult = z.infer<typeof copyResultSchema>
 

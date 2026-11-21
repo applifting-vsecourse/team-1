@@ -180,10 +180,44 @@ describe("bulk decisions on the queue (US-107, US-108)", () => {
     await user.click(within(dialog).getByRole("button", { name: "Confirm applications" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
     expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/bulk-confirmation", {
-      json: { applicationIds: ["a1", "a2", "a3"] },
+      json: { applicationIds: ["a1", "a3"] },
     })
     // Back on the list of all applications.
     expect(onFiltersChange).toHaveBeenLastCalledWith({ term: "t1" })
+  })
+
+  it("asks for confirmation again if the capacity preview changed", async () => {
+    setup()
+    const user = userEvent.setup()
+    await selectAll(user)
+    await user.click(screen.getByRole("button", { name: "Confirm" }))
+    const dialog = within(await screen.findByRole("dialog"))
+    await dialog.findByText("Will be confirmed")
+    const changed = {
+      selectedCount: 3,
+      freePlaces: { FEMALE: 1, MALE: 0 },
+      freePlacesAfter: { FEMALE: 0, MALE: 0 },
+      isShared: false,
+      confirmable: [named("a3", "Jana Test")],
+      skipped: [named("a1", "Adam Test"), named("a2", "Petr Test")],
+    }
+    post.mockImplementation((path: string) => ({
+      json: () =>
+        Promise.resolve(path.endsWith("preview") ? changed : { confirmed: ["a3"], unchanged: [] }),
+    }))
+    const submit = dialog.getByRole("button", { name: "Confirm applications" })
+    await user.click(submit)
+    await dialog.findByText("The evaluation result has changed")
+    expect(post).not.toHaveBeenCalledWith(
+      "organizer/events/e1/terms/t1/bulk-confirmation",
+      expect.anything(),
+    )
+    await user.click(submit)
+    await waitFor(() =>
+      expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/bulk-confirmation", {
+        json: { applicationIds: ["a3"] },
+      }),
+    )
   })
 
   it.each([

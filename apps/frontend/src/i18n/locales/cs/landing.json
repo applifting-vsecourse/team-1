@@ -38,16 +38,15 @@
     "participants": "Pro účastníky"
   },
   "organizerCta": "Jsem organizátor",
-  "participantCta": "Jsem účastník",
   "participants": {
     "body": "Zájemce si z odkazu vybere termín nebo více termínů a po odeslání vidí stav každého z nich.",
     "title": "Účastníci se přihlásí z odkazu bez registrace"
   },
   "preview": {
-    "confirmed": "Potvrzeno 51",
-    "event": "Letní tábor Sokolí hnízdo",
+    "confirmed": "Potvrzeno 139",
+    "event": "Letní tábor Modrá Hora",
     "paid": "Zaplaceno",
-    "waitlist": "Náhradníci 7"
+    "waitlist": "Náhradníci 9"
   },
   "title": "Přihlášky na akce s více termíny",
   "titleAccent": "bez zmatku",

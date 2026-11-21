@@ -1,5 +1,6 @@
 import { Locale } from "@/core/email/locale"
-import { Body, Container, Head, Heading, Html, Preview, Tailwind, Text } from "react-email"
+import { Text } from "react-email"
+import { EmailLayout } from "@/core/email/email-kit"
 import * as React from "react"
 
 const copy: Record<
@@ -55,25 +56,20 @@ export function ChangeRequestStatus({
   const text = copy[locale]
   const heading = status === "PENDING" ? text.pending : text.rejected
   return (
-    <Html lang={locale}>
-      <Head />
-      <Preview>{heading}</Preview>
-      <Tailwind>
-        <Body className="bg-gray-50 font-sans py-10">
-          <Container className="bg-white rounded-lg mx-auto p-8 max-w-xl">
-            <Heading className="text-2xl font-bold text-gray-900 m-0">{heading}</Heading>
-            <Text className="text-gray-700 text-base leading-6 mt-4">
-              {status === "PENDING"
-                ? text.pendingBody(participantName, eventName)
-                : text.rejectedBody(participantName, eventName)}
-            </Text>
-            {reason ? (
-              <Text className="text-gray-700 text-base leading-6">{text.reason(reason)}</Text>
-            ) : null}
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+    <EmailLayout
+      locale={locale}
+      preview={heading}
+      heading={heading}
+      introduction={
+        <Text className="text-ink text-base leading-6 mt-4">
+          {status === "PENDING"
+            ? text.pendingBody(participantName, eventName)
+            : text.rejectedBody(participantName, eventName)}
+        </Text>
+      }
+    >
+      {reason ? <Text className="text-ink text-base leading-6">{text.reason(reason)}</Text> : null}
+    </EmailLayout>
   )
 }
 

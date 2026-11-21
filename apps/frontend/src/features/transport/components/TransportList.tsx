@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { Pencil, Trash2, Users } from "lucide-react"
+import { Pencil, Plus, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -10,9 +10,8 @@ import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -21,14 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { termDatesLine } from "@/lib/term-label"
 
 import {
@@ -42,10 +33,9 @@ import { departureText } from "@/features/transport/lib/departure"
 
 type Editor = { kind: TransportKind; transport?: TransportSummary }
 
-// Transport of an event, term by term: the ways to get there with their participants. Same flow as
-// the rooms: pick a term, a table (a list on a phone), add / edit in a dialog, delete after a warning.
-// Design proposal (US-402), based on Figma (Design system): #65 Doprava · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12467
-// Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-12627
+// Transport of an event, term by term: the ways to get there with their participants. Pick a term,
+// a card per way, add / edit in a dialog, delete after a warning.
+// Figma v2: US-65 Přehled dopravy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21206-63432 (360 px: node-id=21206-63636)
 export function TransportList({ eventId }: { eventId: string }) {
   const { t } = useTranslation("transport")
   const query = useQuery(eventTransportQueryOptions(eventId))
@@ -88,19 +78,6 @@ export function TransportList({ eventId }: { eventId: string }) {
   const actions = (item: TransportSummary) => (
     <div className="flex justify-end gap-1">
       <Button
-        asChild
-        variant="ghost"
-        size="icon-lg"
-      >
-        <Link
-          to={ROUTES.organizer.eventTransportParticipants}
-          params={{ eventId, transportId: item.id }}
-          aria-label={t("showParticipantsOf", { name: nameOf(item) })}
-        >
-          <Users />
-        </Link>
-      </Button>
-      <Button
         variant="ghost"
         size="icon-lg"
         aria-label={t("editOf", { name: nameOf(item) })}
@@ -126,10 +103,7 @@ export function TransportList({ eventId }: { eventId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("title")} />
-      <SectionHeader
-        title={t("title")}
-        description={t("description")}
-      />
+      <SectionHeader title={t("title")} />
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <Label htmlFor="transport-term">{t("termLabel")}</Label>
         <Select
@@ -154,90 +128,72 @@ export function TransportList({ eventId }: { eventId: string }) {
           </SelectContent>
         </Select>
       </div>
-      <Card>
-        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <CardTitle>
-            <h3>{t("listTitle")}</h3>
-          </CardTitle>
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <Button
-              size="lg"
-              className="max-sm:w-full"
-              onClick={() => {
-                setEditor({ kind: "SCHEDULED" })
-              }}
-            >
-              {t("add")}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          {term.transports.length ? (
-            <>
-              {/* A table from md up, like the rooms; on a phone a list of rows. */}
-              <div className="hidden md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("nameColumn")}</TableHead>
-                      <TableHead>{t("departureColumn")}</TableHead>
-                      <TableHead>{t("placeColumn")}</TableHead>
-                      <TableHead className="text-right">{t("participantsColumn")}</TableHead>
-                      <TableHead>
-                        <span className="sr-only">{t("actionsColumn")}</span>
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {term.transports.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium break-words whitespace-normal">
-                          {nameOf(item)}
-                          {item.kind === "OWN" ? (
-                            <Badge
-                              variant="secondary"
-                              className="ml-2"
-                            >
-                              {t("ownBadge")}
-                            </Badge>
-                          ) : null}
-                        </TableCell>
-                        <TableCell>{whenOf(item) ?? "–"}</TableCell>
-                        <TableCell className="break-words whitespace-normal">
-                          {item.departurePlace ?? "–"}
-                        </TableCell>
-                        <TableCell className="text-right">{item.participantsCount}</TableCell>
-                        <TableCell>{actions(item)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <ul className="divide-y md:hidden">
-                {term.transports.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex items-center gap-4 py-3"
-                  >
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span className="font-medium break-words">{nameOf(item)}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {[whenOf(item), item.departurePlace].filter(Boolean).join(" · ")}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {t("participants", { count: item.participantsCount })}
-                      </span>
-                    </div>
+      <section
+        aria-label={t("listTitle")}
+        className="flex flex-col gap-6"
+      >
+        {term.transports.length ? (
+          <ul className="grid gap-4 md:grid-cols-2">
+            {term.transports.map((item) => (
+              <li key={item.id}>
+                <Card className="h-full min-w-0 gap-4 p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="min-w-0 text-xl font-bold tracking-tight break-words">
+                      {nameOf(item)}
+                    </h3>
                     {actions(item)}
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <EmptyState message={t("empty")} />
-          )}
-        </CardContent>
-      </Card>
+                  </div>
+                  {item.departureAt || item.departurePlace ? (
+                    <dl className="grid gap-3">
+                      {item.departureAt && (
+                        <div className="flex flex-col gap-1">
+                          <dt className="text-sm text-muted-foreground">{t("departureColumn")}</dt>
+                          <dd>{whenOf(item)}</dd>
+                        </div>
+                      )}
+                      {item.departurePlace && (
+                        <div className="flex flex-col gap-1">
+                          <dt className="text-sm text-muted-foreground">{t("placeColumn")}</dt>
+                          <dd className="break-words">{item.departurePlace}</dd>
+                        </div>
+                      )}
+                    </dl>
+                  ) : null}
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
+                    <p className="tabular-nums">
+                      {t("chosenBy", { count: item.participantsCount })}
+                    </p>
+                    <Button
+                      asChild
+                      variant="ghost"
+                    >
+                      <Link
+                        to={ROUTES.organizer.eventTransportParticipants}
+                        params={{ eventId, transportId: item.id }}
+                        aria-label={t("showParticipantsOf", { name: nameOf(item) })}
+                      >
+                        {t("showParticipants")}
+                      </Link>
+                    </Button>
+                  </div>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptyState message={t("empty")} />
+        )}
+        <Button
+          size="lg"
+          className="self-start max-sm:w-full"
+          onClick={() => {
+            setEditor({ kind: "SCHEDULED" })
+          }}
+        >
+          <Plus aria-hidden />
+          {t("add")}
+        </Button>
+      </section>
       {editor ? (
         <TransportDialog
           key={editor.transport?.id ?? `new-${editor.kind}`}

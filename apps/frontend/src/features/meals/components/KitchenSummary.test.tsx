@@ -82,12 +82,7 @@ function renderPage(data: KitchenTerm[] = terms) {
   const page = createRoute({
     getParentRoute: () => root,
     path: "/",
-    component: () => (
-      <KitchenSummary
-        eventId="e1"
-        eventName="Summer camp"
-      />
-    ),
+    component: () => <KitchenSummary eventId="e1" />,
   })
   const router = createRouter({
     routeTree: root.addChildren([page]),
@@ -114,13 +109,33 @@ function expectRow(...cells: string[]) {
   expect(rows).toHaveLength(1)
 }
 
+async function showByCategory() {
+  const user = userEvent.setup()
+  await user.click(await screen.findByRole("combobox", { name: "View" }))
+  await user.click(await screen.findByRole("option", { name: "By category" }))
+}
+
 afterEach(() => vi.restoreAllMocks())
 
 describe("KitchenSummary", () => {
+  it("starts with the merged table per participant, as drawn", async () => {
+    renderPage()
+    expect(await screen.findByRole("combobox", { name: "View" })).toHaveTextContent(
+      "By participant",
+    )
+    expect(screen.getByRole("button", { name: "Portions by diet" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Allergies and other requests" })).toBeVisible()
+    expect(screen.getByRole("columnheader", { name: "Participant / diet" })).toBeInTheDocument()
+    expect(screen.getByRole("columnheader", { name: "Portions" })).toBeInTheDocument()
+  })
+
   it("shows the counts and the allergies of the first term", async () => {
     renderPage()
-    expect(await screen.findByRole("heading", { name: "Kitchen summary" })).toBeVisible()
-    expect(screen.getByText("Summer camp · Meals")).toBeVisible()
+    await showByCategory()
+    expect(await screen.findByRole("heading", { name: "Meals" })).toBeVisible()
+    expect(screen.getByRole("heading", { name: "10 confirmed participants" })).toBeVisible()
+    expect(screen.queryByText("Each participant is counted once.")).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Back to event overview" })).not.toBeInTheDocument()
     expectRow("Regular meal", "6")
     expectRow("Vegetarian", "3")
     expectRow("Gluten-free", "2")
@@ -133,6 +148,7 @@ describe("KitchenSummary", () => {
 
   it("shows the arrival and departure of the participants who gave them (US-143)", async () => {
     renderPage()
+    await showByCategory()
     expect(await screen.findByRole("button", { name: "Arrivals and departures · 2" })).toBeVisible()
     expectRow("Adam Dvořák", "13 Jul 2027 10:30", "18 Jul 2027 16:00")
     expectRow("Petr Svoboda", "–", "17 Jul 2027 15:00")
@@ -140,8 +156,9 @@ describe("KitchenSummary", () => {
 
   it("shows the item count in each section header and starts expanded", async () => {
     renderPage()
+    await showByCategory()
     for (const name of [
-      "Meal counts · 10",
+      "Portions by diet",
       "Allergies · 2",
       "Special requests · 1",
       "Arrivals and departures · 2",
@@ -153,6 +170,7 @@ describe("KitchenSummary", () => {
   it("collapses and expands a section on its own", async () => {
     const user = userEvent.setup()
     renderPage()
+    await showByCategory()
     const allergies = await screen.findByRole("button", { name: "Allergies · 2" })
     await user.click(allergies)
     expect(allergies).toHaveAttribute("aria-expanded", "false")
@@ -169,9 +187,52 @@ describe("KitchenSummary", () => {
     expect(allergies).toHaveAttribute("aria-expanded", "true")
   })
 
+  it("groups all notes by application, including namesakes and participants with only a departure", async () => {
+    const user = userEvent.setup()
+    renderPage([
+      {
+        ...terms[0]!,
+        stays: [
+          ...terms[0]!.stays,
+          {
+            applicationId: "a4",
+            firstName: "Adam",
+            lastName: "Dvořák",
+            lateArrival: "2027-07-14T12:00",
+            earlyDeparture: null,
+          },
+        ],
+      },
+      terms[1]!,
+    ])
+    await screen.findByRole("combobox", { name: "View" })
+    const people = within(screen.getByRole("table", { name: "Allergies and other requests" }))
+    const firstAdam = within(people.getByRole("row", { name: /Adam Dvořák.*Peanuts/ }))
+    expect(firstAdam.getByText("Early dinner")).toBeVisible()
+    expect(firstAdam.getByText("Arrival 13 Jul 2027 10:30")).toBeVisible()
+    expect(firstAdam.getByText("Departure 18 Jul 2027 16:00")).toBeVisible()
+    expect(firstAdam.queryByText("Arrival 14 Jul 2027 12:00")).not.toBeInTheDocument()
+    expect(
+      people.getByRole("row", { name: /Adam Dvořák.*Arrival 14 Jul 2027 12:00/ }),
+    ).toBeVisible()
+    expect(
+      people.getByRole("row", { name: /Petr Svoboda.*Departure 17 Jul 2027 15:00/ }),
+    ).toBeVisible()
+    expect(
+      screen.queryByRole("button", { name: /^Arrivals and departures/ }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Allergies and other requests" })).toBeVisible()
+    await user.click(screen.getByRole("combobox", { name: "Term" }))
+    await user.click(await screen.findByRole("option", { name: /Aug 2027/ }))
+    expect(screen.getByRole("button", { name: "Allergies and other requests" })).toBeVisible()
+    expect(screen.queryByText("Petr Svoboda")).not.toBeInTheDocument()
+    expectRow("Regular meal", "1")
+  })
+
   it("switches the term", async () => {
     const user = userEvent.setup()
     renderPage()
+    await showByCategory()
     await user.click(await screen.findByRole("combobox", { name: "Term" }))
     await user.click(await screen.findByRole("option", { name: /Aug 2027/ }))
     expectRow("Regular meal", "1")

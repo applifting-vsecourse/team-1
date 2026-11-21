@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { TermPrice } from "@/components/atoms/MoneyAmount"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Seo } from "@/components/atoms/Seo"
 import { DateField } from "@/components/molecules/DateField"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -24,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { formatDateRange } from "@/lib/date"
 import { parseDateInput } from "@/lib/date-input"
 import { isValidPhone, MAX_PHONE_INPUT_LENGTH, normalizePhone } from "@/lib/phone"
@@ -36,12 +38,17 @@ import {
 import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
 import { termStatusesQueryOptions } from "@/features/event-overview/api/termStatus"
 
+/** Longest note about the individual accommodation (the server holds the same limit). */
+const MAX_ACCOMMODATION_NOTE_LENGTH = 2000
+
 type Status = "CONFIRMED" | "WAITLISTED"
 type Draft = {
   firstName: string
   lastName: string
   birthDate: string
   gender: "" | "FEMALE" | "MALE"
+  individualAccommodation: boolean
+  accommodationRequest: string
   email: string
   phone: string
   consent: boolean
@@ -53,12 +60,15 @@ const emptyDraft: Draft = {
   lastName: "",
   birthDate: "",
   gender: "",
+  individualAccommodation: false,
+  accommodationRequest: "",
   email: "",
   phone: "",
   consent: false,
   statuses: {},
 }
 
+// Figma (Design system): #518 Individuální ubytování v ručním přidání · s požadavkem, desktop https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27190-3974 · mobil 360 px node-id=27190-4330 · bez požadavku, desktop node-id=27190-4151 · mobil node-id=27190-4448
 // Figma (Design system): #83 / Přidat přihlášku / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-51095
 // Figma (Design system): #83 / Přidat přihlášku / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-51298
 // Figma (Design system): #83 / Potvrzení nad kapacitu / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-51429
@@ -84,7 +94,7 @@ export function ManualApplicationPage({
   terms: TermOption[]
   organizerName: string
 }) {
-  const { t } = useTranslation("eventOverview")
+  const { t } = useTranslation(["eventOverview", "common"])
   const occupancy = useQuery(occupancyQueryOptions(eventId))
   const client = useQueryClient()
   const [draft, setDraft] = useState<Draft>(emptyDraft)
@@ -174,6 +184,12 @@ export function ManualApplicationPage({
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email)) nextErrors.email = t("manual.invalidEmail")
     const phone = normalizePhone(draft.phone)
     if (!isValidPhone(phone)) nextErrors.phone = t("manual.invalidPhone")
+    if (
+      draft.individualAccommodation &&
+      draft.accommodationRequest.length > MAX_ACCOMMODATION_NOTE_LENGTH
+    ) {
+      nextErrors.accommodationRequest = t("manual.noteTooLong")
+    }
     if (!draft.consent) nextErrors.consent = t("manual.consentRequired")
     const selectedTerms = terms.flatMap((term) => {
       const status = draft.statuses[term.id]
@@ -190,6 +206,13 @@ export function ManualApplicationPage({
       email: draft.email.trim(),
       phone,
       consent: true,
+      // The note belongs to the request: without it none is sent.
+      ...(draft.individualAccommodation
+        ? {
+            individualAccommodation: true,
+            accommodationRequest: draft.accommodationRequest.trim() || null,
+          }
+        : {}),
       terms: selectedTerms,
     }
     setPayload(input)
@@ -283,7 +306,8 @@ export function ManualApplicationPage({
               <AlertDescription>{mutation.error.message}</AlertDescription>
             </Alert>
           ) : null}
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             size="lg"
             disabled={
               !isOverCapacityConfirmed || mutation.isPending || occupancy.isFetching || !payload
@@ -291,7 +315,7 @@ export function ManualApplicationPage({
             onClick={() => payload && mutation.mutate({ ...payload, confirmOverCapacity: true })}
           >
             {t("manual.create")}
-          </Button>
+          </PendingButton>
           <Button
             variant="ghost"
             size="lg"
@@ -369,6 +393,31 @@ export function ManualApplicationPage({
                 </SelectContent>
               </Select>
               <FieldError message={errors.gender} />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="manual-individual-accommodation"
+                  checked={draft.individualAccommodation}
+                  onCheckedChange={(checked) => update("individualAccommodation", checked === true)}
+                />
+                <Label htmlFor="manual-individual-accommodation">
+                  {t("manual.individualAccommodation")}
+                </Label>
+              </div>
+              {draft.individualAccommodation ? (
+                <div className="space-y-2">
+                  <Label htmlFor="manual-accommodation-note">{t("manual.accommodationNote")}</Label>
+                  <Textarea
+                    id="manual-accommodation-note"
+                    className="min-h-32"
+                    value={draft.accommodationRequest}
+                    aria-invalid={Boolean(errors.accommodationRequest)}
+                    onChange={(e) => update("accommodationRequest", e.target.value)}
+                  />
+                  <FieldError message={errors.accommodationRequest} />
+                </div>
+              ) : null}
             </div>
             <div className="space-y-2">
               <Label htmlFor="manual-phone">{t("manual.phone")}</Label>
@@ -456,13 +505,13 @@ export function ManualApplicationPage({
               <AlertDescription>{mutation.error.message}</AlertDescription>
             </Alert>
           ) : null}
-          <Button
+          <PendingButton
             type="submit"
             size="lg"
-            disabled={mutation.isPending}
+            isPending={mutation.isPending}
           >
-            {t("manual.create")}
-          </Button>
+            {mutation.isPending ? t("state.saving", { ns: "common" }) : t("manual.create")}
+          </PendingButton>
           <Button
             asChild
             variant="ghost"

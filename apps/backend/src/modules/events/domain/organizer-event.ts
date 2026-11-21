@@ -45,6 +45,11 @@ export type StoredEvent = {
   termsWithoutRooms: number
   applicationCount: number
   evaluationMode: EvaluationMode
+  /**
+   * The organizer has not chosen or confirmed the mode yet, so `evaluationMode` is only the stored
+   * default and must not be shown as chosen (US-560).
+   */
+  evaluationModePending: boolean
   /** First day when cancellation rules apply; null means changes happen immediately. */
   cancellationStartsOn: string | null
   /** Free text shown to applicants (US-47); null until the organizer writes it. */
@@ -75,7 +80,11 @@ export type NewEvent = {
 
 /** Readiness comes only from `applications/domain/public-event` — never recomputed here. */
 export function toOrganizerEvent(event: StoredEvent): OrganizerEvent {
-  const setup = { termCount: event.termCount, termsWithoutRooms: event.termsWithoutRooms }
+  const setup = {
+    termCount: event.termCount,
+    termsWithoutRooms: event.termsWithoutRooms,
+    evaluationModePending: event.evaluationModePending,
+  }
   return {
     ...event,
     applicationsOpen: isOpenForApplications(setup),

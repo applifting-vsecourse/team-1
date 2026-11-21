@@ -1,12 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogClose,
@@ -36,10 +37,12 @@ import { apiErrorCode } from "@/lib/api-client"
 import { formatDateRange } from "@/lib/date"
 
 import { saveRoom, type Room, type TermRooms } from "@/features/events/api/rooms"
+import { RoomBedCountField } from "@/features/events/components/RoomBedCountField"
 
 // Room of one term; the form is the one of the earlier iteration, only the term is new.
 // Figma (Design system): X19 / X20 / X22 / X23, X19a / X22a · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-121
 // Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12370-767
+// Figma (Design system v2): US-145 / Přidat individuální pokoj · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-3908 (mobile 24910-4362), Změnit příznak po vyhodnocení · 24910-4737
 export function RoomDialog({
   term,
   room,
@@ -50,16 +53,17 @@ export function RoomDialog({
   term: TermRooms
   room?: Room
   onClose: () => void
-  onSaved: () => Promise<void>
+  onSaved: (addedName?: string) => Promise<void>
   onDelete: (room: Room) => void
 }) {
-  const { t } = useTranslation("events")
+  const { t } = useTranslation(["events", "common"])
   const schema = z.object({
     name: z.string().trim().min(1, t("rooms.nameRequired")).max(100, t("rooms.nameTooLong")),
     capacity: z
       .string()
       .refine((value) => /^\d+$/.test(value) && Number(value) >= 1, t("rooms.capacityError")),
     gender: z.enum(["FEMALE", "MALE"]),
+    isIndividual: z.boolean(),
   })
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -67,6 +71,7 @@ export function RoomDialog({
       name: room?.name ?? "",
       capacity: room ? String(room.capacity) : "",
       gender: room?.gender ?? "FEMALE",
+      isIndividual: room?.individual ?? false,
     },
   })
   const mutation = useMutation({
@@ -77,7 +82,9 @@ export function RoomDialog({
         {
           name: values.name,
           capacity: Number(values.capacity),
-          gender: term.roomMode === "GENDERED" ? values.gender : null,
+          // An individual room (US-145) has no gender.
+          gender: term.roomMode === "GENDERED" && !values.isIndividual ? values.gender : null,
+          individual: term.roomMode === "GENDERED" && values.isIndividual,
         },
         room?.id,
       )
@@ -92,10 +99,11 @@ export function RoomDialog({
       }
       return
     }
-    await onSaved()
+    await onSaved(room ? undefined : values.name)
     onClose()
   })
   const isPending = mutation.isPending || form.formState.isSubmitting
+  const isIndividual = useWatch({ control: form.control, name: "isIndividual" })
   return (
     <Dialog
       open
@@ -103,7 +111,7 @@ export function RoomDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170">
+      <DialogContent className="max-h-[90dvh] max-w-full overflow-y-auto bg-card shadow-md sm:max-w-160">
         <p className="text-xs font-medium text-muted-foreground uppercase">
           {term.eventName} · {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
         </p>
@@ -151,12 +159,9 @@ export function RoomDialog({
                   <FormItem>
                     <FormLabel>{t("rooms.capacityLabel")}</FormLabel>
                     <FormControl>
-                      <Input
+                      <RoomBedCountField
                         {...field}
-                        type="number"
-                        inputMode="numeric"
-                        min={1}
-                        step={1}
+                        onValueChange={field.onChange}
                       />
                     </FormControl>
                     {form.formState.errors.capacity ? (
@@ -170,6 +175,30 @@ export function RoomDialog({
                 )}
               />
               {term.roomMode === "GENDERED" ? (
+                <FormField
+                  control={form.control}
+                  name="isIndividual"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked === true)
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="leading-snug">{t("rooms.individualLabel")}</FormLabel>
+                      </div>
+                      <FormDescription className="text-xs">
+                        {t("rooms.individualHint")}
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+              ) : null}
+              {term.roomMode === "GENDERED" && !isIndividual ? (
                 <FormField
                   control={form.control}
                   name="gender"
@@ -233,15 +262,16 @@ export function RoomDialog({
                   {t("rooms.close")}
                 </Button>
               </DialogClose>
-              <Button
+              <PendingButton
                 type="submit"
                 size="lg"
                 className="sm:w-38"
-                disabled={isPending}
+                isPending={isPending}
               >
-                {isPending ? <Loader2 className="animate-spin" /> : null}
-                {t(room ? "rooms.save" : "rooms.add")}
-              </Button>
+                {isPending
+                  ? t("state.saving", { ns: "common" })
+                  : t(room ? "rooms.save" : "rooms.add")}
+              </PendingButton>
             </DialogFooter>
           </form>
         </Form>

@@ -10,7 +10,8 @@ type NavLinkProps = LinkProps & {
 }
 
 /** A tab of a section navigation (event sections). The active tab gets the selected surface and the Togena corners. */
-// Figma (Design system): DS / Navigation, Kind=Tab · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11739-2903
+// Event navigation instances (93 × 60): https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20580-44281
+// Figma (Design system): DS / Navigation, Kind=Tab · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=26759-3551
 export function NavLink({ children, className, ...props }: NavLinkProps) {
   return (
     <Link
@@ -19,7 +20,7 @@ export function NavLink({ children, className, ...props }: NavLinkProps) {
       // `activeProps`: those classes would collide with the base ones and
       // Tailwind resolves such conflicts by stylesheet order, not by class order.
       className={cn(
-        "group relative flex h-11 shrink-0 items-center rounded-md px-4 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground",
+        "group relative flex min-h-15 min-w-[93px] shrink-0 items-center justify-center rounded-control px-3 text-base whitespace-nowrap text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring motion-safe:duration-400",
         "data-[status=active]:bg-accent data-[status=active]:text-foreground",
         className,
       )}

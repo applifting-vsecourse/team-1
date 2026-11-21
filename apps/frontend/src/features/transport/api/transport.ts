@@ -34,7 +34,12 @@ const participantsSchema = termSchema.extend({
   name: z.string(),
   kind: kindSchema,
   participants: z.array(
-    z.object({ applicationId: z.string(), name: z.string(), email: z.string() }),
+    z.object({
+      applicationId: z.string(),
+      name: z.string(),
+      email: z.string(),
+      phone: z.string().nullable(),
+    }),
   ),
 })
 const applicationTransportSchema = z.object({
@@ -52,6 +57,7 @@ const applicationTransportSchema = z.object({
 export type TransportSummary = z.infer<typeof summarySchema>
 export type TransportOption = z.infer<typeof optionSchema>
 export type TermTransport = z.infer<typeof eventTransportSchema>["terms"][number]
+export type TransportParticipant = z.infer<typeof participantsSchema>["participants"][number]
 export type TransportKind = z.infer<typeof kindSchema>
 export type TransportInput = {
   name?: string

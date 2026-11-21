@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { computeRoomBeds } from "@/modules/applications/domain/capacity"
+import { computeRoomBeds, countByGender } from "@/modules/applications/domain/capacity"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { BulkRoomsPlan, BulkRoomsResult, planBulkRooms } from "@/modules/events/domain/bulk-rooms"
 import {
   RoomCopyStrategy,
@@ -24,7 +25,11 @@ export class RoomsRepository {
       where: { id: termId, eventId, organizationId },
       include: {
         event: { select: { name: true, organization: { select: { name: true } } } },
-        rooms: { orderBy: [{ createdAt: "asc" }, { id: "asc" }] },
+        rooms: {
+          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+          // Who sleeps in an individual room counts into the capacity by gender (US-145).
+          include: { assignments: ROOM_CAPACITY_SELECT.assignments },
+        },
       },
     })
     if (!term) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
@@ -38,14 +43,21 @@ export class RoomsRepository {
       endsOn: term.endsOn.toISOString().slice(0, 10),
       roomMode: term.roomMode,
       roomsPublished: term.roomsPublishedAt !== null,
-      rooms: term.rooms.map(({ id, name, capacity, extraBeds, gender }) => ({
-        id,
-        name,
-        capacity,
-        extraBeds,
-        beds: computeRoomBeds({ capacity, extraBeds }),
-        gender,
-      })),
+      rooms: term.rooms.map(
+        ({ id, name, capacity, extraBeds, gender, individual, assignments }) => ({
+          id,
+          name,
+          capacity,
+          extraBeds,
+          beds: computeRoomBeds({ capacity, extraBeds }),
+          gender,
+          individual,
+          assignments,
+          occupiedBy: countByGender(
+            assignments.map((row) => ({ gender: row.applicationTerm.application.gender })),
+          ),
+        }),
+      ),
     }
   }
 
@@ -77,7 +89,10 @@ export class RoomsRepository {
     await this.write(scope, async (tx, current) => {
       if (current === roomMode) return
       if (roomMode === "GENDERED") {
-        const rooms = await tx.room.findMany({ where: { termId, organizationId } })
+        // Individual rooms keep no gender (US-145).
+        const rooms = await tx.room.findMany({
+          where: { termId, organizationId, individual: false },
+        })
         const genders = new Map(assignments.map(({ id, gender }) => [id, gender]))
         if (rooms.some((room) => !genders.has(room.id))) {
           throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
@@ -86,7 +101,11 @@ export class RoomsRepository {
           await tx.room.update({ where: { id: room.id }, data: { gender: genders.get(room.id) } })
         }
       } else {
-        await tx.room.updateMany({ where: { termId, organizationId }, data: { gender: null } })
+        // The shared mode has no individual rooms: they become ordinary shared rooms (US-145).
+        await tx.room.updateMany({
+          where: { termId, organizationId },
+          data: { gender: null, individual: false },
+        })
       }
       await tx.term.update({ where: { id: termId }, data: { roomMode } })
     })
@@ -111,9 +130,12 @@ export class RoomsRepository {
   async save(scope: TermScope, input: RoomInput, id?: string): Promise<void> {
     const { termId, organizationId } = scope
     await this.write(scope, async (tx, mode) => {
-      if ((mode === "GENDERED") !== (input.gender !== null)) {
-        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
-      }
+      // An individual room has no gender and exists only in a gendered term (US-145).
+      const individual = input.individual === true
+      const valid = individual
+        ? mode === "GENDERED" && input.gender === null
+        : (mode === "GENDERED") === (input.gender !== null)
+      if (!valid) throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
       if (id && !(await tx.room.findFirst({ where: { id, termId, organizationId } }))) {
         throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
       }
@@ -126,8 +148,9 @@ export class RoomsRepository {
         },
       })
       if (duplicate) throw new AppException(HttpStatus.CONFLICT, "ROOM_NAME_TAKEN")
-      if (id) await tx.room.update({ where: { id }, data: input })
-      else await tx.room.create({ data: { ...input, termId, organizationId } })
+      const data = { ...input, individual }
+      if (id) await tx.room.update({ where: { id }, data })
+      else await tx.room.create({ data: { ...data, termId, organizationId } })
     })
   }
 
@@ -171,8 +194,15 @@ export class RoomsRepository {
   async remove(scope: TermScope, id: string): Promise<void> {
     const { termId, organizationId } = scope
     await this.write(scope, async (tx) => {
-      const result = await tx.room.deleteMany({ where: { id, termId, organizationId } })
-      if (!result.count) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      const room = await tx.room.findFirst({
+        where: { id, termId, organizationId },
+        select: { _count: { select: { assignments: true } } },
+      })
+      if (!room) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      if (room._count.assignments > 0) {
+        throw new AppException(HttpStatus.CONFLICT, "ROOM_HAS_ASSIGNMENTS")
+      }
+      await tx.room.delete({ where: { id } })
     })
   }
 
@@ -209,10 +239,11 @@ export class RoomsRepository {
         }
       }
       await tx.room.createMany({
-        data: source.rooms.map(({ name, capacity, gender }) => ({
+        data: source.rooms.map(({ name, capacity, gender, individual }) => ({
           name,
           capacity,
           gender,
+          individual,
           termId,
           organizationId,
         })),

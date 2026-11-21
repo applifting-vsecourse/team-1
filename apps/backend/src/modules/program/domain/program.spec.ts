@@ -83,6 +83,8 @@ describe("planProgramCopy", () => {
       block("2027-07-12", "10:30", "12:00", "Hry"),
       block("2027-07-13", "11:00", "12:00", "Touch"),
     ])
-    expect(plan.overlaps).toEqual([{ date: "2027-07-12", first: "První", second: "Hry" }])
+    expect(plan.overlaps).toEqual([
+      { date: "2027-07-12", first: "První", second: "Hry", startTime: "10:30", endTime: "11:00" },
+    ])
   })
 })
