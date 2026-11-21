@@ -9,6 +9,10 @@ const output = mkdtempSync(join(tmpdir(), "togena-pr-preview-"))
 const harness = JSON.parse(readFileSync(new URL("./captures.json", import.meta.url), "utf8"))
 const e2e = join(root, "apps/e2e")
 const failed = []
+// Flush each PNG line before starting any synchronous child process.
+async function emit(line) {
+  await new Promise((resolve, reject) => process.stdout.write(line + "\n", (err) => err ? reject(err) : resolve()))
+}
 const generatedFiles = []
 function git(args) { execFileSync("git", args, { cwd: root, stdio: "inherit" }) }
 for (const { phase, sha, prs } of harness.groups) {
@@ -46,9 +50,9 @@ for (const { phase, sha, prs } of harness.groups) {
     if (!existsSync(path)) { console.log("CAPTURE_MISSING", name); continue }
     const bytes = readFileSync(path)
     const data = bytes.toString("base64")
-    console.log("CAPTURE_PNG", name, bytes.length, createHash("sha256").update(bytes).digest("hex"))
+    await emit(["CAPTURE_PNG", name, bytes.length, createHash("sha256").update(bytes).digest("hex")].join(" "))
     for (let off = 0; off < data.length; off += 4096)
-      console.log("CAPTURE_DATA", name, off, data.slice(off, off + 4096))
+      await emit(["CAPTURE_DATA", name, off, data.slice(off, off + 4096)].join(" "))
   }
 }
-if (failed.length) throw new Error("Some capture scenarios failed at " + failed.join(", "))
+if (failed.length) { console.error("Some capture scenarios failed at", failed.join(", ")); process.exitCode = 1 }
