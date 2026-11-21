@@ -362,7 +362,7 @@ describe("ApplicationsPage", () => {
   })
   it("passes combined filters, displays all terms and links to payment", async () => {
     setup()
-    expect(await screen.findAllByText("jana@example.com", { exact: false })).toHaveLength(2)
+    expect(await screen.findAllByRole("button", { name: "Jana Test" })).toHaveLength(2)
     expect(screen.getAllByText("Waitlisted").length).toBeGreaterThan(0)
     expect(screen.getByRole("link", { name: "Record payment" })).toHaveAttribute(
       "href",
@@ -479,7 +479,7 @@ describe("ApplicationsPage", () => {
   it("offers the five payment states and sends the chosen one to the API", async () => {
     const change = setup([application], false, undefined, null, {})
     const user = userEvent.setup()
-    await screen.findAllByText("jana@example.com", { exact: false })
+    await screen.findByRole("row", { name: /Jana Test/ })
     await user.click(screen.getAllByRole("combobox", { name: "Payment" })[0]!)
     expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
       "All payments",
@@ -533,7 +533,7 @@ describe("ApplicationsPage", () => {
     it("does not open the detail when a row is selected", async () => {
       setup([application], false, undefined, null, { status: "TO_EVALUATE" })
       const user = userEvent.setup()
-      await screen.findAllByText("jana@example.com", { exact: false })
+      await screen.findByRole("row", { name: /Jana Test/ })
       const checkbox = screen.getAllByRole("checkbox", {
         name: /Select application: Jana Test/,
       })[0]!

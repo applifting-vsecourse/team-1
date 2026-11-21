@@ -171,13 +171,16 @@ describe("room assignment", () => {
   })
 
   it("lists the unassigned with their status, the rooms with people and free beds, and the count", async () => {
-    renderCard()
+    const user = renderCard()
     expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
     expect(screen.getByText("Woman · Confirmed")).toBeInTheDocument()
     expect(screen.getByText("Woman · Awaiting evaluation")).toBeInTheDocument()
     expect(screen.getByLabelText("Unassigned participants: 2")).toHaveTextContent("2")
     const table = screen.getByRole("table")
-    expect(within(table).getByText("Jana Nováková")).toBeInTheDocument()
+    const roomA = within(table).getByRole("row", { name: /Room A/ })
+    expect(within(roomA).queryByText("Jana Nováková")).not.toBeInTheDocument()
+    await user.click(within(roomA).getByRole("button", { name: "Participants" }))
+    expect(within(roomA).getByText("Jana Nováková")).toBeVisible()
     expect(within(table).getAllByText("3 free beds")).toHaveLength(2)
     expect(within(table).getByText("Full")).toBeInTheDocument()
   })
@@ -519,7 +522,9 @@ describe("room assignment", () => {
   it("moves a person through the menu of their chip, the current room is not a choice", async () => {
     const user = renderCard()
     const table = await screen.findByRole("table")
-    await user.click(within(table).getByRole("button", { name: "Actions for Jana Nováková" }))
+    const row = within(table).getByRole("row", { name: /Room A/ })
+    await user.click(within(row).getByRole("button", { name: "Participants" }))
+    await user.click(within(row).getByRole("button", { name: "Actions for Jana Nováková" }))
     await user.click(await screen.findByRole("menuitem", { name: "Move to another room…" }))
     const dialog = await screen.findByRole("dialog")
     expect(within(dialog).getByRole("radio", { name: /Room A.*Current room/ })).toBeDisabled()
@@ -534,7 +539,9 @@ describe("room assignment", () => {
   it("removes a person from the room through the menu", async () => {
     const user = renderCard()
     const table = await screen.findByRole("table")
-    await user.click(within(table).getByRole("button", { name: "Actions for Eva Horká" }))
+    const row = within(table).getByRole("row", { name: /Room B/ })
+    await user.click(within(row).getByRole("button", { name: "Participants" }))
+    await user.click(within(row).getByRole("button", { name: "Actions for Eva Horká" }))
     await user.click(await screen.findByRole("menuitem", { name: "Remove from room" }))
     await waitFor(() =>
       expect(del).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p2"),
@@ -625,16 +632,17 @@ describe("room assignment", () => {
           { ...person("p4", "Nikola", "Králová"), alsoInTerms: [] },
         ],
       }
-      renderCard()
+      const user = renderCard()
       expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
       expect(screen.getByText("Woman · Awaiting evaluation")).toBeInTheDocument()
-      // The unassigned one has the full badge; in the room, in the table and in the card of the
-      // phone layout, the chip carries a short one. Nobody else has any.
       expect(screen.getAllByText("Individual accommodation")).toHaveLength(1)
-      expect(screen.getAllByText("Individual")).toHaveLength(2)
       const table = screen.getByRole("table")
-      expect(within(table).getByText("Individual")).toBeInTheDocument()
-      expect(within(table).getByText("Eva Horká")).toBeInTheDocument()
+      const roomA = within(table).getByRole("row", { name: /Room A/ })
+      const roomB = within(table).getByRole("row", { name: /Room B/ })
+      await user.click(within(roomA).getByRole("button", { name: "Participants" }))
+      await user.click(within(roomB).getByRole("button", { name: "Participants" }))
+      expect(within(roomA).getByText("Individual")).toBeVisible()
+      expect(within(roomB).getByText("Eva Horká")).toBeVisible()
       expect(screen.getByRole("button", { name: "Assign Barbora Šimková to a room" })).toBeEnabled()
     })
 
