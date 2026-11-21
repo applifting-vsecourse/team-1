@@ -10,7 +10,6 @@
     "confirmed_many": "{{count}} potvrzeného účastníka",
     "confirmed_one": "{{count}} potvrzený účastník",
     "confirmed_other": "{{count}} potvrzených účastníků",
-    "countNote": "Každého účastníka počítáme jednou.",
     "countsTitle": "Počty porcí podle stravy",
     "departure": "Odjezd {{when}}",
     "departureColumn": "Odjezd",
