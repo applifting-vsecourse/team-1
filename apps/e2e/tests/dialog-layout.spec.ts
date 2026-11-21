@@ -26,23 +26,29 @@ async function addBlock(page: Page, description = "") {
 
 async function openBlock(page: Page, name: string, action: "Edit" | "Delete block") {
   await page.getByRole("button", { name: `Show details of ${name}` }).click()
-  await page.getByRole("dialog", { name }).getByRole("button", { name: action, exact: true }).click()
+  await page
+    .getByRole("dialog", { name })
+    .getByRole("button", { name: action, exact: true })
+    .click()
 }
 
 async function expectDialogToFit(dialog: Locator, width: number, height: number) {
   // Measure the border box and any horizontal overflow after the opening animation.
   await expect
     .poll(() =>
-      dialog.evaluate((element, bounds) => {
-        const rect = element.getBoundingClientRect()
-        return (
-          rect.left >= 0 &&
-          rect.right <= bounds.width &&
-          rect.top >= 0 &&
-          rect.bottom <= bounds.height &&
-          element.scrollWidth <= element.clientWidth + 1
-        )
-      }, { width, height }),
+      dialog.evaluate(
+        (element, bounds) => {
+          const rect = element.getBoundingClientRect()
+          return (
+            rect.left >= 0 &&
+            rect.right <= bounds.width &&
+            rect.top >= 0 &&
+            rect.bottom <= bounds.height &&
+            element.scrollWidth <= element.clientWidth + 1
+          )
+        },
+        { width, height },
+      ),
     )
     .toBe(true)
 }
@@ -72,14 +78,20 @@ async function openCopyPreview(page: Page) {
 }
 
 for (const width of [360, 1280]) {
-  test(`short confirmation fits and can be closed or completed at ${width} px`, async ({ page }) => {
+  test(`short confirmation fits and can be closed or completed at ${width} px`, async ({
+    page,
+  }) => {
     await openProgram(page, width, 800)
     const name = await addBlock(page)
     await openBlock(page, name, "Delete block")
     const dialog = page.getByRole("dialog", { name: "Delete block?" })
     const primary = dialog.getByRole("button", { name: "Delete block" })
     await expectDialogToFit(dialog, width, 800)
-    await expectActionOrder(dialog.getByRole("button", { name: "Close", exact: true }).first(), primary, width)
+    await expectActionOrder(
+      dialog.getByRole("button", { name: "Close", exact: true }).first(),
+      primary,
+      width,
+    )
     await page.keyboard.press("Escape")
     await expect(dialog).toBeHidden()
     await openBlock(page, name, "Delete block")
@@ -96,7 +108,9 @@ for (const width of [360, 1280]) {
     const dialog = await openCopyPreview(page)
     const copy = dialog.getByRole("button", { name: /^Copy \d+ blocks?$/ })
     await expectDialogToFit(dialog, width, 480)
-    await expect.poll(() => dialog.evaluate((element) => element.scrollHeight - element.clientHeight)).toBeGreaterThan(0)
+    await expect
+      .poll(() => dialog.evaluate((element) => element.scrollHeight - element.clientHeight))
+      .toBeGreaterThan(0)
     await expectActionOrder(dialog.getByRole("button", { name: "Back" }), copy, width)
     await dialog.getByRole("button", { name: "Back" }).click()
     await expect(dialog).toBeHidden()
@@ -130,7 +144,11 @@ for (const width of [360, 1280]) {
     await nameField.fill(`${name} edited`)
     await dialog.getByLabel("Place").fill("Meeting point")
     await dialog.getByLabel("Description").fill("Bring a notebook.")
-    await expectActionOrder(dialog.getByRole("button", { name: "Close", exact: true }).first(), save, width)
+    await expectActionOrder(
+      dialog.getByRole("button", { name: "Close", exact: true }).first(),
+      save,
+      width,
+    )
     await save.click()
     await expect(dialog).toBeHidden()
     await expect(page.getByRole("button", { name: `Show details of ${name} edited` })).toBeVisible()
