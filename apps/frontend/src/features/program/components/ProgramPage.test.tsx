@@ -42,9 +42,14 @@ const term = {
   ],
 }
 
-function renderPage(data: unknown, onPut?: (body: unknown) => void) {
+function renderPage(
+  data: unknown,
+  { onPost, onPut }: { onPost?: (body: unknown) => void; onPut?: (body: unknown) => void } = {},
+) {
   const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
     const method = input instanceof Request ? input.method : (init?.method ?? "GET")
+    if (method === "POST" && input instanceof Request && onPost)
+      void input.clone().json().then(onPost)
     if (method === "PUT" && input instanceof Request && onPut) void input.clone().json().then(onPut)
     return Promise.resolve(
       method === "GET"
@@ -112,7 +117,7 @@ describe("ProgramPage", () => {
           ],
         },
       ]),
-      onPut,
+      { onPut },
     )
     const handle = await screen.findByRole("button", { name: "Move block Dílny" })
     handle.focus()
@@ -156,7 +161,8 @@ describe("ProgramPage", () => {
   it("adds and edits a block through the dialogs in the compact agenda", async () => {
     isCompact = true
     const onPut = vi.fn()
-    const fetchMock = renderPage(program([term]), onPut)
+    const onPost = vi.fn()
+    renderPage(program([term]), { onPost, onPut })
     const day = await screen.findByRole("combobox", { name: "Day" })
     await userEvent.click(day)
     await userEvent.click(await screen.findByRole("option", { name: /Tuesday/ }))
@@ -168,12 +174,11 @@ describe("ProgramPage", () => {
     await userEvent.type(within(add).getByLabelText(/^Block name/), "Snídaně")
     await userEvent.click(within(add).getByRole("button", { name: "Add block" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
-    const post = fetchMock.mock.calls
-      .map(([request]) => request)
-      .find(
-        (request): request is Request => request instanceof Request && request.method === "POST",
-      )
-    expect(await post?.clone().json()).toMatchObject({ name: "Snídaně", date: "2027-07-13" })
+    await waitFor(() =>
+      expect(onPost).toHaveBeenCalledWith(
+        expect.objectContaining({ name: "Snídaně", date: "2027-07-13" }),
+      ),
+    )
 
     await userEvent.click(screen.getByRole("button", { name: /Show details of Dílny/ }))
     await userEvent.click(
