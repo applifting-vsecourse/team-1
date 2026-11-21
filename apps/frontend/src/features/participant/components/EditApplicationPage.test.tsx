@@ -2,17 +2,24 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
   createMemoryHistory,
   createRootRoute,
+  createRoute,
   createRouter,
+  Outlet,
   RouterProvider,
 } from "@tanstack/react-router"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { notify } from "@/lib/notify"
+
 import { EditApplicationPage } from "@/features/participant/components/EditApplicationPage"
 
 const { get, put } = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get, put } }))
+vi.mock("@/lib/notify", () => ({
+  notify: { success: vi.fn(), info: vi.fn(), warning: vi.fn(), error: vi.fn() },
+}))
 
 const initial = {
   id: "a1",
@@ -29,18 +36,36 @@ const initial = {
 const renderPage = () => {
   get.mockReturnValue({ json: () => Promise.resolve(initial) })
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  return renderEdit(client)
+}
+
+/** The edit page at its own path, with the application detail as a stand-in next to it. */
+const renderEdit = (client: QueryClient) => {
   const root = createRootRoute({
     component: () => (
       <QueryClientProvider client={client}>
-        <EditApplicationPage applicationId="a1" />
+        <Outlet />
       </QueryClientProvider>
     ),
   })
-  const router = createRouter({
-    routeTree: root,
-    history: createMemoryHistory({ initialEntries: ["/"] }),
+  const edit = createRoute({
+    getParentRoute: () => root,
+    path: "/participant/applications/$applicationId/edit",
+    component: () => <EditApplicationPage applicationId="a1" />,
   })
-  render(<RouterProvider router={router} />)
+  const detail = createRoute({
+    getParentRoute: () => root,
+    path: "/participant/applications/$applicationId",
+    component: () => <h1>Application detail</h1>,
+  })
+  render(
+    <RouterProvider
+      router={createRouter({
+        routeTree: root.addChildren([edit, detail]),
+        history: createMemoryHistory({ initialEntries: ["/participant/applications/a1/edit"] }),
+      })}
+    />,
+  )
   return client
 }
 
@@ -48,6 +73,7 @@ describe("EditApplicationPage", () => {
   beforeEach(() => {
     get.mockReset()
     put.mockReset()
+    vi.mocked(notify.success).mockClear()
   })
 
   it("does not offer to save unchanged details", async () => {
@@ -55,26 +81,11 @@ describe("EditApplicationPage", () => {
     expect(await screen.findByRole("button", { name: "Save changes" })).toBeDisabled()
   })
 
-  it("saves the participant's details and shows the recorded change", async () => {
+  it("saves the participant's details, returns to the application and confirms with a toast", async () => {
     const user = userEvent.setup()
-    put.mockReturnValue({
-      json: () =>
-        Promise.resolve({
-          ...initial,
-          phone: "+420 777 123 456",
-          accommodationRequest: "Ground floor, please.",
-          history: [
-            {
-              id: "edit-1",
-              createdAt: "2026-11-06T10:30:00.000Z",
-              authorName: "Jana Nováková",
-              changedFields: ["phone", "individualAccommodation", "accommodationRequest"],
-            },
-          ],
-        }),
-    })
+    put.mockReturnValue({ json: () => Promise.resolve(initial) })
     renderPage()
-    await user.type(await screen.findByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+    await user.type(await screen.findByRole("textbox", { name: "Phone" }), "+420 777 123 456")
     await user.type(
       screen.getByRole("textbox", { name: "Note for the organizer (optional)" }),
       "Ground floor, please.",
@@ -91,17 +102,60 @@ describe("EditApplicationPage", () => {
         accommodationRequest: "Ground floor, please.",
       },
     })
-    expect(await screen.findByRole("heading", { name: "Changes were saved" })).toBeInTheDocument()
-    expect(
-      screen.getByText(/Jana Nováková · Updated contact and accommodation request/),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Application detail" })).toBeInTheDocument()
+    expect(notify.success).toHaveBeenCalledWith(
+      "Changes saved",
+      "The organizer received a notification.",
+    )
   })
+
+  it("saves without a phone: it is optional", async () => {
+    const user = userEvent.setup()
+    put.mockReturnValue({ json: () => Promise.resolve(initial) })
+    renderPage()
+    const firstName = await screen.findByRole("textbox", { name: "First name *" })
+    await user.clear(firstName)
+    await user.type(firstName, "Petra")
+    await user.click(screen.getByRole("button", { name: "Save changes" }))
+
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
+      json: {
+        firstName: "Petra",
+        lastName: "Nováková",
+        birthDate: "2005-03-14",
+        phone: null,
+        individualAccommodation: true,
+        accommodationRequest: "",
+      },
+    })
+    expect(await screen.findByRole("heading", { name: "Application detail" })).toBeVisible()
+    expect(notify.success).toHaveBeenCalledOnce()
+  })
+
+  it.each(["abc", "123456", "+420 777 abc", "123454623123121221212121212112"])(
+    "rejects the phone %j with a message and does not send it",
+    async (invalidPhone) => {
+      const user = userEvent.setup()
+      renderPage()
+      const phone = await screen.findByRole("textbox", { name: "Phone" })
+      await user.type(phone, invalidPhone)
+      await user.click(screen.getByRole("button", { name: "Save changes" }))
+
+      expect(put).not.toHaveBeenCalled()
+      expect(await screen.findByRole("alert")).toHaveTextContent("Enter a valid phone number")
+      expect(phone).toBeInvalid()
+
+      await user.clear(phone)
+      await user.type(phone, "+420 777 123 456")
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    },
+  )
 
   it("keeps entered values on a failed save so the participant can retry", async () => {
     const user = userEvent.setup()
     put.mockReturnValue({ json: () => Promise.reject(new Error("failed")) })
     renderPage()
-    const phone = await screen.findByRole("textbox", { name: "Phone *" })
+    const phone = await screen.findByRole("textbox", { name: "Phone" })
     await user.type(phone, "+420 777 123 456")
     await user.click(screen.getByRole("button", { name: "Save changes" }))
 
@@ -119,7 +173,7 @@ describe("EditApplicationPage", () => {
     const firstName = await screen.findByRole("textbox", { name: "First name *" })
     await user.clear(firstName)
     await user.type(firstName, "Petra")
-    await user.type(screen.getByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+    await user.type(screen.getByRole("textbox", { name: "Phone" }), "+420 777 123 456")
     await user.click(screen.getByRole("button", { name: "Save changes" }))
     expect(await screen.findByRole("heading", { name: "Changes couldn't be saved" })).toBeVisible()
 
@@ -133,7 +187,7 @@ describe("EditApplicationPage", () => {
   it("keeps unsaved values when refreshing application data fails", async () => {
     const user = userEvent.setup()
     const client = renderPage()
-    const phone = await screen.findByRole("textbox", { name: "Phone *" })
+    const phone = await screen.findByRole("textbox", { name: "Phone" })
     await user.type(phone, "+420 777 123 456")
 
     get.mockReturnValue({ json: () => Promise.reject(new Error("offline")) })
@@ -141,7 +195,7 @@ describe("EditApplicationPage", () => {
       await client.refetchQueries({ queryKey: ["participant", "applications", "a1", "edit"] })
     })
 
-    expect(screen.getByRole("textbox", { name: "Phone *" })).toBe(phone)
+    expect(screen.getByRole("textbox", { name: "Phone" })).toBe(phone)
     expect(phone).toHaveValue("+420 777 123 456")
     expect(screen.getByRole("button", { name: "Save changes" })).toBeEnabled()
     expect(await screen.findByRole("button", { name: "Try again" })).toBeVisible()
@@ -172,8 +226,8 @@ describe("EditApplicationPage", () => {
       expect(screen.getByRole("textbox", { name: "First name *" })).toHaveValue("Petra"),
     )
     expect(screen.getByRole("textbox", { name: "Last name *" })).toHaveValue("Nová")
-    expect(screen.getByLabelText("Date of birth *")).toHaveValue("2001-02-03")
-    expect(screen.getByRole("textbox", { name: "Phone *" })).toHaveValue(refreshed.phone)
+    expect(screen.getByLabelText("Date of birth *")).toHaveValue("03/02/2001")
+    expect(screen.getByRole("textbox", { name: "Phone" })).toHaveValue(refreshed.phone)
     expect(screen.getByRole("textbox", { name: "Note for the organizer (optional)" })).toBe(
       accommodation,
     )
@@ -242,22 +296,7 @@ describe("EditApplicationPage", () => {
     const withoutRequest = { ...initial, individualAccommodation: false }
     const renderUnticked = () => {
       get.mockReturnValue({ json: () => Promise.resolve(withoutRequest) })
-      const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-      const root = createRootRoute({
-        component: () => (
-          <QueryClientProvider client={client}>
-            <EditApplicationPage applicationId="a1" />
-          </QueryClientProvider>
-        ),
-      })
-      render(
-        <RouterProvider
-          router={createRouter({
-            routeTree: root,
-            history: createMemoryHistory({ initialEntries: ["/"] }),
-          })}
-        />,
-      )
+      renderEdit(new QueryClient({ defaultOptions: { queries: { retry: false } } }))
     }
     const box = () =>
       screen.findByRole("checkbox", { name: "I want to arrange the accommodation individually" })
@@ -304,7 +343,7 @@ describe("EditApplicationPage", () => {
       renderUnticked()
       await user.click(await box())
       await user.type(note()!, "Ground floor")
-      await user.type(screen.getByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+      await user.type(screen.getByRole("textbox", { name: "Phone" }), "+420 777 123 456")
       await user.click(screen.getByRole("button", { name: "Save changes" }))
 
       expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
@@ -317,10 +356,8 @@ describe("EditApplicationPage", () => {
           accommodationRequest: "Ground floor",
         },
       })
-      expect(
-        await screen.findByText("Accommodation · Individual arrangement · Ground floor"),
-      ).toBeVisible()
-      expect(screen.getByText(/Jana Nováková · Updated: accommodation request/)).toBeInTheDocument()
+      expect(await screen.findByRole("heading", { name: "Application detail" })).toBeVisible()
+      expect(notify.success).toHaveBeenCalledOnce()
     })
 
     it("sends no note when the box is unticked", async () => {
@@ -329,14 +366,27 @@ describe("EditApplicationPage", () => {
         json: () =>
           Promise.resolve({ ...initial, accommodationRequest: "Ground floor", history: [] }),
       })
-      put.mockReturnValue({ json: () => Promise.resolve(withoutRequest) })
+      put.mockReturnValue({
+        json: () =>
+          Promise.resolve({
+            ...withoutRequest,
+            history: [
+              {
+                id: "h1",
+                createdAt: "2026-11-05T13:30:00Z",
+                authorName: "Jana Nováková",
+                changedFields: ["phone", "individualAccommodation", "accommodationRequest"],
+              },
+            ],
+          }),
+      })
       renderPage()
       get.mockReturnValue({
         json: () =>
           Promise.resolve({ ...initial, accommodationRequest: "Ground floor", history: [] }),
       })
       await user.click(await box())
-      await user.type(screen.getByRole("textbox", { name: "Phone *" }), "+420 777 123 456")
+      await user.type(screen.getByRole("textbox", { name: "Phone" }), "+420 777 123 456")
       await user.click(screen.getByRole("button", { name: "Save changes" }))
       expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
         json: {
@@ -348,6 +398,7 @@ describe("EditApplicationPage", () => {
           accommodationRequest: null,
         },
       })
+      expect(await screen.findByRole("heading", { name: "Application detail" })).toBeVisible()
     })
 
     it("shows an error under a note over 2,000 characters and does not save it", async () => {

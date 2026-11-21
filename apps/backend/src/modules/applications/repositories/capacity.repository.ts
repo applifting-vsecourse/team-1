@@ -3,6 +3,7 @@ import {
   CapacityDetailsSnapshot,
   CapacitySnapshot,
 } from "@/modules/applications/domain/event-capacity"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { Injectable } from "@nestjs/common"
 
 @Injectable()
@@ -32,7 +33,7 @@ export class CapacityRepository {
                 roomMode: true,
                 rooms: {
                   orderBy: { id: "asc" },
-                  select: { id: true, name: true, capacity: true, extraBeds: true, gender: true },
+                  select: { id: true, name: true, ...ROOM_CAPACITY_SELECT },
                 },
                 applicationTerms: {
                   where: { status: "CONFIRMED", organizationId },

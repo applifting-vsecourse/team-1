@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 
-import { usePaymentQr } from "@/features/participant/hooks/usePaymentQr"
-import { paymentSpayd } from "@/features/participant/lib/payment-qr"
+import { usePaymentQr } from "@/hooks/usePaymentQr"
+import { paymentSpayd } from "@/lib/payment-qr"
 
 type TermPaymentQrProps = {
   bankAccount: string
@@ -15,7 +15,7 @@ type TermPaymentQrProps = {
  * QR Platba of one term's debt: the organization's account, the debt, the term's variable symbol and
  * the event name as the message (US-41). Nothing is drawn when there is no debt or the account is unusable.
  */
-// Figma (Design system): #311 Moje přihláška · Adam Dvořák · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-15345 (360 px: node-id=19799-15493)
+// Figma (Design system v2): #311 Moje přihláška · Adam Dvořák · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22448-25936 (360 px: node-id=22448-26089)
 export function TermPaymentQr({
   bankAccount,
   owedCzk,
@@ -33,7 +33,7 @@ export function TermPaymentQr({
       src={image}
       width={200}
       height={200}
-      className="size-40 sm:size-32"
+      className="size-50 max-w-full object-contain"
       alt={t("termPayment.qrAlt")}
     />
   )

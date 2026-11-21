@@ -1,14 +1,17 @@
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { BedSingle, Pencil, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { HelpTooltipContent } from "@/components/atoms/HelpTooltipContent"
 import { Seo } from "@/components/atoms/Seo"
+import { CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,8 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { notify } from "@/lib/notify"
+import { roomCapacityIncreaseKey, type RoomCapacityIncrease } from "@/lib/room-capacity-increase"
 import { termDatesLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
@@ -32,13 +36,17 @@ import {
   type Room,
   type RoomMode,
 } from "@/features/events/api/rooms"
+import { BulkRoomsDialog } from "@/features/events/components/BulkRoomsDialog"
 import { CopyRoomsDialog } from "@/features/events/components/CopyRoomsDialog"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
 import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignmentsCard"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
 import { RoomExtraBedsDialog } from "@/features/events/components/RoomExtraBedsDialog"
 import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
+import { RoomProposal } from "@/features/events/components/RoomProposal"
 import { RoomsOverview } from "@/features/events/components/RoomsOverview"
+import { RoomsPublicationCard } from "@/features/events/components/RoomsPublicationCard"
+import { RoomWishesOverview } from "@/features/events/components/RoomWishesOverview"
 
 /** The two views of the accommodation: who is placed how (US-35) and the printable overview (US-36). */
 export type RoomsView = "assignment" | "overview"
@@ -50,6 +58,7 @@ export type AccommodationTerm = {
   startsOn: string
   endsOn: string
   roomMode: RoomMode
+  roomCount: number
   byGender: { FEMALE: { free: number }; MALE: { free: number } } | null
 }
 
@@ -57,12 +66,10 @@ export type AccommodationTerm = {
 // and the room table with edit / delete icon buttons in each row.
 // Each room also shows its extra beds (přistýlky) and an icon button with a count badge that opens their dialog (US-80, #530).
 // The list of rooms is the room assignment of US-35 (RoomAssignmentsCard); the room actions stay here.
-// Figma (Design system): Pokoje v termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-37078 (mobile 19786-37234)
+// Figma v2: US-14 Ubytování · Pokoje podle pohlaví · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15577-2448 (mobile 15577-2548); společné pokoje 15434-1143 (mobile 15434-1235)
 // Figma (Design system): #530 Ikona přistýlky · podle pohlaví · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26056-112911 (mobile 26064-113690)
 // Figma (Design system): #530 Ikona přistýlky · společné pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113154 (mobile 26064-114034)
 // Figma (Design system): #530 Ikona přistýlky · tooltip a fokus · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113550
-// Figma (Design system): O18a / O18b · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-1789
-// Shared-room variant · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12358-3883
 export function RoomsPage({
   eventId,
   termId,
@@ -90,7 +97,9 @@ export function RoomsPage({
   const [extraBedsRoom, setExtraBedsRoom] = useState<Room | null>(null)
   const [pendingMode, setPendingMode] = useState<RoomMode | null>(null)
   const [isCopying, setIsCopying] = useState(false)
+  const [isBulk, setIsBulk] = useState(false)
   const refresh = async () => {
+    if (selected) client.removeQueries({ queryKey: roomCapacityIncreaseKey(eventId, selected.id) })
     await Promise.all([
       client.invalidateQueries({ queryKey: ["events", eventId] }),
       client.invalidateQueries({ queryKey: eventKeys.detail(eventId) }),
@@ -101,10 +110,7 @@ export function RoomsPage({
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("rooms.title")} />
-        <SectionHeader
-          title={t("rooms.title")}
-          description={t("rooms.description")}
-        />
+        <SectionHeader title={t("rooms.title")} />
         <p className="text-sm text-muted-foreground">{t("rooms.noTerms")}</p>
       </div>
     )
@@ -123,6 +129,8 @@ export function RoomsPage({
       <LoadingState />
     )
   }
+  const previousIds = new Set(term.rooms.map((room) => room.id))
+  const refreshedTerm = () => client.getQueryData(roomsQueryOptions(eventId, term.termId).queryKey)
   const isGendered = term.roomMode === "GENDERED"
   const extraBedsButton = (room: Room) => {
     const label = room.extraBeds
@@ -133,23 +141,18 @@ export function RoomsPage({
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
-            size="icon-lg"
-            className="relative"
+            size="sm"
+            className="max-w-full"
             aria-label={label}
             onClick={() => setExtraBedsRoom(room)}
           >
-            <BedSingle />
-            {room.extraBeds ? (
-              <span
-                aria-hidden
-                className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-xs leading-4 font-semibold text-primary-foreground"
-              >
-                {room.extraBeds}
-              </span>
-            ) : null}
+            <BedSingle aria-hidden />
+            {room.extraBeds
+              ? t("rooms.editExtraBedsShort", { count: room.extraBeds })
+              : t("rooms.addExtraBedShort")}
           </Button>
         </TooltipTrigger>
-        <TooltipContent>{label}</TooltipContent>
+        <HelpTooltipContent>{label}</HelpTooltipContent>
       </Tooltip>
     )
   }
@@ -172,7 +175,14 @@ export function RoomsPage({
             }),
             free: selected.byGender?.MALE.free,
           },
-          { label: t("rooms.totalRooms"), value: term.rooms.length, helper: null },
+          {
+            label: t("rooms.totalRooms"),
+            value: term.rooms.length,
+            helper:
+              (term.capacity.individualBeds ?? 0) > 0
+                ? t("rooms.individualBeds", { count: term.capacity.individualBeds })
+                : null,
+          },
         ]
       : [
           {
@@ -187,7 +197,7 @@ export function RoomsPage({
           },
         ]
   const termSelect = (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+    <div className="flex flex-col gap-2">
       <Label htmlFor="accommodation-term">{t("rooms.termLabel")}</Label>
       <Select
         value={selected.id}
@@ -195,7 +205,7 @@ export function RoomsPage({
       >
         <SelectTrigger
           id="accommodation-term"
-          className="w-full bg-card sm:w-60"
+          className="w-full bg-card"
         >
           <SelectValue />
         </SelectTrigger>
@@ -213,33 +223,35 @@ export function RoomsPage({
     </div>
   )
   // The view picker sits left of the term picker, in both views.
-  const selectors = (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-      <Select
-        value={view}
-        onValueChange={(next) => onSelectView(next === "overview" ? "overview" : "assignment")}
-      >
-        <SelectTrigger
-          aria-label={t("roomOverview.views")}
-          className="w-full bg-card sm:w-60"
+  const renderSelectors = (extra?: ReactNode) => (
+    <div className="grid w-full gap-4 sm:max-w-xl sm:grid-cols-2">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="accommodation-view">{t("roomOverview.views")}</Label>
+        <Select
+          value={view}
+          onValueChange={(next) => onSelectView(next === "overview" ? "overview" : "assignment")}
         >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="assignment">{t("roomOverview.viewAssignment")}</SelectItem>
-          <SelectItem value="overview">{t("roomOverview.viewOverview")}</SelectItem>
-        </SelectContent>
-      </Select>
+          <SelectTrigger
+            id="accommodation-view"
+            className="w-full bg-card"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="assignment">{t("roomOverview.viewAssignment")}</SelectItem>
+            <SelectItem value="overview">{t("roomOverview.viewOverview")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
       {termSelect}
+      {extra}
     </div>
   )
+  const selectors = renderSelectors()
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("rooms.title")} />
-      <SectionHeader
-        title={t("rooms.title")}
-        description={view === "assignment" ? t("rooms.description") : undefined}
-      />
+      <SectionHeader title={t("rooms.title")} />
       {query.isError ? (
         <ErrorState
           title={t("rooms.loadFailed")}
@@ -257,36 +269,52 @@ export function RoomsPage({
         />
       ) : (
         <>
-          {selectors}
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-            <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
-            <Select
-              value={term.roomMode}
-              onValueChange={(value) => {
-                const targetMode = roomModeSchema.parse(value)
-                if (targetMode !== term.roomMode) setPendingMode(targetMode)
-              }}
-            >
-              <SelectTrigger
-                id="room-mode"
-                className="w-full bg-card sm:w-60"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
-                <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
-          </div>
-          <div className={cn("grid gap-4", isGendered ? "md:grid-cols-3" : "md:grid-cols-2")}>
+          {/* Controls left, the publication switch in the otherwise empty right half. */}
+          <CardGrid className="lg:grid-cols-1 xl:grid-cols-2">
+            <div className="flex flex-col gap-6">
+              {renderSelectors(
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
+                  <Select
+                    value={term.roomMode}
+                    onValueChange={(value) => {
+                      const targetMode = roomModeSchema.parse(value)
+                      if (targetMode !== term.roomMode) setPendingMode(targetMode)
+                    }}
+                  >
+                    <SelectTrigger
+                      id="room-mode"
+                      className="w-full bg-card"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
+                      <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
+                </div>,
+              )}
+              {term.rooms.length === 0 && terms.length > 1 ? (
+                <Alert>
+                  <AlertTitle>{t("rooms.unavailableTitle")}</AlertTitle>
+                  <AlertDescription>{t("rooms.unavailableHint")}</AlertDescription>
+                </Alert>
+              ) : null}
+            </div>
+            <RoomsPublicationCard
+              term={term}
+              onChanged={refresh}
+            />
+          </CardGrid>
+          <div className={cn("grid grid-cols-2 gap-2 md:gap-4", isGendered && "md:grid-cols-3")}>
             {metrics.map((metric) => (
               <Card
                 key={metric.label}
-                className="gap-1 py-4"
+                className="gap-1 py-2 md:py-4"
               >
-                <CardContent className="flex flex-col gap-1 px-4">
+                <CardContent className="flex flex-col gap-1 px-3 md:px-4">
                   <h3 className="text-sm text-muted-foreground">{metric.label}</h3>
                   <p className="text-2xl font-semibold tracking-tight">{metric.value}</p>
                   {metric.helper ? (
@@ -304,78 +332,109 @@ export function RoomsPage({
               </Card>
             ))}
           </div>
-          <Card>
-            <CardHeader className="flex flex-col gap-3 max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-              <CardTitle>
-                <h3>{t("roomAssignments.cardTitle")}</h3>
-              </CardTitle>
-              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="lg"
-                  className="text-link max-sm:w-full"
-                >
-                  <Link
-                    to={ROUTES.organizer.eventTerms}
-                    params={{ eventId }}
-                  >
-                    {t("rooms.showTerms")}
-                  </Link>
-                </Button>
-                {terms.length > 1 ? (
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="max-sm:w-full"
-                    onClick={() => setIsCopying(true)}
-                  >
-                    {t("rooms.copy.open")}
-                  </Button>
-                ) : null}
-                <Button
-                  size="lg"
-                  className="max-sm:w-full"
-                  onClick={() => setEditor("new")}
-                >
-                  {t("rooms.add")}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <TooltipProvider>
-                <RoomAssignmentsCard
-                  term={term}
-                  onAddRoom={() => setEditor("new")}
-                  roomActions={(roomId) => {
-                    const room = term.rooms.find((item) => item.id === roomId)
-                    if (!room) return null
-                    return (
-                      <>
-                        {extraBedsButton(room)}
-                        <Button
-                          variant="ghost"
-                          size="icon-lg"
-                          aria-label={t("rooms.editRoom", { name: room.name })}
-                          onClick={() => setEditor(room)}
-                        >
-                          <Pencil />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-lg"
-                          aria-label={t("rooms.deleteRoom", { name: room.name })}
-                          onClick={() => setDeleting(room)}
-                        >
-                          <Trash2 />
-                        </Button>
-                      </>
-                    )
-                  }}
-                />
-              </TooltipProvider>
-            </CardContent>
-          </Card>
+          <RoomProposal
+            key={term.termId}
+            term={term}
+          >
+            {({ action, notices }) => (
+              <Card>
+                <CardHeader className="flex flex-col gap-3 max-md:order-last max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                  <CardTitle>
+                    <h3>{t("roomAssignments.cardTitle")}</h3>
+                  </CardTitle>
+                  <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="lg"
+                      className="text-link max-sm:w-full"
+                    >
+                      <Link
+                        to={ROUTES.organizer.eventTerms}
+                        params={{ eventId }}
+                      >
+                        {t("rooms.showTerms")}
+                      </Link>
+                    </Button>
+                    {terms.length > 1 ? (
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="max-sm:w-full"
+                        onClick={() => setIsCopying(true)}
+                      >
+                        {t("rooms.copy.open")}
+                      </Button>
+                    ) : null}
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="max-sm:w-full"
+                      onClick={() => setIsBulk(true)}
+                    >
+                      {t("rooms.bulk.open")}
+                    </Button>
+                    {action}
+                    <Button
+                      size="lg"
+                      className="max-sm:w-full"
+                      onClick={() => setEditor("new")}
+                    >
+                      {t("rooms.add")}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-4 md:px-6">
+                  {notices}
+                  <TooltipProvider>
+                    <RoomAssignmentsCard
+                      term={term}
+                      onAddRoom={() => setEditor("new")}
+                      roomActions={(roomId) => {
+                        const room = term.rooms.find((item) => item.id === roomId)
+                        if (!room) return null
+                        return (
+                          <>
+                            {extraBedsButton(room)}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-lg"
+                                  aria-label={t("rooms.editRoom", { name: room.name })}
+                                  onClick={() => setEditor(room)}
+                                >
+                                  <Pencil />
+                                </Button>
+                              </TooltipTrigger>
+                              <HelpTooltipContent>{t("rooms.edit")}</HelpTooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-lg"
+                                  aria-label={t("rooms.deleteRoom", { name: room.name })}
+                                  onClick={() => setDeleting(room)}
+                                >
+                                  <Trash2 />
+                                </Button>
+                              </TooltipTrigger>
+                              <HelpTooltipContent>{t("rooms.delete")}</HelpTooltipContent>
+                            </Tooltip>
+                          </>
+                        )
+                      }}
+                    />
+                  </TooltipProvider>
+                </CardContent>
+              </Card>
+            )}
+          </RoomProposal>
+          <RoomWishesOverview
+            eventId={term.eventId}
+            termId={term.termId}
+          />
         </>
       )}
       {pendingMode ? (
@@ -391,10 +450,25 @@ export function RoomsPage({
           target={term}
           sourceTerms={terms.filter((item) => item.id !== selected.id)}
           onClose={() => setIsCopying(false)}
-          onCopied={async () => {
+          onCopied={async (sourceNames) => {
             await refresh()
-            notify.success(t("rooms.copy.done"))
+            const added = refreshedTerm()?.rooms.filter((room) => !previousIds.has(room.id)) ?? []
+            const names = new Set(sourceNames)
+            const isVerified =
+              added.length === names.size && added.every((room) => names.has(room.name))
+            notify.success(
+              isVerified
+                ? t("rooms.copy.doneCount", { count: added.length })
+                : t("rooms.copy.done"),
+            )
           }}
+        />
+      ) : null}
+      {isBulk ? (
+        <BulkRoomsDialog
+          term={term}
+          onClose={() => setIsBulk(false)}
+          onSaved={refresh}
         />
       ) : null}
       {editor ? (
@@ -403,7 +477,23 @@ export function RoomsPage({
           term={term}
           room={editor === "new" ? undefined : editor}
           onClose={() => setEditor(null)}
-          onSaved={refresh}
+          onSaved={async (addedName) => {
+            await refresh()
+            const current = refreshedTerm()
+            const added = current?.rooms.find(
+              (room) => room.name === addedName && !previousIds.has(room.id),
+            )
+            if (current?.roomMode !== "GENDERED" || !added?.gender) return
+            // The banner shows the new room's beds and the capacity the server returned; nothing is derived here.
+            client.setQueryData<RoomCapacityIncrease>(
+              roomCapacityIncreaseKey(eventId, term.termId),
+              {
+                gender: added.gender,
+                addedBeds: added.beds,
+                capacity: current.capacity,
+              },
+            )
+          }}
           onDelete={(room) => {
             setEditor(null)
             setDeleting(room)

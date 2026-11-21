@@ -22,6 +22,7 @@ import { TermStatusChange } from "@/features/event-overview/components/TermStatu
 /** Leaving a term is a destructive action: solid red with a visibly darker hover. */
 const NEGATIVE = "transition-colors hover:bg-destructive/75"
 // Figma (Design system): #244 Stav v termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67758 (mobile: 19799-67905)
+// Figma (Design system): #364 Detail přihlášky · pořadí u termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-89925 (360 px: 22642-90090)
 // Empty: 19799-67980 / 19799-68116. Existing withdrawal, term change and audit history remain available.
 export function TermStatuses({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
@@ -91,6 +92,11 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
                     : `termStatus.state.${term.status}`,
                 )}
               </h3>
+              {term.status === "WAITLISTED" && term.waitlistPosition !== null ? (
+                <p className="text-sm font-bold">
+                  {t("termStatus.waitlistPosition", { position: term.waitlistPosition })}
+                </p>
+              ) : null}
               <p>
                 {t(
                   term.status === "CONFIRMED"

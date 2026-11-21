@@ -35,6 +35,15 @@ const compose = (kind: AppNotification["kind"], language: "en" | "cs") =>
   composeNotification(base(kind), i18n.getFixedT(language, "notifications"), language)
 
 describe("composeNotification", () => {
+  it("tells that the organizer cancelled the term, in both languages", () => {
+    expect(compose("TERM_CANCELLED", "cs").title).toBe(
+      "Organizátor zrušil termín akce, přihláška v něm je zrušená",
+    )
+    expect(compose("TERM_CANCELLED", "en").title).toBe(
+      "The organizer cancelled the event term, the application for it is cancelled",
+    )
+  })
+
   it("separates who, where and what changed", () => {
     expect(compose("CONFIRMED", "cs")).toMatchObject({
       title: "Přihláška byla potvrzena",

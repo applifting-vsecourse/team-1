@@ -1,6 +1,7 @@
 ﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { NetworkError } from "ky"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { PaymentApplication } from "@/features/event-overview/api/payments"
@@ -25,6 +26,8 @@ const application: PaymentApplication = {
   birthDate: "2011-05-04",
   gender: "MALE",
   email: "eva.mala@example.cz",
+  phone: "+420777123456",
+  isEditable: true,
   terms: [
     {
       termId: "t1",
@@ -66,7 +69,7 @@ const secondTerm: PaymentApplication["terms"][number] = {
   startsOn: "2027-07-19",
   endsOn: "2027-07-25",
 }
-const label = "Amount of this payment (CZK)"
+const label = "Amount *"
 function setup(paidCzk = 0, initialType?: "refund", hasPreselectedTerm = false) {
   const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
   const invalidate = vi.spyOn(client, "invalidateQueries")
@@ -155,10 +158,20 @@ describe("PaymentEditor", () => {
     expect(recordRefund).not.toHaveBeenCalled()
   })
 
-  it("disables the refund while no term has an overpayment", () => {
-    setup(3000)
-    expect(screen.getByRole("radio", { name: "Refund" })).toBeDisabled()
-    expect(screen.getByRole("radio", { name: "Payment" })).toBeChecked()
+  it("explains an unavailable refund and prevents submission while the payment remains available", async () => {
+    const { user } = setup(3000)
+    await user.click(screen.getByRole("radio", { name: "Refund" }))
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Refund not available: no term has an overpayment.",
+    )
+    expect(screen.queryByRole("combobox")).toBeNull()
+    expect(screen.queryByRole("textbox")).toBeNull()
+    const submit = screen.getByRole("button", { name: "Confirm" })
+    expect(submit).toBeDisabled()
+    await user.click(submit)
+    expect(recordRefund).not.toHaveBeenCalled()
+    await user.click(screen.getByRole("radio", { name: "Payment" }))
+    expect(screen.getByRole("button", { name: /Record payment/ })).toBeEnabled()
   })
 
   it("offers the refund for the term the backend names, with its overpayment as the limit", async () => {
@@ -166,14 +179,14 @@ describe("PaymentEditor", () => {
     await user.click(screen.getByRole("radio", { name: "Refund" }))
     expect(screen.getByRole("combobox", { name: "Term *" })).toHaveTextContent(/Jul 2027/)
     expect(screen.getByText(/you can refund at most/)).toHaveTextContent(/Jul 2027.*500/)
-    expect(screen.getByRole("heading", { name: "Refund overpayment" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Record refund" })).toBeInTheDocument()
   })
 
   it.each([true, false])(
     "opens on the refund of the overpayment, preselected (term passed: %s)",
     async (hasPreselectedTerm) => {
       const { user, onClose } = setup(7400, "refund", hasPreselectedTerm)
-      expect(screen.getByRole("heading", { name: "Refund overpayment" })).toBeInTheDocument()
+      expect(screen.getByRole("heading", { name: "Record refund" })).toBeInTheDocument()
       expect(screen.getByRole("radio", { name: "Refund" })).toBeChecked()
       expect(screen.getByLabelText("Amount *")).toHaveValue("500")
       expect(screen.getByText("After saving").nextSibling).toHaveTextContent(
@@ -189,7 +202,7 @@ describe("PaymentEditor", () => {
     const { user } = setup(3000)
     await user.click(screen.getByRole("combobox", { name: "Term" }))
     await user.click(screen.getByRole("option", { name: /Jul 2027/ }))
-    await user.click(screen.getByRole("button", { name: /Record payment.*3,900/ }))
+    await user.click(screen.getByRole("button", { name: "Record payment" }))
     await waitFor(() =>
       expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 3900, "t1"),
     )
@@ -220,6 +233,20 @@ describe("PaymentEditor", () => {
     expect(alert).toHaveTextContent("The term does not belong to this application.")
   })
 
+  it("refreshes the overview before another refund can be recorded after a lost response", async () => {
+    recordRefund.mockRejectedValueOnce(
+      new NetworkError(new Request("https://example.test/payment")),
+    )
+    const { user, onClose } = setup(7400)
+    await user.click(screen.getByRole("radio", { name: "Refund" }))
+    await user.click(screen.getByRole("button", { name: "Record refund" }))
+    const refresh = await screen.findByRole("button", { name: "Refresh overview" })
+    expect(screen.queryByRole("button", { name: "Record refund" })).not.toBeInTheDocument()
+    await user.click(refresh)
+    await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
+    expect(recordRefund).toHaveBeenCalledOnce()
+  })
+
   it("names a term by its name and dates in the choice", async () => {
     const { user } = setup(3000)
     await user.click(screen.getByRole("combobox", { name: "Term" }))
@@ -229,7 +256,7 @@ describe("PaymentEditor", () => {
   it("defaults to settling the balance and sends the amount shown on the button", async () => {
     const { user, onClose, invalidate } = setup()
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
-    expect(screen.getByText("After saving, amount owed").nextSibling).toHaveTextContent(/0/)
+    expect(screen.getByText("After saving, debt").nextSibling).toHaveTextContent(/0/)
     await user.click(screen.getByRole("button", { name: /^Record payment/ }))
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
     expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 6900)
@@ -240,8 +267,8 @@ describe("PaymentEditor", () => {
   it("offers to settle only the outstanding balance without an amount field", async () => {
     const { user } = setup(3000)
     expect(screen.queryByLabelText(label)).not.toBeInTheDocument()
-    expect(screen.getByRole("radio", { name: /Settle the remaining.*3,900/ })).toBeChecked()
-    expect(screen.getByRole("button", { name: /Record payment.*3,900/ })).toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: /Pay the remaining.*3,900/ })).toBeChecked()
+    expect(screen.getByRole("button", { name: "Record payment" })).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: /^Record payment/ }))
     await waitFor(() => expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 3900))
   })
@@ -252,7 +279,7 @@ describe("PaymentEditor", () => {
       const { user } = setup(3000)
       await user.click(screen.getByRole("radio", { name: "Record another amount" }))
       await user.type(screen.getByLabelText(label), value)
-      expect(screen.getByText("After saving, amount owed").nextSibling).toHaveTextContent(/2,900/)
+      expect(screen.getByText("After saving, debt").nextSibling).toHaveTextContent(/2,900/)
       await user.click(screen.getByRole("button", { name: /^Record payment/ }))
       await waitFor(() =>
         expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 1000),
@@ -263,11 +290,11 @@ describe("PaymentEditor", () => {
   it("requires an explicit amount when the application is fully paid and previews an overpayment", async () => {
     const { user } = setup(6900)
     expect(
-      screen.getByText("The application is paid. Enter the amount of the additional payment."),
+      screen.getByText("Enter a positive amount. The entry only records a received payment."),
     ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: /^Record payment/ }))
     expect(recordPayment).not.toHaveBeenCalled()
-    await user.type(screen.getByLabelText("Amount of this payment (CZK)"), "500")
+    await user.type(screen.getByLabelText("Amount *"), "500")
     expect(screen.getByText("After saving, overpayment").nextSibling).toHaveTextContent(/500/)
     expect(screen.getByRole("alert")).toHaveTextContent("Payment exceeds the remaining balance")
     await user.click(screen.getByRole("button", { name: /^Record payment/ }))
@@ -282,7 +309,7 @@ describe("PaymentEditor", () => {
       await user.type(screen.getByLabelText(label), value)
       await user.click(screen.getByRole("button", { name: /^Record payment/ }))
       expect(screen.getByRole("alert")).toHaveTextContent("Enter a positive whole amount in CZK.")
-      expect(screen.queryByText("After saving, amount owed")).not.toBeInTheDocument()
+      expect(screen.queryByText("After saving, debt")).not.toBeInTheDocument()
       expect(recordPayment).not.toHaveBeenCalled()
     },
   )
@@ -317,10 +344,10 @@ describe("PaymentEditor", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Enter a positive whole amount in CZK.")
     expect(recordPayment).not.toHaveBeenCalled()
     await user.type(screen.getByLabelText(label), "1000")
-    expect(screen.getByRole("button", { name: /Record payment.*1,000/ })).toBeInTheDocument()
-    await user.click(screen.getByRole("radio", { name: /Settle the remaining/ }))
+    expect(screen.getByRole("button", { name: "Record payment" })).toBeInTheDocument()
+    await user.click(screen.getByRole("radio", { name: /Pay the remaining/ }))
     expect(screen.queryByLabelText(label)).not.toBeInTheDocument()
-    await user.click(screen.getByRole("button", { name: /Record payment.*3,900/ }))
+    await user.click(screen.getByRole("button", { name: "Record payment" }))
     await waitFor(() => expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 3900))
   })
 
@@ -340,16 +367,16 @@ describe("PaymentEditor", () => {
     await user.clear(input)
     await user.type(input, "3900")
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
-    expect(screen.getByText("After saving, amount owed").nextSibling).toHaveTextContent(/0/)
+    expect(screen.getByText("After saving, debt").nextSibling).toHaveTextContent(/0/)
   })
 
   it("adds to an existing overpayment but records only the amount of the new receipt", async () => {
     const { user } = setup(7400)
-    expect(screen.queryByRole("radio", { name: /Settle the remaining/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole("radio", { name: /Pay the remaining/ })).not.toBeInTheDocument()
     await user.type(screen.getByLabelText(label), "200")
     expect(screen.getByRole("alert")).toHaveTextContent(/overpayment will be.*700/)
     expect(screen.getByText("After saving, overpayment").nextSibling).toHaveTextContent(/700/)
-    await user.click(screen.getByRole("button", { name: /Record payment.*200/ }))
+    await user.click(screen.getByRole("button", { name: "Record payment" }))
     await waitFor(() => expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 200))
   })
   it("pays one term only: its own amounts, the term in the title and its id in the request", async () => {
@@ -377,9 +404,12 @@ describe("PaymentEditor", () => {
     expect(screen.getByText("Amount due").nextSibling).toHaveTextContent("5,600")
     expect(screen.getByText("Paid so far").nextSibling).toHaveTextContent("4,900")
     expect(screen.getByText("Left to pay").nextSibling).toHaveTextContent("700")
-    expect(screen.getByRole("radio", { name: /Settle the remaining.*700/ })).toBeChecked()
+    expect(screen.getByRole("radio", { name: /Pay the remaining.*700/ })).toBeChecked()
+    expect(screen.getByText("After saving").nextSibling).toHaveTextContent(
+      /Paid CZK 4,900 → CZK 5,600\. Left to pay for this term: CZK 0/,
+    )
 
-    await user.click(screen.getByRole("button", { name: /Record payment.*700/ }))
+    await user.click(screen.getByRole("button", { name: "Record payment" }))
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
     expect(recordPayment).toHaveBeenCalledWith("a1", expect.any(String), 700, "t2")
   })

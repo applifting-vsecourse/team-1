@@ -3,6 +3,8 @@ import { paymentOverview, PaymentOverviewTerm } from "./payment-overview"
 const now = new Date("2026-11-06T12:00:00Z")
 const term: PaymentOverviewTerm = {
   applicationId: "a1",
+  applicationNumber: 246,
+  termNumber: 3,
   firstName: "Adam",
   lastName: "Dvořák",
   termId: "t1",
@@ -28,9 +30,18 @@ describe("payment overview", () => {
       totalDebtCzk: 2900,
       debtorCount: 1,
       overdueCount: 1,
+      remindedDebtorCount: 1,
+      debtByFilter: {
+        OVERDUE: { ALL: 2900, SENT: 2900, NOT_SENT: 0 },
+        PARTIALLY_PAID: { ALL: 2900, SENT: 2900, NOT_SENT: 0 },
+      },
       entries: [
         {
           paymentStatus: "PARTIALLY_PAID",
+          payableCzk: 2900,
+          applicationNumber: 246,
+          variableSymbol: "246003",
+          summaryVariableSymbol: "246000",
           amountPaidCzk: 2000,
           amountOwedCzk: 2900,
           reminderCount: 1,
@@ -55,6 +66,8 @@ describe("payment overview", () => {
       10,
       now,
     )
+    expect(result.debtByFilter.ALL.NOT_SENT).toBe(2900)
+    expect(result.debtByFilter.PAID.ALL).toBe(0)
     expect(result.totalDebtCzk).toBe(2900)
     expect(result.debtorCount).toBe(1)
     expect(result.entries.find((entry) => entry.termId === "t2")).toMatchObject({

@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
 import { Ban, MoreHorizontal, Pencil } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import { CapacityProgress } from "@/components/atoms/CapacityProgress"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -30,22 +32,23 @@ import { TermFormDialog } from "@/features/events/components/TermFormDialog"
 type Dialog =
   { kind: "add" } | { kind: "edit"; term: EventTerm } | { kind: "cancel"; term: EventTerm }
 
-type Change = { kind: "added" | "edited" | "cancelled"; term: EventTerm }
+type Change = { kind: "added" | "edited"; term: EventTerm }
+
+/** What the cancellation of a term just did (US-131). */
+type CancelResult = { term: EventTerm; cancelledApplications: number }
 
 /**
  * O24 / O24a / O24b / O24c: the terms of an event sorted by date, with add, and edit or
  * cancel in each row's menu; a toast confirms what just happened.
  */
-// Figma (Design system): O24 Nastavení akce a seznam termínů · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-1018
-// Figma (Design system): O24a Seznam po přidání · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-1888
-// Figma (Design system): O24b Seznam po úpravě · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-2509
-// Figma (Design system): O24c Seznam po zrušení · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12282-3036
+// Figma v2: US-13 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15409-10508 (mobile 15409-10575).
 export function EventTerms({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
   const event = useQuery(eventQueryOptions(eventId))
   const terms = useQuery(termsQueryOptions(eventId))
   const [dialog, setDialog] = useState<Dialog | null>(null)
   const [changedId, setChangedId] = useState<string | null>(null)
+  const [cancelResult, setCancelResult] = useState<CancelResult | null>(null)
 
   const error = event.error ?? terms.error
   if (error) {
@@ -68,34 +71,34 @@ export function EventTerms({ eventId }: { eventId: string }) {
   const close = () => setDialog(null)
   const finish = ({ kind, term }: Change) => {
     notify.success(t(`terms.notice.${kind}`, { name: termTitle(term) }))
-    setChangedId(kind === "cancelled" ? null : term.id)
+    setChangedId(term.id)
+    setCancelResult(null)
+    close()
+  }
+  const finishCancel = (result: CancelResult) => {
+    setChangedId(null)
+    setCancelResult(result)
     close()
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <SectionHeader
-        title={t("terms.title")}
-        description={t("terms.description")}
-        actions={
-          <Button
-            size="lg"
-            onClick={() => setDialog({ kind: "add" })}
-          >
-            {t("terms.add")}
-          </Button>
-        }
-      />
-      <Card className="gap-4 p-6">
-        <h3 className="text-lg font-semibold tracking-tight">
-          {t("terms.listTitle", { count: active.length })}
-        </h3>
-        <p className="text-sm text-muted-foreground">{t("terms.listHelper")}</p>
+      <SectionHeader title={t("terms.title")} />
+      {cancelResult ? (
+        <CancelledResult
+          eventId={eventId}
+          result={cancelResult}
+        />
+      ) : null}
+      <Card className="grid grid-cols-1 items-center gap-4 rounded-xl p-4 md:grid-cols-[minmax(0,1fr)_auto] md:p-6">
+        <h3 className="text-lg font-semibold tracking-tight">{t("terms.listTitle")}</h3>
+        <p className="col-span-full text-sm text-muted-foreground">{t("terms.listHelper")}</p>
         {active.length === 0 ? (
-          <EmptyState message={t("terms.empty")} />
+          <div className="col-span-full">
+            <EmptyState message={t("terms.empty")} />
+          </div>
         ) : (
-          // Rows: "DS / Term row" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12279-965
-          <ul className="pt-2">
+          <ul className="col-span-full">
             {active.map((term) => (
               // The term just added or edited keeps the selected surface, as in O24a / O24b.
               <li
@@ -111,6 +114,14 @@ export function EventTerms({ eventId }: { eventId: string }) {
             ))}
           </ul>
         )}
+        <Button
+          size="lg"
+          variant="ghost"
+          className="w-full md:col-start-2 md:row-start-1 md:w-auto md:min-w-[119px]"
+          onClick={() => setDialog({ kind: "add" })}
+        >
+          {t("terms.add")}
+        </Button>
       </Card>
       {cancelled.length > 0 ? (
         <section className="flex flex-col gap-3 rounded-lg border bg-muted p-6">
@@ -146,7 +157,9 @@ export function EventTerms({ eventId }: { eventId: string }) {
           eventName={eventName}
           term={dialog.term}
           onClose={close}
-          onCancelled={(term) => finish({ kind: "cancelled", term })}
+          onCancelled={(term, cancelledApplications) =>
+            finishCancel({ term, cancelledApplications })
+          }
         />
       ) : null}
     </div>
@@ -165,42 +178,60 @@ function TermRow({
   const { t } = useTranslation("events")
 
   return (
-    <div className="flex flex-wrap items-center gap-4">
-      <div className="flex min-w-48 flex-1 flex-col gap-1">
-        <span className="text-sm font-medium tabular-nums">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+      <div className="flex min-w-0 flex-col gap-2">
+        <span className="text-sm/5 text-muted-foreground tabular-nums">
           {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
         </span>
         <span className="sr-only"> · </span>
-        <span className="text-sm text-muted-foreground">
-          {termName(term) ? `${termName(term)} · ` : ""}
+        <span className="text-base/6">
+          {termName(term) ? (
+            <>
+              <span className="block md:inline">{termName(term)}</span>
+              <span
+                aria-hidden
+                className="hidden md:inline"
+              >
+                {" "}
+                ·{" "}
+              </span>
+            </>
+          ) : null}
+          <span className="md:hidden">{t("terms.priceLabel")} </span>
           {formatTermPrice(term.priceCzk)}
         </span>
       </div>
       <TermOccupancy term={term} />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-lg"
-            aria-label={t("terms.actions", { name: termTitle(term) })}
-          >
-            <MoreHorizontal />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={onEdit}>
-            <Pencil />
-            {t("terms.edit")}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            variant="destructive"
-            onSelect={onCancel}
-          >
-            <Ban />
-            {t("terms.cancel")}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="col-start-2 row-start-1 flex items-center md:col-start-3">
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          aria-label={t("terms.edit") + " · " + termTitle(term)}
+          onClick={onEdit}
+        >
+          <Pencil aria-hidden />
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              aria-label={t("terms.actions", { name: termTitle(term) })}
+            >
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={onCancel}
+            >
+              <Ban />
+              {t("terms.cancel")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   )
 }
@@ -210,11 +241,11 @@ function TermOccupancy({ term }: { term: EventTerm }) {
   const { t } = useTranslation("events")
   const label =
     term.capacity > 0
-      ? t("terms.occupancy", { confirmed: term.confirmedCount, count: term.capacity })
+      ? t("terms.occupancy", { confirmed: term.confirmedCount, capacity: term.capacity })
       : t("list.noCapacity")
 
   return (
-    <div className="flex w-full items-center gap-3 sm:w-70">
+    <div className="col-span-2 flex w-full flex-col items-start gap-1 md:col-span-1 md:col-start-2 md:row-start-1">
       <span
         className={cn(
           "shrink-0 text-sm font-medium tabular-nums",
@@ -228,9 +259,40 @@ function TermOccupancy({ term }: { term: EventTerm }) {
           confirmed={term.confirmedCount}
           capacity={term.capacity}
           label={label}
-          className="flex-1"
+          className="h-1 w-full"
         />
       ) : null}
     </div>
+  )
+}
+
+/** US-131: what the cancellation did, and the way to the payments the organizer refunds by hand. */
+// Figma (Design system v2): US-131 Termín byl zrušen · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22437-88251 (mobile 22437-88328)
+function CancelledResult({ eventId, result }: { eventId: string; result: CancelResult }) {
+  const { t } = useTranslation("events")
+  return (
+    <section
+      role="status"
+      className="flex flex-col items-start gap-3 rounded-lg border bg-card p-4"
+    >
+      <h3 className="text-2xl font-bold tracking-tight">{t("terms.cancelledResult.title")}</h3>
+      <p className="text-lg font-semibold tracking-tight">{termLine(result.term)}</p>
+      <p>{t("terms.cancelledResult.applications", { count: result.cancelledApplications })}</p>
+      <p>{t("terms.cancelledResult.emails")}</p>
+      <p className="text-sm text-muted-foreground">{t("terms.cancelledResult.unchanged")}</p>
+      <p className="text-sm text-muted-foreground">{t("terms.cancelledResult.refunds")}</p>
+      <Button
+        asChild
+        variant="outline"
+        size="lg"
+      >
+        <Link
+          to={ROUTES.organizer.eventPayments}
+          params={{ eventId }}
+        >
+          {t("terms.cancelledResult.payments")}
+        </Link>
+      </Button>
+    </section>
   )
 }

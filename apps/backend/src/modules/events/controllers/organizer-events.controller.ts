@@ -141,12 +141,16 @@ export class OrganizerEventsController {
 
   @Patch(":eventId/evaluation-mode")
   @ApiOperation({
-    summary: "Choose automatic or manual evaluation; only before applications open (US-101)",
+    summary:
+      "Choose automatic or manual evaluation; only before the first application (US-101, D-083)",
   })
   @ApiResponse({ status: 200, type: OrganizerEventResponseDto })
   @ApiResponse({ status: 400, description: "Invalid evaluation mode." })
   @ApiResponse({ status: 403, description: "Unknown event or of another organization." })
-  @ApiResponse({ status: 409, description: "Applications are open (EVALUATION_MODE_LOCKED)." })
+  @ApiResponse({
+    status: 409,
+    description: "The event already has an application (EVALUATION_MODE_LOCKED).",
+  })
   async setEvaluationMode(
     @User() user: Identity,
     @Param("eventId") eventId: string,

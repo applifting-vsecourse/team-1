@@ -9,7 +9,7 @@ import { ActiveCorners } from "@/components/atoms/ActiveCorners"
  * marked on the pages below it too (an event and its tabs), as in the Figma
  * frames (#394).
  */
-// Figma (Design system): DS / Navigation · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11739-2903
+// Figma (Design system): DS / Navigation · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15219-4340
 type SidebarLinkProps = LinkProps & {
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>
   children: ReactNode
@@ -21,14 +21,14 @@ export function SidebarLink({ icon: Icon, children, ...props }: SidebarLinkProps
       {...props}
       title={typeof children === "string" ? children : undefined}
       // Active styling uses the router's data-status attribute (see NavLink).
-      className="group relative flex h-11 items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors group-data-[collapsed=true]/sidebar:justify-center group-data-[collapsed=true]/sidebar:px-0 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:text-sidebar-accent-foreground"
+      className="group relative flex min-h-12 items-center gap-4 rounded-control px-3 py-2 text-base text-sidebar-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring data-[status=active]:bg-sidebar-accent data-[status=active]:text-sidebar-accent-foreground"
     >
       <Icon
         aria-hidden
         className="size-5 shrink-0"
       />
-      <span className="group-data-[collapsed=true]/sidebar:sr-only">{children}</span>
-      <ActiveCorners />
+      <span>{children}</span>
+      <ActiveCorners className="group-focus-visible:hidden" />
     </Link>
   )
 }

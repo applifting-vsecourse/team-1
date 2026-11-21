@@ -31,6 +31,7 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"]): TermRooms => ({
   startsOn: "2027-07-12",
   endsOn: "2027-07-18",
   roomMode: "GENDERED",
+  roomsPublished: false,
   rooms,
   capacity: {
     FEMALE: 0,
@@ -51,6 +52,7 @@ const sourceTerms = [
     name: "Week 2",
     startsOn: "2027-07-19",
     endsOn: "2027-07-25",
+    roomCount: 2,
     roomMode: "GENDERED" as const,
   },
   {
@@ -58,11 +60,16 @@ const sourceTerms = [
     name: "Week 3",
     startsOn: "2027-07-26",
     endsOn: "2027-08-01",
+    roomCount: 1,
     roomMode: "SHARED" as const,
   },
 ]
 
-function renderDialog(target: TermRooms, source: TermRooms["rooms"] = sourceRooms) {
+function renderDialog(
+  target: TermRooms,
+  source: TermRooms["rooms"] = sourceRooms,
+  availableTerms = sourceTerms,
+) {
   get.mockImplementation(() => ({
     json: () => Promise.resolve(termRooms("t2", source)),
   }))
@@ -75,7 +82,7 @@ function renderDialog(target: TermRooms, source: TermRooms["rooms"] = sourceRoom
     >
       <CopyRoomsDialog
         target={target}
-        sourceTerms={sourceTerms}
+        sourceTerms={availableTerms}
         onClose={onClose}
         onCopied={onCopied}
       />
@@ -90,6 +97,7 @@ async function pickSource(user: ReturnType<typeof userEvent.setup>) {
     await screen.findByRole("option", { name: /Week 3.*different room mode/ }),
   ).toHaveAttribute("aria-disabled", "true")
   await user.click(screen.getByRole("option", { name: /Week 2 · rooms by gender/ }))
+  await user.click(await screen.findByRole("button", { name: "Show preview" }))
   expect(await screen.findByRole("button", { name: /Copy rooms|Add 2 rooms/ })).toBeEnabled()
 }
 
@@ -99,9 +107,20 @@ describe("copying rooms into a term", () => {
     post.mockReset()
   })
 
+  it("explains when all compatible source terms have no rooms", () => {
+    renderDialog(
+      termRooms("t1", []),
+      [],
+      sourceTerms.map((term) => ({ ...term, roomCount: term.roomMode === "SHARED" ? 1 : 0 })),
+    )
+    expect(screen.getByText("No rooms to copy")).toBeInTheDocument()
+    expect(screen.getByRole("combobox", { name: "Source term" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Show preview" })).toBeDisabled()
+  })
+
   it("previews the copy into an empty term and copies without a choice", async () => {
     const { user, onCopied, onClose } = renderDialog(termRooms("t1", []))
-    expect(screen.getByRole("button", { name: "Copy rooms" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Show preview" })).toBeDisabled()
     await pickSource(user)
     expect(
       screen.getByText(/The target term gets 2 rooms of its own and a capacity of 10 beds/),
@@ -233,6 +252,7 @@ describe("copying rooms into a term", () => {
       const { user } = renderDialog({ ...termRooms("t1", []), roomMode: "SHARED" }, withExtras)
       await user.click(screen.getByRole("combobox", { name: "Source term" }))
       await user.click(screen.getByRole("option", { name: /Week 3 · shared rooms/ }))
+      await user.click(screen.getByRole("button", { name: "Show preview" }))
       expect(await screen.findByText("Room name and capacity")).toBeInTheDocument()
       expect(screen.queryByText("Room name, capacity and gender")).not.toBeInTheDocument()
     })

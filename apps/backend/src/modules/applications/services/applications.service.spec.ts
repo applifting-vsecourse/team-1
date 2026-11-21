@@ -12,10 +12,12 @@ import { ApplicationsService } from "./applications.service"
 const event: SubmissionEvent = {
   id: "e1",
   organizationId: "o1",
+  organizationName: "Alpine Collective",
   name: "Letní kemp",
   bankAccount: "2900123456/2010",
   evaluationMode: "AUTOMATIC",
   termsWithoutRooms: 0,
+  evaluationModePending: false,
   terms: [
     {
       id: "t1",
@@ -94,7 +96,7 @@ describe("ApplicationsService", () => {
 
     expect(repository.saveEvaluated).toHaveBeenCalledWith(
       event,
-      [expect.objectContaining({ phone: "+420 777 123 456", consentAt: expect.any(Date) })],
+      [expect.objectContaining({ phone: "+420777123456", consentAt: expect.any(Date) })],
       expect.any(Function),
       "organizer",
     )
@@ -107,11 +109,57 @@ describe("ApplicationsService", () => {
     )
   })
 
+  describe("phone of a manually added application", () => {
+    const organizer = new Identity(
+      "organizer",
+      "organizer@example.com",
+      "Organizer",
+      "ORGANIZER",
+      false,
+    )
+    const manualInput = {
+      firstName: "Eva",
+      lastName: "Nováková",
+      birthDate: "2014-05-18",
+      gender: "FEMALE" as const,
+      email: "eva@example.com",
+      consent: true as const,
+      terms: [{ termId: "t1", status: "CONFIRMED" as const }],
+    }
+
+    beforeEach(() => {
+      access.assertCanAccessEvent.mockResolvedValue({ organizationId: "o1" })
+      repository.findEventForOrganizer.mockResolvedValue(event)
+    })
+
+    it.each([undefined, null, "", "   "])("stores no phone for %j", async (phone) => {
+      await service.submitByOrganizer(organizer, "e1", { ...manualInput, phone }, "cs")
+
+      expect(repository.saveEvaluated).toHaveBeenCalledWith(
+        event,
+        [expect.not.objectContaining({ phone: expect.anything() })],
+        expect.any(Function),
+        "organizer",
+      )
+    })
+
+    it.each(["abc", "123456x", "123454623123121221212121212112"])(
+      "rejects the phone %j before anything is stored or sent",
+      async (phone) => {
+        await expect(
+          service.submitByOrganizer(organizer, "e1", { ...manualInput, phone }, "cs"),
+        ).rejects.toMatchObject(new AppException(HttpStatus.BAD_REQUEST, "INVALID_PHONE"))
+        expect(repository.saveEvaluated).not.toHaveBeenCalled()
+        expect(mailer.sendSubmissionConfirmation).not.toHaveBeenCalled()
+      },
+    )
+  })
+
   it("stores, then sends one summary e-mail", async () => {
     await service.submit("link", { email: "A@Example.com", participants: [participant] }, "cs")
 
     expect(accounts.ensureAccount).toHaveBeenCalledWith(
-      expect.objectContaining({ email: "A@Example.com", locale: "cs" }),
+      expect.objectContaining({ email: "A@Example.com" }),
     )
     expect(mailer.sendSubmissionConfirmation).toHaveBeenCalledTimes(1)
     expect(mailer.sendSubmissionConfirmation).toHaveBeenCalledWith(
@@ -119,13 +167,22 @@ describe("ApplicationsService", () => {
         email: "a@example.com",
         locale: "cs",
         eventName: "Letní kemp",
+        organizationName: "Alpine Collective",
         bankAccount: "2900123456/2010",
         mustSetPassword: true,
         applications: [
           expect.objectContaining({
             number: 7,
             firstName: "Eva",
-            terms: [{ name: "1. týden", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 }],
+            terms: [
+              {
+                name: "1. týden",
+                dates: "4.–10. 7. 2027",
+                termNumber: 1,
+                status: "CONFIRMED",
+                priceCzk: 4500,
+              },
+            ],
           }),
         ],
       }),
@@ -142,7 +199,13 @@ describe("ApplicationsService", () => {
 
     const [confirmation] = mailer.sendSubmissionConfirmation.mock.calls[0]
     expect(confirmation.applications[0].terms).toEqual([
-      { name: "4.–10. 7. 2027", termNumber: 1, status: "CONFIRMED", priceCzk: 4500 },
+      {
+        name: "4.–10. 7. 2027",
+        dates: "4.–10. 7. 2027",
+        termNumber: 1,
+        status: "CONFIRMED",
+        priceCzk: 4500,
+      },
     ])
   })
 

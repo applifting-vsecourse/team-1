@@ -1,12 +1,14 @@
 import {
   ApplicationProgram,
   EventProgram,
+  ProgramCopyStrategy,
   ProgramInput,
+  ProgramOverlap,
   TermInfo,
 } from "@/modules/program/domain/program"
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
+import { ApiProperty, ApiPropertyOptional, OmitType } from "@nestjs/swagger"
 import { Transform } from "class-transformer"
-import { IsOptional, IsString, MaxLength } from "class-validator"
+import { IsIn, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 const trim = ({ value }: { value: unknown }) => (typeof value === "string" ? value.trim() : value)
 
@@ -92,4 +94,35 @@ export class ApplicationProgramResponseDto implements ApplicationProgram {
     description: "Only the terms the participant is confirmed in",
   })
   terms!: TermProgramDto[]
+}
+
+export class ProgramCopyRequestDto {
+  @ApiProperty({ description: "Term of the same event to copy the program from" })
+  @IsString()
+  @MinLength(1)
+  sourceTermId!: string
+
+  @ApiProperty({
+    enum: ["ADD", "REPLACE"],
+    description: "Keep the blocks the term already has and add the copies, or replace them",
+  })
+  @IsIn(["ADD", "REPLACE"])
+  strategy!: ProgramCopyStrategy
+}
+
+export class ProgramOverlapDto implements ProgramOverlap {
+  @ApiProperty() startTime!: string
+  @ApiProperty() endTime!: string
+  @ApiProperty({ example: "2027-07-12" }) date!: string
+  @ApiProperty({ description: "Name of the copied block" }) first!: string
+  @ApiProperty({ description: "Name of the block it overlaps" }) second!: string
+}
+
+export class CopiedProgramBlockDto extends OmitType(ProgramBlockDto, ["id"] as const) {}
+export class ProgramCopyResponseDto {
+  @ApiProperty({ type: [CopiedProgramBlockDto] }) blocks!: CopiedProgramBlockDto[]
+  @ApiProperty() copied!: number
+  @ApiProperty({ description: "Source blocks from days the target term does not have" })
+  skipped!: number
+  @ApiProperty({ type: [ProgramOverlapDto] }) overlaps!: ProgramOverlapDto[]
 }

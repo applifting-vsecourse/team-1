@@ -176,7 +176,7 @@ export function UnassignedRow({
   return (
     <li
       className={cn(
-        "flex items-center gap-2.5 px-3 py-2.5",
+        "flex items-center gap-3 px-3 py-2",
         !isFirst && "border-t border-border",
         isDragging && "opacity-40",
       )}
@@ -185,33 +185,34 @@ export function UnassignedRow({
         {...attributes}
         {...listeners}
         ref={setNodeRef}
-        className={cn("flex min-w-0 flex-1 items-center gap-2.5", !isDisabled && "cursor-grab")}
+        className={cn("flex min-w-0 flex-1 items-center gap-2", !isDisabled && "cursor-grab")}
       >
         <GripVertical
           className="size-3.5 shrink-0 text-muted-foreground"
           aria-hidden
         />
-        <div
-          className={cn(
-            "flex min-w-0 flex-col gap-0.5",
-            participant.individualAccommodation && "gap-2",
-          )}
-        >
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="truncate text-sm font-medium">{name}</span>
+            <span className="text-sm font-medium break-words">{name}</span>
             {participant.individualAccommodation ? (
-              <Badge variant="secondary">{t("roomAssignments.individual")}</Badge>
+              <Badge
+                variant="secondary"
+                className="max-w-full shrink whitespace-normal"
+              >
+                {t("roomAssignments.individual")}
+              </Badge>
             ) : null}
           </span>
-          <span className="truncate text-sm text-muted-foreground">
-            {genderLabel(participant.gender)} ·{" "}
-            {statusLabel(participant.status, participant.gender)}
+          <span className="text-sm text-muted-foreground">
+            {genderLabel(participant.gender)} · {statusLabel(participant.status)}
           </span>
         </div>
       </div>
       <Button
         type="button"
         variant="outline"
+        size="sm"
+        className="shrink-0"
         disabled={isDisabled}
         aria-label={t("roomAssignments.assignAria", { name })}
         onClick={onAssign}
@@ -223,6 +224,7 @@ export function UnassignedRow({
 }
 
 type RoomProps = {
+  placementSequence?: number
   room: AssignmentRoom
   /** Something is being dragged and this room can take them (a full one as an extra bed) and is not the dragged one's own. */
   isEligible: boolean
@@ -271,21 +273,37 @@ export function ExtraBeds({ room }: { room: AssignmentRoom }) {
 const openKinds = (warnings: RoomWarning[]): RoomWarning["kind"][] =>
   warnings.filter((warning) => !warning.acknowledged).map((warning) => warning.kind)
 
+/** Decorative M28 feedback. Only a successful placement issues a new sequence. */
+function PlacementMark({ sequence }: { sequence?: number }) {
+  return sequence ? (
+    <span
+      key={sequence}
+      aria-hidden="true"
+      className="placement-mark"
+    >
+      <span />
+    </span>
+  ) : null
+}
+
 function Occupancy({
   room,
+  placementSequence,
   warnings,
   isDropping,
 }: {
   room: AssignmentRoom
   warnings: RoomWarning[]
   isDropping: boolean
+  placementSequence?: number
 }) {
   const { t } = useTranslation("events")
   const { freeBedsLabel } = useAssignmentLabels()
   const kinds = openKinds(warnings)
   return (
     <div className="flex flex-col items-start gap-1 text-sm">
-      <span className="font-medium">
+      <span className="relative px-2 py-1 font-medium tabular-nums">
+        <PlacementMark sequence={placementSequence} />
         {room.participants.length} / {room.beds}
       </span>
       {kinds.includes("OVERCROWDED") ? null : (
@@ -339,10 +357,46 @@ function Strips({
   ))
 }
 
+/** The panel of the unassigned: dropping a person from a room on it removes them from the room. */
+export function UnassignedDropZone({
+  isDragActive,
+  panelRef,
+  className,
+  children,
+}: {
+  /** A person sitting in a room is being dragged, so the panel is a valid target. */
+  isDragActive: boolean
+  panelRef: (element: HTMLDivElement | null) => void
+  className?: string
+  children: ReactNode
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: "unassigned", data: { isUnassigned: true } })
+  const setRefs = useCallback(
+    (element: HTMLDivElement | null) => {
+      setNodeRef(element)
+      panelRef(element)
+    },
+    [setNodeRef, panelRef],
+  )
+  return (
+    <div
+      ref={setRefs}
+      className={cn(
+        className,
+        isDragActive &&
+          (isOver ? "bg-accent outline-2 -outline-offset-2 outline-ring" : "bg-muted"),
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
 /** Desktop row of a room: name with its gender, people as chips, occupancy and the room actions. */
 export function RoomTableRow({
   room,
   isEligible,
+  placementSequence,
   warnings,
   onAcknowledge,
   isDragActive,
@@ -350,6 +404,7 @@ export function RoomTableRow({
   onMoveParticipant,
   onRemoveParticipant,
 }: RoomProps) {
+  const { t } = useTranslation("events")
   const { roomGenderLabel } = useAssignmentLabels()
   const { setNodeRef, isOver } = useDroppable({
     id: `row:${room.id}`,
@@ -373,17 +428,18 @@ export function RoomTableRow({
         <TableCell
           aria-label={room.name}
           className={cn(
-            "align-top whitespace-normal",
+            "pl-4 whitespace-normal",
             isWarned && "shadow-[inset_4px_0_0_0_var(--color-status-warning)]",
           )}
         >
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-bold">{room.name}</span>
+            <span className="min-w-6 text-right font-bold tabular-nums">{room.name}</span>
             {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
+            {room.individual ? <Badge variant="secondary">{t("rooms.individual")}</Badge> : null}
             <WarningLabels kinds={openKinds(warnings)} />
           </div>
         </TableCell>
-        <TableCell className="min-w-64 align-top whitespace-normal">
+        <TableCell className="min-w-40 whitespace-normal">
           <Chips
             room={room}
             scope="row"
@@ -391,14 +447,15 @@ export function RoomTableRow({
             onRemoveParticipant={onRemoveParticipant}
           />
         </TableCell>
-        <TableCell className="w-36 align-top">
+        <TableCell className="w-32">
           <Occupancy
+            placementSequence={placementSequence}
             room={room}
             warnings={warnings}
             isDropping={isDropping}
           />
         </TableCell>
-        <TableCell className="w-48 align-top">
+        <TableCell className="w-px pr-4">
           <div className="flex items-center justify-end gap-1">{actions}</div>
         </TableCell>
       </TableRow>
@@ -427,6 +484,7 @@ export function RoomTableRow({
 export function RoomCard({
   room,
   isEligible,
+  placementSequence,
   warnings,
   onAcknowledge,
   isDragActive,
@@ -434,6 +492,7 @@ export function RoomCard({
   onMoveParticipant,
   onRemoveParticipant,
 }: RoomProps) {
+  const { t } = useTranslation("events")
   const { roomGenderLabel, freeBedsLabel } = useAssignmentLabels()
   const { setNodeRef, isOver } = useDroppable({
     id: `card:${room.id}`,
@@ -459,10 +518,12 @@ export function RoomCard({
         <div className="flex flex-wrap items-center justify-center gap-2">
           <span className="font-semibold break-words">{room.name}</span>
           {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
+          {room.individual ? <Badge variant="secondary">{t("rooms.individual")}</Badge> : null}
           <WarningLabels kinds={kinds} />
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold whitespace-nowrap">
+          <span className="relative px-2 py-1 text-sm font-semibold whitespace-nowrap tabular-nums">
+            <PlacementMark sequence={placementSequence} />
             {room.participants.length} / {room.beds}
           </span>
           <div

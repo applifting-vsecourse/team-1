@@ -7,7 +7,7 @@ import { evaluateManualSubmission } from "@/modules/applications/domain/manual-s
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
 import { hasEndedTerm } from "@/modules/applications/domain/term-ended"
-import { termLabel } from "@/modules/applications/domain/term-label"
+import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
 import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 import {
   ApplicationsRepository,
@@ -18,6 +18,7 @@ import { ParticipantAccountsService } from "@/modules/participants/services/part
 import { Identity } from "@/shared/auth/domain/identity"
 import { normalizeAccommodation } from "@/shared/domain/accommodation"
 import { Gender } from "@/shared/domain/gender"
+import { isValidPhone, normalizePhone } from "@/shared/domain/phone"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { KeyedMutex } from "@/shared/utils/keyed-mutex"
@@ -39,12 +40,14 @@ export type SubmitApplicationInput = {
 
 export type ManualApplicationInput = {
   email: string
-  phone: string
+  phone?: string | null
   consent: true
   firstName: string
   lastName: string
   birthDate: string
   gender: Gender
+  individualAccommodation?: boolean
+  accommodationRequest?: string | null
   terms: { termId: string; status: "CONFIRMED" | "WAITLISTED" }[]
   confirmOverCapacity?: boolean
 }
@@ -75,9 +78,15 @@ export class ApplicationsService {
       !isOpenForApplications({
         termCount: event.terms.length,
         termsWithoutRooms: event.termsWithoutRooms,
+        evaluationModePending: event.evaluationModePending,
       })
     ) {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+    }
+    // The phone is optional; a filled-in one has to be a phone.
+    const phone = normalizePhone(input.phone)
+    if (!isValidPhone(phone)) {
+      throw new AppException(HttpStatus.BAD_REQUEST, "INVALID_PHONE")
     }
     const prices = new Map(event.terms.map(({ id, priceCzk }) => [id, priceCzk]))
     const requestedIds = input.terms.map(({ termId }) => termId)
@@ -108,15 +117,15 @@ export class ApplicationsService {
       const submitted: ApplicationToSave = {
         ...participant,
         gender: input.gender,
+        ...normalizeAccommodation(input.individualAccommodation, input.accommodationRequest),
         email,
-        phone: input.phone.trim(),
+        phone: phone ?? undefined,
         locale,
         userId: async () => {
           // Called only after capacity and duplicate validation under the database lock.
           const account = await this.accounts.ensureAccount({
             email,
             name: `${input.firstName} ${input.lastName}`,
-            locale,
           })
           mustSetPassword = account.mustSetPassword
           return account.userId
@@ -166,6 +175,7 @@ export class ApplicationsService {
       !isOpenForApplications({
         termCount: event.terms.length,
         termsWithoutRooms: event.termsWithoutRooms,
+        evaluationModePending: event.evaluationModePending,
       })
     ) {
       throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
@@ -194,7 +204,6 @@ export class ApplicationsService {
       const account = await this.accounts.ensureAccount({
         email: input.email,
         name: `${first.firstName} ${first.lastName}`,
-        locale,
       })
 
       const consentAt = new Date()
@@ -211,7 +220,7 @@ export class ApplicationsService {
         accessToken: generateToken(),
       }))
 
-      const saved = await this.repository.saveEvaluated(event, applications, (snapshot) =>
+      const saved = await this.repository.saveEvaluated(event, applications, (snapshot, mode) =>
         evaluateSubmission(
           applications.map((application) => ({
             gender: application.gender,
@@ -221,7 +230,7 @@ export class ApplicationsService {
             })),
           })),
           snapshot,
-          event.evaluationMode,
+          mode,
         ),
       )
       return { account, applications, saved }
@@ -239,6 +248,7 @@ export class ApplicationsService {
    */
   private async sendConfirmation(
     event: {
+      organizationName: string
       name: string
       bankAccount: string
       terms: { id: string; name: string | null; startsOn: string; endsOn: string; number: number }[]
@@ -256,6 +266,7 @@ export class ApplicationsService {
         email,
         locale,
         eventName: event.name,
+        organizationName: event.organizationName,
         bankAccount: event.bankAccount,
         mustSetPassword,
         applications: saved.map((application) => ({
@@ -269,6 +280,7 @@ export class ApplicationsService {
             if (!eventTerm) throw new Error(`Term ${term.termId} is missing in the event`)
             return {
               name: termLabel(eventTerm, locale),
+              dates: formatTermDates(eventTerm.startsOn, eventTerm.endsOn, locale),
               termNumber: eventTerm.number,
               status: term.status,
               priceCzk: term.priceCzk,

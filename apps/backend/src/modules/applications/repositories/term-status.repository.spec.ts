@@ -8,7 +8,7 @@ type Locale = "en" | "cs"
 const setup = (options: {
   applicationLocale: Locale
   /** null: the application has no account. */
-  user: { locale: Locale } | null
+  user: { locale: Locale | null } | null
   firstApplicationLocale?: Locale
 }): { repository: TermStatusRepository; findFirstApplication: jest.Mock } => {
   const findFirstApplication = jest.fn((args: { where: { id?: string; userId?: string } }) =>
@@ -141,7 +141,7 @@ describe("TermStatusRepository.changeStatus: language and names of the e-mail (D
   it("uses the language of the first application of the user when the user set none", async () => {
     const { repository, findFirstApplication } = setup({
       applicationLocale: "en",
-      user: { locale: "en" },
+      user: { locale: null },
       firstApplicationLocale: "cs",
     })
 
@@ -154,6 +154,18 @@ describe("TermStatusRepository.changeStatus: language and names of the e-mail (D
         orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
       }),
     )
+  })
+
+  it("keeps a chosen English even when the first application was Czech (US-128)", async () => {
+    const { repository } = setup({
+      applicationLocale: "cs",
+      user: { locale: "en" },
+      firstApplicationLocale: "cs",
+    })
+
+    const result = await repository.changeStatus(command, () => undefined)
+
+    expect(result?.locale).toBe("en")
   })
 
   it("uses the language of the application itself when it has no account", async () => {

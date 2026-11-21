@@ -31,6 +31,7 @@ const event = {
   endsOn: "2027-07-25",
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
+  evaluationModePending: false,
   cancellationStartsOn: null,
   cancellationTerms: null,
   evaluationModeLocked: true,
@@ -69,6 +70,7 @@ const draft = {
   endsOn: null,
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
+  evaluationModePending: false,
   cancellationStartsOn: null,
   cancellationTerms: null,
   evaluationModeLocked: false,
@@ -108,11 +110,9 @@ describe("EventList", () => {
       "a",
     ) as HTMLElement
     expect(within(card).getByText("Published")).toBeInTheDocument()
-    expect(within(card).getByText("2 terms · July 2027 · Kemp Lipno")).toBeInTheDocument()
-    expect(within(card).getByText("79 / 120 places in 2 terms")).toBeInTheDocument()
-    expect(
-      within(card).getByRole("progressbar", { name: "79 / 120 places in 2 terms" }),
-    ).toBeInTheDocument()
+    expect(within(card).getByText("Kemp Lipno · 2 terms · July 2027")).toBeInTheDocument()
+    expect(within(card).getByText("79/120 confirmed")).toBeInTheDocument()
+    expect(within(card).getByRole("progressbar", { name: "79/120 confirmed" })).toBeInTheDocument()
   })
 
   it("highlights the event that was just created and says it has no term yet", async () => {
@@ -122,9 +122,25 @@ describe("EventList", () => {
       "li",
     )
     expect(item).toHaveAttribute("data-created", "true")
-    expect(within(item as HTMLElement).getByText("No term yet · Kemp Lipno")).toBeInTheDocument()
+    expect(within(item as HTMLElement).getByText("Kemp Lipno · No term yet")).toBeInTheDocument()
     expect(within(item as HTMLElement).queryByRole("progressbar")).not.toBeInTheDocument()
     expect(within(item as HTMLElement).getByText("Application inactive")).toBeInTheDocument()
+  })
+
+  it("clears the organization filter while keeping the name search", async () => {
+    const user = userEvent.setup()
+    renderList([event, { ...draft, organizationId: "o2", organizationName: "Summit Events" }])
+    const organization = await screen.findByRole("combobox", { name: "Organization" })
+    await user.click(organization)
+    await user.click(screen.getByRole("option", { name: "Summit Events" }))
+    expect(screen.queryByRole("heading", { name: event.name })).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("1 event · Summit Events")
+    const search = screen.getByRole("searchbox")
+    await user.type(search, "jarní")
+    await user.click(screen.getByRole("button", { name: "Clear filter" }))
+    expect(search).toHaveValue("jarní")
+    expect(screen.getByRole("heading", { name: /1 event.*1 organization/ })).toBeVisible()
+    expect(screen.queryByRole("button", { name: "Clear filter" })).not.toBeInTheDocument()
   })
 
   it("narrows the list by name", async () => {

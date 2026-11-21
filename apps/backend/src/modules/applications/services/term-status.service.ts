@@ -8,7 +8,11 @@ import {
   changeEmailKind,
   rejectStatusChange,
 } from "@/modules/applications/domain/status-transition"
-import { FreedBed, substituteForFreedBed } from "@/modules/applications/domain/substitutes"
+import {
+  FreedBed,
+  substituteAfterWithdrawal,
+  substituteForFreedBed,
+} from "@/modules/applications/domain/substitutes"
 import {
   StatusChangeCommand,
   StatusChangeResult,
@@ -17,13 +21,30 @@ import {
 } from "@/modules/applications/domain/term-status"
 import { bedGroup } from "@/modules/applications/domain/waitlist"
 import { isWaitlistExpired } from "@/modules/applications/domain/waitlist-expiry"
-import { SubstitutesRepository } from "@/modules/applications/repositories/substitutes.repository"
+import {
+  SubstitutesRepository,
+  SubstituteTermState,
+} from "@/modules/applications/repositories/substitutes.repository"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { HttpStatus, Injectable, Logger } from "@nestjs/common"
+
+/**
+ * Whether a freed bed of the term is filled by the system (US-31): only in a live term of the
+ * automatic evaluation mode. From midnight of the first day the waitlist is cancelled (D-064); a
+ * bed freed between that moment and the next run of the expiry job must not be given to someone
+ * about to be cancelled.
+ */
+function isBedFilledAutomatically(state: SubstituteTermState): boolean {
+  return (
+    !state.isCancelled &&
+    state.evaluationMode === "AUTOMATIC" &&
+    !isWaitlistExpired(state.startsOn, new Date())
+  )
+}
 
 /**
  * The one service that changes the status of an application in a term (US-28).
@@ -119,32 +140,103 @@ export class TermStatusService {
     termIds: string[],
   ): Promise<WithdrawalImpact> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
-    const impact = await this.repository.previewWithdrawal(organizationId, applicationId, termIds)
-    if (!impact) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
-    return impact
+    const preview = await this.repository.previewWithdrawal(organizationId, applicationId, termIds)
+    if (!preview) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    // US-546: name the substitute the system confirms into each confirmed bed that is given up.
+    const terms = await Promise.all(
+      preview.impact.terms.map(async (term) => {
+        if (!term.isWithdrawn || term.status !== "CONFIRMED") return term
+        const state = await this.substitutes.findTermStateById(term.termId)
+        if (!state || !isBedFilledAutomatically(state)) return term
+        const next = substituteAfterWithdrawal(
+          state,
+          state.waitlisted,
+          preview.gender,
+          state.roomMode,
+        )
+        const substitute = state.waitlisted.find((row) => row.applicationId === next?.applicationId)
+        return {
+          ...term,
+          substitute: substitute
+            ? {
+                applicationId: substitute.applicationId,
+                firstName: substitute.firstName,
+                lastName: substitute.lastName,
+              }
+            : null,
+        }
+      }),
+    )
+    return { ...preview.impact, terms }
   }
 
   /**
    * An organizer withdraws the participant from the given terms (US-32): the terms become
-   * cancelled, the change is logged with the organizer and the applicant gets one e-mail.
+   * cancelled, the change is logged with the organizer and the applicant gets one e-mail. With
+   * `expectedSubstitutes` (what the preview showed) it is refused when the substitute differs now.
    */
   async withdrawByOrganizer(
     user: Identity,
     applicationId: string,
     termIds: string[],
+    expectedSubstitutes?: { termId: string; applicationId: string | null }[],
   ): Promise<{ changedAt: Date; changedByName: string | null }> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    // The waitlist may have changed since the preview the organizer confirmed. The check runs under
+    // the event lock, where nobody else can change the waitlist, so the substitute the warning
+    // named is the one `fillFreedBeds` picks next; nothing is written when it differs (US-546).
+    const assertPreviewHolds = expectedSubstitutes
+      ? async () => {
+          const current = await this.previewWithdrawalByOrganizer(user, applicationId, termIds)
+          const isChanged = current.terms.some(
+            (term) =>
+              term.isWithdrawn &&
+              (term.substitute?.applicationId ?? null) !==
+                (expectedSubstitutes.find((row) => row.termId === term.termId)?.applicationId ??
+                  null),
+          )
+          if (isChanged) {
+            throw new AppException(HttpStatus.CONFLICT, "WITHDRAWAL_SUBSTITUTE_CHANGED")
+          }
+        }
+      : undefined
     const change = await this.repository.withdrawTermsByOrganizer(
       organizationId,
       applicationId,
       termIds,
       user.id,
+      assertPreviewHolds,
     )
     if (change === undefined) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
     // The mailer logs a failed delivery itself and never throws.
     if (change) await this.mailer.sendApplicationChange(change)
     await this.fillFreedBeds(change?.freedBeds ?? [])
     return { changedAt: new Date(), changedByName: user.name }
+  }
+
+  /**
+   * US-131: cancels the term with every application in it that is not archived, logs each as the
+   * organizer's change and sends each applicant one e-mail (no. 15). Returns how many applications
+   * were cancelled; null when the term is not of the organization. A failed delivery never fails
+   * the cancellation, the mailer logs it. Refunds are the organizer's own work (D-080).
+   */
+  async cancelTerm(
+    user: Identity,
+    eventId: string,
+    termId: string,
+    reason: string | null,
+  ): Promise<number> {
+    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+    const result = await this.repository.cancelTerm(
+      organizationId,
+      eventId,
+      termId,
+      reason,
+      user.id,
+    )
+    if (!result) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    for (const notice of result.notices) await this.mailer.sendTermCancelled(notice)
+    return result.notices.length
   }
 
   async getTerms(user: Identity, applicationId: string): Promise<TermStatusDetail[]> {
@@ -186,6 +278,8 @@ export class TermStatusService {
   /** Stores the change with its log entry and tells the applicant. */
   async applyChange(command: StatusChangeCommand): Promise<StatusChangeResult> {
     const result = await this.repository.changeStatus(command, (snapshot) => {
+      if (command.expectedFrom && snapshot.status !== command.expectedFrom)
+        throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
       const actor = command.actorId === null ? "SYSTEM" : "ORGANIZER"
       const rejection = rejectStatusChange(
         snapshot,
@@ -203,6 +297,7 @@ export class TermStatusService {
       eventName: result.eventName,
       organizationName: result.organizationName,
       termName: result.termName,
+      hadPayment: result.hadPayment,
       gender: result.gender,
       bankAccount: result.bankAccount,
       kind: changeEmailKind(
@@ -251,10 +346,7 @@ export class TermStatusService {
     let budget = 0
     do {
       const state = await this.substitutes.findTermStateById(termId)
-      if (!state || state.isCancelled || state.evaluationMode !== "AUTOMATIC") return
-      // From midnight of the first day the waitlist is cancelled (D-064); a bed freed between that
-      // moment and the next run of the expiry job must not be given to someone about to be cancelled.
-      if (isWaitlistExpired(state.startsOn, new Date())) return
+      if (!state || !isBedFilledAutomatically(state)) return
       // A round that loses (bed or application taken meanwhile) tries the next one; the waitlist
       // length bounds the rounds.
       if (budget === 0) budget = state.waitlisted.length + 1

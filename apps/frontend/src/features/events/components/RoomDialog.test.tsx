@@ -28,6 +28,7 @@ const event: TermRooms = {
   startsOn: "2027-07-19",
   endsOn: "2027-07-25",
   roomMode: "GENDERED",
+  roomsPublished: false,
   rooms: [],
   capacity: { FEMALE: 0, MALE: 0, total: 0 },
 }
@@ -53,6 +54,21 @@ describe("room form", () => {
     put.mockReset()
   })
 
+  it("changes the form value using the room stepper and respects the minimum", async () => {
+    const { user } = renderDialog()
+    const down = screen.getByRole("button", { name: "Decrease bed count" })
+    const up = screen.getByRole("button", { name: "Increase bed count" })
+    expect(down).toBeDisabled()
+    await user.click(up)
+    expect(screen.getByLabelText("Capacity *")).toHaveValue(1)
+    expect(down).toBeDisabled()
+    await user.click(up)
+    expect(down).toBeEnabled()
+    await user.click(down)
+    expect(screen.getByLabelText("Capacity *")).toHaveValue(1)
+    expect(post).not.toHaveBeenCalled()
+  })
+
   it("keeps invalid capacity in the form and focuses it without sending", async () => {
     const { user } = renderDialog()
     await user.type(screen.getByLabelText("Room name *"), "12")
@@ -73,8 +89,54 @@ describe("room form", () => {
     await user.click(screen.getByRole("button", { name: "Add room" }))
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms", {
-      json: { name: "12", capacity: 100, gender: null },
+      json: { name: "12", capacity: 100, gender: null, individual: false },
     })
+  })
+
+  // US-145
+  it("saves an individual room without a gender and hides the gender while it is on", async () => {
+    post.mockResolvedValue(undefined)
+    const { user, onClose } = renderDialog()
+    expect(screen.getByRole("combobox")).toBeInTheDocument()
+    await user.type(screen.getByLabelText("Room name *"), "Family")
+    await user.type(screen.getByLabelText("Capacity *"), "4")
+    await user.click(screen.getByRole("checkbox", { name: "Individual (mixed) room" }))
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
+    expect(
+      screen.getByText("You can assign confirmed participants to this room regardless of gender."),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Add room" }))
+    await waitFor(() => expect(onClose).toHaveBeenCalled())
+    expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms", {
+      json: { name: "Family", capacity: 4, gender: null, individual: true },
+    })
+  })
+
+  it("clears the flag of an individual room and sends a gender again", async () => {
+    put.mockResolvedValue(undefined)
+    const room = {
+      id: "r1",
+      name: "Family",
+      capacity: 4,
+      extraBeds: 0,
+      beds: 4,
+      gender: null,
+      individual: true,
+    }
+    const { user, onClose } = renderDialog(event, room)
+    const checkbox = screen.getByRole("checkbox", { name: "Individual (mixed) room" })
+    expect(checkbox).toBeChecked()
+    await user.click(checkbox)
+    await user.click(screen.getByRole("button", { name: "Save changes" }))
+    await waitFor(() => expect(onClose).toHaveBeenCalled())
+    expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/r1", {
+      json: { name: "Family", capacity: 4, gender: "FEMALE", individual: false },
+    })
+  })
+
+  it("does not offer the individual room in a term with shared rooms", () => {
+    renderDialog({ ...event, roomMode: "SHARED" })
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
   })
 
   it("keeps entered data on an API error and allows retry", async () => {

@@ -18,6 +18,8 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
+import { BrandDivider } from "@/components/atoms/BrandDivider"
+import { HeadingBand } from "@/components/atoms/HeadingBand"
 import { NavLink } from "@/components/atoms/NavLink"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -39,35 +41,71 @@ import { termsSummary } from "@/features/events/lib/terms-summary"
  * opens a menu with all of them. It sticks under the top bar, so
  * the sections are one tap away without opening the drawer.
  */
-// Figma (Design system): N8 Mobil · detail akce · výběr sekce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43230
-// Figma (Design system): N9 Mobil · detail akce · výběr sekce otevřený · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43273
-// Figma (Design system): N / Event section switcher · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14179-986
-// Figma (Design system): N / Event section menu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14179-995
-// Figma (Design system): O / Event tabs · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14057-36915
-// Figma (Design system): O04 Přehled akce · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12110-156
+// Figma v2: application detail https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22475-86190 and settings https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19395-33879.
+// Figma v2: event header and tabs (US-51 overview) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20580-44169; mobile section switcher (Navigace akce / Přehled / 360) https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18359-20490
 export function EventHeader({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
+  const match = useMatchRoute()
+  const matches = (to: (typeof ROUTES.organizer)[keyof typeof ROUTES.organizer]) =>
+    Boolean(match({ to, params: { eventId }, fuzzy: true }))
+  const isHealth = matches(ROUTES.organizer.applicationHealth)
+  const isCompact =
+    matches(ROUTES.organizer.eventSettings) ||
+    (matches(ROUTES.organizer.application) && !isHealth) ||
+    matches(ROUTES.organizer.eventTransport) ||
+    matches(ROUTES.organizer.eventCancellationTerms) ||
+    matches(ROUTES.organizer.newApplication)
+  const isProgram = matches(ROUTES.organizer.eventProgram)
   const { data: event } = useQuery(eventQueryOptions(eventId))
 
-  return (
-    <header className="flex flex-col gap-3">
+  const heading = (
+    <div className="flex flex-col items-start gap-3">
       <BackLink to={ROUTES.organizer.events}>{t("header.allEvents")}</BackLink>
       {event ? (
         <div className="flex flex-col gap-2">
+          <span className="text-sm text-muted-foreground md:text-base">
+            {event.organizationName}
+          </span>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <h1 className="text-2xl font-bold md:text-4xl">{event.name}</h1>
+            <h1 className="min-w-0 text-2xl font-bold break-words md:text-[32px]/10">
+              {event.name}
+            </h1>
             <Badge variant={event.applicationsOpen ? "success" : "warning"}>
               {event.applicationsOpen ? t("header.applicationsOpen") : t("list.statusClosed")}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground md:text-base">{termsSummary(event, t)}</p>
+          <p className="text-sm text-muted-foreground md:text-base">
+            {termsSummary(event, t, "header")}
+          </p>
         </div>
       ) : (
         // Keeps the tabs from jumping while the event loads.
         <div className="h-18" />
       )}
+    </div>
+  )
+  return (
+    <>
+      <header className="flex min-w-0 flex-col gap-4">
+        {isCompact || isProgram ? (
+          heading
+        ) : (
+          <HeadingBand
+            motif={
+              matches(ROUTES.organizer.eventPayments)
+                ? "finance"
+                : !isHealth && matches(ROUTES.organizer.eventApplications)
+                  ? "forms"
+                  : "planning"
+            }
+          >
+            {heading}
+          </HeadingBand>
+        )}
+        {isCompact && <BrandDivider />}
+      </header>
       <EventTabs eventId={eventId} />
-    </header>
+    </>
   )
 }
 
@@ -98,9 +136,12 @@ function EventTabs({ eventId }: { eventId: string }) {
   const ActiveIcon = active.icon
 
   return (
-    <nav aria-label={t("nav.eventSections")}>
+    <nav
+      aria-label={t("nav.eventSections")}
+      className="sticky top-14 z-20 bg-background md:static md:z-auto"
+    >
       {/* Phone: sticks under the 56 px top bar and replaces the tabs. */}
-      <div className="sticky top-14 z-20 -mx-4 bg-background px-4 py-2 md:hidden">
+      <div className="-mx-4 bg-background px-4 py-2 md:hidden">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -143,7 +184,7 @@ function EventTabs({ eventId }: { eventId: string }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="hidden gap-1 md:flex">
+      <div className="hidden min-w-0 gap-4 overflow-x-auto p-1 md:flex">
         {SECTIONS.map(({ key, to, ...section }) => (
           <NavLink
             key={key}

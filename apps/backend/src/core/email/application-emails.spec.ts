@@ -21,25 +21,48 @@ describe("application e-mail previews", () => {
       React.createElement(ApplicationConfirmation, ApplicationConfirmation.PreviewProps),
     )
 
-    expect(html).toContain("Přihláška přijata")
-    expect(html).toContain("Otevřít moje přihlášky")
+    expect(html).toContain("Přihlášku jsme přijali")
+    expect(html).toContain("Přihlásit se do Togeny")
   })
+
+  it.each([
+    ["cs", "stav jednotlivého termínu.", "stav jednotlivých termínů."],
+    ["en", "the status of the selected term.", "the status of each term."],
+  ] as const)(
+    "matches the number of terms in a single application (%s)",
+    async (locale, singular, plural) => {
+      const preview = ApplicationConfirmation.PreviewProps
+      const [person] = preview.applications
+      const receipt = (count: number): Promise<string> =>
+        render(
+          React.createElement(ApplicationConfirmation, {
+            ...preview,
+            locale,
+            applications: [{ ...person, terms: person.terms.slice(0, count) }],
+          }),
+        )
+      expect(await receipt(1)).toContain(singular)
+      expect(await receipt(2)).toContain(plural)
+    },
+  )
 
   it("renders two participants, existing account, mixed statuses (en)", async () => {
     const html = await render(React.createElement(TwoApplicants))
 
-    expect(html).toContain("Application received")
+    expect(html).toContain("We have received your applications")
     expect(html).toContain("Jana Nováková")
     expect(html).toContain("Petr Novák")
-    expect(html).toContain("please pay each one separately")
-    expect(html).toContain(">Sign in<")
+    expect(html).toContain("Pay for each application separately")
+    expect(html).toContain("Sign in to Togena")
   })
 
   it("renders no confirmed term without payment details", async () => {
     const html = await render(React.createElement(Waitlisted))
 
-    expect(html).toContain("jste náhradník")
-    expect(html).toContain("Žádný termín zatím není potvrzený")
+    expect(html).toContain("Náhradník")
+    expect(html).toContain(
+      "Pokud bude účast potvrzena, informujeme vás e-mailem. Zatím nic neplaťte.",
+    )
     expect(html).not.toContain("Variabilní symbol")
   })
 
@@ -73,22 +96,24 @@ describe("application e-mail previews", () => {
       React.createElement(ConfirmationWithdrawn, ConfirmationWithdrawn.PreviewProps),
     )
 
-    expect(html).toContain("Potvrzení bylo odvoláno. Jste náhradník")
+    expect(html).toContain("Potvrzení účasti bylo odvoláno")
     expect(html).not.toContain("Variabilní symbol")
   })
 
-  it("renders e-mail no. 15, the cancelled term, in both languages (template only, US-131 sends it)", async () => {
+  it("renders e-mail no. 15, the cancelled term, in both languages", async () => {
     const cs = await render(React.createElement(TermCancelled, TermCancelled.PreviewProps))
     const en = await render(
       React.createElement(TermCancelled, { ...TermCancelled.PreviewProps, locale: "en" }),
     )
 
     expect(cs).toContain("Termín akce byl zrušen")
-    expect(cs).toContain("Zaplacené platby se vrací; další postup sdělí organizace.")
+    expect(cs).toContain(
+      "Případné platby za zrušený termín se vrací. Další postup vám sdělí organizace.",
+    )
     expect(cs).toContain("Adam Dvořák")
-    expect(cs).toContain("Alpine Collective · přes Togenu")
-    expect(en).toContain("The term has been cancelled")
-    expect(en).toContain("Paid payments are being refunded")
+    expect(cs).toContain("Alpine Collective · prostřednictvím Togeny")
+    expect(en).toContain("The event term has been cancelled")
+    expect(en).toContain("Any payments already made for the cancelled term are to be refunded")
     expect(en).toContain("Alpine Collective · via Togena")
   })
 })

@@ -4,6 +4,7 @@ import {
   computeAvailablePlaces,
   computeTermCapacity,
   computeTotalBeds,
+  hasSharedRooms,
 } from "@/modules/applications/domain/capacity"
 import {
   sameSelection,
@@ -32,14 +33,18 @@ import {
   ParticipantChangeOptions,
   ParticipantTermChangeResult,
 } from "@/modules/applications/domain/participant-term-change"
-import { computeTermDue, computeTermOwed } from "@/modules/applications/domain/pricing"
+import {
+  computeTermDue,
+  computeTermOwed,
+  computeTermPaid,
+} from "@/modules/applications/domain/pricing"
 import {
   changeEmailKind,
   StatusChangeSnapshot,
 } from "@/modules/applications/domain/status-transition"
 import { skippedSubstitutes } from "@/modules/applications/domain/substitute-skips"
 import { FreedBed } from "@/modules/applications/domain/substitutes"
-import { termLabel } from "@/modules/applications/domain/term-label"
+import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
 import {
   ExpiredWaitlistEntry,
   StatusChangeCommand,
@@ -48,11 +53,21 @@ import {
   TermStatusDetail,
 } from "@/modules/applications/domain/term-status"
 import { termStatusSummary } from "@/modules/applications/domain/term-status-summary"
-import { bedGroup, WaitlistCandidate } from "@/modules/applications/domain/waitlist"
+import {
+  bedGroup,
+  WaitlistCandidate,
+  waitlistKey,
+  waitlistPositions,
+} from "@/modules/applications/domain/waitlist"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
-import { ApplicationChange } from "@/modules/participants/domain/submission-confirmation"
+import {
+  ApplicationChange,
+  TermCancelledNotice,
+} from "@/modules/participants/domain/submission-confirmation"
+import { Gender } from "@/shared/domain/gender"
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -153,7 +168,9 @@ export class TermStatusRepository {
                 startsOn: true,
                 endsOn: true,
                 priceCzk: true,
-                rooms: { select: { capacity: true, extraBeds: true, gender: true } },
+                rooms: {
+                  select: ROOM_CAPACITY_SELECT,
+                },
                 applicationTerms: {
                   where: { status: "CONFIRMED" },
                   select: { application: { select: { gender: true } } },
@@ -280,7 +297,7 @@ export class TermStatusRepository {
       select: {
         id: true,
         priceCzk: true,
-        rooms: { select: { capacity: true, extraBeds: true, gender: true } },
+        rooms: { select: ROOM_CAPACITY_SELECT },
       },
     })
     if (offered.length !== addedIds.length || offered.some((term) => term.rooms.length === 0)) {
@@ -303,7 +320,7 @@ export class TermStatusRepository {
           0,
         ),
         freePlaces: computeAvailablePlaces(term.rooms, genders),
-        genderCapacity: term.rooms.some((room) => room.gender === null)
+        genderCapacity: hasSharedRooms(term.rooms)
           ? computeTotalBeds(term.rooms)
           : computeTermCapacity(term.rooms)[application.gender],
       }
@@ -351,12 +368,13 @@ export class TermStatusRepository {
     applicationId: string,
     withdrawnIds: string[],
     actorId: string,
+    beforeWrite?: () => Promise<void>,
   ): Promise<TermsChange | null | undefined> {
     return this.changeTerms({
       where: { id: applicationId, organizationId },
       applicationId,
       selectedIds: [],
-      organizer: { actorId, isOverCapacityConfirmed: false, withdrawnIds },
+      organizer: { actorId, isOverCapacityConfirmed: false, withdrawnIds, beforeWrite },
     })
   }
 
@@ -368,10 +386,10 @@ export class TermStatusRepository {
     organizationId: string,
     applicationId: string,
     withdrawnIds: string[],
-  ): Promise<WithdrawalImpact | null> {
+  ): Promise<{ impact: WithdrawalImpact; gender: Gender } | null> {
     const application = await this.prisma.application.findFirst({
       where: { id: applicationId, organizationId },
-      select: { id: true },
+      select: { id: true, gender: true },
     })
     if (!application) return null
     const current = await this.prisma.applicationTerm.findMany({
@@ -386,7 +404,7 @@ export class TermStatusRepository {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
     }
     if (rejection) throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
-    return previewWithdrawal({
+    const impact = previewWithdrawal({
       current: current.map((row) => ({
         termId: row.termId,
         status: row.status,
@@ -395,6 +413,7 @@ export class TermStatusRepository {
       })),
       withdrawnIds,
     })
+    return { impact, gender: application.gender }
   }
 
   private async changeTerms({
@@ -408,7 +427,13 @@ export class TermStatusRepository {
     applicationId: string
     selectedIds: string[]
     approvedRequest?: { id: string; reviewerId: string }
-    organizer?: { actorId: string; isOverCapacityConfirmed: boolean; withdrawnIds?: string[] }
+    organizer?: {
+      actorId: string
+      isOverCapacityConfirmed: boolean
+      withdrawnIds?: string[]
+      /** Runs under the event lock before anything is written; throws to abort the withdrawal. */
+      beforeWrite?: () => Promise<void>
+    }
   }): Promise<TermsChange | null | undefined> {
     return this.prisma.$transaction(async (tx) => {
       const target = await tx.application.findFirst({
@@ -439,6 +464,7 @@ export class TermStatusRepository {
 
       const current = await tx.applicationTerm.findMany({
         where: { applicationId, organizationId: application.organizationId },
+        include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
       })
       const active = current.filter((row) => row.status !== "CANCELLED")
       const activeIds = new Set(active.map((row) => row.termId))
@@ -466,6 +492,7 @@ export class TermStatusRepository {
           throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
         }
         if (rejection) throw new AppException(HttpStatus.CONFLICT, "INVALID_STATUS_TRANSITION")
+        await organizer.beforeWrite?.()
       }
       const keptIds = organizer?.withdrawnIds
         ? active.map((row) => row.termId).filter((id) => !organizer.withdrawnIds?.includes(id))
@@ -545,7 +572,10 @@ export class TermStatusRepository {
       }
 
       for (const row of removed) {
-        await tx.applicationTerm.update({ where: { id: row.id }, data: { status: "CANCELLED" } })
+        await tx.applicationTerm.update({
+          where: { id: row.id },
+          data: { status: "CANCELLED", roomWishes: [] },
+        })
         await releaseAssignments(tx, { applicationTermId: row.id })
         await tx.applicationTermStatusChange.create({
           data: {
@@ -562,7 +592,7 @@ export class TermStatusRepository {
         const [rooms, confirmed] = await Promise.all([
           tx.room.findMany({
             where: { organizationId: application.organizationId, termId: { in: addedIds } },
-            select: { termId: true, capacity: true, extraBeds: true, gender: true },
+            select: { termId: true, ...ROOM_CAPACITY_SELECT },
           }),
           tx.applicationTerm.findMany({
             where: {
@@ -672,6 +702,7 @@ export class TermStatusRepository {
         firstApplicationLocale: first?.locale ?? application.locale,
       })
       const oneCancelled = removed.length === 1 && addedIds.length === 0
+      const changedIds = new Set([...addedIds, ...removed.map((row) => row.termId)])
       const changedTerm = oneCancelled
         ? terms.find((row) => row.termId === removed[0].termId)
         : null
@@ -732,6 +763,7 @@ export class TermStatusRepository {
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
         termName: changedTerm ? termLabel(changedTerm.term, locale) : "",
+        hadPayment: oneCancelled && computeTermPaid(removed[0].payments) > 0,
         kind: oneCancelled && !organizer ? "CANCELLED" : "TERMS_CHANGED",
         isAmountChanged: hasNewConfirmation,
         application: {
@@ -746,6 +778,8 @@ export class TermStatusRepository {
             )
             .map((row) => ({
               name: termLabel(row.term, locale),
+              dates: formatTermDates(row.term.startsOn, row.term.endsOn, locale),
+              includedInChange: changedIds.has(row.termId),
               termNumber: row.term.number,
               status: row.status,
               priceCzk: row.priceCzk,
@@ -790,7 +824,7 @@ export class TermStatusRepository {
         application: { select: { gender: true } },
         term: {
           include: {
-            rooms: { select: { capacity: true, extraBeds: true, gender: true } },
+            rooms: { select: ROOM_CAPACITY_SELECT },
             applicationTerms: {
               where: { status: "CONFIRMED", organizationId },
               select: { application: { select: { gender: true } } },
@@ -804,6 +838,30 @@ export class TermStatusRepository {
         },
       },
     })
+    const waiting = await this.prisma.applicationTerm.findMany({
+      where: {
+        organizationId,
+        termId: { in: rows.filter((row) => row.status === "WAITLISTED").map((row) => row.termId) },
+        status: "WAITLISTED",
+      },
+      select: {
+        termId: true,
+        status: true,
+        term: { select: { roomMode: true } },
+        application: { select: { id: true, gender: true, submittedAt: true, number: true } },
+      },
+    })
+    // US-364: use the same queue calculation as the Applications tab, with every candidate.
+    const positions = waitlistPositions(
+      waiting.map(({ application, term, ...row }) => ({
+        ...row,
+        applicationId: application.id,
+        roomMode: term.roomMode,
+        gender: application.gender,
+        submittedAt: application.submittedAt,
+        number: application.number,
+      })),
+    )
     const records = await this.prisma.applicationTermStatusChange.findMany({
       where: {
         organizationId,
@@ -831,6 +889,10 @@ export class TermStatusRepository {
         row.term.applicationTerms.map((term) => term.application.gender),
         row.application.gender,
       ),
+      waitlistPosition:
+        row.status === "WAITLISTED"
+          ? (positions.get(waitlistKey(applicationId, row.termId)) ?? null)
+          : null,
       history: row.statusChanges.map((change) => ({
         id: change.id,
         kind:
@@ -898,7 +960,7 @@ export class TermStatusRepository {
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
           where: { termId: command.termId },
-          select: { capacity: true, extraBeds: true, gender: true },
+          select: ROOM_CAPACITY_SELECT,
         }),
         tx.applicationTerm.findMany({
           where: {
@@ -926,7 +988,11 @@ export class TermStatusRepository {
 
       await tx.applicationTerm.update({
         where: { id: current.id },
-        data: { status: command.to },
+        // US-146: wishes live only while the term is confirmed; leaving it deletes them.
+        data:
+          command.to === "CONFIRMED"
+            ? { status: command.to }
+            : { status: command.to, roomWishes: [] },
       })
       // US-35: leaving confirmed / to evaluate frees the bed the application had in a room.
       if (!isAssignable(command.to)) await releaseAssignments(tx, { applicationTermId: current.id })
@@ -1003,6 +1069,7 @@ export class TermStatusRepository {
         bankAccount: application.event.organization.bankAccount,
         gender: application.gender,
         termName: termLabel(current.term, locale),
+        hadPayment: command.to === "CANCELLED" && computeTermPaid(current.payments) > 0,
         application: {
           number: application.number,
           firstName: application.firstName,
@@ -1016,6 +1083,108 @@ export class TermStatusRepository {
           })),
         },
       }
+    })
+  }
+
+  /**
+   * US-131: cancels the term and, in the same transaction, the application in it in every status
+   * except archived (already cancelled ones stay as they are). Each one is a status change in the
+   * log of US-28 by the organizer and leaves a notice for e-mail no. 15. The event is locked like
+   * in every other change, so no application lands in the term after the cancellation.
+   */
+  async cancelTerm(
+    organizationId: string,
+    eventId: string,
+    termId: string,
+    reason: string | null,
+    actorId: string,
+  ): Promise<{ notices: TermCancelledNotice[] } | null> {
+    return this.prisma.$transaction(async (tx) => {
+      const term = await tx.term.findFirst({
+        where: { id: termId, eventId, organizationId },
+        select: { eventId: true },
+      })
+      if (!term) return null
+      await tx.$queryRaw`SELECT id FROM event WHERE id = ${term.eventId} FOR UPDATE`
+      const locked = await tx.term.findUniqueOrThrow({
+        where: { id: termId },
+        include: { event: { include: { organization: { select: { name: true } } } } },
+      })
+      if (locked.cancelledAt) throw new AppException(HttpStatus.CONFLICT, "TERM_CANCELLED")
+
+      const affected = await tx.applicationTerm.findMany({
+        where: { termId, organizationId, status: { notIn: ["CANCELLED", "ARCHIVED"] } },
+        include: { application: true },
+        orderBy: { application: { number: "asc" } },
+      })
+      // Nobody sleeps in the rooms of a cancelled term.
+      await releaseAssignments(tx, { termId })
+      await tx.term.update({
+        where: { id: termId },
+        data: { cancelledAt: new Date(), cancelReason: reason },
+      })
+      await tx.applicationTerm.updateMany({
+        where: { id: { in: affected.map((row) => row.id) } },
+        // US-146: room wishes lapse together with the confirmation.
+        data: { status: "CANCELLED", roomWishes: [] },
+      })
+      await tx.applicationTermStatusChange.createMany({
+        data: affected.map((row) => ({
+          organizationId,
+          applicationTermId: row.id,
+          fromStatus: row.status,
+          toStatus: "CANCELLED" as const,
+          changedById: actorId,
+        })),
+      })
+
+      const notices: TermCancelledNotice[] = []
+      for (const { application, status } of affected) {
+        // D-078: the user's preferred language, else the language of their first application.
+        const [user, first] = application.userId
+          ? await Promise.all([
+              tx.user.findUnique({ where: { id: application.userId }, select: { locale: true } }),
+              tx.application.findFirst({
+                where: { userId: application.userId },
+                orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
+                select: { locale: true },
+              }),
+            ])
+          : [null, null]
+        const locale = resolveChangeEmailLocale({
+          userLocale: user?.locale ?? null,
+          firstApplicationLocale: first?.locale ?? application.locale,
+        })
+        // The bell of the applicant: the same event as e-mail no. 15, in this transaction.
+        await this.notifications.create(
+          tx,
+          buildNotification({
+            userId: application.userId,
+            applicationId: application.id,
+            kind: "TERM_CANCELLED",
+            params: {
+              eventName: locked.event.name,
+              participantName: `${application.firstName} ${application.lastName}`,
+              termStartsOn: isoDay(locked.startsOn),
+              termEndsOn: isoDay(locked.endsOn),
+              fromStatus: status,
+              toStatus: "CANCELLED",
+            },
+          }),
+        )
+        notices.push({
+          email: application.email,
+          locale,
+          eventName: locked.event.name,
+          organizationName: locked.event.organization.name,
+          termName: termLabel(locked, locale),
+          gender: application.gender,
+          firstName: application.firstName,
+          lastName: application.lastName,
+          accessToken: application.accessToken,
+        })
+      }
+      return { notices }
     })
   }
 

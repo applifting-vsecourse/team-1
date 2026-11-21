@@ -13,7 +13,7 @@
     "read": "Read"
   },
   "note": {
-    "owed": "Still to pay: {{owed}}"
+    "owed": "Left to pay: {{owed}}"
   },
   "panel": {
     "close": "Close",
@@ -21,7 +21,7 @@
     "emptyTitle": "No notifications yet.",
     "errorDescription": "Please try again.",
     "errorTitle": "The notifications couldn't be loaded.",
-    "loading": "Loading…",
+    "loading": "Loading notifications…",
     "markAllRead": "Mark all as read",
     "retry": "Try again",
     "title": "Notifications"
@@ -45,6 +45,7 @@
     "PAYMENT_REFUNDED": "Refund of {{amount}}",
     "REJECTED": "Application rejected",
     "REQUEST_APPROVED": "Change request approved",
+    "TERM_CANCELLED": "The organizer cancelled the event term, the application for it is cancelled",
     "WAITLISTED": "You are a substitute",
     "WAITLISTED_AFTER_CONFIRMED": "Confirmation withdrawn, you are a substitute"
   }

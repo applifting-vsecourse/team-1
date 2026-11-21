@@ -1,7 +1,7 @@
 {
   "applications": {
-    "description": "Přihlášky vedené pod účtem {{name}}.",
-    "title": "Vaše přihlášky"
+    "description": "Všechny přihlášky vašeho účtu, včetně přihlášek dalších účastníků.",
+    "title": "Moje přihlášky"
   },
   "change": {
     "allTerms": "Celá přihláška · všechny termíny ({{count}})",
@@ -33,8 +33,8 @@
     "onlyTerm": "Pouze {{term}}",
     "open": "Změnit termíny",
     "overpaidCancel": "Vznikne přeplatek {{overpaid}}. Vrácení peněz vyřeší organizátor, neproběhne automaticky.",
-    "paidCancel": "Zaplaceno {{paid}} · dluh po odhlášení {{debt}}",
-    "paidChange": "Zaplaceno {{paid}} · přeplatek {{overpaid}} · dluh {{debt}}",
+    "paidCancel": "Zaplaceno {{paid}} · po odhlášení zbývá zaplatit {{debt}}",
+    "paidChange": "Zaplaceno {{paid}} · přeplatek {{overpaid}} · zbývá zaplatit {{debt}}",
     "refundByOrganizer": "Výši storna a případnou vratku určí organizátor.",
     "requestSubmit": "Odeslat žádost",
     "saving": "Ukládání…",
@@ -51,76 +51,109 @@
     "waitlistedNoPayment": "Náhradník · bez platebního dopadu"
   },
   "contact": {
-    "email": "E-mail",
+    "email": "Napsat e-mail",
     "none": "Organizace zatím nezveřejnila kontakt.",
-    "phone": "Telefon",
+    "phone": "Zavolat",
     "title": "Kontakt organizace"
   },
   "detail": {
-    "back": "← Všechny přihlášky",
+    "applicantContact": "Kontakt přihlašovatele",
+    "archivedText": "Termín skončil, už není co vyřizovat.",
+    "archivedTitle": "Archivovaná přihláška",
+    "back": "Zpět na Moje přihlášky",
+    "birthGender": "Datum narození a pohlaví",
     "errorTitle": "Přihlášku se nepodařilo načíst",
+    "female": "žena",
     "health": "Zdravotní omezení",
+    "male": "muž",
     "meals": "Stravování",
+    "participantCard": "Údaje účastníka",
     "program": "Program",
+    "roomNotAssigned": "Zatím nemáte přiřazený pokoj.",
     "sections": {
-      "terms": "Termíny a platby",
-      "transport": "Doprava"
+      "room": "Pokoj",
+      "terms": "Termíny"
+    },
+    "steps": {
+      "done": "Hotovo",
+      "health": "Zdravotní omezení",
+      "healthFill": "Doplnit údaje",
+      "healthView": "Zobrazit údaje",
+      "meals": "Stravování",
+      "mealsFill": "Doplnit stravování",
+      "mealsView": "Zobrazit stravování",
+      "payment": "Zaplacení",
+      "paymentPay": "Zaplatit {{amount}}",
+      "paymentView": "Zobrazit platební údaje",
+      "roomView": "Zobrazit pokoj",
+      "title": "Kroky před akcí",
+      "todo": "Zbývá",
+      "transport": "Doprava",
+      "transportChoose": "Vybrat dopravu",
+      "transportView": "Zobrazit dopravu",
+      "wishesView": "Zobrazit přání"
     },
     "termsTitle": "Stav podle termínů",
-    "title": "Moje přihláška",
+    "title": "Detail přihlášky",
     "toEvaluate": {
       "alertText": "Platební údaje dostanete po potvrzení účasti.",
       "alertTitle": "Zatím nic neplaťte.",
       "note": "Organizátor přihlášku posoudí v každém termínu zvlášť. Zatím nejde o potvrzenou účast ani o zařazení mezi náhradníky."
-    },
-    "todo": {
-      "change": "Změnit dopravu",
-      "choose": "Vybrat dopravu",
-      "intro": "Organizátor to od vás potřebuje k naplánování akce.",
-      "progress": "Hotovo {{done}} z {{total}}",
-      "statusDone": "Hotovo",
-      "statusOpen": "K vyřízení",
-      "title": "Co zbývá zařídit",
-      "transportBody": "Vyberte, jak se účastník dostane na akci.",
-      "transportTitle": "Doprava · {{term}}"
-    },
-    "transportIntro": "Vyberte, jak se účastník dostane na jednotlivé termíny, a zjistěte, kde a kdy doprava odjíždí."
+    }
   },
   "edit": {
+    "accommodationHeading": "Individuální řešení ubytování",
     "accommodationIndividual": "Individuální řešení",
     "accommodationRequest": "Poznámka pro organizátora (nepovinné)",
     "accommodationRequestTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
     "accommodationSummary": "Ubytování · {{request}}",
+    "accommodationSummaryTitle": "Požadavek na ubytování",
     "backToApplication": "Zpět na přihlášku",
     "birthDate": "Datum narození *",
+    "birthDateInvalid": "Zadejte platné datum narození.",
     "cancel": "Zrušit",
+    "contactHeading": "Kontakt přihlášky",
+    "contactHint": "Tato změna upraví kontakt přihlášky. Přihlašovací e-mail se mění v nastavení účtu.",
+    "discard": "Zahodit změny",
+    "discardDescription": "Změny v přihlášce ještě nejsou uložené. Pokud odejdete, o rozepsané úpravy přijdete.",
+    "discardTitle": "Zahodit změny?",
     "firstName": "Jméno *",
     "historyAccommodation": "požadavek na ubytování",
     "historyContact": "kontakt",
     "historyContactAccommodation": "Upraven kontakt a požadavek na ubytování.",
-    "historyLine": "Historie · {{date}} · {{author}} · {{description}}",
+    "historyHeading": "Historie změn",
+    "historyLoadFailed": "Historii změn se nepodařilo načíst.",
     "historyOther": "Upraveno: {{fields}}.",
     "historyPersonal": "osobní údaje",
     "individualAccommodation": "Chci ubytování řešit individuálně",
     "individualAccommodationHint": "Tuto informaci uvidí jen organizátor akce.",
+    "keepEditing": "Pokračovat v úpravách",
     "lastName": "Příjmení *",
     "loadError": "Přihlášku se nepodařilo načíst",
+    "noAccommodationRequest": "Bez požadavku na individuální řešení ubytování.",
     "open": "Upravit přihlášku",
-    "organizerNotified": "Organizátor dostal upozornění.",
-    "participant": "Účastník",
-    "phone": "Telefon *",
-    "phoneSummary": "Telefon · {{phone}}",
+    "participant": "Údaje účastníka",
+    "phone": "Telefon",
+    "phoneInvalid": "Zadejte platné telefonní číslo, například +420 777 123 456.",
     "retry": "Zkusit znovu",
     "save": "Uložit změny",
     "saveError": "Zkuste změny uložit znovu",
     "saveErrorTitle": "Změny se nepodařilo uložit",
-    "successTitle": "Změny byly uloženy",
     "title": "Upravit přihlášku",
+    "toast": {
+      "organizerNotified": "Organizátor dostal upozornění.",
+      "saved": "Změny byly uloženy"
+    },
     "valuesPreserved": "Vyplněné údaje zůstaly zachované."
   },
   "list": {
     "empty": "Zatím tu nemáte žádnou přihlášku. Až se přihlásíte na akci, objeví se tady.",
-    "errorTitle": "Přihlášky se nepodařilo načíst"
+    "errorTitle": "Přihlášky se nepodařilo načíst",
+    "female": "žena",
+    "male": "muž",
+    "paymentNote": "Platí jen pro potvrzený termín; za náhradnický termín zatím neplaťte.",
+    "remaining": "Zbývá zaplatit",
+    "termPrice": "Cena termínů"
   },
   "notifications": {
     "empty": "Zatím nemáte žádná upozornění.",
@@ -148,10 +181,13 @@
     "showSummaryQrMany": "Jedna platba za všechny potvrzené termíny · zobrazit QR",
     "showSummaryQrTwo": "Jedna platba za oba termíny · zobrazit QR",
     "simulation": {
+      "failed": "Simulaci se nepodařilo zapsat.",
+      "heading": "Zkušební prostředí · simulace platby",
       "logDescription": "Zkušební platby vytvořené tlačítkem „Zaplatil jsem“. Nejde o skutečné bankovní převody.",
       "logLine": "+{{amount}} · {{term}} · zdroj: simulace",
       "logTitle": "Historie simulovaných plateb",
-      "paid": "Zaplatil jsem"
+      "paid": "Zaplatil jsem",
+      "termAmount": "Simulovat doplatek tohoto termínu: {{amount}}"
     },
     "summaryBreakdown": "Rozpis",
     "summaryQrExplanation": "Platí pro všechny potvrzené termíny. Souhrnný VS se liší od VS jednotlivých termínů.",
@@ -168,6 +204,7 @@
   "request": {
     "cancelTitle": "Požadované odhlášení",
     "changeTitle": "Požadovaná změna termínu",
+    "createdDate": "Podáno {{date}}",
     "current": "Původní termín",
     "loadError": "Žádosti se nepodařilo načíst",
     "message": {
@@ -193,6 +230,7 @@
     "reason": "Důvod: {{reason}}",
     "request": "Žádost",
     "requested": "Nový termín",
+    "reviewedDate": "Vyřízeno {{date}}",
     "status": {
       "APPROVED": "Schváleno",
       "PENDING": "Čeká na schválení",
@@ -200,11 +238,58 @@
     },
     "wholeApplication": "Celá přihláška · všechny termíny ({{count}})"
   },
+  "roomWishes": {
+    "add": "Zadat přání",
+    "cancel": "Zrušit",
+    "delete": "Smazat",
+    "deleteBody": "Smažou se všechna jména pro tento termín.",
+    "deleteConfirm": "Smazat přání",
+    "deleteTitle": "Smazat přání spolubydlení?",
+    "edit": "Upravit přání",
+    "empty": "Pro tento termín zatím nemáte zadané přání.",
+    "hint": "Zadejte až 3 jména. Organizátor je při rozdělování zohlední podle možností.",
+    "nameLabel": "Jméno {{n}}",
+    "placeholder": "Např. Eva Černá",
+    "save": "Uložit přání",
+    "title": "Přání spolubydlení"
+  },
   "status": {
-    "archived": "Archivovaná",
-    "cancelled": "Zrušená",
+    "archived": "Archivováno",
+    "cancelled": "Zrušeno",
     "confirmed": "Potvrzeno",
     "toEvaluate": "Čeká na vyhodnocení",
     "waitlisted": "Náhradník"
+  },
+  "stay": {
+    "add": "Zadat pozdější příjezd nebo dřívější odjezd",
+    "and": "a",
+    "arrival": "Příjezd",
+    "arrivalLabel": "Pozdější příjezd",
+    "arrivalOutside": "Datum příjezdu musí být mezi {{range}}.",
+    "at": "v",
+    "cancel": "Zrušit",
+    "dateLabel": "Datum",
+    "delete": "Smazat všechny údaje",
+    "deleteBody": "Smažou se oba zadané údaje o pobytu účastníka v tomto termínu.",
+    "deleteConfirm": "Smazat údaje",
+    "deleteTitle": "Smazat příjezd a odjezd?",
+    "departure": "Odjezd",
+    "departureBeforeArrival": "Odjezd musí být později než příjezd.",
+    "departureLabel": "Dřívější odjezd",
+    "departureOutside": "Datum odjezdu musí být mezi {{range}}.",
+    "edit": "Upravit příjezd nebo odjezd",
+    "hint": "Vyplňte jen tehdy, když účastník nebude na akci celou dobu termínu.",
+    "invalid": "Zadejte platné datum a čas.",
+    "pickTime": "Vybrat čas",
+    "removeArrival": "Odebrat příjezd",
+    "removeDeparture": "Odebrat odjezd",
+    "save": "Uložit údaje",
+    "timeLabel": "Čas",
+    "timePlaceholder": "HH:MM",
+    "title": "Pozdější příjezd nebo dřívější odjezd",
+    "toast": {
+      "deleted": "Údaje o příjezdu a odjezdu byly smazány.",
+      "saved": "Příjezd a odjezd byly uloženy."
+    }
   }
 }

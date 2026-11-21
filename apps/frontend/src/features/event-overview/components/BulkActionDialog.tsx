@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { cn } from "@/lib/utils"
 
 /** The names of the selected applications, one per line, scrolling when there are many. */
 export function BulkNames({ names }: { names: string[] }) {
@@ -36,12 +37,15 @@ export function BulkActionDialog({
   isBusy,
   submit,
   onClose,
+  isFullScreenOnMobile = true,
   children,
 }: {
   title: string
   isBusy: boolean
   submit: ReactNode
   onClose: () => void
+  /** On a phone the dialog fills the screen; false keeps it a centered modal (US-140). */
+  isFullScreenOnMobile?: boolean
   children: ReactNode
 }) {
   const { t } = useTranslation("eventOverview")
@@ -54,7 +58,11 @@ export function BulkActionDialog({
     >
       <DialogContent
         showCloseButton={false}
-        className="max-h-[calc(100dvh-2rem)] gap-6 overflow-y-auto p-6 max-sm:top-0 max-sm:left-0 max-sm:flex max-sm:h-dvh max-sm:max-h-none max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:flex-col max-sm:gap-4 max-sm:rounded-none max-sm:p-4 max-sm:shadow-none sm:max-w-160"
+        className={cn(
+          "max-h-[calc(100dvh-2rem)] gap-6 overflow-y-auto p-6 sm:max-w-160",
+          isFullScreenOnMobile &&
+            "max-sm:top-0 max-sm:left-0 max-sm:flex max-sm:h-dvh max-sm:max-h-none max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:flex-col max-sm:gap-4 max-sm:rounded-none max-sm:p-4 max-sm:shadow-none",
+        )}
       >
         <DialogHeader className="flex-row items-start gap-4 text-left">
           <DialogTitle className="flex-1 text-2xl tracking-tight">{title}</DialogTitle>
@@ -69,10 +77,20 @@ export function BulkActionDialog({
             <X aria-hidden="true" />
           </Button>
         </DialogHeader>
-        <div className="flex min-h-0 flex-col gap-4 max-sm:flex-1 max-sm:overflow-y-auto">
+        <div
+          className={cn(
+            "flex min-h-0 flex-col gap-4",
+            isFullScreenOnMobile && "max-sm:flex-1 max-sm:overflow-y-auto",
+          )}
+        >
           {children}
         </div>
-        <div className="flex flex-col-reverse gap-3 max-sm:pt-2 md:flex-row md:justify-end">
+        <div
+          className={cn(
+            "flex flex-col-reverse gap-3 md:flex-row md:justify-end",
+            isFullScreenOnMobile && "max-sm:pt-2",
+          )}
+        >
           <Button
             variant="outline"
             size="lg"

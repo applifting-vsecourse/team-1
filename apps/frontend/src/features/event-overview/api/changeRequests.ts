@@ -44,6 +44,19 @@ export const eventChangeRequestsQueryOptions = (eventId: string) =>
         ),
   })
 
+export const eventChangeRequestQueryOptions = (eventId: string, requestId: string) =>
+  queryOptions({
+    queryKey: ["eventOverview", "change-request", eventId, requestId],
+    queryFn: async () =>
+      changeRequestSchema.parse(
+        await api
+          .get(
+            `organizer/events/${encodeURIComponent(eventId)}/change-requests/${encodeURIComponent(requestId)}`,
+          )
+          .json(),
+      ),
+  })
+
 export async function decideChangeRequest(
   eventId: string,
   requestId: string,

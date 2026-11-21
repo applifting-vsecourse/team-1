@@ -25,6 +25,35 @@ describe("term status summary", () => {
       confirmationDueCzk: 1000,
     })
   })
+  it("uses gendered capacity when a term also has an individual room", () => {
+    const summary = termStatusSummary(
+      { status: "WAITLISTED", priceCzk: 1000 },
+      [],
+      [
+        { capacity: 1, extraBeds: 0, gender: "FEMALE" },
+        { capacity: 2, extraBeds: 0, gender: "MALE" },
+        {
+          capacity: 2,
+          extraBeds: 0,
+          gender: null,
+          individual: true,
+          assignments: [{ applicationTerm: { application: { gender: "FEMALE" } } }],
+        },
+      ],
+      ["FEMALE", "FEMALE"],
+      "FEMALE",
+    )
+
+    expect(summary).toMatchObject({
+      capacity: 4,
+      occupied: 2,
+      confirmationCapacity: 2,
+      confirmationOccupied: 2,
+      confirmationNextOccupied: 3,
+      confirmationExceedsCapacity: true,
+    })
+  })
+
   it("counts shared rooms once and keeps existing payments when confirming", () => {
     expect(
       termStatusSummary(

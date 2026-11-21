@@ -1,14 +1,19 @@
 {
   "event": {
-    "about": "About the event",
+    "applicationHint": "Apply without creating an account. You can register several participants and choose their terms individually.",
+    "applicationHintTwo": "Apply without registering. You can register several participants and choose one or both terms for each person.",
     "apply": "Submit application",
+    "back": "Back to catalog",
+    "call": "Call",
     "contact": "Organization contact",
-    "perPerson": "/ person",
-    "terms": "Terms and prices"
+    "copyLink": "Copy link",
+    "priceNote": "Prices are per participant.",
+    "terms": "Terms and prices",
+    "write": "Send an e-mail"
   },
   "list": {
     "allOrganizations": "All organizations",
-    "backHome": "Home",
+    "backHome": "Back to home",
     "badgeOpen": "Applications open",
     "badgePublished": "Published",
     "description": "Find an organization and its published events in one place.",
@@ -16,7 +21,10 @@
     "emptyTitle": "No published events yet",
     "errorDescription": "Please try again.",
     "errorTitle": "The catalog couldn't be loaded.",
-    "loading": "Loading…",
+    "eventCount_few": "{{count}} events",
+    "eventCount_one": "{{count}} event",
+    "eventCount_other": "{{count}} events",
+    "loading": "Loading events…",
     "organization": "Organization",
     "retry": "Try again",
     "summaryFrom_few": "{{count}} terms · from {{price}}",
@@ -28,8 +36,8 @@
     "title": "Event catalog"
   },
   "notFound": {
-    "action": "Go to the home page",
-    "description": "The link to the event is not available. Check the address or contact the organization.",
-    "title": "Page not found"
+    "action": "Go to homepage",
+    "description": "The link may be incorrect or the event may not be ready for applications yet. Check the link with the organizer.",
+    "title": "This event page is unavailable."
   }
 }

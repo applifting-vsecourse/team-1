@@ -3,6 +3,8 @@ import { ChevronsUpDown, LogOut, Settings } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
+import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -11,7 +13,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { currentLanguage } from "@/i18n"
 
+import { useAccountLanguage } from "@/features/auth/hooks/useAccountLanguage"
 import { useSession } from "@/features/auth/hooks/useSession"
 import { useSignOut } from "@/features/auth/hooks/useSignOut"
 import { initials } from "@/features/auth/lib/initials"
@@ -26,6 +30,7 @@ import { initials } from "@/features/auth/lib/initials"
 export function SidebarAccount() {
   const { t } = useTranslation("auth")
   const { user } = useSession()
+  const { changeLanguage, isPending } = useAccountLanguage(user?.locale)
   const signOut = useSignOut()
 
   if (!user) return null
@@ -34,52 +39,62 @@ export function SidebarAccount() {
     user.accountType === "PARTICIPANT" ? ROUTES.participant.account : ROUTES.organizer.account
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          title={user.name}
-          className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none group-data-[collapsed=true]/sidebar:justify-center hover:bg-sidebar-accent/60 focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-sidebar-accent/60"
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 border-b border-sidebar-border pb-2">
+        <LanguageSwitcher
+          value={currentLanguage()}
+          disabled={isPending}
+          onChange={(language) => void changeLanguage(language)}
+        />
+        <ThemeSwitcher isLabeled />
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            title={user.name}
+            className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none hover:bg-sidebar-accent/60 focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-sidebar-accent/60"
+          >
+            <Avatar>
+              <AvatarFallback className="bg-accent text-xs font-semibold text-link">
+                {initials(user.name)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="truncate text-sm font-medium">{user.name}</span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            </span>
+            <ChevronsUpDown
+              aria-hidden
+              className="size-4 shrink-0 text-muted-foreground"
+            />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          side="top"
+          align="start"
+          className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
         >
-          <Avatar>
-            <AvatarFallback className="bg-accent text-xs font-semibold text-link">
-              {initials(user.name)}
-            </AvatarFallback>
-          </Avatar>
-          <span className="flex min-w-0 flex-1 flex-col group-data-[collapsed=true]/sidebar:hidden">
-            <span className="truncate text-sm font-medium">{user.name}</span>
-            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-          </span>
-          <ChevronsUpDown
-            aria-hidden
-            className="size-4 shrink-0 text-muted-foreground group-data-[collapsed=true]/sidebar:hidden"
-          />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        side="top"
-        align="start"
-        className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
-      >
-        <DropdownMenuItem
-          asChild
-          className="h-10 font-medium"
-        >
-          <Link to={accountRoute}>
-            <Settings />
-            {t("menu.accountSettings")}
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onSelect={() => signOut.mutate()}
-          disabled={signOut.isPending}
-          className="h-10 font-medium"
-        >
-          <LogOut />
-          {t("menu.signOut")}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuItem
+            asChild
+            className="h-10 font-medium"
+          >
+            <Link to={accountRoute}>
+              <Settings />
+              {t("menu.accountSettings")}
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={() => signOut.mutate()}
+            disabled={signOut.isPending}
+            className="h-10 font-medium"
+          >
+            <LogOut />
+            {t("menu.signOut")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   )
 }

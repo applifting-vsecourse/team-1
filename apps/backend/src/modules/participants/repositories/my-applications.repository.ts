@@ -1,9 +1,12 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { MyApplicationRecord } from "@/modules/participants/domain/my-application"
+import { toPragueWallTime } from "@/shared/domain/prague-wall-time"
 import { Injectable } from "@nestjs/common"
 
 const include = {
+  _count: { select: { mealOptions: true } },
+  health: { select: { id: true } },
   event: {
     select: { name: true, contactEmail: true, contactPhone: true, paymentPeriodDays: true },
   },
@@ -11,6 +14,7 @@ const include = {
   terms: {
     include: {
       term: { include: { _count: { select: { transports: true } } } },
+      roomAssignment: { select: { room: { select: { name: true } } } },
       payments: {
         where: { cancelledAt: null },
         select: { amountCzk: true, source: true, createdAt: true },
@@ -60,12 +64,23 @@ function toRecord(row: Row): MyApplicationRecord {
     submittedAt: row.submittedAt,
     firstName: row.firstName,
     lastName: row.lastName,
+    individualAccommodation: row.individualAccommodation,
     eventName: row.event.name,
+    eventId: row.eventId,
+    applicantEmail: row.email,
+    birthDate: row.birthDate.toISOString().slice(0, 10),
+    gender: row.gender,
     bankAccount: row.organization.bankAccount,
     paymentPeriodDays: row.event.paymentPeriodDays,
     organizationName: row.organization.name,
     contactEmail: row.event.contactEmail,
     contactPhone: row.event.contactPhone,
+    mealsFilled:
+      row._count.mealOptions > 0 ||
+      Boolean(row.allergies?.trim()) ||
+      Boolean(row.specialRequest?.trim()) ||
+      row.noMealRestrictions,
+    healthFilled: row.health !== null || row.noHealthRestriction,
     terms: row.terms.map(
       ({
         term,
@@ -76,6 +91,10 @@ function toRecord(row: Row): MyApplicationRecord {
         evaluatedAt,
         paymentPeriodStartedAt,
         transportId,
+        roomAssignment,
+        roomWishes,
+        lateArrivalAt,
+        earlyDepartureAt,
       }) => ({
         termId: term.id,
         termNumber: term.number,
@@ -91,6 +110,12 @@ function toRecord(row: Row): MyApplicationRecord {
         // A cancelled term keeps the status of its applications, but nothing is arranged for it.
         transportOffered: term.cancelledAt === null && term._count.transports > 0,
         transportDecided: transportId !== null,
+        roomsPublished: term.roomsPublishedAt !== null,
+        roomName: roomAssignment?.room.name ?? null,
+        termCancelled: term.cancelledAt !== null,
+        roomWishes,
+        lateArrival: lateArrivalAt && toPragueWallTime(lateArrivalAt),
+        earlyDeparture: earlyDepartureAt && toPragueWallTime(earlyDepartureAt),
       }),
     ),
   }

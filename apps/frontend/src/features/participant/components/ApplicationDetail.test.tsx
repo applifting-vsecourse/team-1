@@ -12,6 +12,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { notify } from "@/lib/notify"
 
+import type { EditableApplication } from "@/features/participant/api/applicationEdit"
 import type { MyApplication } from "@/features/participant/api/applications"
 import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
 
@@ -58,6 +59,8 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   canSimulatePayment: false,
   simulatedPayments: [],
   terms: [confirmed],
+  mealsDecided: false,
+  healthDecided: false,
   amountDueCzk: 4500,
   amountPaidCzk: 2000,
   amountOwedCzk: 2500,
@@ -136,6 +139,7 @@ const renderDetail = (
   canChangeImmediately = true,
   owedAfterChangeCzk = 4900,
   optionsState?: "loading" | "error",
+  edits: EditableApplication["history"] = [],
 ) => {
   const paid = (termId: string) =>
     data.paymentDetails?.terms.find((payment) => payment.termId === termId)?.paidCzk ?? 0
@@ -145,6 +149,19 @@ const renderDetail = (
   }
   get.mockImplementation((path: string) => ({
     json: () => {
+      if (path.endsWith("/edit")) {
+        return Promise.resolve({
+          id: data.id,
+          eventName: data.eventName,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          birthDate: data.birthDate ?? "2011-05-04",
+          phone: "+420 777 123 456",
+          individualAccommodation: false,
+          accommodationRequest: null,
+          history: edits,
+        })
+      }
       if (path.endsWith("change-options")) {
         if (optionsState === "loading") return new Promise(() => undefined)
         if (optionsState === "error") return Promise.reject(new Error("Options unavailable"))
@@ -228,6 +245,40 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByRole("button", { name: /Show payment QR/ })).not.toBeInTheDocument()
   })
 
+  it("shows an archived application as a state without steps or step links", async () => {
+    renderDetail(
+      application({
+        terms: [{ ...confirmed, status: "ARCHIVED" }],
+        amountPaidCzk: 4500,
+        amountOwedCzk: 0,
+        paymentStatus: "PAID",
+        paymentDetails: null,
+      }),
+    )
+    expect(await screen.findByText("Archived")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Archived application" })).toBeInTheDocument()
+    expect(
+      screen.getByText("The term has ended, there is nothing left to arrange."),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Edit application" })).not.toBeInTheDocument()
+    expect(screen.queryByText("Steps before the event")).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Meals" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: "Health restriction" })).not.toBeInTheDocument()
+    expect(screen.queryByText(/CZK|Kč/)).not.toBeInTheDocument()
+  })
+
+  it("keeps the steps of a confirmed term next to an archived one", async () => {
+    renderDetail(
+      application({
+        terms: [confirmed, { ...waitlisted, status: "ARCHIVED" }],
+      }),
+    )
+    expect(await screen.findByText("Archived")).toBeInTheDocument()
+    expect(screen.getByText("Steps before the event")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Edit application" })).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Archived application" })).not.toBeInTheDocument()
+  })
+
   it("copies the account, the variable symbol of the term and the amount to pay", async () => {
     const user = userEvent.setup()
     const write = vi.spyOn(navigator.clipboard, "writeText")
@@ -257,7 +308,7 @@ describe("ApplicationDetail", () => {
     })
     renderDetail(application())
 
-    const terms = await screen.findByRole("region", { name: "Terms and payments" })
+    const terms = await screen.findByRole("region", { name: "Terms" })
     expect(within(terms).getByRole("button", { name: "Cancel participation" })).toBeVisible()
     await user.click(await within(terms).findByRole("button", { name: "Change terms" }))
     const dialog = await screen.findByRole("dialog", { name: "Change term" })
@@ -452,7 +503,9 @@ describe("ApplicationDetail", () => {
     await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
     await user.click(screen.getByRole("combobox", { name: "What do you want to cancel?" }))
     await user.click(screen.getByRole("option", { name: /Only 1. týden/ }))
-    expect(screen.getByText("Paid CZK 4,500 · debt after cancellation CZK 0")).toBeInTheDocument()
+    expect(
+      screen.getByText("Paid CZK 4,500 · left to pay after cancellation CZK 0"),
+    ).toBeInTheDocument()
     expect(screen.getByText(/An overpayment of CZK 4,500 will arise/)).toBeInTheDocument()
     expect(
       screen.getByText("The bed is released immediately. The other terms stay unchanged."),
@@ -465,8 +518,8 @@ describe("ApplicationDetail", () => {
   })
 
   it.each([
-    ["Cancel participation", /Debt after cancellation CZK 0|debt after cancellation CZK 0/],
-    ["Change terms", /Paid CZK 0 · overpayment CZK 0 · debt CZK 0/],
+    ["Cancel participation", /left to pay after cancellation CZK 0/],
+    ["Change terms", /Paid CZK 0 · overpayment CZK 0 · left to pay CZK 0/],
   ])("shows debt removed by %s for an unpaid confirmed term", async (open, impact) => {
     const user = userEvent.setup()
     renderDetail(withTerms([termPayment(1, 4500, 0, "UNPAID")], [confirmed]))
@@ -480,19 +533,19 @@ describe("ApplicationDetail", () => {
     renderDetail(application())
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Letní kemp 2027" }),
+      await screen.findByRole("heading", { level: 1, name: "Application details" }),
     ).toBeInTheDocument()
     await openAll()
     expect(screen.getByText("Partly paid")).toBeInTheDocument()
     expect(screen.getByText("Amount due").nextSibling).toHaveTextContent("4,500")
     expect(screen.getByText("Paid").nextSibling).toHaveTextContent("2,000")
-    expect(screen.getByText("Left to pay").nextSibling).toHaveTextContent("2,500")
+    expect(screen.getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("2,500")
     expect(screen.getByText("2900123456/2010")).toBeInTheDocument()
     expect(screen.getByText("48001")).toBeInTheDocument()
     // The summary symbol and the total are for the whole application, not for one term.
     expect(screen.queryByText("48000")).not.toBeInTheDocument()
     expect(screen.queryByText("Left to pay in total")).not.toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "← All applications" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Back to my applications" })).toHaveAttribute(
       "href",
       "/participant",
     )
@@ -509,14 +562,14 @@ describe("ApplicationDetail", () => {
     )
   })
 
-  it("names the event prominently with the application code", async () => {
+  it("shows the participant and event in the heading area and the application code with the terms", async () => {
     renderDetail(application())
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Letní kemp 2027" }),
+      await screen.findByRole("heading", { level: 1, name: "Application details" }),
     ).toBeInTheDocument()
-    expect(screen.getByText("Jana Nováková · LKL-0048")).toBeInTheDocument()
-    expect(screen.queryByText("My application")).not.toBeInTheDocument()
+    expect(screen.getByText("Jana Nováková · Letní kemp 2027")).toBeInTheDocument()
+    expect(screen.getByText("LKL-0048")).toBeInTheDocument()
   })
 
   it("shows the debt of each confirmed term separately and the total (500 + 700 CZK)", async () => {
@@ -538,9 +591,9 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByText(/You pay each term separately/)).not.toBeInTheDocument()
     const one = cardOf(/^4–10 Jul 2027/)
     const two = cardOf(/^11–17 Jul 2027/)
-    expect(within(one).getByText("Left to pay").nextSibling).toHaveTextContent("500")
+    expect(within(one).getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("500")
     expect(within(one).getByText("48001")).toBeInTheDocument()
-    expect(within(two).getByText("Left to pay").nextSibling).toHaveTextContent("700")
+    expect(within(two).getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("700")
     expect(within(two).getByText("48002")).toBeInTheDocument()
     // One symbol per term, no symbol of the whole application.
     expect(screen.queryByText("48000")).not.toBeInTheDocument()
@@ -583,7 +636,7 @@ describe("ApplicationDetail", () => {
     ).toHaveTextContent("4,900")
     expect(screen.queryByText(/You pay each term separately/)).not.toBeInTheDocument()
     expect(
-      within(cardOf(/^11–17 Jul 2027/)).getByText("Left to pay").nextSibling,
+      within(cardOf(/^11–17 Jul 2027/)).getAllByText("Left to pay")[0]?.nextSibling,
     ).toHaveTextContent("4,900")
     expect(unpaid.compareDocumentPosition(paid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
@@ -614,7 +667,7 @@ describe("ApplicationDetail", () => {
     await openAll()
     expect(screen.getByText("Overpayment").nextSibling).toHaveTextContent("600")
     expect(screen.queryByText("Left to pay")).not.toBeInTheDocument()
-    expect(screen.queryByText("Amount to pay")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Copy amount" })).not.toBeInTheDocument()
     expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
   })
 
@@ -756,7 +809,7 @@ describe("ApplicationDetail", () => {
     it("draws no QR for a paid term", async () => {
       renderDetail(withTerms([paidTerm], [confirmed]))
 
-      await screen.findByText(/4–10 Jul/)
+      await screen.findByRole("heading", { name: "Steps before the event" })
       expect(screen.queryByRole("img", { name: "QR code for the term payment" })).toBeNull()
       expect(toDataURL).not.toHaveBeenCalled()
     })
@@ -769,17 +822,35 @@ describe("ApplicationDetail", () => {
         ),
       )
 
-      await screen.findByText(/4–10 Jul/)
+      await screen.findByRole("heading", { name: "Steps before the event" })
       expect(screen.queryByRole("img", { name: "QR code for the term payment" })).toBeNull()
       expect(screen.queryByText("Due date")).toBeNull()
     })
+  })
+
+  it("shows the persisted phone, accommodation and author on a fresh detail visit", async () => {
+    renderDetail(application(), true, 4900, undefined, [
+      {
+        id: "change1",
+        authorName: "Eva Malá",
+        createdAt: "2026-11-05T13:30:00Z",
+        changedFields: ["phone", "individualAccommodation"],
+      },
+    ])
+    expect(await screen.findByRole("heading", { name: "Change history" })).toBeVisible()
+    expect(screen.getByText("+420 777 123 456")).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Accommodation request" })).toBeVisible()
+    expect(screen.getByText("No individual accommodation requested.")).toBeVisible()
+    expect(screen.getByText(/Eva Malá/)).toBeVisible()
+    expect(screen.getByText("Updated contact and accommodation request.")).toBeVisible()
+    expect(screen.queryByText(/organizer was notified/i)).not.toBeInTheDocument()
   })
 
   describe("payment simulation (US-115)", () => {
     it("shows no simulation where the backend does not offer it (production)", async () => {
       renderDetail(application())
 
-      await screen.findByText(/4–10 Jul/)
+      await screen.findByRole("heading", { name: "Steps before the event" })
       expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
       expect(screen.queryByText("Demo: payments are simulated.")).toBeNull()
     })
@@ -814,85 +885,140 @@ describe("ApplicationDetail", () => {
       })
     })
 
+    it("marks the term button busy while its simulated payment is pending", async () => {
+      post.mockReturnValue(new Promise(() => undefined))
+      const user = userEvent.setup()
+      renderDetail(application({ canSimulatePayment: true }))
+      const button = await screen.findByRole("button", { name: "I paid" })
+      await user.click(button)
+      expect(button).toBeDisabled()
+      expect(button).toHaveAttribute("aria-busy", "true")
+    })
+
+    it("reports a failed simulation and retries only that term", async () => {
+      post.mockRejectedValueOnce(new Error("Request failed")).mockResolvedValueOnce({})
+      const user = userEvent.setup()
+      renderDetail(application({ canSimulatePayment: true }))
+
+      await user.click(await screen.findByRole("button", { name: "I paid" }))
+      expect(await screen.findByText("The simulated payment could not be recorded.")).toBeVisible()
+      await user.click(screen.getByRole("button", { name: "Try again" }))
+
+      expect(post).toHaveBeenCalledTimes(2)
+      expect(post).toHaveBeenNthCalledWith(2, "participant/applications/a1/payments/simulation", {
+        json: { termId: "t1" },
+      })
+      await waitFor(() => {
+        expect(screen.queryByText("The simulated payment could not be recorded.")).toBeNull()
+      })
+    })
+
     it("offers no button for a term with nothing left to pay", async () => {
       renderDetail({
         ...withTerms([termPayment(1, 4500, 4500, "PAID")], [confirmed]),
         canSimulatePayment: true,
       })
 
-      await screen.findByText(/4–10 Jul/)
+      await screen.findByRole("heading", { name: "Steps before the event" })
       expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
     })
   })
 
-  describe("transport (US-65)", () => {
-    const withTransport = (isDecided: boolean): MyApplication =>
+  describe("steps before the event (US-149)", () => {
+    const stepRow = async (term: RegExp, step: string): Promise<HTMLElement> => {
+      await screen.findByRole("heading", { name: term })
+      const row = within(cardOf(term)).getByText(step).closest("li")
+      if (!row) throw new Error(`no step ${step}`)
+      return row
+    }
+    const withSteps = (overrides: Partial<MyApplication> = {}): MyApplication =>
       application({
-        terms: [{ ...confirmed, transportOffered: true, transportDecided: isDecided }],
+        terms: [{ ...confirmed, transportOffered: true, transportDecided: false }],
+        ...overrides,
       })
 
-    it("asks for a transport in a checklist and separates terms and transport into sections", async () => {
-      renderDetail(withTransport(false))
+    it("lists each step of a confirmed term as to do or done, with a link to where it is arranged", async () => {
+      renderDetail(withSteps({ mealsDecided: true }))
 
-      expect(await screen.findByRole("heading", { name: "What is left to arrange" })).toBeVisible()
-      expect(screen.getByText("0 of 1 done")).toBeVisible()
-      expect(screen.getByRole("heading", { name: /^Transport · / })).toBeVisible()
-      expect(screen.getByRole("heading", { name: "Terms and payments" })).toBeVisible()
-      expect(screen.getByRole("heading", { name: "Transport" })).toBeVisible()
-      const todo = cardOf(/^What is left to arrange$/)
-      expect(within(todo).queryByRole("link", { name: "Meals" })).not.toBeInTheDocument()
-      expect(
-        within(todo).queryByRole("link", { name: "Health restriction" }),
-      ).not.toBeInTheDocument()
-      expect(screen.getByRole("link", { name: "Choose transport" })).toHaveAttribute(
+      expect(await screen.findByRole("heading", { name: "Steps before the event" })).toBeVisible()
+      const transport = await stepRow(/^1\. týden$/, "Transport")
+      expect(within(transport).getByText("To do")).toBeVisible()
+      expect(within(transport).getByRole("link", { name: "Choose transport" })).toHaveAttribute(
         "href",
-        "/participant/applications/a1/transport",
+        `/participant/applications/a1/transport#transport-${confirmed.termId}`,
       )
-    })
-
-    it("counts completed choices while another term still needs transport", async () => {
-      renderDetail(
-        application({
-          terms: [
-            { ...confirmed, transportOffered: true, transportDecided: true },
-            { ...secondConfirmed, transportOffered: true, transportDecided: false },
-          ],
-        }),
-      )
-
-      expect(await screen.findByText("1 of 2 done")).toBeVisible()
-      expect(screen.getByRole("link", { name: "Choose transport" })).toBeVisible()
-    })
-
-    it("offers a change but hides the checklist once all transport choices are made", async () => {
-      renderDetail(withTransport(true))
-
-      expect(await screen.findByRole("link", { name: "Change transport" })).toBeVisible()
-      expect(
-        screen.queryByRole("heading", { name: "What is left to arrange" }),
-      ).not.toBeInTheDocument()
-      expect(screen.queryByRole("link", { name: "Choose transport" })).not.toBeInTheDocument()
-    })
-
-    it("keeps meals and health available even when no transport is offered", async () => {
-      renderDetail(application())
-
-      expect(await screen.findByRole("link", { name: "Meals" })).toHaveAttribute(
+      const meals = await stepRow(/^1\. týden$/, "Meals")
+      expect(within(meals).getByText("Done")).toBeVisible()
+      expect(within(meals).getByRole("link", { name: "View meals" })).toHaveAttribute(
         "href",
         "/participant/applications/a1/meals",
       )
-      expect(screen.getByRole("link", { name: "Health restriction" })).toHaveAttribute(
+      const health = await stepRow(/^1\. týden$/, "Health restriction")
+      expect(within(health).getByText("To do")).toBeVisible()
+      expect(within(health).getByRole("link", { name: "Fill in details" })).toHaveAttribute(
         "href",
         "/participant/applications/a1/health",
       )
+    })
+
+    it("links to the wishes and published room of the matching term", async () => {
+      renderDetail(
+        withSteps({ terms: [{ ...confirmed, roomWishes: [], room: { name: "Bříza 204" } }] }),
+      )
+      const wishes = await stepRow(/^1\. týden$/, "Roommate wishes")
+      expect(within(wishes).getByText("To do")).toBeVisible()
+      const room = await stepRow(/^1\. týden$/, "Room")
+      expect(within(room).getByText("Done")).toBeVisible()
+      for (const row of [wishes, room]) {
+        const link = within(row).getByRole("link")
+        const target = document.querySelector(link.getAttribute("href")!)
+        expect(target).toBeVisible()
+      }
+    })
+
+    it("shows the payment step as to do while something is owed and links to the payment", async () => {
+      renderDetail(withSteps())
+
+      const payment = await stepRow(/^1\. týden$/, "Payment")
+      expect(within(payment).getByText("To do")).toBeVisible()
+      expect(within(payment).getByRole("link", { name: /^Pay / })).toHaveAttribute(
+        "href",
+        "#application-payment",
+      )
+    })
+
+    it("changes a step to done once it is arranged", async () => {
+      renderDetail(
+        withSteps({
+          terms: [{ ...confirmed, transportOffered: true, transportDecided: true }],
+          healthDecided: true,
+        }),
+      )
+
+      const transport = await stepRow(/^1\. týden$/, "Transport")
+      expect(within(transport).getByText("Done")).toBeVisible()
+      expect(within(transport).getByRole("link", { name: "View transport" })).toBeVisible()
       expect(
-        screen.queryByRole("heading", { name: "What is left to arrange" }),
-      ).not.toBeInTheDocument()
-      expect(screen.queryByRole("heading", { name: "Transport" })).not.toBeInTheDocument()
+        within(await stepRow(/^1\. týden$/, "Health restriction")).getByText("Done"),
+      ).toBeVisible()
+    })
+
+    it("keeps the program link next to the steps of a confirmed term", async () => {
+      renderDetail(application())
+
+      expect(await screen.findByRole("link", { name: "Program" })).toBeVisible()
+    })
+
+    it("leaves out the transport step when no transport is offered", async () => {
+      renderDetail(application())
+
+      await screen.findByRole("heading", { name: "Steps before the event" })
+      expect(screen.queryByRole("link", { name: "Choose transport" })).not.toBeInTheDocument()
+      expect(screen.queryByText("Transport")).not.toBeInTheDocument()
     })
 
     it.each(["TO_EVALUATE", "WAITLISTED", "CANCELLED"] as const)(
-      "keeps participant links without transport tasks when the term is %s",
+      "shows no steps for a %s term but keeps the meals and health links",
       async (status) => {
         renderDetail(
           application({
@@ -904,9 +1030,8 @@ describe("ApplicationDetail", () => {
         expect(await screen.findByRole("link", { name: "Meals" })).toBeVisible()
         expect(screen.getByRole("link", { name: "Health restriction" })).toBeVisible()
         expect(
-          screen.queryByRole("heading", { name: "What is left to arrange" }),
+          screen.queryByRole("heading", { name: "Steps before the event" }),
         ).not.toBeInTheDocument()
-        expect(screen.queryByRole("heading", { name: "Transport" })).not.toBeInTheDocument()
       },
     )
   })

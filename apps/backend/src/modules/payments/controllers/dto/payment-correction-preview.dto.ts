@@ -9,6 +9,7 @@ export class PaymentCorrectionPreviewRequestDto extends PickType(CorrectPaymentR
 class TermCorrectionPreviewDto {
   @ApiProperty() termId!: string
   @ApiProperty() owedCzk!: number
+  @ApiProperty() allocatedCzk!: number
   @ApiProperty() changeCzk!: number
 }
 

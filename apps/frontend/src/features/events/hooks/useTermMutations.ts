@@ -32,7 +32,7 @@ export function useUpdateTerm(eventId: string, termId: string) {
 export function useCancelTerm(eventId: string, termId: string) {
   const refresh = useRefreshEvent(eventId)
   return useMutation({
-    mutationFn: (reason: string) => cancelTerm(eventId, termId, reason),
+    mutationFn: (reason?: string) => cancelTerm(eventId, termId, reason),
     onSuccess: refresh,
   })
 }

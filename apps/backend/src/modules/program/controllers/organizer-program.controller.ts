@@ -1,6 +1,8 @@
 import {
   EventProgramResponseDto,
   ProgramBlockRequestDto,
+  ProgramCopyRequestDto,
+  ProgramCopyResponseDto,
 } from "@/modules/program/controllers/dto/program.dto"
 import { ProgramService } from "@/modules/program/services/program.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
@@ -57,6 +59,33 @@ export class OrganizerProgramController {
     @Body() body: ProgramBlockRequestDto,
   ): Promise<void> {
     await this.program.create(user, eventId, termId, body.toInput())
+  }
+
+  @Post("terms/:termId/copy")
+  @HttpCode(200)
+  @ApiOperation({
+    summary: "Copy the program of another term of the event into this term (US-142)",
+    description:
+      "Day N of the source goes to day N of the target; blocks of days the target does not have are skipped. Overlapping blocks are copied and reported. Sends no e-mail.",
+  })
+  @ApiResponse({ status: 200, type: ProgramCopyResponseDto })
+  @ApiResponse({
+    status: 400,
+    description: "Same term, a source without a program or a cancelled target term",
+  })
+  async copy(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+    @Body() body: ProgramCopyRequestDto,
+  ): Promise<ProgramCopyResponseDto> {
+    const plan = await this.program.copy(user, eventId, termId, body.sourceTermId, body.strategy)
+    return {
+      blocks: plan.blocks,
+      copied: plan.blocks.length,
+      skipped: plan.skipped,
+      overlaps: plan.overlaps,
+    }
   }
 
   @Put("blocks/:id")

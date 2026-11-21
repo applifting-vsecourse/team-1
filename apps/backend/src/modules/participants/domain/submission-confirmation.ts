@@ -13,6 +13,10 @@ export type SubmittedApplication = {
   /** Terms as evaluated; the price is the one frozen at evaluation. */
   terms: {
     name: string
+    /** The localized range when the term appears in the submission receipt. */
+    dates?: string
+    /** Only changed terms appear in the E13 summary; the payment details still cover the application. */
+    includedInChange?: boolean
     /** `Term.number`, the last three digits of the term's variable symbol. */
     termNumber: number
     status: ApplicationTermStatus
@@ -32,6 +36,7 @@ export type SubmissionConfirmation = {
   /** Application.locale — language of the e-mail. */
   locale: Locale
   eventName: string
+  organizationName: string
   /** Account number of the organization that runs the event. */
   bankAccount: string
   /**
@@ -84,5 +89,25 @@ export type ApplicationChange = {
   /** The application as it stands now. */
   application: SubmittedApplication
   /** The amount due changed: the e-mail repeats the payment details. */
+  hadPayment?: boolean
   isAmountChanged: boolean
+}
+
+/**
+ * E-mail no. 15 (US-131): the organizer cancelled a term, so the application in it is cancelled.
+ * One per cancelled application, never one per term.
+ */
+export type TermCancelledNotice = {
+  email: string
+  /** Language of the e-mail, decided by `resolveChangeEmailLocale` (D-078). */
+  locale: Locale
+  eventName: string
+  organizationName: string
+  /** The cancelled term: its name, else its dates. */
+  termName: string
+  /** Of the participant: the Czech copy is gendered. */
+  gender: Gender
+  firstName: string
+  lastName: string
+  accessToken: string
 }

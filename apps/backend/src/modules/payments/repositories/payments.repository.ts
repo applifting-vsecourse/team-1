@@ -49,6 +49,7 @@ const toDomain = (row: Row): PaymentApplication => ({
   birthDate: row.birthDate,
   gender: row.gender,
   email: row.email,
+  phone: row.phone,
   terms: row.terms.map((applicationTerm) => ({
     applicationTermId: applicationTerm.id,
     termId: applicationTerm.term.id,
@@ -101,7 +102,11 @@ export type RecordPaymentInput = {
 
 export type PaymentDebtNotice = {
   amountOwedCzk: number
-  terms: { termNumber: number; amountOwedCzk: number; paymentDueAt: Date | null }[]
+  terms: (PaidTermNotice & {
+    termNumber: number
+    amountOwedCzk: number
+    paymentDueAt: Date | null
+  })[]
 }
 
 /** A confirmed term whose debt a payment closed (e-mail no. 8, US-117). */
@@ -231,7 +236,7 @@ export class PaymentsRepository {
         return { debt: null, paid: [] }
       }
       if (original.some((row) => row.cancelledAt !== null))
-        throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+        throw new AppException(HttpStatus.CONFLICT, "PAYMENT_RECEIPT_ALREADY_CANCELLED")
       const paidBefore = await this.confirmedTermBalances(tx, applicationId)
       await tx.payment.updateMany({
         where: { receiptId, organizationId, applicationTerm: { applicationId } },
@@ -308,6 +313,9 @@ export class PaymentsRepository {
       data: { paymentPeriodStartedAt: restartedAt },
     })
     const terms = renewal.indebtedTerms.map((term) => ({
+      name: term.name,
+      startsOn: term.startsOn,
+      endsOn: term.endsOn,
       termNumber: term.termNumber,
       amountOwedCzk: term.owedCzk,
       paymentDueAt: computePaymentDeadline({
@@ -407,8 +415,14 @@ export class PaymentsRepository {
       if (!term) throw new AppException(HttpStatus.BAD_REQUEST, "PAYMENT_TERM_NOT_IN_APPLICATION")
       const amount = resolvePaymentAmount(input.amountCzk, term.due, term.paid)
       assertAmount(amount)
-      if (isRefund && amount > computeRefundableAmount(term.due, term.paid))
-        throw new AppException(HttpStatus.CONFLICT, "REFUND_EXCEEDS_OVERPAYMENT")
+      if (isRefund) {
+        const maximum = computeRefundableAmount(term.due, term.paid)
+        if (amount > maximum)
+          throw new AppException(HttpStatus.CONFLICT, "REFUND_EXCEEDS_OVERPAYMENT", undefined, {
+            maximum: String(maximum),
+            context: "limit",
+          })
+      }
       rows = [{ applicationTermId: term.applicationTermId, amountCzk: isRefund ? -amount : amount }]
     } else {
       const amount = resolvePaymentAmount(input.amountCzk, computeSummaryPayableAmount(terms))

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest"
 
-import { hourRange, overlapping, placeBlocks, toMinutes } from "@/features/program/lib/calendar"
+import {
+  hourRange,
+  overlapping,
+  placeBlocks,
+  toMinutes,
+  trackedOverlaps,
+} from "@/features/program/lib/calendar"
 
 const block = (id: string, startTime: string, endTime: string) => ({ id, startTime, endTime })
 
@@ -47,5 +53,31 @@ describe("program calendar", () => {
       ["c", 1, 2],
       ["d", 0, 1],
     ])
+  })
+
+  it("recomputes the overlaps of the tracked blocks from the current blocks", () => {
+    const block = (id: string, name: string, startTime: string, endTime: string, date = "d1") => ({
+      id,
+      date,
+      name,
+      startTime,
+      endTime,
+    })
+    const tracked = new Set(["a"])
+    const a = block("a", "Dílny", "10:00", "11:00")
+    const hry = block("b", "Hry", "10:30", "12:00")
+    expect(trackedOverlaps([a, hry], tracked)).toEqual([
+      { date: "d1", first: "Dílny", second: "Hry" },
+    ])
+    // Renaming does not hide an overlap that is still there.
+    expect(trackedOverlaps([a, { ...hry, name: "Soutěž" }], tracked)).toEqual([
+      { date: "d1", first: "Dílny", second: "Soutěž" },
+    ])
+    expect(trackedOverlaps([a], tracked)).toEqual([])
+    expect(trackedOverlaps([a, { ...hry, startTime: "11:00" }], tracked)).toEqual([])
+    expect(trackedOverlaps([a, { ...hry, date: "d2" }], tracked)).toEqual([])
+    // Overlaps between blocks the copy did not create are not reported; two tracked ones once.
+    expect(trackedOverlaps([a, hry], new Set())).toEqual([])
+    expect(trackedOverlaps([a, hry], new Set(["a", "b"]))).toHaveLength(1)
   })
 })

@@ -1,7 +1,9 @@
+import { MAX_ACCOMMODATION_NOTE_LENGTH } from "@/shared/domain/accommodation"
 import { GENDERS } from "@/shared/domain/gender"
 import type { Gender } from "@/shared/domain/gender"
+import { MAX_PHONE_INPUT_LENGTH } from "@/shared/domain/phone"
 import { ApiProperty } from "@nestjs/swagger"
-import { Transform, Type } from "class-transformer"
+import { Type } from "class-transformer"
 import {
   ArrayMinSize,
   Equals,
@@ -48,16 +50,39 @@ export class ManualApplicationRequestDto {
   @IsIn(GENDERS)
   gender!: Gender
 
+  @ApiProperty({
+    required: false,
+    description: "The participant wants the accommodation settled individually (US-38).",
+  })
+  @IsOptional()
+  @IsBoolean()
+  individualAccommodation?: boolean
+
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    maxLength: MAX_ACCOMMODATION_NOTE_LENGTH,
+    description: "Optional note to the organizer; kept only with individualAccommodation.",
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(MAX_ACCOMMODATION_NOTE_LENGTH)
+  accommodationRequest?: string | null
+
   @ApiProperty()
   @IsEmail()
   email!: string
 
-  @ApiProperty({ example: "+420 777 123 456" })
-  @Transform(({ value }: { value: unknown }) =>
-    typeof value === "string" ? value.trim().replace(/[ ()-]/g, "") : value,
-  )
-  @Matches(/^\+?[0-9]{7,30}$/)
-  phone!: string
+  @ApiProperty({
+    example: "+420 777 123 456",
+    nullable: true,
+    required: false,
+    description: "Optional; empty means no phone. A filled-in one is checked in the service.",
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(MAX_PHONE_INPUT_LENGTH)
+  phone?: string | null
 
   @ApiProperty({ description: "The organizer confirms that the applicant has consented." })
   @Equals(true)

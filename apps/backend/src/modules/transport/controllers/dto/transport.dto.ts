@@ -133,6 +133,7 @@ export class TransportParticipantDto {
   @ApiProperty() applicationId!: string
   @ApiProperty() name!: string
   @ApiProperty() email!: string
+  @ApiProperty({ type: String, nullable: true }) phone!: string | null
 }
 
 export class TransportParticipantsResponseDto extends TermDto implements TransportParticipants {

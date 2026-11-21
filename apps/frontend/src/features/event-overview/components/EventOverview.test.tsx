@@ -56,7 +56,13 @@ function renderOverview(attention: Attention, setup?: ReactNode, proposals: obje
       ? attention
       : url.endsWith("/substitute-proposals")
         ? proposals
-        : occupancy
+        : {
+            ...occupancy,
+            terms: [
+              ...occupancy.terms,
+              { ...occupancy.terms[0], id: "t2", name: "Autumn week", waitlisted: 0 },
+            ],
+          }
     return Promise.resolve(
       new Response(JSON.stringify(body), {
         status: 200,
@@ -100,19 +106,24 @@ describe("EventOverview", () => {
       debt: { debtorCount: 6, overdueCount: 3, totalDebtCzk: 18400 },
       changeRequestCount: 2,
     })
-    const toEvaluate = await screen.findByRole("link", { name: /Awaiting review · 12/ })
+    const toEvaluate = await screen.findByRole("link", { name: /Awaiting evaluation · 12/ })
     expect(toEvaluate.getAttribute("href")).toContain("status=TO_EVALUATE")
     const substitutes = screen.getByRole("link", { name: /Substitutes to resolve · 3/ })
     expect(substitutes).toHaveTextContent("Freed beds in the matching group")
     expect(substitutes.getAttribute("href")).toContain("status=WAITLISTED")
     expect(substitutes.getAttribute("href")).toContain("waitlist=FREE_BED")
-    const debt = screen.getByRole("link", { name: /Participants with a balance due · 6/ })
-    expect(debt).toHaveTextContent("3 overdue · Total balance due")
+    const debt = screen.getByRole("link", { name: /Participants with a debt · 6/ })
+    expect(debt).toHaveTextContent("3 overdue · Total debt")
     expect(debt).toHaveTextContent("18,400")
     expect(debt.getAttribute("href")).toContain("payment=DEBT")
     const requests = screen.getByRole("link", { name: /Requests awaiting approval · 2/ })
     expect(requests.getAttribute("href")).toContain("view=CHANGE_REQUESTS")
-    expect(await screen.findByText("Summer week")).toBeVisible()
+    expect(await screen.findByText(/^Summer week · /)).toBeVisible()
+    expect(screen.getByRole("link", { name: "View waitlist" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("term=t1"),
+    )
+    expect(screen.getByRole("button", { name: "View waitlist" })).toBeDisabled()
     expect(screen.getByRole("combobox", { name: "Event" })).toBeVisible()
   })
 
@@ -123,10 +134,10 @@ describe("EventOverview", () => {
       debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
       changeRequestCount: 0,
     })
-    expect(await screen.findByRole("link", { name: /Awaiting review · 0/ })).toBeVisible()
+    expect(await screen.findByRole("link", { name: /Awaiting evaluation · 0/ })).toBeVisible()
     expect(screen.getByRole("link", { name: /Substitutes to resolve · 0/ })).toBeVisible()
-    expect(screen.queryByText("Nothing needs your attention")).not.toBeInTheDocument()
-    expect(await screen.findByText("Summer week")).toBeVisible()
+    expect(screen.getByRole("status")).toHaveTextContent("Everything is up to date")
+    expect(await screen.findByText(/^Summer week · /)).toBeVisible()
   })
 
   it("puts the setup steps the event still needs between the switcher and the cards", async () => {
@@ -139,7 +150,7 @@ describe("EventOverview", () => {
       },
       <p>Setup steps</p>,
     )
-    const cards = await screen.findByRole("link", { name: /Awaiting review/ })
+    const cards = await screen.findByRole("link", { name: /Awaiting evaluation/ })
     const setup = screen.getByText("Setup steps")
     const switcher = screen.getByRole("combobox", { name: "Event" })
     expect(switcher.compareDocumentPosition(setup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
@@ -190,7 +201,7 @@ describe("EventOverview", () => {
       debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
       changeRequestCount: 0,
     })
-    await screen.findByRole("link", { name: /Awaiting review/ })
+    await screen.findByRole("link", { name: /Awaiting evaluation/ })
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
   })
 })

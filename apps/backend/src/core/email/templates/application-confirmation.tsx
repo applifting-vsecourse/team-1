@@ -1,328 +1,270 @@
-import { Locale } from '@/core/email/locale';
 import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Hr,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from 'react-email';
-import * as React from 'react';
+  ApplicationEmailFooter,
+  EmailAction,
+  EmailFallbackLink,
+  EmailIdentification,
+  EmailLayout,
+  EmailRows,
+  EmailTerm,
+  paymentLabels,
+} from "@/core/email/email-kit"
+import type { Locale } from "@/core/email/locale"
+import { Fragment } from "react"
+import { Heading, Section, Text } from "react-email"
 
-// Figma (Design system): US-102 E-mailová šablona · Souhrnný e-mail (K vyhodnocení) · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15751-2063 (360 px: node-id=15751-2100)
-// Copy for all locales side by side — a missing translation is a type error.
 const copy: Record<
   Locale,
   {
-    subject: (event: string) => string;
-    preview: string;
-    heading: string;
-    intro: (event: string) => string;
-    termsHeading: string;
-    confirmed: string;
-    toEvaluate: string;
-    toEvaluateNote: string;
-    toEvaluateAlertTitle: string;
-    toEvaluateAlertText: string;
-    waitlisted: string;
-    paymentHeading: string;
-    amountDue: string;
-    account: string;
-    variableSymbol: string;
-    payTermsHeading: string;
-    severalPayments: string;
-    waitlistNote: string;
-    allWaitlisted: string;
-    statusLink: string;
-    magicLinkText: string;
-    magicLinkButton: string;
-    loginText: string;
-    loginButton: string;
-    fallback: string;
-    footer: string;
+    subject: (event: string) => string
+    preview: string
+    heading: { one: string; many: string }
+    intro: { one: (event: string, termCount: number) => string; many: (event: string) => string }
+    badge: Record<"TO_EVALUATE" | "CONFIRMED" | "WAITLISTED", string>
+    termText: Record<"TO_EVALUATE" | "CONFIRMED" | "WAITLISTED", string>
+    viewApplication: string
+    severalPayments: string
+    magicLinkNote: string
+    magicLinkButton: string
+    loginButton: string
+    fallback: string
   }
 > = {
   en: {
-    subject: (event) => `Your application: ${event}`,
-    preview: 'Status of your terms and payment details',
-    heading: 'Application received',
-    intro: (event) => `Hi, we received your application for ${event}.`,
-    termsHeading: 'Status by term',
-    confirmed: 'confirmed',
-    toEvaluate: 'Awaiting evaluation',
-    toEvaluateNote:
-      'The organizer will review the application in each term separately. It is not a confirmed place or a waitlist spot yet.',
-    toEvaluateAlertTitle: "Don't pay yet.",
-    toEvaluateAlertText:
-      'You will get the payment details once your participation is confirmed.',
-    waitlisted: 'you are waitlisted',
-    paymentHeading: 'Payment',
-    amountDue: 'Amount due',
-    account: 'Account number',
-    variableSymbol: 'Variable symbol',
-    payTermsHeading: 'Or pay one term only (its own variable symbol)',
+    subject: (event) => `Application received: ${event}`,
+    preview: "Your submitted applications and the status of each term.",
+    heading: {
+      one: "We have received your application",
+      many: "We have received your applications",
+    },
+    intro: {
+      one: (event, termCount) =>
+        `We have received your application for ${event}. ${termCount === 1 ? "Below is the participant and the status of the selected term." : "Below is a summary of the participant and the status of each term."}`,
+      many: (event) =>
+        `We have received your applications for ${event}. Below is a summary of the participants and the status of each term.`,
+    },
+    badge: {
+      TO_EVALUATE: "Awaiting evaluation",
+      CONFIRMED: "Confirmed",
+      WAITLISTED: "Waitlisted",
+    },
+    termText: {
+      TO_EVALUATE:
+        "Awaiting review. We will let you know the result by e-mail. Please do not pay yet.",
+      CONFIRMED: "The place is confirmed. Payment details are shown below.",
+      WAITLISTED:
+        "The application is waitlisted. We will e-mail you if the place is confirmed. Please do not pay yet.",
+    },
+    viewApplication: "View application",
     severalPayments:
-      'Every application has its own variable symbol — please pay each one separately.',
-    waitlistNote:
-      "Don't pay for a term where you are waitlisted. You pay once the place is confirmed.",
-    allWaitlisted:
-      "None of your terms is confirmed yet, so there is nothing to pay. You pay only after a place is confirmed — we'll send you the payment details then.",
-    statusLink: 'View the status of this application',
-    magicLinkText:
-      'You can come back to your applications any time. The button signs you in and lets you choose a password. The link works once and is valid for 7 days.',
-    magicLinkButton: 'Open my applications',
-    loginText: 'You can come back to your applications by signing in with your e-mail and password.',
-    loginButton: 'Sign in',
-    fallback: "If the button doesn't work, copy this link into your browser:",
-    footer: 'You got this e-mail because an application was submitted with your address.',
+      "Please pay only for confirmed terms. Pay for each application separately using the amount and variable symbol shown.",
+    magicLinkNote:
+      "The link is valid for 7 days and can only be used once. If it no longer works, you can request a new one on the Togena sign-in page.",
+    magicLinkButton: "Sign in to Togena",
+    loginButton: "Sign in to Togena",
+    fallback: "If the button does not work, copy this link into your browser:",
   },
   cs: {
-    subject: (event) => `Potvrzení přihlášky: ${event}`,
-    preview: 'Stav termínů a platební údaje',
-    heading: 'Přihláška přijata',
-    intro: (event) => `Dobrý den, přijali jsme vaši přihlášku na akci ${event}.`,
-    termsHeading: 'Stav podle termínů',
-    confirmed: 'potvrzený',
-    toEvaluate: 'Čeká na vyhodnocení',
-    toEvaluateNote:
-      'Organizátor přihlášku posoudí v každém termínu zvlášť. Zatím nejde o potvrzenou účast ani o zařazení mezi náhradníky.',
-    toEvaluateAlertTitle: 'Zatím nic neplaťte.',
-    toEvaluateAlertText: 'Platební údaje dostanete po potvrzení účasti.',
-    waitlisted: 'jste náhradník',
-    paymentHeading: 'Platba',
-    amountDue: 'K úhradě',
-    account: 'Číslo účtu',
-    variableSymbol: 'Variabilní symbol',
-    payTermsHeading: 'Nebo zaplaťte jen jeden termín (vlastní variabilní symbol)',
+    subject: (event) => `Přihláška přijata: ${event}`,
+    preview: "Přehled přijatých přihlášek a stavů jednotlivých termínů.",
+    heading: { one: "Přihlášku jsme přijali", many: "Přihlášky jsme přijali" },
+    intro: {
+      one: (event, termCount) =>
+        `Přijali jsme vaši přihlášku na akci ${event}. Níže najdete přehled účastníka a stav ${termCount === 1 ? "jednotlivého termínu" : "jednotlivých termínů"}.`,
+      many: (event) =>
+        `Přijali jsme vaše přihlášky na akci ${event}. Níže najdete přehled účastníků a stav jednotlivých termínů.`,
+    },
+    badge: {
+      TO_EVALUATE: "Čeká na vyhodnocení",
+      CONFIRMED: "Potvrzeno",
+      WAITLISTED: "Náhradník",
+    },
+    termText: {
+      TO_EVALUATE: "Čeká na vyhodnocení. O výsledku vás informujeme e-mailem. Zatím nic neplaťte.",
+      CONFIRMED: "Účast je potvrzená. Platební údaje najdete níže.",
+      WAITLISTED:
+        "Přihláška je zařazena mezi náhradníky. Pokud bude účast potvrzena, informujeme vás e-mailem. Zatím nic neplaťte.",
+    },
+    viewApplication: "Zobrazit přihlášku",
     severalPayments:
-      'Každá přihláška má vlastní variabilní symbol, platby posílejte zvlášť.',
-    waitlistNote:
-      'Za termín, kde jste náhradník, zatím neplaťte. Platíte až po potvrzení místa.',
-    allWaitlisted:
-      'Žádný termín zatím není potvrzený, takže zatím nic neplaťte. Platíte až po potvrzení místa, platební údaje vám pak pošleme.',
-    statusLink: 'Zobrazit stav této přihlášky',
-    magicLinkText:
-      'K přihláškám se můžete kdykoliv vrátit. Tlačítkem se přihlásíte a nastavíte si heslo. Odkaz jde použít jednou a platí 7 dní.',
-    magicLinkButton: 'Otevřít moje přihlášky',
-    loginText: 'K přihláškám se vrátíte přihlášením svým e-mailem a heslem.',
-    loginButton: 'Přihlásit se',
-    fallback: 'Pokud tlačítko nefunguje, zkopírujte tento odkaz do prohlížeče:',
-    footer: 'Tento e-mail jste dostali, protože byla odeslána přihláška na vaši adresu.',
+      "Plaťte pouze za potvrzené termíny. Každou přihlášku zaplaťte samostatně podle uvedené částky a variabilního symbolu.",
+    magicLinkNote:
+      "Odkaz platí 7 dní a lze jej použít pouze jednou. Pokud už nefunguje, na přihlašovací stránce Togeny si můžete nechat poslat nový.",
+    magicLinkButton: "Přihlásit se do Togeny",
+    loginButton: "Přihlásit se do Togeny",
+    fallback: "Pokud tlačítko nefunguje, zkopírujte tento odkaz do prohlížeče:",
   },
-};
+}
 
-export const applicationConfirmationSubject = (
-  locale: Locale,
-  eventName: string,
-): string => copy[locale].subject(eventName);
+export const applicationConfirmationSubject = (locale: Locale, eventName: string): string =>
+  copy[locale].subject(eventName)
 
 export interface ConfirmationApplicationProps {
   /** First and last name of the participant. */
-  name: string;
-  terms: { name: string; status: 'TO_EVALUATE' | 'CONFIRMED' | 'WAITLISTED' }[];
+  name: string
+  terms: { name: string; dates?: string; status: "TO_EVALUATE" | "CONFIRMED" | "WAITLISTED" }[]
   /** Only for an application with a confirmed term; amounts are already formatted. */
   payment: {
     /** Everything due now, paid under the summary variable symbol (`…000`). */
-    amount: string;
-    bankAccount: string;
-    variableSymbol: string;
+    amount: string
+    bankAccount: string
+    variableSymbol: string
     /** One line per confirmed term with its own symbol; empty with a single confirmed term. */
-    terms: { name: string; amount: string; variableSymbol: string }[];
-  } | null;
-  confirmationUrl: string;
+    terms: { name: string; amount: string; variableSymbol: string }[]
+  } | null
+  confirmationUrl: string
 }
 
 export interface ApplicationConfirmationProps {
-  locale: Locale;
-  eventName: string;
+  locale: Locale
+  eventName: string
+  organizationName: string
   /** Magic link (account without a password) or the sign-in page. */
-  access: { kind: 'MAGIC_LINK' | 'LOGIN'; url: string };
-  applications: ConfirmationApplicationProps[];
+  access: { kind: "MAGIC_LINK" | "LOGIN"; url: string }
+  applications: ConfirmationApplicationProps[]
 }
 
-export const ApplicationConfirmation = ({
+const tones = { TO_EVALUATE: "neutral", CONFIRMED: "confirmed", WAITLISTED: "waitlisted" } as const
+
+// Figma: E01–E04 · Přijetí přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19680-512
+export function ApplicationConfirmation({
   locale,
   eventName,
+  organizationName,
   access,
   applications,
-}: ApplicationConfirmationProps): React.JSX.Element => {
-  const text = copy[locale];
-  const payable = applications.filter((a) => a.payment !== null);
-  const hasWaitlisted = applications.some((a) =>
-    a.terms.some((t) => t.status === 'WAITLISTED'),
-  );
-  const isAwaiting = (a: ConfirmationApplicationProps): boolean =>
-    a.terms.some((t) => t.status === 'TO_EVALUATE');
-  const hasAwaiting = applications.some(isAwaiting);
+}: ApplicationConfirmationProps) {
+  const text = copy[locale]
+  const pay = paymentLabels[locale]
+  const single = applications.length === 1
+  const magicLink = access.kind === "MAGIC_LINK"
   return (
-    <Html lang={locale}>
-      <Head />
-      <Preview>{text.preview}</Preview>
-      <Tailwind>
-        <Body className="bg-gray-50 font-sans py-10">
-          <Container className="bg-white rounded-lg mx-auto p-8 max-w-xl">
-            <Heading className="text-2xl font-bold text-gray-900 m-0">
-              {text.heading}
+    <EmailLayout
+      locale={locale}
+      preview={text.preview}
+      heading={single ? text.heading.one : text.heading.many}
+      introduction={
+        <Text className="mb-0 mt-6 text-base leading-6 text-ink">
+          {single
+            ? text.intro.one(eventName, applications[0].terms.length)
+            : text.intro.many(eventName)}
+        </Text>
+      }
+    >
+      {magicLink ? (
+        <EmailAction
+          href={access.url}
+          first
+        >
+          {text.magicLinkButton}
+        </EmailAction>
+      ) : null}
+      <Section className={magicLink ? "mt-6" : undefined}>
+        <EmailIdentification
+          locale={locale}
+          eventName={eventName}
+          participant={single ? applications[0].name : undefined}
+        />
+      </Section>
+      {applications.map(({ confirmationUrl, name, terms, payment }) => (
+        <Fragment key={confirmationUrl}>
+          {single ? null : (
+            <Heading
+              as="h2"
+              className="mb-0 mt-6 text-[18px] font-semibold leading-[26px] tracking-[-0.18px] text-ink"
+            >
+              {name}
             </Heading>
-            <Text className="text-gray-700 text-base leading-6 mt-4">
-              {text.intro(eventName)}
-            </Text>
-
-            {applications.map((application) => (
-              <Section key={application.confirmationUrl} className="mt-6">
-                <Hr className="border-gray-200 my-4" />
-                <Heading as="h2" className="text-lg font-semibold text-gray-900 m-0">
-                  {application.name}
-                </Heading>
-                <Text className="text-gray-500 text-sm m-0 mt-3">
-                  {text.termsHeading}
-                </Text>
-                {application.terms.map((term) => (
-                  <Text
-                    key={term.name}
-                    className="text-gray-900 text-base leading-6 m-0"
-                  >
-                    {term.name}:{' '}
-                    {term.status === 'TO_EVALUATE' ? (
-                      <span className="bg-gray-100 text-gray-600 text-sm font-medium rounded-full px-2 py-1">
-                        {text.toEvaluate}
-                      </span>
-                    ) : (
-                      <strong>
-                        {term.status === 'CONFIRMED'
-                          ? text.confirmed
-                          : text.waitlisted}
-                      </strong>
-                    )}
-                  </Text>
-                ))}
-                {isAwaiting(application) ? (
-                  <>
-                    <Text className="text-gray-900 text-base leading-6 mt-3 mb-0">
-                      {text.toEvaluateNote}
-                    </Text>
-                    <Section className="bg-gray-50 border border-solid border-gray-200 rounded-lg px-4 py-3 mt-3">
-                      <Text className="text-gray-900 text-sm font-medium leading-5 m-0">
-                        {text.toEvaluateAlertTitle}
-                      </Text>
-                      <Text className="text-gray-600 text-sm leading-5 m-0 mt-1">
-                        {text.toEvaluateAlertText}
-                      </Text>
-                    </Section>
-                  </>
-                ) : null}
-                {application.payment ? (
-                  <>
-                    <Text className="text-gray-500 text-sm m-0 mt-4">
-                      {text.paymentHeading}
-                    </Text>
-                    <Text className="text-gray-900 text-base leading-6 m-0">
-                      {text.amountDue}: <strong>{application.payment.amount}</strong>
-                    </Text>
-                    <Text className="text-gray-900 text-base leading-6 m-0">
-                      {text.account}: <strong>{application.payment.bankAccount}</strong>
-                    </Text>
-                    <Text className="text-gray-900 text-base leading-6 m-0">
-                      {text.variableSymbol}:{' '}
-                      <strong>{application.payment.variableSymbol}</strong>
-                    </Text>
-                    {application.payment.terms.length > 0 ? (
-                      <>
-                        <Text className="text-gray-500 text-sm m-0 mt-3">
-                          {text.payTermsHeading}
-                        </Text>
-                        {application.payment.terms.map((term) => (
-                          <Text
-                            key={term.variableSymbol}
-                            className="text-gray-900 text-base leading-6 m-0"
-                          >
-                            {term.name}: <strong>{term.amount}</strong>,{' '}
-                            {text.variableSymbol}: <strong>{term.variableSymbol}</strong>
-                          </Text>
-                        ))}
-                      </>
-                    ) : null}
-                  </>
-                ) : null}
-                <Button
-                  href={application.confirmationUrl}
-                  className="bg-white text-gray-900 font-semibold rounded-md border border-solid border-gray-300 px-5 py-2 mt-4"
-                >
-                  {text.statusLink}
-                </Button>
-              </Section>
+          )}
+          <Section className="mt-6">
+            {terms.map((term, index) => (
+              <EmailTerm
+                key={index}
+                dates={term.dates ?? term.name}
+                name={term.dates && term.name !== term.dates ? term.name : undefined}
+                tone={tones[term.status]}
+                badge={text.badge[term.status]}
+                description={text.termText[term.status]}
+                last={index === terms.length - 1}
+              />
             ))}
-
-            {payable.length > 1 ? (
-              <Text className="text-gray-700 text-sm leading-5 mt-6">
-                {text.severalPayments}
-              </Text>
-            ) : null}
-            {payable.length === 0 && !hasAwaiting ? (
-              <Text className="text-gray-700 text-sm leading-5 mt-6">
-                {text.allWaitlisted}
-              </Text>
-            ) : hasWaitlisted ? (
-              <Text className="text-gray-700 text-sm leading-5 mt-2">
-                {text.waitlistNote}
-              </Text>
-            ) : null}
-
-            <Hr className="border-gray-200 my-6" />
-            <Text className="text-gray-700 text-base leading-6 m-0">
-              {access.kind === 'MAGIC_LINK' ? text.magicLinkText : text.loginText}
-            </Text>
-            <Section className="text-center my-6">
-              <Button
-                href={access.url}
-                className="bg-gray-900 text-white font-semibold rounded-md px-6 py-3"
-              >
-                {access.kind === 'MAGIC_LINK'
-                  ? text.magicLinkButton
-                  : text.loginButton}
-              </Button>
-            </Section>
-            <Text className="text-gray-600 text-sm leading-5">{text.fallback}</Text>
-            <Text className="text-blue-600 text-sm break-all">{access.url}</Text>
-            <Hr className="border-gray-200 my-6" />
-            <Text className="text-gray-400 text-xs">{text.footer}</Text>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
-  );
-};
+          </Section>
+          {payment ? (
+            <EmailRows
+              spaced
+              rows={[
+                { label: pay.amountDue, value: payment.amount },
+                { label: pay.account, value: payment.bankAccount },
+                {
+                  label: payment.terms.length ? pay.applicationSymbol : pay.variableSymbol,
+                  value: payment.variableSymbol,
+                },
+                ...payment.terms.map((term) => ({
+                  label: pay.termSymbol(term.name),
+                  value: `${term.amount} · ${term.variableSymbol}`,
+                })),
+              ]}
+            />
+          ) : null}
+          <EmailAction
+            href={confirmationUrl}
+            secondary={!single || magicLink}
+          >
+            {text.viewApplication}
+          </EmailAction>
+        </Fragment>
+      ))}
+      {applications.length > 1 && applications.some((a) => a.payment) ? (
+        <Text className="mb-0 mt-6 text-sm leading-5 text-muted">{text.severalPayments}</Text>
+      ) : null}
+      {magicLink ? (
+        <>
+          <Text className="mb-0 mt-6 text-sm leading-5 text-muted">{text.magicLinkNote}</Text>
+          <EmailFallbackLink
+            url={access.url}
+            label={text.fallback}
+          />
+        </>
+      ) : (
+        <EmailAction
+          href={access.url}
+          secondary={single}
+        >
+          {text.loginButton}
+        </EmailAction>
+      )}
+      <ApplicationEmailFooter
+        locale={locale}
+        organization={organizationName}
+      />
+    </EmailLayout>
+  )
+}
 
 // Preview data for `pnpm backend email:dev`: one participant, new account.
 ApplicationConfirmation.PreviewProps = {
-  locale: 'cs',
-  eventName: 'Letní kemp 2027',
+  locale: "cs",
+  eventName: "Letní kemp 2027",
+  organizationName: "Alpine Collective",
   access: {
-    kind: 'MAGIC_LINK',
-    url: 'https://team-1.vsepractical.applifting.dev/participant/magic-link?token=preview',
+    kind: "MAGIC_LINK",
+    url: "https://team-1.vsepractical.applifting.dev/participant/magic-link?token=preview",
   },
   applications: [
     {
-      name: 'Jana Nováková',
+      name: "Jana Nováková",
       terms: [
-        { name: '1. týden', status: 'CONFIRMED' },
-        { name: '2. týden', status: 'WAITLISTED' },
+        { name: "1. týden", dates: "12.–18. 7. 2027", status: "CONFIRMED" },
+        { name: "2. týden", dates: "19.–25. 7. 2027", status: "WAITLISTED" },
       ],
       payment: {
-        amount: '4 500 Kč',
-        bankAccount: '2900123456/2010',
-        variableSymbol: '48000',
+        amount: "4 500 Kč",
+        bankAccount: "2900123456/2010",
+        variableSymbol: "48000",
         terms: [],
       },
-      confirmationUrl:
-        'https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-1',
+      confirmationUrl: "https://team-1.vsepractical.applifting.dev/apply/confirmation/preview-1",
     },
   ],
-} satisfies ApplicationConfirmationProps;
+} satisfies ApplicationConfirmationProps
 
-export default ApplicationConfirmation;
+export default ApplicationConfirmation

@@ -8,8 +8,10 @@ import {
 } from "@/modules/applications/domain/application-submission"
 import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { EvaluatedTerm } from "@/modules/applications/domain/evaluation"
+import { EvaluationMode } from "@/modules/applications/domain/evaluation-mode"
 import { OccupancySnapshot } from "@/modules/applications/domain/submission"
 import { termLabel } from "@/modules/applications/domain/term-label"
+import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-capacity.select"
 import { AppException } from "@/shared/errors/app.exception"
 import { isoDate } from "@/shared/utils/iso-date"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -22,8 +24,15 @@ type SubmittedPerson = {
   termIds: string[]
 }
 
-/** Decides the status of every term of every application from what the lock protects. */
-export type Evaluate = (snapshot: OccupancySnapshot) => EvaluatedTerm[][]
+/**
+ * Decides the status of every term of every application from what the lock protects, including
+ * the evaluation mode: it can change until the first application is stored (D-083), so it is
+ * read under the event lock, not taken from the event loaded before.
+ */
+export type Evaluate = (
+  snapshot: OccupancySnapshot,
+  evaluationMode: EvaluationMode,
+) => EvaluatedTerm[][]
 
 /** Account creation can be deferred until validation under the event lock succeeds. */
 export type ApplicationToSave = Omit<NewApplication, "userId"> & {
@@ -49,7 +58,7 @@ export class ApplicationsRepository {
     const event = await this.prisma.event.findUnique({
       where,
       include: {
-        organization: { select: { bankAccount: true } },
+        organization: { select: { name: true, bankAccount: true } },
         terms: {
           where: { cancelledAt: null },
           orderBy: [{ startsOn: "asc" }, { endsOn: "asc" }, { id: "asc" }],
@@ -61,10 +70,12 @@ export class ApplicationsRepository {
     return {
       id: event.id,
       organizationId: event.organizationId,
+      organizationName: event.organization.name,
       name: event.name,
       bankAccount: event.organization.bankAccount,
       evaluationMode: event.evaluationMode,
       termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
+      evaluationModePending: event.evaluationModePending,
       terms: event.terms.map(({ id, name, startsOn, endsOn, number, priceCzk }) => ({
         id,
         name,
@@ -96,8 +107,10 @@ export class ApplicationsRepository {
     const termIds = [...new Set(applications.flatMap((application) => application.termIds))]
 
     return this.prisma.$transaction(async (tx) => {
-      // Room mutations use this same lock (US-99).
-      await tx.$queryRaw`SELECT id FROM event WHERE id = ${event.id} FOR UPDATE`
+      // Room mutations (US-99) and the evaluation mode change (D-083) use this same lock.
+      const [locked] = await tx.$queryRaw<{ evaluationMode: EvaluationMode }[]>`
+        SELECT "evaluationMode" FROM event WHERE id = ${event.id} FOR UPDATE`
+      if (!locked) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
       // The terms were read before the lock; one cancelled meanwhile must not take a confirmation.
       const activeTerms = await tx.$queryRaw<{ id: string }[]>`
         SELECT id FROM term
@@ -114,7 +127,7 @@ export class ApplicationsRepository {
       const [rooms, confirmed] = await Promise.all([
         tx.room.findMany({
           where: { termId: { in: termIds } },
-          select: { termId: true, capacity: true, extraBeds: true, gender: true },
+          select: { termId: true, ...ROOM_CAPACITY_SELECT },
         }),
         tx.applicationTerm.findMany({
           where: { termId: { in: termIds }, status: "CONFIRMED" },
@@ -127,11 +140,11 @@ export class ApplicationsRepository {
       }
 
       const roomsByTerm: OccupancySnapshot["roomsByTerm"] = {}
-      for (const { termId, capacity, extraBeds, gender } of rooms) {
-        roomsByTerm[termId] = [...(roomsByTerm[termId] ?? []), { capacity, extraBeds, gender }]
+      for (const { termId, ...room } of rooms) {
+        roomsByTerm[termId] = [...(roomsByTerm[termId] ?? []), room]
       }
 
-      const evaluated = evaluate({ roomsByTerm, confirmedGenders })
+      const evaluated = evaluate({ roomsByTerm, confirmedGenders }, locked.evaluationMode)
 
       const saved: SavedApplication[] = []
       for (const [index, application] of applications.entries()) {
@@ -249,6 +262,8 @@ export class ApplicationsRepository {
       "APPLICATION_DUPLICATE",
       "Participant is already registered for this term",
       {
+        participantIndex: String(duplicate.participantIndex),
+        termId: duplicate.termId,
         participant: `${duplicate.participant.firstName} ${duplicate.participant.lastName}`,
         term: termLabel(term, locale),
       },

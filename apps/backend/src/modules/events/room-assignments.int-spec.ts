@@ -13,7 +13,7 @@ type Listing = {
     applicationTermId: string
     lastName: string
     birthYear: number
-    alsoInTerms: { termId: string; rooms: { name: string; freeBeds: number }[] }[]
+    alsoInTerms: { termId: string; rooms: { name: string; beds: number; freeBeds: number }[] }[]
   }[]
 }
 
@@ -136,6 +136,20 @@ describe("room assignments (integration)", () => {
     await prisma.$disconnect()
   })
 
+  it("keeps an occupied room and allows deletion after the participant is moved out", async () => {
+    const id = await makeRoom(term1, "Delete after moving", 1)
+    const path = `/organizer/events/${eventId}/terms/${term1}/rooms/${id}`
+    const { rows } = await makeApplication("Occupant", [{ termId: term1, status: "CONFIRMED" }])
+    expect((await assign(rows[term1], id)).status).toBe(204)
+    expect((await call(path, "DELETE", undefined, foreignCookie)).status).toBe(403)
+    const blocked = await call(path, "DELETE")
+    expect(blocked.status).toBe(409)
+    expect(await blocked.json()).toMatchObject({ code: "ROOM_HAS_ASSIGNMENTS" })
+    expect(await roomOf(rows[term1])).toBe(id)
+    expect((await call(`${base()}/${rows[term1]}`, "DELETE")).status).toBe(204)
+    expect((await call(path, "DELETE")).status).toBe(204)
+  })
+
   it("protects every endpoint by session, role and organization", async () => {
     const { rows } = await makeApplication("Auth", [{ termId: term1, status: "CONFIRMED" }])
     const id = rows[term1]
@@ -233,6 +247,7 @@ describe("room assignments (integration)", () => {
     const entry = (await list()).unassigned.find((row) => row.applicationTermId === rows[term1])
     expect(entry?.alsoInTerms.map((other) => other.termId)).toEqual([term2])
     expect(entry?.alsoInTerms[0].rooms.map((room) => room.name)).toContain("Pokoj A")
+    expect(entry?.alsoInTerms[0].rooms.find((room) => room.name === "Pokoj A")?.beds).toBe(2)
 
     expect((await assign(rows[term1], rooms.a1, [term2])).status).toBe(204)
     expect(await roomOf(rows[term1])).toBe(rooms.a1)
@@ -363,6 +378,72 @@ describe("room assignments (integration)", () => {
       expect(rejected.status).toBe(409)
       expect(await extraBedsOf(lone)).toBe(0)
       expect(await roomOf(other.rows[term1])).toBeUndefined()
+    })
+
+    it("adds the extra bed only in the terms where the room is full, elsewhere it just assigns (#540)", async () => {
+      const room1 = await makeRoom(term1, "Plný jen tady", 1)
+      const room2 = await makeRoom(term2, "Plný jen tady", 2)
+      const holder = await makeApplication("Drží jen první", [
+        { termId: term1, status: "CONFIRMED" },
+      ])
+      await prisma.roomAssignment.create({
+        data: { organizationId, applicationTermId: holder.rows[term1], roomId: room1 },
+      })
+      const { rows } = await makeApplication("Plný v jednom", [
+        { termId: term1, status: "CONFIRMED" },
+        { termId: term2, status: "TO_EVALUATE" },
+      ])
+      expect((await assign(rows[term1], room1, [term2], term1, true)).status).toBe(204)
+      expect(await extraBedsOf(room1)).toBe(1)
+      expect(await extraBedsOf(room2)).toBe(0)
+      expect(await roomOf(rows[term1])).toBe(room1)
+      expect(await roomOf(rows[term2])).toBe(room2)
+    })
+
+    it("leaves out a term that is not in alsoTermIds: no extra bed and no assignment there (#540)", async () => {
+      const room1 = await makeRoom(term1, "Jeden termín vynechán", 1)
+      const room2 = await makeRoom(term2, "Jeden termín vynechán", 1)
+      const holders = await Promise.all([
+        makeApplication("Vynechán 1", [{ termId: term1, status: "CONFIRMED" }]),
+        makeApplication("Vynechán 2", [{ termId: term2, status: "CONFIRMED" }]),
+      ])
+      await prisma.roomAssignment.createMany({
+        data: [
+          { organizationId, applicationTermId: holders[0].rows[term1], roomId: room1 },
+          { organizationId, applicationTermId: holders[1].rows[term2], roomId: room2 },
+        ],
+      })
+      const { rows } = await makeApplication("Odškrtnutý termín", [
+        { termId: term1, status: "CONFIRMED" },
+        { termId: term2, status: "CONFIRMED" },
+      ])
+      expect((await assign(rows[term1], room1, [], term1, true)).status).toBe(204)
+      expect(await extraBedsOf(room1)).toBe(1)
+      expect(await extraBedsOf(room2)).toBe(0)
+      expect(await roomOf(rows[term2])).toBeUndefined()
+    })
+
+    it("saves nothing when one term fails, not even the extra bed of this term (#540)", async () => {
+      const room1 = await makeRoom(term1, "Chyba v druhém", 1)
+      const room2 = await makeRoom(term2, "Chyba v druhém", 2)
+      const holder = await makeApplication("Drží chybu", [{ termId: term1, status: "CONFIRMED" }])
+      await prisma.roomAssignment.create({
+        data: { organizationId, applicationTermId: holder.rows[term1], roomId: room1 },
+      })
+      // a waitlisted application cannot be placed in a room, so the second term rejects it
+      const { rows } = await makeApplication("Náhradník v druhém", [
+        { termId: term1, status: "CONFIRMED" },
+        { termId: term2, status: "WAITLISTED" },
+      ])
+      const rejected = await assign(rows[term1], room1, [term2], term1, true)
+      expect(rejected.status).toBe(409)
+      expect(((await rejected.json()) as { code: string }).code).toBe(
+        "ROOM_ASSIGNMENT_STATUS_INVALID",
+      )
+      expect(await extraBedsOf(room1)).toBe(0)
+      expect(await extraBedsOf(room2)).toBe(0)
+      expect(await roomOf(rows[term1])).toBeUndefined()
+      expect(await roomOf(rows[term2])).toBeUndefined()
     })
 
     it("lists the warnings of the term for organizers (AC1, AC2, AC3)", async () => {

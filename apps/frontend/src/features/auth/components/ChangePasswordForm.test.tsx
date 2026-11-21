@@ -84,7 +84,9 @@ describe("ChangePasswordForm", () => {
 
     await fill("wrong", "new-password-8")
 
-    expect(await screen.findByText("The current password is incorrect.")).toBeInTheDocument()
+    expect(
+      await screen.findByText("The current password is incorrect. Try entering it again."),
+    ).toBeInTheDocument()
     expect(screen.getByLabelText("Current password *")).toHaveValue("wrong")
     expect(screen.getByLabelText("Current password *")).toBeInvalid()
   })

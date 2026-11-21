@@ -10,6 +10,8 @@ import { act, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { roomCapacityIncreaseKey } from "@/lib/room-capacity-increase"
+
 import type { TermRooms } from "@/features/events/api/rooms"
 import { RoomsPage, type AccommodationTerm } from "@/features/events/components/RoomsPage"
 
@@ -42,6 +44,7 @@ const terms: AccommodationTerm[] = [
     name: "Week 1",
     startsOn: "2027-07-12",
     endsOn: "2027-07-18",
+    roomCount: 2,
     roomMode: "GENDERED",
     byGender: { FEMALE: { free: 0 }, MALE: { free: 2 } },
   },
@@ -50,6 +53,7 @@ const terms: AccommodationTerm[] = [
     name: "Week 3",
     startsOn: "2027-07-26",
     endsOn: "2027-08-01",
+    roomCount: 2,
     roomMode: "GENDERED",
     byGender: { FEMALE: { free: 0 }, MALE: { free: 2 } },
   },
@@ -58,6 +62,7 @@ const terms: AccommodationTerm[] = [
     name: "Week 2",
     startsOn: "2027-07-19",
     endsOn: "2027-07-25",
+    roomCount: 1,
     roomMode: "SHARED",
     byGender: null,
   },
@@ -72,6 +77,7 @@ const termRooms = (termId: string, rooms: TermRooms["rooms"], roomMode: TermRoom
   startsOn: "2027-07-12",
   endsOn: "2027-07-18",
   roomMode,
+  roomsPublished: false,
   rooms,
   capacity: {
     FEMALE: rooms.filter((room) => room.gender === "FEMALE").reduce((n, r) => n + r.beds, 0),
@@ -147,7 +153,7 @@ function renderRooms(termId: string, view: "assignment" | "overview" = "assignme
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
-  return { onSelectTerm, onSelectView, user: userEvent.setup() }
+  return { client, onSelectTerm, onSelectView, user: userEvent.setup() }
 }
 
 describe("accommodation by term", () => {
@@ -211,13 +217,13 @@ describe("accommodation by term", () => {
     ).toBeInTheDocument()
   })
 
-  it("shows the extra beds action as an icon with the room name and a count badge only when there are some", async () => {
+  it("labels the extra bed actions with the room and includes the existing extra bed count", async () => {
     renderRooms("t1")
     const table = await screen.findByRole("table")
     const edit = within(table).getByRole("button", { name: "Edit extra beds (2) – Gendered room" })
     const add = within(table).getByRole("button", { name: "Add an extra bed – Men's room" })
-    expect(edit).toHaveTextContent("2")
-    expect(add).toHaveTextContent("")
+    expect(edit).toHaveTextContent("Edit extra beds (2)")
+    expect(add).toHaveTextContent("Add extra bed")
     expect(edit.querySelector("svg")).not.toBeNull()
     expect(add.querySelector("svg")).not.toBeNull()
   })
@@ -305,6 +311,20 @@ describe("accommodation by term", () => {
     expect(screen.queryByText("Capacity exhausted")).not.toBeInTheDocument()
   })
 
+  it("labels each room action when hovered or focused", async () => {
+    const { user } = renderRooms("t1")
+    const table = await screen.findByRole("table")
+    const edit = within(table).getByRole("button", { name: "Edit room Gendered room" })
+    const remove = within(table).getByRole("button", { name: "Delete room Gendered room" })
+    await user.hover(edit)
+    expect(await screen.findByRole("tooltip", { name: "Edit room" })).toBeVisible()
+    await user.unhover(edit)
+    edit.focus()
+    await user.tab()
+    expect(remove).toHaveFocus()
+    expect(await screen.findByRole("tooltip", { name: "Delete room" })).toBeVisible()
+  })
+
   it("keeps editing and deleting available and opens the room of the term", async () => {
     const { user } = renderRooms("t1")
     const table = await screen.findByRole("table")
@@ -332,8 +352,47 @@ describe("accommodation by term", () => {
     expect(onSelectTerm).toHaveBeenCalledWith("t2")
   })
 
-  it("copies rooms from another term, closes the dialog and confirms with a toast", async () => {
-    post.mockResolvedValue(undefined)
+  it("records only the observed increase after adding a gendered room", async () => {
+    const original = byTerm.t1!
+    post.mockImplementationOnce(() => {
+      byTerm.t1 = termRooms(
+        "t1",
+        [
+          ...original.rooms,
+          { id: "added", name: "New", gender: "FEMALE", capacity: 5, extraBeds: 0, beds: 5 },
+        ],
+        "GENDERED",
+      )
+      return Promise.resolve()
+    })
+    const { client, user } = renderRooms("t1")
+    try {
+      await user.click(await screen.findByRole("button", { name: "Add room" }))
+      const dialog = await screen.findByRole("dialog")
+      await user.type(within(dialog).getByLabelText("Room name *"), "New")
+      await user.type(within(dialog).getByLabelText("Capacity *"), "5")
+      await user.click(within(dialog).getByRole("button", { name: "Add room" }))
+      await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+      expect(client.getQueryData(roomCapacityIncreaseKey("e1", "t1"))).toMatchObject({
+        gender: "FEMALE",
+        addedBeds: 5,
+        capacity: { FEMALE: 5007, MALE: 4 },
+      })
+    } finally {
+      byTerm.t1 = original
+    }
+  })
+
+  it("reports newly copied rooms, excluding rooms already in the target", async () => {
+    const original = byTerm.t1!
+    post.mockImplementationOnce(() => {
+      byTerm.t1 = termRooms(
+        "t1",
+        [...original.rooms, { ...byTerm.t3!.rooms[0]!, id: "new-copy" }],
+        "GENDERED",
+      )
+      return Promise.resolve()
+    })
     byTerm.t3 = termRooms(
       "t3",
       [{ id: "x", name: "Other", gender: "MALE", capacity: 4, extraBeds: 0, beds: 4 }],
@@ -345,12 +404,14 @@ describe("accommodation by term", () => {
     const dialog = await screen.findByRole("dialog")
     await user.click(within(dialog).getByRole("combobox", { name: "Source term" }))
     await user.click(await screen.findByRole("option", { name: /Week 3/ }))
+    await user.click(await within(dialog).findByRole("button", { name: "Show preview" }))
     await user.click(await within(dialog).findByRole("button", { name: "Add 1 room" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/copy", {
       json: { sourceTermId: "t3", strategy: "ADD" },
     })
-    expect(success).toHaveBeenCalledWith("Rooms copied")
+    expect(success).toHaveBeenCalledWith("1 room copied")
+    byTerm.t1 = original
     expect(screen.queryByText("The copy is done.")).not.toBeInTheDocument()
   })
 })

@@ -8,11 +8,13 @@ These are rules, not suggestions. When a rule and a "nicer looking" idea disagre
 
 ## Screens come from Figma
 
+Use the verified v2 frames under **Podklady** in the issue. Follow each screen’s interaction notes and the [Motion M01–M30 guide](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=26793-3466) for triggers, timing, results and reduced motion. Apply conditional effects only when their stated condition is met. Keep controls, results and errors available immediately. For interactions without a specified effect, update the state immediately.
+
 This file says how to build; **Figma says what to build.** Every UI story links its frames in the issue, and the screen is implemented as drawn — structure, copy, control types, sizes, states. The rules below fill in only what a frame doesn't spell out (spacing scale, accessibility floor, three list states); they never license redesigning a screen or adding what the design doesn't contain. Process and the `design-reviewer` agent: [`CLAUDE.md`, "UI follows Figma"](CLAUDE.md#ui-follows-figma--dont-invent).
 
 When a frame contradicts a rule below, build the frame and report the conflict in the PR; the tech lead decides which one changes. Decided so far (US-23): public pages are 800 px wide, and type stays on the Tailwind scale even where a frame is a few px off it (the "404" is `text-6xl`, not 64 px).
 
-**Visual style: shadcn look on the original colours.** The frames in the original Figma file are redrawn in the shadcn style ([`docs/FIGMA-REMAKE.md`](docs/FIGMA-REMAKE.md)): original DS colours, cards with a soft shadow, Inter (numbers in JetBrains Mono). The two logo arcs (`ActiveCorners`) mark one active thing — the active sidebar item, the active tab, the current step, the current event card — and nothing else: never rows, controls, badges, buttons, hover or empty states.
+**Visual style: shadcn look on the original colours.** The current frames in [Design system v2](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15186-2) use the shadcn style ([`docs/FIGMA-REMAKE.md`](docs/FIGMA-REMAKE.md)): original DS colours, cards with a soft shadow, Inter for text and numbers. The two logo arcs (`ActiveCorners`) mark one active thing — the active sidebar item, the active tab, the current step, the current event card — and nothing else: never rows, controls, badges, buttons, hover or empty states.
 
 **Tokens live in `apps/frontend/src/styles/global.css`.** That file is the only source of truth for colour, radius and shadows. This file says how to _use_ them.
 
@@ -41,7 +43,7 @@ Use the scale only: `1, 2, 3, 4, 6, 8, 12, 16` (Tailwind units — 4px…64px). 
 
 - One `h1` per page. Headings step down without skipping.
 - Sizes come from the scale: `text-sm` supporting, `text-base` body, `text-lg`/`text-xl` subheads, `text-2xl`+ page titles. Body does not.
-- Inter everywhere; numbers that line up (counts, amounts) may use `font-mono` (JetBrains Mono). Headings use `tracking-tight`.
+- Use Inter for all interface text, including counts, amounts and IDs. Use `tabular-nums` in Inter where digits must align. Headings use `tracking-tight`.
 - Sentence case everywhere. No ALL CAPS except a single small label style (`text-xs uppercase tracking-wider`, e.g. the role in the top bar), used sparingly.
 
 ## Surfaces
@@ -65,6 +67,21 @@ All toasts go through `notify` (`@/lib/notify`) — never `toast` from `sonner` 
 - **Toast**: confirmation of a finished action after which the dialog closes or the page changes (create, save, add, delete, copy link); an error of an action that has no form of its own (delete from a row menu, copy to clipboard failed). Short: the title is the result of the action, a description only when it adds information. No buttons or links. Never carries information the user needs for the next step.
 - **Alert in the page**: a form submission error (validation, server error) — it stays above the submit button until fixed; the state of the whole page (link sent, invalid link, what is missing to publish). A form that stays open shows its error with an Alert, not a toast.
 - Server errors are always shown as a translated message by error code (`errors.json`), never the raw message.
+
+## Copy
+
+Copy exists only so the user makes the right decision or knows the next step; everything else is noise. These rules come from the PM's business review (#495, #546, #550, #578) and apply to every new or changed text in the UI — dialogs above all. Where a Figma frame's copy breaks them, follow the rules and report it in the PR. Wording and terms: [`docs/SLOVNIK.md`](docs/SLOVNIK.md); Czech always uses vykání.
+
+1. **Don't repeat what is on screen.** No sentence restating a value shown in the line above or elsewhere in the view. ✗ „Dámská kapacita klesne ze 2 na 0 míst“ followed by „Provizorní F má 2 místa.“ — keep the first line only.
+2. **Only what changes the decision.** For each sentence ask: does the user decide differently or have to do something because of it? If not, delete it. This especially covers what the system does on its own in the background — e-mails to other people, history entries, recalculations. ✗ „Náhradník dostane e-mail o změně přihlášky s platebními údaji.“, „Změna zůstane v historii a přihlašovatel dostane e-mail.“, „Smazání přepočítá kapacitu pouze tohoto termínu.“ ✓ „Lůžko automaticky zaplní náhradník.“ (the organizer must know before confirming).
+3. **Don't reassure about what doesn't happen.** No sentence saying something stays unchanged when nobody would expect it to change. ✗ „Program zdrojového termínu zůstane stejný. Kopii můžete dále upravovat samostatně.“, „Existující potvrzení účastníků se nezmění.“ Warn only about the unexpected or irreversible: ✓ „Stávající program se smaže. Nelze vzít zpět.“
+4. **The heading carries the point; a description only when it says what to do.** ✓ **Platba se automaticky nevrací.** Vratku zapište ručně.
+5. **Warnings for one action go in one block.** Several warnings are not separate sentences scattered over a dialog but one Alert with one short line each. ✗ „Platba se mezi termíny nepřevádí.“ … „Peníze se nevracejí automaticky.“ … „Po potvrzení se původní lůžko ihned uvolní.“ in three places.
+6. **No add-ons after a dot in headings.** A subheading is a name, not a list of contents. ✗ „Původní termín · vratka“, „Nový termín · nová částka k úhradě“ ✓ „Původní termín“, „Nový termín“.
+7. **The user's language, not accounting or system terms.** ✗ „Zaplaceno 0 Kč · dluh po odhlášení 0 Kč“ ✓ „Zatím jste nic neplatili, nemusíte nic řešit.“
+8. **An action result doesn't linger.** It is a toast (see above), or it disappears with the next action. ✗ „Zkopírovány 2 bloky · 2 bloky přeskočeny“ still shown after the next edit.
+
+Before handing over: every sentence in a dialog maps to a decision or step of the user; nothing on the screen is said twice; warnings sit in one block with a heading; counts and prepositions are declined correctly („1 lůžko“, „ze 2“).
 
 ## Every list has three states
 

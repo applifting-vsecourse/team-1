@@ -3,7 +3,9 @@ import { createRootRouteWithContext, Outlet } from "@tanstack/react-router"
 
 import "@/styles/global.css"
 
-import { Toaster } from "@/components/ui/sonner"
+import { AppToaster } from "@/components/atoms/AppToaster"
+
+import { useApplyPreferredLanguage } from "@/features/auth/hooks/useApplyPreferredLanguage"
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -12,13 +14,12 @@ export const Route = createRootRouteWithContext<{
 })
 
 function RootComponent() {
+  useApplyPreferredLanguage()
+
   return (
     <>
       <Outlet />
-      <Toaster
-        richColors
-        position="bottom-right"
-      />
+      <AppToaster />
     </>
   )
 }

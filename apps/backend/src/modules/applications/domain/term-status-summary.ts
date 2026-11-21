@@ -1,7 +1,7 @@
 import {
   computeAvailablePlaces,
-  computeTermCapacity,
-  computeTotalBeds,
+  computeRoomCapacity,
+  hasSharedRooms,
   RoomCapacity,
 } from "@/modules/applications/domain/capacity"
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
@@ -27,10 +27,8 @@ export function termStatusSummary(
   confirmationOccupied: number
   confirmationDueCzk: number
 } {
-  const capacity = computeTotalBeds(rooms)
-  const confirmationCapacity = rooms.some((room) => room.gender === null)
-    ? capacity
-    : computeTermCapacity(rooms)[gender]
+  const capacity = computeRoomCapacity(rooms)
+  const confirmationCapacity = hasSharedRooms(rooms) ? capacity.total : capacity[gender]
   const freePlaces = computeAvailablePlaces(rooms, confirmedGenders)
   const confirmationOccupied = confirmationCapacity - freePlaces[gender]
   const owedCzk = computeTermOwed(term, payments)
@@ -39,7 +37,7 @@ export function termStatusSummary(
     debtCzk: Math.max(owedCzk, 0),
     confirmationExceedsCapacity: exceedsCapacityWhenConfirmed(gender, freePlaces),
     confirmationNextOccupied: confirmationOccupied + 1,
-    capacity,
+    capacity: capacity.total,
     occupied: confirmedGenders.length,
     confirmationCapacity,
     confirmationOccupied,

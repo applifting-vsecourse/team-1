@@ -9,7 +9,7 @@ describe("ApplicationsRepository deferred account creation", () => {
     const tx = {
       $queryRaw: jest
         .fn()
-        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([{ evaluationMode: "AUTOMATIC" }])
         .mockResolvedValueOnce([{ id: "t1" }]),
       applicationTerm: {
         findMany: jest
@@ -65,6 +65,21 @@ describe("ApplicationsRepository deferred account creation", () => {
     ).rejects.toMatchObject({ status: 409 })
     expect(resolveUserId).not.toHaveBeenCalled()
     expect(tx.application.create).not.toHaveBeenCalled()
+  })
+
+  it("evaluates with the evaluation mode read under the event lock (D-083)", async () => {
+    const { repository, tx, application } = setup()
+    tx.$queryRaw.mockReset()
+    tx.$queryRaw
+      .mockResolvedValueOnce([{ evaluationMode: "MANUAL" }])
+      .mockResolvedValueOnce([{ id: "t1" }])
+    const evaluate = jest
+      .fn()
+      .mockReturnValue([[{ termId: "t1", status: "TO_EVALUATE", priceCzk: 1000 }]])
+
+    await repository.saveEvaluated({ id: "e1", organizationId: "o1" }, [application], evaluate)
+
+    expect(evaluate).toHaveBeenCalledWith(expect.anything(), "MANUAL")
   })
 
   it("connects the deferred account when a waitlisted application is accepted", async () => {

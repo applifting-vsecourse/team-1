@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { AlertTriangle } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { LogoSymbol } from "@/components/atoms/Logo"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -205,19 +205,14 @@ export function TermStatusChange({
               {t("termStatus.cancel")}
             </Button>
           ) : null}
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             size="lg"
             className="h-12 sm:flex-1"
             variant={to === "CANCELLED" ? "destructive" : "default"}
-            disabled={mutation.isPending || (isOverCapacity && !isOverCapacityConfirmed)}
+            disabled={isOverCapacity && !isOverCapacityConfirmed}
             onClick={() => mutation.mutate()}
           >
-            {mutation.isPending ? (
-              <LogoSymbol
-                aria-hidden
-                className="size-6 animate-spin"
-              />
-            ) : null}
             {t(
               mutation.isPending
                 ? "termStatus.saving"
@@ -227,7 +222,7 @@ export function TermStatusChange({
                     ? "termStatus.cancelSubmit"
                     : "termStatus.save",
             )}
-          </Button>
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

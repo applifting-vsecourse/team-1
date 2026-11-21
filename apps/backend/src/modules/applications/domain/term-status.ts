@@ -56,6 +56,8 @@ export type TermStatusDetail = {
   confirmationCapacity: number
   confirmationOccupied: number
   confirmationDueCzk: number
+  /** Current 1-based place in the term and bed group, null unless waitlisted. */
+  waitlistPosition: number | null
   history: StatusChangeEntry[]
   /** Records of confirmations from the waitlist in which the application was confirmed or skipped. */
   substituteRecords: SubstituteRecord[]
@@ -70,6 +72,12 @@ export type StatusChangeCommand = {
   actorId: string | null
   /** The organizer knowingly confirms beyond the free beds. */
   isOverCapacityConfirmed: boolean
+  /**
+   * Bulk actions only: the change applies only while the application still has this status,
+   * checked under the event lock; otherwise it is refused as an invalid transition, so somebody
+   * else's decision made meanwhile is never overwritten.
+   */
+  expectedFrom?: ApplicationTermStatus
 }
 
 /** What a stored change leaves behind: enough to e-mail the applicant. */
@@ -84,6 +92,7 @@ export type StatusChangeResult = {
   bankAccount: string
   /** The changed term: its name, else its dates. */
   termName: string
+  hadPayment?: boolean
   /** Of the participant: the Czech copy of the e-mail is gendered. */
   gender: Gender
   application: {

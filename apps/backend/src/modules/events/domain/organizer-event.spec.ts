@@ -18,6 +18,7 @@ const stored: StoredEvent = {
   termsWithoutRooms: 0,
   applicationCount: 0,
   evaluationMode: "AUTOMATIC",
+  evaluationModePending: false,
   cancellationStartsOn: null,
   cancellationTerms: null,
   startsOn: null,
@@ -47,10 +48,28 @@ describe("toOrganizerEvent", () => {
     })
   })
 
-  it("locks the evaluation mode once the application link works", () => {
-    expect(toOrganizerEvent(stored).evaluationModeLocked).toBe(false)
+  it("keeps the link closed and lists the mode until the organizer chooses it (US-560)", () => {
     expect(
-      toOrganizerEvent({ ...stored, termCount: 1, termsWithoutRooms: 0 }).evaluationModeLocked,
+      toOrganizerEvent({ ...stored, termCount: 2, evaluationModePending: true }),
+    ).toMatchObject({
+      applicationsOpen: false,
+      missing: ["EVALUATION_MODE"],
+    })
+  })
+
+  it("does not lock the evaluation mode when applications open, only with the first application (D-083)", () => {
+    expect(toOrganizerEvent(stored).evaluationModeLocked).toBe(false)
+    expect(toOrganizerEvent({ ...stored, termCount: 1, termsWithoutRooms: 0 })).toMatchObject({
+      applicationsOpen: true,
+      evaluationModeLocked: false,
+    })
+    expect(
+      toOrganizerEvent({ ...stored, termCount: 1, termsWithoutRooms: 0, applicationCount: 1 })
+        .evaluationModeLocked,
     ).toBe(true)
+  })
+
+  it("keeps the evaluation mode locked after the setup was reduced", () => {
+    expect(toOrganizerEvent({ ...stored, applicationCount: 1 }).evaluationModeLocked).toBe(true)
   })
 })

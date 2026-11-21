@@ -201,7 +201,9 @@ export class TransportRepository {
       where: { termId: transport.termId, organizationId, ...taking, transportId: transport.id },
       orderBy: [{ application: { lastName: "asc" } }, { application: { firstName: "asc" } }],
       select: {
-        application: { select: { id: true, firstName: true, lastName: true, email: true } },
+        application: {
+          select: { id: true, firstName: true, lastName: true, email: true, phone: true },
+        },
       },
     })
     return {
@@ -212,6 +214,7 @@ export class TransportRepository {
         applicationId: application.id,
         name: fullName(application.firstName, application.lastName),
         email: application.email,
+        phone: application.phone,
       })),
     }
   }

@@ -47,6 +47,12 @@ export class TermStatusResponseDto {
   @ApiProperty() confirmationCapacity!: number
   @ApiProperty() confirmationOccupied!: number
   @ApiProperty() confirmationDueCzk!: number
+  @ApiProperty({
+    nullable: true,
+    type: Number,
+    description: "Current place in the term and bed group waitlist",
+  })
+  waitlistPosition!: number | null
   @ApiProperty({ enum: STATUSES, isArray: true, description: "Statuses an organizer may set now" })
   allowedStatuses!: string[]
   @ApiProperty({ type: [StatusChangeEntryDto] }) history!: StatusChangeEntryDto[]
@@ -74,6 +80,7 @@ export class TermStatusResponseDto {
       confirmationCapacity: term.confirmationCapacity,
       confirmationOccupied: term.confirmationOccupied,
       confirmationDueCzk: term.confirmationDueCzk,
+      waitlistPosition: term.waitlistPosition,
       allowedStatuses: manualStatusTargets(term.status, term.owedCzk),
       history: term.history.map((entry) => ({
         ...entry,

@@ -13,6 +13,7 @@ import ChangeEmail, { changeEmailSubject } from "./templates/change-email"
 import ChangeEmailNotice, { changeEmailNoticeSubject } from "./templates/change-email-notice"
 import MagicLink, { magicLinkSubject } from "./templates/magic-link"
 import PaymentCorrectionEmail, { paymentCorrectionSubject } from "./templates/payment-correction"
+import PaymentOverdue, { paymentOverdueSubject } from "./templates/payment-overdue"
 import PaymentReceivedEmail, { paymentReceivedSubject } from "./templates/payment-received"
 import ResetPassword, { resetPasswordSubject } from "./templates/reset-password"
 import VerifyEmail, { verifyEmailSubject } from "./templates/verify-email"
@@ -35,7 +36,7 @@ const templates: Record<
     }),
   }),
   "application-change": (locale) => ({
-    subject: applicationChangeSubject(locale, "Camp"),
+    subject: applicationChangeSubject(locale, "Camp", "CONFIRMED"),
     element: React.createElement(ApplicationChange, { ...ApplicationChange.PreviewProps, locale }),
   }),
   "application-change-confirmation-withdrawn": (locale) => ({
@@ -55,6 +56,10 @@ const templates: Record<
       ...PaymentCorrectionEmail.PreviewProps,
       locale,
     }),
+  }),
+  "payment-overdue": (locale) => ({
+    subject: paymentOverdueSubject(locale, "Camp"),
+    element: React.createElement(PaymentOverdue, { ...PaymentOverdue.PreviewProps, locale }),
   }),
   "payment-received": (locale) => ({
     subject: paymentReceivedSubject(locale, "Term"),
@@ -120,19 +125,17 @@ it("includes the corrected debt and transfer details in e-mail 16", async () => 
           termNumber: 1,
           amountCzk: 1200,
           variableSymbol: "12345001",
-          paymentDueAt: new Date("2027-06-20T12:00:00Z"),
         },
-        { termNumber: 2, amountCzk: 500, variableSymbol: "12345002", paymentDueAt: null },
+        { termNumber: 2, amountCzk: 500, variableSymbol: "12345002" },
       ],
     }),
   )
-  expect(html).toContain("Aktuální nedoplatek")
+  expect(html).toContain("Zbývá zaplatit")
   expect(html).toMatch(/1[\s\u00a0\u202f]200/)
   expect(html).toContain("123456789/2010")
   expect(html).toContain("12345001")
   expect(html).toContain("12345002")
-  expect(html).toContain("Zaplaťte do")
-  expect(html).toContain("20. června 2027")
+  expect(html).not.toContain("Zaplaťte do")
 })
 
 it("tells the participant the confirmed, substitute and awaiting-evaluation results of changed terms", async () => {
@@ -157,12 +160,57 @@ it("tells the participant the confirmed, substitute and awaiting-evaluation resu
   for (const html of [en, cs]) {
     for (const term of terms) expect(html).toContain(term.name)
   }
-  expect(en).toContain("Substitute · do not pay yet")
+  expect(en).toContain("Waitlisted")
   expect(en).toContain("Confirmed")
   expect(en).not.toContain("payment due")
-  expect(en).toContain("Awaiting evaluation · do not pay yet")
-  expect(cs).toContain("Účast potvrzena")
-  expect(cs).not.toContain("k úhradě")
-  expect(cs).toContain("Náhradník · zatím neplaťte")
-  expect(cs).toContain("Čeká na vyhodnocení · zatím neplaťte")
+  expect(en).toContain("Awaiting evaluation")
+  expect(cs).toContain("Potvrzeno")
+  expect(cs).not.toContain("Zbývá zaplatit")
+  expect(cs).toContain("Náhradník")
+  expect(cs).toContain("Čeká na vyhodnocení")
+})
+
+it.each(["REJECTED", "CANCELLED"] as const)(
+  "gives refund advice for %s only when the term has a payment",
+  async (kind) => {
+    for (const locale of LOCALES) {
+      const mail = (hadPayment: boolean): Promise<string> =>
+        render(
+          React.createElement(ApplicationChange, {
+            ...ApplicationChange.PreviewProps,
+            kind,
+            locale,
+            hadPayment,
+            payment: null,
+          }),
+        )
+      const expected =
+        locale === "cs"
+          ? "Informace o případném vrácení platby vám sdělí organizátor."
+          : "The organiser will let you know about any possible refund."
+      expect(await mail(true)).toContain(expected)
+      expect(await mail(false)).not.toContain(expected)
+    }
+  },
+)
+
+it("renders one overdue notice with the supplied application balance and each confirmed term reference", async () => {
+  const html = await render(
+    React.createElement(PaymentOverdue, {
+      ...PaymentOverdue.PreviewProps,
+      amountDueCzk: 3500,
+      terms: [
+        { termLabel: "Termín A", amountCzk: 2400, variableSymbol: "2027001001" },
+        { termLabel: "Termín B", amountCzk: 1100, variableSymbol: "2027001002" },
+      ],
+    }),
+  )
+  expect(html).toContain("Zbývá zaplatit")
+  expect(html).toContain("Termín A")
+  expect(html).toContain("Termín B")
+  expect(html).toMatch(/3[\s\u00a0\u202f]500/)
+  expect(html).toMatch(/1[\s\u00a0\u202f]100/)
+  for (const reference of ["2027001000", "2027001001", "2027001002"])
+    expect(html).toContain(reference)
+  expect(html).toContain(PaymentOverdue.PreviewProps.organizerEmail)
 })

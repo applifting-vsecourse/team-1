@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -16,7 +15,7 @@ import { useSignOut } from "@/features/auth/hooks/useSignOut"
  * opening another organization's record gets S16 with a way back to their events; everything
  * else falls back to the shared area error page.
  */
-// Figma (Design system): S16 Cizí záznam · 403 · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12117-180
+// Figma: S16 Cizí záznam · 403 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18602-22496
 export function OrganizerAreaError({ error }: { error: unknown }) {
   const { t } = useTranslation("auth")
   const { user } = useSession()
@@ -29,20 +28,8 @@ export function OrganizerAreaError({ error }: { error: unknown }) {
   if (user.accountType === "ORGANIZER") {
     return (
       <ForbiddenPage
-        variant={{
-          description: t("forbiddenRecord.description"),
-          cardTitle: t("forbiddenRecord.cardTitle"),
-          body: t("forbiddenRecord.body"),
-          actions: (
-            <Button
-              asChild
-              size="lg"
-              className="w-full"
-            >
-              <Link to={ROUTES.organizer.events}>{t("forbiddenRecord.myEvents")}</Link>
-            </Button>
-          ),
-        }}
+        description={t("forbiddenRecord.description")}
+        back={{ to: ROUTES.organizer.events, label: t("forbiddenRecord.myEvents") }}
       />
     )
   }
@@ -51,33 +38,23 @@ export function OrganizerAreaError({ error }: { error: unknown }) {
 
   return (
     <ForbiddenPage
-      variant={{
-        description: t("forbiddenForParticipant.description"),
-        cardTitle: t("forbiddenForParticipant.cardTitle"),
-        body: t("forbiddenForParticipant.body"),
-        actions: (
-          <>
-            <Button
-              asChild
-              size="lg"
-              className="w-full"
-            >
-              <Link to={ROUTES.participant.applications}>
-                {t("forbiddenForParticipant.myApplication")}
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full"
-              disabled={signOut.isPending}
-              onClick={() => signOut.mutate()}
-            >
-              {t("forbiddenForParticipant.signOutAndSwitch")}
-            </Button>
-          </>
-        ),
+      title={t("forbiddenForParticipant.title")}
+      description={t("forbiddenForParticipant.description")}
+      back={{
+        to: ROUTES.participant.applications,
+        label: t("forbiddenForParticipant.myApplication"),
       }}
+      accountAction={
+        <Button
+          variant="ghost"
+          size="lg"
+          className="h-12 w-full"
+          disabled={signOut.isPending}
+          onClick={() => signOut.mutate()}
+        >
+          {t("forbiddenForParticipant.signOutAndSwitch")}
+        </Button>
+      }
     />
   )
 }

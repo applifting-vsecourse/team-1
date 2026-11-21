@@ -1,37 +1,102 @@
+import { useState } from "react"
+import { Pencil } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { DetailItem } from "@/components/molecules/DetailItem"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDate } from "@/lib/date"
 
 import type { PaymentApplication } from "@/features/event-overview/api/payments"
+import { ParticipantEditDialog } from "@/features/event-overview/components/ParticipantEditDialog"
 
 type ParticipantDetailsProps = {
-  application: Pick<PaymentApplication, "firstName" | "lastName" | "birthDate" | "gender" | "email">
+  application: Pick<
+    PaymentApplication,
+    | "id"
+    | "firstName"
+    | "lastName"
+    | "birthDate"
+    | "gender"
+    | "email"
+    | "phone"
+    | "isEditable"
+    | "individualAccommodation"
+    | "accommodationRequest"
+  >
 }
 
 /**
- * The participant's name, date of birth and gender, and the applicant's contact. Stacked on a
- * phone, a row of three columns from md up.
+ * The participant's date of birth, gender as "label · value" rows (the name is the
+ * page heading), and the applicant's e-mail and phone, with a button that opens the edit dialog while the
+ * application can still be edited (#515). Stacked on a phone, two columns from md up.
  */
-// Figma (Design system): Údaje účastníka · Detail přihlášky · Platby · Organizátor · dluh po termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15845-7697 (360 px: node-id=15845-7814)
+// Figma v2: US-53 Detail účastníka · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22475-86190 (mobile 22475-86352)
 export function ParticipantDetails({ application }: ParticipantDetailsProps) {
   const { t } = useTranslation("eventOverview")
-  const gender = t(application.gender === "FEMALE" ? "payment.genderFemale" : "payment.genderMale")
+  const [isEditing, setIsEditing] = useState(false)
+  const rows = [
+    [t("participant.birthDate"), formatDate(application.birthDate)],
+    [
+      t("participant.gender"),
+      t(application.gender === "FEMALE" ? "participant.female" : "participant.male"),
+    ],
+  ] as const
 
   return (
-    <Card
+    <div
       role="group"
       aria-label={t("payment.participantCard")}
-      className="gap-2 rounded-2xl p-4 shadow-none md:grid md:grid-cols-3 md:items-center md:gap-4"
+      className="grid min-w-0 items-start gap-4 md:grid-cols-2"
     >
-      <p className="text-2xl font-bold">
-        {application.firstName} {application.lastName}
-      </p>
-      <DetailItem label={t("payment.participantBirthGender")}>
-        {formatDate(application.birthDate)} · {gender}
-      </DetailItem>
-      <DetailItem label={t("payment.participantContact")}>{application.email}</DetailItem>
-    </Card>
+      <Card className="min-w-0 gap-3 p-4 md:p-6">
+        <div className="flex items-center justify-between gap-4">
+          <h3 className="text-lg font-semibold">{t("payment.participantCard")}</h3>
+          {application.isEditable ? (
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              aria-label={t("payment.editParticipant")}
+              onClick={() => setIsEditing(true)}
+            >
+              <Pencil aria-hidden />
+            </Button>
+          ) : null}
+        </div>
+        <dl className="flex flex-col gap-2">
+          {rows.map(([label, value]) => (
+            <div key={label}>
+              <dt className="inline">{label}</dt>
+              <span aria-hidden> · </span>
+              <dd className="inline">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </Card>
+      <Card className="min-w-0 gap-3 p-4 md:p-6">
+        <h3 className="text-lg font-semibold">{t("payment.applicant")}</h3>
+        <a
+          className="break-all text-link underline"
+          href={`mailto:${application.email}`}
+        >
+          {application.email}
+        </a>
+        {application.phone ? (
+          <a
+            className="break-all text-link underline"
+            href={`tel:${application.phone}`}
+          >
+            {application.phone}
+          </a>
+        ) : (
+          <span className="text-muted-foreground">{t("payment.phoneNone")}</span>
+        )}
+      </Card>
+      {isEditing ? (
+        <ParticipantEditDialog
+          application={application}
+          onClose={() => setIsEditing(false)}
+        />
+      ) : null}
+    </div>
   )
 }

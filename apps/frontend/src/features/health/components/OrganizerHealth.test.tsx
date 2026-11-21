@@ -29,6 +29,7 @@ const health: Health = {
   firstName: "Adam",
   lastName: "Dvořák",
   note: "Astma · inhalátor u sebe.",
+  noRestriction: false,
   consentAt: "2026-11-05T13:30:00.000Z",
   pendingRequest: null,
 }
@@ -52,22 +53,39 @@ describe("OrganizerHealth", () => {
 
   it("shows the note and when the consent was given", async () => {
     setup(health)
-    expect(
-      await screen.findByRole("heading", { name: "Health restriction · Adam Dvořák" }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Health restriction" })).toBeInTheDocument()
+    expect(screen.getByText(`Adam Dvořák · ${health.eventName}`)).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Go to meals" })).toHaveAttribute(
+      "href",
+      "/organizer/events/$eventId/meals",
+    )
     expect(screen.getByText("Astma · inhalátor u sebe.")).toBeInTheDocument()
-    expect(screen.getByText(/Explicit consent given · /)).toBeInTheDocument()
+    expect(screen.getByText("Explicit consent given")).toBeInTheDocument()
   })
 
   it("links back to the application", async () => {
     setup(health)
-    expect(await screen.findByRole("link", { name: "← Application" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("link", { name: "Back to application detail" }),
+    ).toBeInTheDocument()
+  })
+
+  it("tells a confirmed absence of a restriction from an unfilled one (US-150)", async () => {
+    setup({ ...health, note: null, consentAt: null, noRestriction: true })
+    expect(
+      await screen.findByText("The participant confirmed having no health restriction."),
+    ).toBeInTheDocument()
   })
 
   it("says so when nothing was entered", async () => {
     setup({ ...health, note: null, consentAt: null })
     expect(
-      await screen.findByText("The participant has not entered a health restriction."),
+      await screen.findByText("The applicant has not provided any health restriction yet."),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        "Missing information does not mean the participant has no health restriction.",
+      ),
     ).toBeInTheDocument()
   })
 })

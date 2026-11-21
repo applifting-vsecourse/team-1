@@ -3,7 +3,7 @@ import {
   inReceiptOrder,
   planBulkConfirmation,
 } from "@/modules/applications/domain/bulk-confirmation"
-import { computeAvailablePlaces } from "@/modules/applications/domain/capacity"
+import { computeAvailablePlaces, hasSharedRooms } from "@/modules/applications/domain/capacity"
 import {
   BulkConfirmationRepository,
   BulkTermState,
@@ -57,7 +57,7 @@ export class BulkConfirmationService {
         ...state.confirmedGenders,
         ...plan.confirmable.map((id) => genderOf.get(id)!),
       ]),
-      isShared: state.rooms.some((room) => room.gender === null),
+      isShared: hasSharedRooms(state.rooms),
       names: Object.fromEntries(
         state.candidates.map((row) => [row.applicationId, `${row.firstName} ${row.lastName}`]),
       ),

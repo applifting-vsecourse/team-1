@@ -42,6 +42,32 @@ export class MyApplicationTermDto {
   @ApiProperty({ description: "The participant chose a transport or their own transport." })
   transportDecided!: boolean
 
+  @ApiPropertyOptional({
+    type: "object",
+    properties: { name: { type: "string", nullable: true } },
+    description:
+      "Room of a confirmed term after the organizer published the assignment (US-144); name is null while not assigned. Absent otherwise.",
+  })
+  room?: { name: string | null }
+
+  @ApiPropertyOptional({
+    type: [String],
+    description:
+      "Names the participant wishes to room with (US-146). Present only for a confirmed, not cancelled term; empty while none are written.",
+  })
+  roomWishes?: string[]
+
+  @ApiPropertyOptional({
+    type: "object",
+    properties: {
+      lateArrival: { type: "string", nullable: true, example: "2027-07-13T10:30" },
+      earlyDeparture: { type: "string", nullable: true, example: "2027-07-18T16:00" },
+    },
+    description:
+      "Later arrival and earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` (US-143). Present while the application in the term is not cancelled or archived.",
+  })
+  stay?: { lateArrival: string | null; earlyDeparture: string | null }
+
   static fromDomain(term: MyApplicationTerm): MyApplicationTermDto {
     return Object.assign(new MyApplicationTermDto(), term)
   }
@@ -95,6 +121,18 @@ export class MyApplicationResponseDto {
   @ApiProperty({ example: "Letní kemp 2027" })
   eventName!: string
 
+  @ApiProperty()
+  eventId!: string
+
+  @ApiProperty({ format: "email" })
+  applicantEmail!: string
+
+  @ApiProperty({ format: "date" })
+  birthDate!: string
+
+  @ApiProperty({ enum: ["FEMALE", "MALE"] })
+  gender!: "FEMALE" | "MALE"
+
   @ApiProperty({ example: "Jana" })
   firstName!: string
 
@@ -115,6 +153,12 @@ export class MyApplicationResponseDto {
 
   @ApiProperty({ type: [MyApplicationTermDto] })
   terms!: MyApplicationTermDto[]
+
+  @ApiProperty({ description: "Meal restrictions entered; the same in every term." })
+  mealsDecided!: boolean
+
+  @ApiProperty({ description: "Health restriction entered; the same in every term." })
+  healthDecided!: boolean
 
   @ApiProperty({ example: 9400, description: "Sum of the confirmed terms, whole CZK." })
   amountDueCzk!: number

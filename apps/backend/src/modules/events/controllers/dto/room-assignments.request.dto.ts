@@ -1,12 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger"
+import { Type } from "class-transformer"
 import {
   ArrayMaxSize,
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from "class-validator"
 
 export class RoomAssignmentRequestDto {
@@ -36,4 +39,28 @@ export class RoomAssignmentRequestDto {
   @IsOptional()
   @IsBoolean()
   confirmExtraBed?: boolean
+}
+
+class RoomAssignmentItemDto {
+  @ApiProperty({ description: "Application in the term" })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  applicationTermId!: string
+
+  @ApiProperty({ description: "Room of this term" })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  roomId!: string
+}
+
+export class RoomAssignmentsBulkRequestDto {
+  @ApiProperty({ type: [RoomAssignmentItemDto], description: "A confirmed room proposal (US-147)" })
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(2000)
+  @ValidateNested({ each: true })
+  @Type(() => RoomAssignmentItemDto)
+  assignments!: RoomAssignmentItemDto[]
 }

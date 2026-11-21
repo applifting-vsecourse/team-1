@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -16,6 +16,7 @@ vi.mock("@/components/templates/AuthLayout", () => ({
     </main>
   ),
 }))
+vi.mock("@/components/organisms/Header", () => ({ Header: () => <header /> }))
 vi.mock("@/components/atoms/Seo", () => ({ Seo: () => null }))
 
 const renderLanding = (props: { token?: string; error?: string }) =>
@@ -41,8 +42,8 @@ describe("MagicLinkLanding", () => {
   it("does not promise a password to someone who may already have one", () => {
     renderLanding({ token: "abc" })
 
-    expect(screen.getByText("Sign in with a link")).toBeInTheDocument()
-    expect(screen.getByText(/If you don't have a password yet/)).toBeInTheDocument()
+    expect(screen.getByText("Sign in with an email link")).toBeInTheDocument()
+    expect(screen.getByText(/If you don’t have a password yet/)).toBeInTheDocument()
     expect(screen.queryByText("First access")).not.toBeInTheDocument()
   })
 
@@ -52,6 +53,11 @@ describe("MagicLinkLanding", () => {
     renderLanding({ token: "abc" })
 
     await userEvent.click(screen.getByRole("button", { name: "Continue" }))
+
+    expect(screen.getByRole("status")).toHaveTextContent("Verifying your link")
+    expect(screen.queryByRole("button", { name: "Continue" })).not.toBeInTheDocument()
+    fireEvent(window, new Event("pageshow"))
+    expect(screen.getByRole("button", { name: "Continue" })).toBeInTheDocument()
 
     const [target] = assign.mock.calls[0] as [string]
     const url = new URL(target)
@@ -63,6 +69,25 @@ describe("MagicLinkLanding", () => {
     expect(url.searchParams.get("errorCallbackURL")).toBe(
       "http://localhost:3050/participant/magic-link",
     )
+  })
+
+  it("keeps the token unspent while offline and permits another attempt", async () => {
+    const assign = vi.fn()
+    vi.stubGlobal("location", { origin: "http://localhost:3050", assign })
+    const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false)
+    try {
+      renderLanding({ token: "abc" })
+      await userEvent.click(screen.getByRole("button", { name: "Continue" }))
+      expect(
+        await screen.findByRole("heading", { name: "We couldn’t verify the link" }),
+      ).toBeVisible()
+      expect(assign).not.toHaveBeenCalled()
+      online.mockReturnValue(true)
+      await userEvent.click(screen.getByRole("button", { name: "Try again" }))
+      expect(assign).toHaveBeenCalledOnce()
+    } finally {
+      online.mockRestore()
+    }
   })
 
   it("explains a refused link and offers a new one", () => {
