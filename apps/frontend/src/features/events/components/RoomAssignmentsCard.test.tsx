@@ -1,6 +1,6 @@
 import { MouseSensor, TouchSensor } from "@dnd-kit/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { act, render, screen, waitFor, within } from "@testing-library/react"
+import { act, createEvent, fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -13,8 +13,7 @@ const { dnd } = vi.hoisted(() => ({
     props: null as null | {
       onDragStart: (e: unknown) => void
       onDragEnd: (e: unknown) => void
-      onDragCancel: () => void
-      sensors: { sensor: unknown; options: unknown }[]
+        sensors: { sensor: unknown; options: unknown }[]
     },
   },
 }))
@@ -555,22 +554,45 @@ describe("room assignment", () => {
     )
   })
 
-  it("starts mouse and touch drags independently, and cancelling a touch drag writes nothing", async () => {
+  it("lets a touch swipe scroll and cancels a long press drag without changing assignment", async () => {
     renderCard()
-    await screen.findByText("Barbora Šimková")
+    const participant = await screen.findByText("Barbora Šimková")
+    const roomRow = screen.getByRole("cell", { name: "Room C" }).closest("tr")
     expect(dnd.props?.sensors).toEqual([
       { sensor: MouseSensor, options: { activationConstraint: { distance: 6 } } },
       { sensor: TouchSensor, options: { activationConstraint: { delay: 250, tolerance: 8 } } },
     ])
-    const roomRow = screen.getByRole("cell", { name: "Room C" }).closest("tr")
-    act(() => dnd.props?.onDragStart(dragFrom("p3", "Barbora Šimková", null)))
-    expect(roomRow).toHaveClass("bg-muted")
 
-    act(() => dnd.props?.onDragCancel())
+    vi.useFakeTimers()
+    try {
+      const start = { touches: [{ clientX: 30, clientY: 40 }] }
+      fireEvent.touchStart(participant, start)
+      const scroll = createEvent.touchMove(participant, {
+        touches: [{ clientX: 30, clientY: 80 }],
+      })
+      fireEvent(participant, scroll)
+      act(() => {
+        vi.advanceTimersByTime(250)
+      })
+      expect(scroll.defaultPrevented).toBe(false)
+      expect(roomRow).not.toHaveClass("bg-muted")
 
-    expect(roomRow).not.toHaveClass("bg-muted")
-    expect(put).not.toHaveBeenCalled()
-    expect(del).not.toHaveBeenCalled()
+      fireEvent.touchStart(participant, start)
+      act(() => {
+        vi.advanceTimersByTime(250)
+      })
+      expect(roomRow).toHaveClass("bg-muted")
+
+      fireEvent.touchCancel(participant)
+      act(() => {
+        vi.advanceTimersByTime(50)
+      })
+      expect(roomRow).not.toHaveClass("bg-muted")
+      expect(put).not.toHaveBeenCalled()
+      expect(del).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it("assigns by dragging an unassigned person onto a room with a free bed", async () => {
