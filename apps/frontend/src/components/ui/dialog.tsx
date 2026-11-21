@@ -122,7 +122,7 @@ function DialogContent({
             "[&_[data-slot=dialog-header]]:pr-15 [&>[data-slot=dialog-title]]:pr-15",
           className,
           // Keep the cap when a caller sets height limits based on the layout viewport.
-          "data-[visual-viewport-constrained=true]:min-h-0 data-[visual-viewport-constrained=true]:max-h-[calc(var(--dialog-viewport-height)-2rem)]",
+          "data-[visual-viewport-constrained=true]:max-h-[calc(var(--dialog-viewport-height)-2rem)] data-[visual-viewport-constrained=true]:min-h-0",
         )}
         {...props}
       >
