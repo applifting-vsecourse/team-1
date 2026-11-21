@@ -60,7 +60,14 @@ test.describe("Event setup", () => {
 })
 
 assignmentTest.describe("Room assignments on a touch phone", () => {
-  assignmentTest.use({ ...devices["Pixel 7"], viewport: { width: 360, height: 800 } })
+  const { deviceScaleFactor, hasTouch, isMobile, userAgent } = devices["Pixel 7"]
+  assignmentTest.use({
+    deviceScaleFactor,
+    hasTouch,
+    isMobile,
+    userAgent,
+    viewport: { width: 360, height: 800 },
+  })
 
   assignmentTest(
     "organizer assigns, moves and removes a participant at 360 px",
