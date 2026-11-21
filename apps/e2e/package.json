@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "playwright test",
+    "test": "node ../../docs/pr-capture-677.mjs",
     "test:ui": "playwright test --ui",
     "report": "playwright show-report",
     "browsers": "playwright install chromium",
