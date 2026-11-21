@@ -1,4 +1,18 @@
 {
+  "edit": {
+    "all": "Vše",
+    "cancel": "Zrušit",
+    "empty": "Žádný účastník neodpovídá výběru.",
+    "forPerson": "Upravit stravování · {{name}}",
+    "missing": "Nevyplněno",
+    "missingHint": "Účastník stravování zatím nevyplnil. V souhrnu pro kuchyni se počítá jako běžná strava.",
+    "none": "Žádné omezení",
+    "restricted": "S omezením",
+    "roster": "Účastníci",
+    "search": "Hledat účastníka",
+    "title": "Upravit stravování",
+    "view": "Úprava stravování"
+  },
   "kitchen": {
     "allergiesColumn": "Alergie",
     "allergiesTitle": "Alergie",

@@ -208,6 +208,56 @@ describe("meals (integration)", () => {
     }
   })
 
+  it("saves organizer changes for the application and all its confirmed kitchen terms", async () => {
+    const path = `/organizer/events/${eventId}/meals/applications/${applicationId}`
+    const original = await (await request("GET", path, organizer)).json()
+    expect(original).toMatchObject({ editable: true, applicationId })
+    const empty = { optionIds: [], allergies: "", specialRequest: "", noRestrictions: true }
+    expect((await request("PUT", path, participant, empty)).status).toBe(403)
+    expect((await request("PUT", path, otherOrganizer, empty)).status).toBe(403)
+    expect(
+      (await request("PUT", path, organizer, { ...empty, optionIds: ["unknown"] })).status,
+    ).toBe(400)
+    try {
+      const before = await summary()
+      const response = await request("PUT", path, organizer, empty)
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({
+        noRestrictions: true,
+        selectedOptionIds: [],
+        allergies: null,
+        specialRequest: null,
+      })
+      expect(await (await request("GET", ownPath(), participant)).json()).toMatchObject({
+        noRestrictions: true,
+      })
+      const after = await summary()
+      const confirmed = await prisma.applicationTerm.findMany({
+        where: { applicationId, status: "CONFIRMED", term: { cancelledAt: null } },
+      })
+      expect(confirmed.length).toBeGreaterThan(0)
+      for (const { termId } of confirmed) {
+        const term = after.find((item) => item.termId === termId)!
+        expect(term.regular).toBe(before.find((item) => item.termId === termId)!.regular + 1)
+        const roster = await request(
+          "GET",
+          `/organizer/events/${eventId}/meals/terms/${termId}/participants`,
+          organizer,
+        )
+        expect(await roster.json()).toContainEqual(
+          expect.objectContaining({ applicationId, noRestrictions: true }),
+        )
+      }
+    } finally {
+      await request("PUT", path, organizer, {
+        optionIds: original.selectedOptionIds,
+        allergies: original.allergies ?? "",
+        specialRequest: original.specialRequest ?? "",
+        noRestrictions: original.noRestrictions,
+      })
+    }
+  })
+
   it("drops the ticks of a removed option", async () => {
     await saveOptions([])
     const own = await (await request("GET", ownPath(), participant)).json()

@@ -54,6 +54,23 @@ export class MealsService {
     return kitchenSummary(terms, options)
   }
 
+  async organizerMeals(user: Identity, eventId: string, id: string) {
+    const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    const record = await this.meals.organizerMeals(organizationId, eventId, id)
+    if (!record) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    return record
+  }
+
+  async termRoster(user: Identity, eventId: string, termId: string) {
+    const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    return this.meals.termRoster(organizationId, eventId, termId)
+  }
+
+  async saveOrganizerMeals(user: Identity, eventId: string, id: string, input: SelectionInput) {
+    const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    return this.meals.saveOrganizerSelection(organizationId, eventId, id, input)
+  }
+
   /** Someone else's application and a missing one look the same: 403 with no content. */
   async getOwn(user: Identity, applicationId: string): Promise<OwnMeals> {
     const meals = await this.meals.findOfUser(user.id, applicationId)
