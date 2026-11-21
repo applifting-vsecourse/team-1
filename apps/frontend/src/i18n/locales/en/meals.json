@@ -10,7 +10,6 @@
     "confirmed_many": "{{count}} confirmed participants",
     "confirmed_one": "{{count}} confirmed participant",
     "confirmed_other": "{{count}} confirmed participants",
-    "countNote": "Each participant is counted once.",
     "countsTitle": "Portions by diet",
     "departure": "Departure {{when}}",
     "departureColumn": "Departure",

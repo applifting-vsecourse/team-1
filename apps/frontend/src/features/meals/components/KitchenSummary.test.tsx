@@ -134,7 +134,7 @@ describe("KitchenSummary", () => {
     await showByCategory()
     expect(await screen.findByRole("heading", { name: "Meals" })).toBeVisible()
     expect(screen.getByRole("heading", { name: "10 confirmed participants" })).toBeVisible()
-    expect(screen.getByText("Each participant is counted once.")).toBeVisible()
+    expect(screen.queryByText("Each participant is counted once.")).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: "Back to event overview" })).not.toBeInTheDocument()
     expectRow("Regular meal", "6")
     expectRow("Vegetarian", "3")

@@ -272,7 +272,6 @@ export function KitchenSummary({ eventId }: { eventId: string }) {
             <h2 className="text-2xl font-bold tabular-nums">
               {t("kitchen.confirmed", { count: term.total })}
             </h2>
-            <p>{t("kitchen.countNote")}</p>
           </Card>
           {/* Left: counts, requests. Right: allergies (long list), arrivals and departures. One column below lg: counts, allergies, requests, stays. */}
           <CardColumns
