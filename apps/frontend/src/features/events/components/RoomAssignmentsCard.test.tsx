@@ -562,12 +562,13 @@ describe("room assignment", () => {
       { sensor: MouseSensor, options: { activationConstraint: { distance: 6 } } },
       { sensor: TouchSensor, options: { activationConstraint: { delay: 250, tolerance: 8 } } },
     ])
+    const roomRow = screen.getByRole("cell", { name: "Room C" }).closest("tr")
     act(() => dnd.props?.onDragStart(dragFrom("p3", "Barbora Šimková", null)))
-    expect(screen.getAllByText("Barbora Šimková")).toHaveLength(2)
+    expect(roomRow).toHaveClass("bg-muted")
 
     act(() => dnd.props?.onDragCancel())
 
-    expect(screen.getAllByText("Barbora Šimková")).toHaveLength(1)
+    expect(roomRow).not.toHaveClass("bg-muted")
     expect(put).not.toHaveBeenCalled()
     expect(del).not.toHaveBeenCalled()
   })
