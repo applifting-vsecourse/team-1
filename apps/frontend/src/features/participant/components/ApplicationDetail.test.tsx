@@ -315,10 +315,10 @@ describe("ApplicationDetail", () => {
     await user.click(await within(terms).findByRole("button", { name: "Change terms" }))
     const dialog = await screen.findByRole("dialog", { name: "Change term" })
     expect(within(dialog).getByRole("heading", { name: "Change impact" })).toBeInTheDocument()
-    expect(within(dialog).getByText(/overpayment CZK 2,000/)).toBeInTheDocument()
-    expect(within(dialog).getByText("Price CZK 4,900 · amount due CZK 4,900")).toBeInTheDocument()
+    expect(within(dialog).getByText(/You paid CZK 2,000/)).toBeInTheDocument()
+    expect(within(dialog).getByText("You will pay CZK 4,900 for the new term.")).toBeInTheDocument()
     expect(within(dialog).getByRole("combobox", { name: "New term" })).toBeInTheDocument()
-    expect(within(dialog).getByText(/Money is not refunded automatically/)).toBeInTheDocument()
+    expect(within(dialog).getByText(/Paid money is not refunded automatically/)).toBeInTheDocument()
     // The kit's close cross is hard-coded English; the translated "Cancel" button closes the dialog.
     expect(within(dialog).queryByRole("button", { name: "Close" })).not.toBeInTheDocument()
     // Cancel and confirm sit side by side, in the footer of the dialog.
@@ -351,9 +351,7 @@ describe("ApplicationDetail", () => {
           name: isImmediate ? "Cancellation impact" : "Impact after approval",
         })
         if (status === "TO_EVALUATE") {
-          expect(
-            within(dialog).getByText("Awaiting evaluation · no bed and no payment"),
-          ).toBeVisible()
+          expect(within(dialog).getByText("You don’t have a bed or a payment yet.")).toBeVisible()
         }
         const release = within(dialog).queryByText(/bed is released/)
         if (status === "CONFIRMED") expect(release).toBeVisible()
@@ -398,7 +396,7 @@ describe("ApplicationDetail", () => {
     renderDetail(application(), true, 0)
 
     await user.click(await screen.findByRole("button", { name: "Change terms" }))
-    expect(screen.getByText("Price CZK 4,900 · amount due CZK 0")).toBeInTheDocument()
+    expect(screen.getByText("You pay nothing for the new term.")).toBeInTheDocument()
   })
 
   it("closes the dialog without saving", async () => {
@@ -435,8 +433,8 @@ describe("ApplicationDetail", () => {
     renderDetail(application(), false)
     await user.click(await screen.findByRole("button", { name: "Change terms" }))
     expect(screen.getByText("The organizer approves the request")).toBeInTheDocument()
-    expect(screen.getByText(/stay unchanged until the decision/)).toBeInTheDocument()
-    expect(screen.getByText("Price CZK 4,900 · amount due CZK 4,900")).toBeInTheDocument()
+    expect(screen.getByText("The bed is released only after approval.")).toBeInTheDocument()
+    expect(screen.getByText("You will pay CZK 4,900 for the new term.")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Send request" }))
     expect(post).toHaveBeenCalledWith("participant/applications/a1/change-requests", {
       json: { termIds: ["t2"] },
@@ -505,13 +503,9 @@ describe("ApplicationDetail", () => {
     await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
     await user.click(screen.getByRole("combobox", { name: "What do you want to cancel?" }))
     await user.click(screen.getByRole("option", { name: /Only 1. týden/ }))
-    expect(
-      screen.getByText("Paid CZK 4,500 · left to pay after cancellation CZK 0"),
-    ).toBeInTheDocument()
-    expect(screen.getByText(/An overpayment of CZK 4,500 will arise/)).toBeInTheDocument()
-    expect(
-      screen.getByText("The bed is released immediately. The other terms stay unchanged."),
-    ).toBeInTheDocument()
+    expect(screen.getByText("You paid CZK 4,500.")).toBeInTheDocument()
+    expect(screen.getByText(/Paid money is not refunded automatically/)).toBeInTheDocument()
+    expect(screen.getByText("Your bed is released immediately.")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Confirm cancellation" }))
     expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
       json: { termIds: ["t2"] },
@@ -520,8 +514,8 @@ describe("ApplicationDetail", () => {
   })
 
   it.each([
-    ["Cancel participation", /left to pay after cancellation CZK 0/],
-    ["Change terms", /Paid CZK 0 · overpayment CZK 0 · left to pay CZK 0/],
+    ["Cancel participation", "You haven’t paid anything yet, so there is nothing to settle."],
+    ["Change terms", "You haven’t paid anything yet."],
   ])("shows debt removed by %s for an unpaid confirmed term", async (open, impact) => {
     const user = userEvent.setup()
     renderDetail(withTerms([termPayment(1, 4500, 0, "UNPAID")], [confirmed]))

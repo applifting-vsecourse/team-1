@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react"
+import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { BedSingle, Pencil, Trash2 } from "lucide-react"
@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { notify } from "@/lib/notify"
 import { roomCapacityIncreaseKey, type RoomCapacityIncrease } from "@/lib/room-capacity-increase"
@@ -48,7 +49,7 @@ import { RoomsOverview } from "@/features/events/components/RoomsOverview"
 import { RoomsPublicationCard } from "@/features/events/components/RoomsPublicationCard"
 import { RoomWishesOverview } from "@/features/events/components/RoomWishesOverview"
 
-/** The two views of the accommodation: who is placed how (US-35) and the printable overview (US-36). */
+/** The two views of the accommodation: Rozřazování, from the people (US-35), and Pokoje, from the rooms (US-36, #542). */
 export type RoomsView = "assignment" | "overview"
 
 /** What the page needs to know about every active term; the route reads it from the occupancy. */
@@ -70,6 +71,7 @@ export type AccommodationTerm = {
 // Figma (Design system): #530 Ikona přistýlky · podle pohlaví · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26056-112911 (mobile 26064-113690)
 // Figma (Design system): #530 Ikona přistýlky · společné pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113154 (mobile 26064-114034)
 // Figma (Design system): #530 Ikona přistýlky · tooltip a fokus · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113550
+// Figma (Design system v2): #542 / Rozřazování · přepínač pohledů a tisk · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27272-118788 (mobile https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27272-118920)
 export function RoomsPage({
   eventId,
   termId,
@@ -132,6 +134,10 @@ export function RoomsPage({
   const previousIds = new Set(term.rooms.map((room) => room.id))
   const refreshedTerm = () => client.getQueryData(roomsQueryOptions(eventId, term.termId).queryKey)
   const isGendered = term.roomMode === "GENDERED"
+  const openExtraBeds = (roomId: string) => {
+    const room = term.rooms.find((item) => item.id === roomId)
+    if (room) setExtraBedsRoom(room)
+  }
   const extraBedsButton = (room: Room) => {
     const label = room.extraBeds
       ? t("rooms.extraBedsEditRoom", { count: room.extraBeds, name: room.name })
@@ -222,32 +228,44 @@ export function RoomsPage({
       </Select>
     </div>
   )
-  // The view picker sits left of the term picker, in both views.
-  const renderSelectors = (extra?: ReactNode) => (
-    <div className="grid w-full gap-4 sm:max-w-xl sm:grid-cols-2">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="accommodation-view">{t("roomOverview.views")}</Label>
-        <Select
-          value={view}
-          onValueChange={(next) => onSelectView(next === "overview" ? "overview" : "assignment")}
-        >
-          <SelectTrigger
-            id="accommodation-view"
-            className="w-full bg-card"
+  // One bar for every view of the accommodation: the view switcher, the term and the print button.
+  // A new view only has to be added to the switcher; it gets the print button without more work.
+  const viewBar = (
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end print:hidden">
+      <ToggleGroup
+        type="single"
+        variant="default"
+        spacing={2}
+        aria-label={t("roomOverview.views")}
+        className="max-w-full justify-start rounded-none border-b max-sm:w-full"
+        value={view}
+        onValueChange={(next) => {
+          // Pressing the active view again must not leave the group empty.
+          if (next === "assignment" || next === "overview") onSelectView(next)
+        }}
+      >
+        {(["assignment", "overview"] as const).map((item) => (
+          <ToggleGroupItem
+            key={item}
+            value={item}
+            className="h-auto rounded-none border-0 border-b border-border px-3 py-2 text-sm leading-5 font-medium shadow-none hover:bg-wash hover:text-foreground focus-visible:border-2 focus-visible:border-ring focus-visible:ring-0 data-[state=on]:border-b-2 data-[state=on]:border-primary data-[state=on]:bg-transparent data-[state=on]:text-link max-sm:flex-1"
           >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="assignment">{t("roomOverview.viewAssignment")}</SelectItem>
-            <SelectItem value="overview">{t("roomOverview.viewOverview")}</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      {termSelect}
-      {extra}
+            {t(item === "assignment" ? "roomOverview.viewAssignment" : "roomOverview.viewOverview")}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+      <div className="sm:w-60">{termSelect}</div>
+      <Button
+        variant="outline"
+        size="lg"
+        className="max-sm:w-full sm:ml-auto"
+        disabled={term.rooms.length === 0}
+        onClick={() => window.print()}
+      >
+        {t("roomOverview.print")}
+      </Button>
     </div>
   )
-  const selectors = renderSelectors()
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("rooms.title")} />
@@ -261,41 +279,47 @@ export function RoomsPage({
           }}
         />
       ) : null}
+      {viewBar}
       {view === "overview" ? (
         <RoomsOverview
           term={term}
-          selectors={selectors}
           onShowAssignment={() => onSelectView("assignment")}
+          onEditExtraBeds={openExtraBeds}
         />
       ) : (
         <>
+          {/* The sheet the print button prints from this view: the same overview of the term. */}
+          <RoomsOverview
+            term={term}
+            isPrintOnly
+            onShowAssignment={() => onSelectView("assignment")}
+            onEditExtraBeds={openExtraBeds}
+          />
           {/* Controls left, the publication switch in the otherwise empty right half. */}
           <CardGrid className="lg:grid-cols-1 xl:grid-cols-2">
             <div className="flex flex-col gap-6">
-              {renderSelectors(
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
-                  <Select
-                    value={term.roomMode}
-                    onValueChange={(value) => {
-                      const targetMode = roomModeSchema.parse(value)
-                      if (targetMode !== term.roomMode) setPendingMode(targetMode)
-                    }}
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
+                <Select
+                  value={term.roomMode}
+                  onValueChange={(value) => {
+                    const targetMode = roomModeSchema.parse(value)
+                    if (targetMode !== term.roomMode) setPendingMode(targetMode)
+                  }}
+                >
+                  <SelectTrigger
+                    id="room-mode"
+                    className="w-full bg-card"
                   >
-                    <SelectTrigger
-                      id="room-mode"
-                      className="w-full bg-card"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
-                      <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
-                </div>,
-              )}
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
+                    <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
+              </div>
               {term.rooms.length === 0 && terms.length > 1 ? (
                 <Alert>
                   <AlertTitle>{t("rooms.unavailableTitle")}</AlertTitle>

@@ -347,7 +347,7 @@
     "beds": "Beds",
     "born": "b. {{year}}",
     "continued": "continued",
-    "emptyAction": "Go to the room assignment",
+    "emptyAction": "Go to Assignment",
     "extraBed": "Extra bed",
     "free": "Free beds",
     "freeBed": "Free bed",
@@ -360,14 +360,10 @@
     "printExtraBeds": "extra bed +{{count}}",
     "printed": "Printed {{date}}",
     "rooms": "Rooms",
-    "showWarnings": "Show in the assignment",
     "unassignedTitle": "Confirmed without a room",
-    "viewAssignment": "Room assignment",
-    "viewOverview": "Accommodation overview",
-    "views": "Accommodation view",
-    "warnings_few": "The room assignment has {{count}} warnings.",
-    "warnings_one": "The room assignment has {{count}} warning.",
-    "warnings_other": "The room assignment has {{count}} warnings."
+    "viewAssignment": "Assignment",
+    "viewOverview": "Rooms",
+    "views": "Accommodation view"
   },
   "roomProposal": {
     "back": "Back to the proposal",
