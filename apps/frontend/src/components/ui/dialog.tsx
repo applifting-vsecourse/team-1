@@ -60,7 +60,10 @@ function DialogOverlay({
 
 // The on-screen keyboard can resize the visual viewport without resizing the layout viewport.
 function useDialogViewport() {
-  const [viewportStyle, setViewportStyle] = React.useState<React.CSSProperties>()
+  const [viewportState, setViewportState] = React.useState<{
+    style: React.CSSProperties
+    isConstrained: boolean
+  }>()
 
   React.useEffect(() => {
     const viewport = window.visualViewport
@@ -68,14 +71,17 @@ function useDialogViewport() {
 
     const updateViewport = () => {
       if (viewport.scale !== 1) {
-        setViewportStyle(undefined)
+        setViewportState(undefined)
         return
       }
 
-      setViewportStyle({
-        "--dialog-viewport-center": `${viewport.offsetTop + viewport.height / 2}px`,
-        "--dialog-viewport-height": `${viewport.height}px`,
-      } as React.CSSProperties)
+      setViewportState({
+        style: {
+          "--dialog-viewport-center": `${viewport.offsetTop + viewport.height / 2}px`,
+          "--dialog-viewport-height": `${viewport.height}px`,
+        } as React.CSSProperties,
+        isConstrained: viewport.height < window.innerHeight,
+      })
     }
 
     updateViewport()
@@ -87,7 +93,7 @@ function useDialogViewport() {
     }
   }, [])
 
-  return viewportStyle
+  return viewportState
 }
 
 // Figma (Design system v2): Togena / Dialogs / Dialog · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15199-795
@@ -102,18 +108,21 @@ function DialogContent({
   showCloseButton?: boolean
 }) {
   const { t } = useTranslation("common")
-  const viewportStyle = useDialogViewport()
+  const viewport = useDialogViewport()
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
-        style={{ ...viewportStyle, ...style }}
+        data-visual-viewport-constrained={viewport?.isConstrained || undefined}
+        style={{ ...viewport?.style, ...style }}
         className={cn(
           "fixed top-[var(--dialog-viewport-center,50%)] left-[50%] z-50 grid max-h-[calc(var(--dialog-viewport-height,100dvh)-2rem)] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] grid-cols-[minmax(0,1fr)] gap-5 overflow-y-auto overscroll-contain rounded-lg border bg-card p-6 wrap-anywhere shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
           showCloseButton &&
             "[&_[data-slot=dialog-header]]:pr-15 [&>[data-slot=dialog-title]]:pr-15",
           className,
+          // Keep the cap when a caller overrides max-height with layout viewport units.
+          "data-[visual-viewport-constrained=true]:max-h-[calc(var(--dialog-viewport-height)-2rem)]",
         )}
         {...props}
       >
