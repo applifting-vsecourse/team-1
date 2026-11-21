@@ -48,8 +48,9 @@ function renderPage(
 ) {
   const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
     const method = input instanceof Request ? input.method : (init?.method ?? "GET")
-    if (method === "POST" && input instanceof Request && onPost)
+    if (method === "POST" && input instanceof Request && onPost) {
       void input.clone().json().then(onPost)
+    }
     if (method === "PUT" && input instanceof Request && onPut) void input.clone().json().then(onPut)
     return Promise.resolve(
       method === "GET"
