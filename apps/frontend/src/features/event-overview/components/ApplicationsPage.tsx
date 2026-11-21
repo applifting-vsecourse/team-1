@@ -522,9 +522,9 @@ export function ApplicationsPage({
                     </TableBody>
                   </Table>
                 </div>
-                <div className="flex flex-col gap-2 md:hidden">
+                <ul className="flex flex-col gap-2 md:hidden">
                   {visibleRows.map((row) => (
-                    <div
+                    <li
                       key={row.id}
                       className={cn(
                         "flex flex-col gap-2 rounded-lg border bg-card px-3 pb-2",
@@ -571,9 +571,9 @@ export function ApplicationsPage({
                           )}
                         </Link>
                       </Button>
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
                 <Pagination
                   page={currentPage}
                   pageCount={pageCount}
