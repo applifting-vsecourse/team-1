@@ -36,7 +36,10 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
 
   test("applicant submits, lands on the confirmation and sees the application after signing in", async ({
     page,
-  }) => {
+  }, testInfo) => {
+    if (testInfo.project.name === "mobile") {
+      await page.setViewportSize({ width: 360, height: 800 })
+    }
     // Unique per run: the same name and birth date on the same term is a duplicate (US-23),
     // and the desktop and mobile projects share one database.
     const unique = `${Date.now()}`

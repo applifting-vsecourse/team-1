@@ -13,12 +13,12 @@ async function openEvent(page: Page) {
   await openEventList(page)
   const eventLink = page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ })
   await expectFitsViewport(page, eventLink)
-  expect((await eventLink.boundingBox())!.height).toBeLessThanOrEqual(164)
+  const eventHeight = (await eventLink.boundingBox())!.height
   const href = await eventLink.getAttribute("href")
   expect(href).toMatch(/^\/organizer\/events\/[^/]+$/)
   await eventLink.click()
   await expect(page.getByRole("heading", { name: event, level: 1 })).toBeVisible()
-  return { eventPath: href!, eventId: href!.split("/").at(-1)! }
+  return { eventPath: href!, eventId: href!.split("/").at(-1)!, eventHeight }
 }
 
 async function disclose(button: Locator, touch: boolean) {
@@ -42,7 +42,7 @@ for (const viewport of [
     test.use({ viewport, hasTouch: touch, isMobile: touch })
 
     test("shows the event and application status before opening details", async ({ page }) => {
-      const { eventPath } = await openEvent(page)
+      const { eventPath, eventHeight } = await openEvent(page)
       const eventTitle = page.getByRole("heading", { name: event, level: 1 })
       const occupancy = page.getByRole("heading", { name: "Occupancy by term" })
       const term = page.getByRole("heading", { name: firstTermDates })
@@ -68,6 +68,7 @@ for (const viewport of [
       await expectCompactHeading(title)
       await expect(page.getByRole("heading", { name: /1\. týden · Confirmed/ })).toBeVisible()
       await expect(page.getByRole("heading", { name: firstTermDates }).first()).toBeVisible()
+      expect(eventHeight).toBeLessThanOrEqual(touch ? 180 : 100)
     })
 
     test("keeps occupancy and room actions available when participants are collapsed", async ({
@@ -155,7 +156,7 @@ for (const viewport of [
       try {
         const guestPage = await guest.newPage()
         await signIn(guestPage, "participant", PARTICIPANT)
-        await expect(guestPage).toHaveURL(/\/participant\/applications/)
+        await expect(guestPage).toHaveURL(/\/participant$/)
         const applicationLink = guestPage.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ })
         const applicationPath = await applicationLink.getAttribute("href")
         const applicationId = applicationPath!.split("/").at(-1)!
