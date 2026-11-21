@@ -1,4 +1,4 @@
-import type * as Dnd from "@dnd-kit/core"
+import { MouseSensor, TouchSensor } from "@dnd-kit/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
@@ -10,11 +10,16 @@ import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignment
 // jsdom has no layout, so a drag is driven through the handlers the card gives to the context.
 const { dnd } = vi.hoisted(() => ({
   dnd: {
-    props: null as null | { onDragStart: (e: unknown) => void; onDragEnd: (e: unknown) => void },
+    props: null as null | {
+      onDragStart: (e: unknown) => void
+      onDragEnd: (e: unknown) => void
+      onDragCancel: () => void
+      sensors: { sensor: unknown; options: unknown }[]
+    },
   },
 }))
 vi.mock("@dnd-kit/core", async (importOriginal) => {
-  const actual = await importOriginal<Record<string, never> & typeof Dnd>()
+  const actual = await importOriginal<typeof import("@dnd-kit/core")>()
   return {
     ...actual,
     DndContext: (props: React.ComponentProps<typeof actual.DndContext>) => {
@@ -518,8 +523,11 @@ describe("room assignment", () => {
 
   it("moves a person through the menu of their chip, the current room is not a choice", async () => {
     const user = renderCard()
-    const table = await screen.findByRole("table")
-    await user.click(within(table).getByRole("button", { name: "Actions for Jana Nováková" }))
+    await screen.findByRole("table")
+    const cards = screen.getAllByRole("list").find((list) => list.classList.contains("lg:hidden"))
+    await user.click(
+      within(cards as HTMLElement).getByRole("button", { name: "Actions for Jana Nováková" }),
+    )
     await user.click(await screen.findByRole("menuitem", { name: "Move to another room…" }))
     const dialog = await screen.findByRole("dialog")
     expect(within(dialog).getByRole("radio", { name: /Room A.*Current room/ })).toBeDisabled()
@@ -533,8 +541,11 @@ describe("room assignment", () => {
 
   it("removes a person from the room through the menu", async () => {
     const user = renderCard()
-    const table = await screen.findByRole("table")
-    await user.click(within(table).getByRole("button", { name: "Actions for Eva Horká" }))
+    await screen.findByRole("table")
+    const cards = screen.getAllByRole("list").find((list) => list.classList.contains("lg:hidden"))
+    await user.click(
+      within(cards as HTMLElement).getByRole("button", { name: "Actions for Eva Horká" }),
+    )
     await user.click(await screen.findByRole("menuitem", { name: "Remove from room" }))
     await waitFor(() =>
       expect(del).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p2"),
@@ -542,6 +553,23 @@ describe("room assignment", () => {
     await waitFor(() =>
       expect(success).toHaveBeenCalledWith("Participant has no room again", "Eva Horká"),
     )
+  })
+
+  it("starts mouse and touch drags independently, and cancelling a touch drag writes nothing", async () => {
+    renderCard()
+    await screen.findByText("Barbora Šimková")
+    expect(dnd.props?.sensors).toEqual([
+      { sensor: MouseSensor, options: { activationConstraint: { distance: 6 } } },
+      { sensor: TouchSensor, options: { activationConstraint: { delay: 250, tolerance: 8 } } },
+    ])
+    act(() => dnd.props?.onDragStart(dragFrom("p3", "Barbora Šimková", null)))
+    expect(screen.getAllByText("Barbora Šimková")).toHaveLength(2)
+
+    act(() => dnd.props?.onDragCancel())
+
+    expect(screen.getAllByText("Barbora Šimková")).toHaveLength(1)
+    expect(put).not.toHaveBeenCalled()
+    expect(del).not.toHaveBeenCalled()
   })
 
   it("assigns by dragging an unassigned person onto a room with a free bed", async () => {

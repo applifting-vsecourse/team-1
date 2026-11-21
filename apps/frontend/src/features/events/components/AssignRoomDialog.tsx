@@ -197,7 +197,7 @@ export function AssignRoomDialog({
               {current ? ` · ${t("roomAssignments.nowIn", { room: roomTitle(current) })}` : ""}
             </span>
           </div>
-          <div className="relative flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+          <div className="relative flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain">
             <fieldset className="flex flex-col gap-2">
               <legend className="sr-only">{t("roomAssignments.roomChoice")}</legend>
               <RadioGroup
@@ -254,52 +254,54 @@ export function AssignRoomDialog({
                 })}
               </RadioGroup>
             </fieldset>
-          </div>
-          {offers.length ? (
-            <div className="flex shrink-0 flex-col gap-3 rounded-lg border border-border p-3">
-              <p className="text-sm font-medium">
-                {t(
-                  offers.length > 1 ? "roomAssignments.alsoTitleMany" : "roomAssignments.alsoTitle",
-                )}
-              </p>
-              {offers.map(({ other, match, state }) =>
-                state === "missing" || !match ? (
-                  <p
-                    key={other.termId}
-                    className="text-sm text-muted-foreground"
-                  >
-                    {t("roomAssignments.alsoMissing", { term: termLine(other) })}
-                  </p>
-                ) : (
-                  <div
-                    key={other.termId}
-                    className="flex items-start gap-3"
-                  >
-                    <Checkbox
-                      id={`also-${other.termId}`}
-                      checked={alsoIds.includes(other.termId)}
-                      onCheckedChange={(value) =>
-                        setToggles((current) => ({ ...current, [other.termId]: value === true }))
-                      }
-                    />
-                    <Label
-                      htmlFor={`also-${other.termId}`}
-                      className="flex-col items-start gap-0.5 text-base font-normal"
+            {offers.length ? (
+              <div className="flex shrink-0 flex-col gap-3 rounded-lg border border-border p-3">
+                <p className="text-sm font-medium">
+                  {t(
+                    offers.length > 1
+                      ? "roomAssignments.alsoTitleMany"
+                      : "roomAssignments.alsoTitle",
+                  )}
+                </p>
+                {offers.map(({ other, match, state }) =>
+                  state === "missing" || !match ? (
+                    <p
+                      key={other.termId}
+                      className="text-sm text-muted-foreground"
                     >
-                      <span>
-                        {t("roomAssignments.also", { term: termLine(other), room: match.name })}
-                      </span>
-                      {state === "full" ? (
-                        <span className="text-sm text-muted-foreground">
-                          {t("roomAssignments.alsoFull")}
+                      {t("roomAssignments.alsoMissing", { term: termLine(other) })}
+                    </p>
+                  ) : (
+                    <div
+                      key={other.termId}
+                      className="flex items-start gap-3"
+                    >
+                      <Checkbox
+                        id={`also-${other.termId}`}
+                        checked={alsoIds.includes(other.termId)}
+                        onCheckedChange={(value) =>
+                          setToggles((current) => ({ ...current, [other.termId]: value === true }))
+                        }
+                      />
+                      <Label
+                        htmlFor={`also-${other.termId}`}
+                        className="flex-col items-start gap-0.5 text-base font-normal"
+                      >
+                        <span>
+                          {t("roomAssignments.also", { term: termLine(other), room: match.name })}
                         </span>
-                      ) : null}
-                    </Label>
-                  </div>
-                ),
-              )}
-            </div>
-          ) : null}
+                        {state === "full" ? (
+                          <span className="text-sm text-muted-foreground">
+                            {t("roomAssignments.alsoFull")}
+                          </span>
+                        ) : null}
+                      </Label>
+                    </div>
+                  ),
+                )}
+              </div>
+            ) : null}
+          </div>
           <div className="flex shrink-0 flex-col gap-3 border-t border-border pt-4">
             {mutation.isError ? (
               <AssignmentSaveError

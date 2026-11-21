@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { useCallback, useRef, useState } from "react"
 import { useDraggable, useDroppable } from "@dnd-kit/core"
-import { AlertTriangle, GripVertical } from "lucide-react"
+import { AlertTriangle, Ellipsis, GripVertical } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
@@ -105,7 +105,7 @@ export function ParticipantChip({
           onClick={() => setIsOpen((isShown) => !isShown)}
           className={cn(
             chipClass,
-            isBlock && "w-full justify-start",
+            isBlock && "min-h-11 w-full justify-start",
             "cursor-grab touch-manipulation outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
             isDragging && "opacity-40",
           )}
@@ -122,6 +122,12 @@ export function ParticipantChip({
             >
               {t("roomAssignments.individualShort")}
             </Badge>
+          ) : null}
+          {isBlock ? (
+            <Ellipsis
+              className="ml-auto size-4 shrink-0 text-muted-foreground"
+              aria-hidden
+            />
           ) : null}
         </button>
         <DropdownMenuTrigger asChild>
@@ -141,8 +147,18 @@ export function ParticipantChip({
         <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
           {name}
         </DropdownMenuLabel>
-        <DropdownMenuItem onSelect={onMove}>{t("roomAssignments.move")}</DropdownMenuItem>
-        <DropdownMenuItem onSelect={onRemove}>{t("roomAssignments.remove")}</DropdownMenuItem>
+        <DropdownMenuItem
+          className="max-lg:min-h-11"
+          onSelect={onMove}
+        >
+          {t("roomAssignments.move")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="max-lg:min-h-11"
+          onSelect={onRemove}
+        >
+          {t("roomAssignments.remove")}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -212,7 +228,7 @@ export function UnassignedRow({
         type="button"
         variant="outline"
         size="sm"
-        className="shrink-0"
+        className="shrink-0 max-lg:h-11"
         disabled={isDisabled}
         aria-label={t("roomAssignments.assignAria", { name })}
         onClick={onAssign}

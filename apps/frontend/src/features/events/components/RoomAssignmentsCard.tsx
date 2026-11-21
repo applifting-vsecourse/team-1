@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react"
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
+  MouseSensor,
   pointerWithin,
   TouchSensor,
   useSensor,
@@ -124,7 +124,8 @@ export function RoomAssignmentsCard({
   const [panel, setPanel] = useState<HTMLDivElement | null>(null)
   const isPanelScrolledOut = useScrolledOut(panel)
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    // PointerSensor also sees touch and would start dragging before the long-press sensor.
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
   )
 
