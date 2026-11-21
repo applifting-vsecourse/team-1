@@ -133,20 +133,24 @@ export class MealsRepository {
     organizationId: string,
     eventId: string,
     termId: string,
-  ): Promise<OrganizerMeals[]> {
-    const [rows, options] = await Promise.all([
-      this.prisma.application.findMany({
-        where: {
-          organizationId,
-          eventId,
-          terms: { some: { termId, status: "CONFIRMED", term: { cancelledAt: null } } },
+  ): Promise<OrganizerMeals[] | null> {
+    const term = await this.prisma.term.findFirst({
+      where: { id: termId, organizationId, eventId, cancelledAt: null },
+      select: {
+        applicationTerms: {
+          where: { status: "CONFIRMED", application: { organizationId, eventId } },
+          select: { application: { select: organizerSelect } },
+          orderBy: [
+            { application: { lastName: "asc" } },
+            { application: { firstName: "asc" } },
+            { applicationId: "asc" },
+          ],
         },
-        select: organizerSelect,
-        orderBy: [{ lastName: "asc" }, { firstName: "asc" }, { id: "asc" }],
-      }),
-      this.listOptions(eventId),
-    ])
-    return rows.map((row) => organizerRecord(row, options))
+      },
+    })
+    if (!term) return null
+    const options = await this.listOptions(eventId)
+    return term.applicationTerms.map(({ application }) => organizerRecord(application, options))
   }
 
   async saveOrganizerSelection(

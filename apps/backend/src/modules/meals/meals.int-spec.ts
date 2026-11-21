@@ -66,6 +66,18 @@ describe("meals (integration)", () => {
     expect((await request("GET", ownPath(), organizer)).status).toBe(403)
   })
 
+  it("requires the roster term to belong to the requested event", async () => {
+    const term = await prisma.term.findFirstOrThrow({ where: { eventId, cancelledAt: null } })
+    const created = await request("POST", "/organizer/events", organizer, { name: "Another camp" })
+    expect(created.status).toBe(201)
+    const otherEvent = (await created.json()) as { id: string }
+    const roster = (event: string, id: string) =>
+      `/organizer/events/${event}/meals/terms/${id}/participants`
+    expect((await request("GET", roster(otherEvent.id, term.id), organizer)).status).toBe(403)
+    expect((await request("GET", roster(eventId, "missing"), organizer)).status).toBe(403)
+    expect((await request("GET", roster(eventId, term.id), otherOrganizer)).status).toBe(403)
+  })
+
   it("offers vegetarian and gluten-free in a newly created event", async () => {
     const created = await request("POST", "/organizer/events", organizer, { name: "Winter camp" })
     expect(created.status).toBe(201)

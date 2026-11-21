@@ -64,7 +64,9 @@ export class MealsService {
 
   async termRoster(user: Identity, eventId: string, termId: string): Promise<OrganizerMeals[]> {
     const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
-    return this.meals.termRoster(organizationId, eventId, termId)
+    const roster = await this.meals.termRoster(organizationId, eventId, termId)
+    if (!roster) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    return roster
   }
 
   async saveOrganizerMeals(
