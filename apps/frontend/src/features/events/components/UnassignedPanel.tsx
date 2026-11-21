@@ -111,16 +111,18 @@ export function UnassignedPanel({
           ) : null}
           <ul
             className={cn(
-              // The search row above has its own bottom edge when it is shown.
-              unassigned.length > UNASSIGNED_PAGE_SIZE && "border-t border-border",
-              isFullWidth && "grid sm:grid-cols-2 lg:grid-cols-3",
+              // Narrow list: the search row has its own bottom edge when it is shown.
+              !isFullWidth && unassigned.length > UNASSIGNED_PAGE_SIZE && "border-t border-border",
+              // Full width: every row draws its own top edge, so a grid of columns has one line.
+              isFullWidth &&
+                "grid sm:grid-cols-2 lg:grid-cols-3 [&>li]:border-t [&>li]:border-border",
             )}
           >
             {rows.map((participant, index) => (
               <UnassignedRow
                 key={participant.applicationTermId}
                 participant={participant}
-                isFirst={index === 0}
+                isFirst={isFullWidth || index === 0}
                 isDisabled={!hasRooms}
                 onAssign={() => onAssign(participant)}
               />
