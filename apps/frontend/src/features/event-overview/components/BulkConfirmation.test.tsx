@@ -149,7 +149,9 @@ describe("bulk decisions on the queue (US-107, US-108)", () => {
     await user.click(terms[2]!)
 
     expect(onFiltersChange).toHaveBeenLastCalledWith({ status: "TO_EVALUATE", term: "t2" })
-    expect(await screen.findByRole("checkbox", { name: /Select all in the filter/ })).not.toBeChecked()
+    expect(
+      await screen.findByRole("checkbox", { name: /Select all in the filter/ }),
+    ).not.toBeChecked()
     expect(screen.queryByRole("button", { name: "Confirm" })).not.toBeInTheDocument()
   })
 
