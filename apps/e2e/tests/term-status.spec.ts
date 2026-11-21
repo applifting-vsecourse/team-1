@@ -95,7 +95,10 @@ for (const device of ["desktop", "360 px phone"]) {
         await activate(dialog.getByRole("button", { name: "Withdraw participant" }))
         const confirmation = page.getByText("The participant was withdrawn", { exact: true })
         await expect(confirmation).toBeInViewport({ ratio: 1 })
-        await expect(confirmation).toBeVisible()
+        await expect(page.getByRole("listitem").filter({ has: confirmation })).toHaveCSS(
+          "opacity",
+          "1",
+        )
         await expect(page.getByText(/Confirmed → Cancelled/).first()).toBeVisible()
         await expect(page.getByRole("button", { name: "Withdraw", exact: true })).not.toBeVisible()
       })

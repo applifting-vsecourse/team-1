@@ -335,8 +335,8 @@
 
 /* Keep status text and controls available while honoring the OS motion setting. */
 @media (prefers-reduced-motion: reduce) {
-  [data-slot="dialog-overlay"],
-  [data-slot="dialog-content"] {
+  [data-slot="dialog-overlay"][data-state],
+  [data-slot="dialog-content"][data-state] {
     animation: none;
   }
 
