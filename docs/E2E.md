@@ -1,71 +1,71 @@
 # E2E testy (Playwright)
 
-E2E test proklik�v� aplikaci ve skute�n�m prohl��e�i proti skute�n�mu backendu a datab�zi. Je pomal� a k�ehk�, proto jich m�me **m�lo a jen na hlavn� cesty**. V�echno ostatn� pat�� do levn�j�ch test�.
+E2E test proklikává aplikaci ve skutečném prohlížeči proti skutečnému backendu a databázi. Je pomalý a křehký, proto jich máme **málo a jen na hlavní cesty**. Všechno ostatní patří do levnějších testů.
 
-## Kam pat�� jak� test
+## Kam patří jaký test
 
-| Co ov��uju                                                     | Test                                |
+| Co ověřuju                                                     | Test                                |
 | -------------------------------------------------------------- | ----------------------------------- |
-| V�po�et (kapacita, vyhodnocen�, cena, dluh)                    | unit test v `domain/` (backend)     |
-| Endpoint, opr�vn�n� (401/403), validace, e-maily, magic link   | API test `*.int-spec.ts` (backend)  |
-| Komponenta, formul��, chybov� hl��ky, pr�zdn� stavy            | Vitest + Testing Library (frontend) |
-| **U�ivatel projde celou cestu nap��� obrazovkami a backendem** | **E2E v `apps/e2e`**                |
+| Výpočet (kapacita, vyhodnocení, cena, dluh)                    | unit test v `domain/` (backend)     |
+| Endpoint, oprávnění (401/403), validace, e-maily, magic link   | API test `*.int-spec.ts` (backend)  |
+| Komponenta, formulář, chybové hlášky, prázdné stavy            | Vitest + Testing Library (frontend) |
+| **Uživatel projde celou cestu napříč obrazovkami a backendem** | **E2E v `apps/e2e`**                |
 
-Kdy� jde v�c ov��it ni��m testem, E2E pro ni nepi�.
+Když jde věc ověřit nižším testem, E2E pro ni nepiš.
 
 ## Co testujeme
 
-Jen cesty, bez kter�ch produkt nefunguje a kter� ukazujeme na demu. Jedna cesta = jeden `test(...)`.
+Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cesta = jeden `test(...)`.
 
 | Cesta                                                                                   | Soubor                       | Stav |
 | --------------------------------------------------------------------------------------- | ---------------------------- | ---- |
-| Landing  p�ihl��en� organiz�tora  seznam akc�  odhl��en�                             | `sign-in.spec.ts`            | ?   |
-| Organiz�tor po p�ihl��en� skon�� na p�ehledu naposledy otev�en� akce                    | `sign-in.spec.ts`            | ?   |
-| �astn�k se nedostane do spr�vy akc� (403)                                              | `sign-in.spec.ts`            | ?   |
-| Organiz�tor neotev�e akci ciz� organizace (403)                                         | `sign-in.spec.ts`            | ?   |
-| �astn�k: p�ihl��en� heslem a odhl��en� (i na mobilu)                                   | `sign-in.spec.ts`            | ?   |
-| �astn�k: ��dost o magic link  otev�en� odkazu  p�ihl��en (i na mobilu)               | `magic-link.spec.ts`         | ?   |
-| Nov� ��astn�k: magic link  nastaven� hesla  p�ihl��en� nov�m heslem (i na mobilu)     | `set-password.spec.ts`       | ?   |
-| P�ihl��ka p�es odkaz: term�ny a cena podle v�b�ru (i na mobilu)                         | `application.spec.ts`        | ?   |
-| Odesl�n� p�ihl��ky  str�nka potvrzen�  po p�ihl��en� vid� p�ihl��ku se stavem         | `application.spec.ts`        | ?   |
-| Organiz�tor zalo�� akci s term�nem a cenou, p�id� pokoj term�nu a zkop�ruje odkaz       | `event-setup.spec.ts`        | ?   |
-| Organiz�tor otev�e akci  Kapacity  obsazenost term�nu a odkaz na filtrovan� p�ihl��ky | `capacity.spec.ts`           | ?   |
-| Organiz�tor vid� p�ihl��ku v seznamu a zap��e platbu                                    | `payments.spec.ts`           | ?   |
-| Organiz�tor odhl�s� ��astn�ka z term�nu a zm�na se zap��e do z�znamu                    | `term-status.spec.ts`        | ?   |
-| Organiz�tor otev�e po�adn�k term�nu a vid� n�hradn�ky v po�ad� p�ijet�                  | `waitlist.spec.ts`           | ?   |
-| Organiz�tor sma�e akci bez p�ihl��ek; akci s p�ihl��kami smazat nejde                   | `delete-event.spec.ts`       | ?   |
-| Organiz�tor zvol� re�im vyhodnocov�n� do prvn� p�ihl��ky; s p�ihl��kou je zam�en�       | `evaluation-mode.spec.ts`    | ?   |
-| Organiz�tor nastav� za��tek storno podm�nek na obrazovce �irok� 360 px                  | `cancellation-start.spec.ts` | ?   |
-| �astn�k po��d� o odhl��en� po za��tku storna  organiz�tor ��dost na 360 px zam�tne    | `change-request.spec.ts`     | ?   |
-| �astn�k ode�le p�ihl��ku v ru�n�m re�imu  organiz�tor ji vid� ve front� K vyhodnocen� | `queue.spec.ts`              | ?   |
-| N�v�t�vn�k: landing  katalog  organizace  akce  p�ihl��ka (i na mobilu)             | `catalog.spec.ts`            | ?   |
-| Organiz�tor zav�e a dokon�� kr�tk�, dlouh� a formul��ov� dialog programu na desktopu a p�i 360 px | `program-dialog-layout.spec.ts` | ? |
+| Landing → přihlášení organizátora → seznam akcí → odhlášení                             | `sign-in.spec.ts`            | ✅   |
+| Organizátor po přihlášení skončí na přehledu naposledy otevřené akce                    | `sign-in.spec.ts`            | ✅   |
+| Účastník se nedostane do správy akcí (403)                                              | `sign-in.spec.ts`            | ✅   |
+| Organizátor neotevře akci cizí organizace (403)                                         | `sign-in.spec.ts`            | ✅   |
+| Účastník: přihlášení heslem a odhlášení (i na mobilu)                                   | `sign-in.spec.ts`            | ✅   |
+| Účastník: žádost o magic link → otevření odkazu → přihlášen (i na mobilu)               | `magic-link.spec.ts`         | ✅   |
+| Nový účastník: magic link → nastavení hesla → přihlášení novým heslem (i na mobilu)     | `set-password.spec.ts`       | ✅   |
+| Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                         | `application.spec.ts`        | ✅   |
+| Odeslání přihlášky → stránka potvrzení → po přihlášení vidí přihlášku se stavem         | `application.spec.ts`        | ✅   |
+| Organizátor založí akci s termínem a cenou, přidá pokoj termínu a zkopíruje odkaz       | `event-setup.spec.ts`        | ✅   |
+| Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky | `capacity.spec.ts`           | ✅   |
+| Organizátor vidí přihlášku v seznamu a zapíše platbu                                    | `payments.spec.ts`           | ✅   |
+| Organizátor odhlásí účastníka z termínu a změna se zapíše do záznamu                    | `term-status.spec.ts`        | ✅   |
+| Organizátor otevře pořadník termínu a vidí náhradníky v pořadí přijetí                  | `waitlist.spec.ts`           | ✅   |
+| Organizátor smaže akci bez přihlášek; akci s přihláškami smazat nejde                   | `delete-event.spec.ts`       | ✅   |
+| Organizátor zvolí režim vyhodnocování do první přihlášky; s přihláškou je zamčený       | `evaluation-mode.spec.ts`    | ✅   |
+| Organizátor nastaví začátek storno podmínek na obrazovce široké 360 px                  | `cancellation-start.spec.ts` | ✅   |
+| Účastník požádá o odhlášení po začátku storna → organizátor žádost na 360 px zamítne    | `change-request.spec.ts`     | ✅   |
+| Účastník odešle přihlášku v ručním režimu → organizátor ji vidí ve frontě K vyhodnocení | `queue.spec.ts`              | ✅   |
+| Návštěvník: landing → katalog → organizace → akce → přihláška (i na mobilu)             | `catalog.spec.ts`            | ✅   |
+| Organizátor zavře a dokončí tři typy dialogů programu (360 px i desktop) | `dialog-layout.spec.ts` | ✅ |
 
-Novou cestu p�idej do tabulky v tomt�� PR. Cesta mimo tabulku se domlouv� s tech leadem. Okrajov� stavy (chybn� heslo, pro�l� odkaz) do E2E nepat��, pokud nejsou sou��st� hlavn� cesty.
+Novou cestu přidej do tabulky v tomtéž PR. Cesta mimo tabulku se domlouvá s tech leadem. Okrajové stavy (chybné heslo, prošlý odkaz…) do E2E nepatří, pokud nejsou součástí hlavní cesty.
 
-## Pravidla psan�
+## Pravidla psaní
 
-1. **Kr�tce.** Test do ~20 ��dk�. Kdy� je del�, testuje� moc v�c� najednou.
-2. **Jako u�ivatel.** Hledej prvky tak, jak je vid� �lov�k: `getByRole`, `getByLabel`, `getByText`. ��dn� CSS t��dy, `nth-child` ani XPath. `data-testid` jen v�jime�n�, kdy� prvek nem� roli ani text.
-3. **Anglick� texty.** Prohl��e� bا� v `en-GB`, tak�e lok�tory pou��vaj� anglick� texty z `locales/en`. Kdy� zm�n�� text v UI, oprav i test.
-4. **��dn� �ek�n� natvrdo.** Nikdy `waitForTimeout`. `expect(...)` �ek� s�m.
-5. **Testy na sob� nez�vis�.** Ka�d� za��n� s�m (`page.goto`), ��dn� po�ad� ani sd�len� stav mezi testy. Data, kter� test vytvo��, maj� unik�tn� hodnoty (nap�. e-mail s `Date.now()`).
-6. **Data ze seedu.** Datab�ze `togena_e2e` se p�ed ka�d�m b�hem sma�e a znovu napln� seedem. �ty a odkazy jsou v `tests/support/accounts.ts`. Seed m�� jen s v�dom�m, �e na n�m E2E stoj�.
-7. **Opakovan� kroky do helperu.** P�ihl��en� a podobn� pat�� do `tests/support/`, ne kop�rovat do ka�d�ho testu.
-8. **Mobil jen tam, kde na n�m z�le��.** Tag `@mobile` dost�vaj� jen cesty ��astn�ka. Ostatn� bا� jen na desktopu.
-9. **��dn� `test.only`.** CI ho odm�tne. `test.fixme` jen pro domluvenou cestu z tabulky, kter� �ek� na story.
+1. **Krátce.** Test do ~20 řádků. Když je delší, testuješ moc věcí najednou.
+2. **Jako uživatel.** Hledej prvky tak, jak je vidí člověk: `getByRole`, `getByLabel`, `getByText`. Žádné CSS třídy, `nth-child` ani XPath. `data-testid` jen výjimečně, když prvek nemá roli ani text.
+3. **Anglické texty.** Prohlížeč běží v `en-GB`, takže lokátory používají anglické texty z `locales/en`. Když změníš text v UI, oprav i test.
+4. **Žádné čekání natvrdo.** Nikdy `waitForTimeout`. `expect(...)` čeká sám.
+5. **Testy na sobě nezávisí.** Každý začíná sám (`page.goto`), žádné pořadí ani sdílený stav mezi testy. Data, která test vytvoří, mají unikátní hodnoty (např. e-mail s `Date.now()`).
+6. **Data ze seedu.** Databáze `togena_e2e` se před každým během smaže a znovu naplní seedem. Účty a odkazy jsou v `tests/support/accounts.ts`. Seed měň jen s vědomím, že na něm E2E stojí.
+7. **Opakované kroky do helperu.** Přihlášení a podobně patří do `tests/support/`, ne kopírovat do každého testu.
+8. **Mobil jen tam, kde na něm záleží.** Tag `@mobile` dostávají jen cesty účastníka. Ostatní běží jen na desktopu.
+9. **Žádné `test.only`.** CI ho odmítne. `test.fixme` jen pro domluvenou cestu z tabulky, která čeká na story.
 
-## Spu�t�n�
+## Spuštění
 
-Postgres mus� bاet (`pnpm backend docker:up:wait`). P�i prvn�m spu�t�n� st�hni prohl��e�:
+Postgres musí běžet (`pnpm backend docker:up:wait`). Při prvním spuštění stáhni prohlížeč:
 
 ```bash
-pnpm e2e browsers   # jednor�zov�: st�hne Chromium
-pnpm e2e test       # sestav� a spust� backend (4190) + frontend (3190) a projede testy
-pnpm e2e test:ui    # interaktivn�, krok po kroku
-pnpm e2e report     # HTML report posledn�ho b�hu
+pnpm e2e browsers   # jednorázově: stáhne Chromium
+pnpm e2e test       # sestaví a spustí backend (4190) + frontend (3190) a projede testy
+pnpm e2e test:ui    # interaktivně, krok po kroku
+pnpm e2e report     # HTML report posledního běhu
 ```
 
-E2E m� vlastn� porty a datab�zi, tak�e nevad� bا�c�mu `pnpm dev` ani worktree. Dva b�hy E2E nar�z ale nespou�t�j, sd�l� porty.
+E2E má vlastní porty a databázi, takže nevadí běžícímu `pnpm dev` ani worktree. Dva běhy E2E naráz ale nespouštěj, sdílí porty.
 
-V CI bا� E2E jako samostatn� job `e2e` u ka�d�ho PR. Kdy� spadne, st�hni artefakt `playwright-report` (screenshot a trace kroku, kter� selhal).
+V CI běží E2E jako samostatný job `e2e` u každého PR. Když spadne, stáhni artefakt `playwright-report` (screenshot a trace kroku, který selhal).

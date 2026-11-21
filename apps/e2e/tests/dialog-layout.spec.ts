@@ -5,7 +5,7 @@ import { openEventList, signIn } from "./support/auth"
 async function openProgram(page: Page, width: number, height: number) {
   await signIn(page, "organizer", ORGANIZER)
   await openEventList(page)
-  await page.getByRole("link", { name: /Letn� kemp 2027(?! - demo)/ }).click()
+  await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
   await page
     .getByRole("navigation", { name: "Event sections" })
     .getByRole("link", { name: "Program" })
