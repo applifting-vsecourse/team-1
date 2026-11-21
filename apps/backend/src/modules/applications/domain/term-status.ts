@@ -47,6 +47,15 @@ export type TermStatusDetail = {
   endsOn: Date
   status: ApplicationTermStatus
   priceCzk: number
+  owedCzk: number
+  debtCzk: number
+  confirmationExceedsCapacity: boolean
+  confirmationNextOccupied: number
+  capacity: number
+  occupied: number
+  confirmationCapacity: number
+  confirmationOccupied: number
+  confirmationDueCzk: number
   /** Current 1-based place in the term and bed group, null unless waitlisted. */
   waitlistPosition: number | null
   history: StatusChangeEntry[]

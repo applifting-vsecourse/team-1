@@ -31,24 +31,28 @@ test.describe("Waitlist", () => {
     const waitlistedTerm = page.getByRole("listitem").filter({
       has: page.getByText("#2 on the waitlist", { exact: true }),
     })
-    const [changeTerm, withdraw, confirm] = await Promise.all(
-      ["Change term", "Withdraw", "Confirm"].map((name) =>
-        waitlistedTerm.getByRole("button", { name, exact: true }).evaluate((button) => {
-          const { bottom, top, left, right, width } = button.getBoundingClientRect()
-          return { bottom, top, left, right, width }
+    const changeStatus = waitlistedTerm.getByRole("button", { name: "Change status", exact: true })
+    const changeTerm = waitlistedTerm.getByRole("button", { name: "Change term", exact: true })
+    await expect(changeStatus).toBeVisible()
+    await expect(changeTerm).toBeVisible()
+    const [statusBounds, termBounds] = await Promise.all(
+      [changeStatus, changeTerm].map((action) =>
+        action.evaluate((button) => {
+          const { bottom, left, top, width } = button.getBoundingClientRect()
+          return { bottom, left, top, width }
         }),
       ),
     )
 
-    expect(changeTerm.bottom).toBeLessThan(withdraw.top)
-    expect(withdraw.top).toBeCloseTo(confirm.top)
-    expect(withdraw.right).toBeLessThan(confirm.left)
-    expect(withdraw.width).toBeCloseTo(confirm.width, 0)
-    expect(changeTerm.left).toBeCloseTo(withdraw.left)
-    expect(changeTerm.right).toBeCloseTo(confirm.right)
+    expect(statusBounds.bottom).toBeLessThan(termBounds.top)
+    expect(statusBounds.left).toBeCloseTo(termBounds.left)
+    expect(statusBounds.width).toBeCloseTo(termBounds.width)
 
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth))
       .toBeLessThanOrEqual(360)
+
+    await changeStatus.click()
+    await expect(page.getByRole("dialog").getByRole("combobox")).toBeVisible()
   })
 })

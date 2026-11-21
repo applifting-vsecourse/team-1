@@ -42,6 +42,8 @@ const setup = (options: {
       findUnique: jest.fn().mockResolvedValue({
         id: "at1",
         status: "CONFIRMED",
+        priceCzk: 1000,
+        payments: [],
         term: { name: null, startsOn: new Date("2027-07-12"), endsOn: new Date("2027-07-18") },
       }),
       findMany: jest
