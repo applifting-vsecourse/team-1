@@ -50,7 +50,7 @@ test.describe("Evaluation mode", () => {
     await page.getByLabel("First name").fill("Zuzana")
     await page.getByLabel("Last name").fill(`Zámek ${unique}`)
     await page.getByLabel("Date of birth").fill("21/06/2012")
-    await page.getByRole("combobox", { name: "Gender for room allocation" }).click()
+    await page.getByRole("combobox", { name: "Gender" }).click()
     await page.getByRole("option", { name: "Woman", exact: true }).click()
     await page
       .getByRole("group", { name: /Choose at least one term/ })

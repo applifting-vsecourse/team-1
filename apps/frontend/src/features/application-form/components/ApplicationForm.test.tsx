@@ -57,7 +57,7 @@ async function fillParticipant(
   await userEvent.type(card.getByLabelText("First name *"), data.first)
   await userEvent.type(card.getByLabelText("Last name *"), data.last)
   await userEvent.type(card.getByLabelText("Date of birth *"), data.birth)
-  await userEvent.click(card.getByRole("combobox", { name: "Gender for room allocation *" }))
+  await userEvent.click(card.getByRole("combobox", { name: "Gender *" }))
   await userEvent.click(await screen.findByRole("option", { name: data.gender }))
   await userEvent.click(card.getByRole("checkbox", { name: data.term }))
 }
@@ -165,11 +165,7 @@ describe("ApplicationForm", () => {
       />,
     )
 
-    expect(
-      screen.getByText(
-        /Want to room with friends\? You can add that after your place is confirmed/,
-      ),
-    ).toBeVisible()
+    expect(screen.getByText(/Roommate wishes come later/)).toBeVisible()
   })
 
   it("shows the price of the ticked terms per participant and updates it with every change", async () => {
@@ -284,7 +280,7 @@ describe("ApplicationForm", () => {
 
       await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
 
-      const gender = await card.findByRole("combobox", { name: "Gender for room allocation *" })
+      const gender = await card.findByRole("combobox", { name: "Gender *" })
       await screen.findByText("Choose Woman or Man.")
       expect(gender).toHaveFocus()
       expect(gender).toHaveAttribute("aria-invalid", "true")
@@ -304,7 +300,7 @@ describe("ApplicationForm", () => {
       await userEvent.type(card.getByLabelText("First name *"), "Jana")
       await userEvent.type(card.getByLabelText("Last name *"), "Nováková")
       await userEvent.type(card.getByLabelText("Date of birth *"), "2012-05-01")
-      await userEvent.click(card.getByRole("combobox", { name: "Gender for room allocation *" }))
+      await userEvent.click(card.getByRole("combobox", { name: "Gender *" }))
       await userEvent.click(await screen.findByRole("option", { name: "Woman" }))
 
       await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
@@ -372,7 +368,7 @@ describe("ApplicationForm", () => {
       const card = within(participantCard(1))
       expect(
         card.getByText(
-          "Tick this if room assignment by gender doesn’t suit you. Only the event organizers will see it.",
+          "If room assignment by gender doesn’t suit you. Only the organizers will see it.",
         ),
       ).toBeInTheDocument()
       expect(note()).not.toBeInTheDocument()
@@ -382,7 +378,7 @@ describe("ApplicationForm", () => {
       )
       expect(note()).toBeInTheDocument()
       // The gender stays required next to it.
-      expect(card.getByRole("combobox", { name: "Gender for room allocation *" })).toBeVisible()
+      expect(card.getByRole("combobox", { name: "Gender *" })).toBeVisible()
     })
 
     it("sits below the terms and shows how much of the 2,000 characters is used", async () => {

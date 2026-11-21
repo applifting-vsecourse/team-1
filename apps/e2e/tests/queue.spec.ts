@@ -13,7 +13,7 @@ test.describe("Queue to evaluate", () => {
     await page.getByLabel("First name").fill("Lenka")
     await page.getByLabel("Last name").fill(`Fronta ${unique}`)
     await page.getByLabel("Date of birth").fill("03/09/2013")
-    await page.getByRole("combobox", { name: "Gender for room allocation" }).click()
+    await page.getByRole("combobox", { name: "Gender" }).click()
     await page.getByRole("option", { name: "Woman", exact: true }).click()
     await page
       .getByRole("group", { name: /Choose at least one term/ })

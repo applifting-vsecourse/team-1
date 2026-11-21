@@ -1,5 +1,6 @@
+import type * as Dnd from "@dnd-kit/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen, within } from "@testing-library/react"
+import { act, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -7,8 +8,28 @@ import type { RoomAssignments, RoomWarning } from "@/features/events/api/room-as
 import type { TermRooms } from "@/features/events/api/rooms"
 import { RoomsOverview } from "@/features/events/components/RoomsOverview"
 
-const { get, del } = vi.hoisted(() => ({ get: vi.fn(), del: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get, delete: del }, apiErrorCode: () => undefined }))
+const { get, put, del } = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), del: vi.fn() }))
+vi.mock("@/lib/api-client", () => ({
+  api: { get, put, delete: del },
+  apiErrorCode: () => undefined,
+}))
+
+// jsdom has no layout, so a drag is driven through the handlers the view gives to the context.
+const { dnd } = vi.hoisted(() => ({
+  dnd: {
+    props: null as null | { onDragStart: (e: unknown) => void; onDragEnd: (e: unknown) => void },
+  },
+}))
+vi.mock("@dnd-kit/core", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, never> & typeof Dnd>()
+  return {
+    ...actual,
+    DndContext: (props: React.ComponentProps<typeof actual.DndContext>) => {
+      dnd.props = props as never
+      return <actual.DndContext {...props} />
+    },
+  }
+})
 
 const LONG_NAME = "Maximiliána Alexandra Hohenlohe-Schillingsfürstová"
 
@@ -121,6 +142,9 @@ beforeEach(() => {
   onShowAssignment.mockReset()
   onEditExtraBeds.mockReset()
   del.mockReset()
+  put.mockReset()
+  put.mockResolvedValue(undefined)
+  del.mockResolvedValue(undefined)
 })
 afterEach(() => vi.unstubAllGlobals())
 
@@ -162,10 +186,10 @@ describe("RoomsOverview (US-36)", () => {
 
     const b = within(await roomCard("Room B"))
     expect(b.getByText("1 / 3")).toBeInTheDocument()
-    // The same badge as in the room assignment (US-80).
-    expect(b.getByText("Extra bed +1")).toHaveAttribute("data-variant", "info")
-    // Right under the capacity, on the right side of the card.
-    expect(b.getByText("Extra bed +1").parentElement).toHaveClass("justify-end")
+    // A quiet chip in the title row, not a row of its own (#542).
+    expect(b.getByText("Extra bed +1").parentElement).toContainElement(
+      b.getByRole("heading", { name: "Room B" }),
+    )
     // Beds above the capacity are extra beds; the last of three beds is the extra one.
     expect(b.getAllByText("Extra bed")).toHaveLength(1)
     expect(b.getAllByText("Free bed")).toHaveLength(2)
@@ -199,7 +223,10 @@ describe("RoomsOverview (US-36)", () => {
     renderOverview()
     await roomCard("Room A")
     expect(screen.getByText("Jana Nováková")).toBeInTheDocument()
-    expect(document.body.textContent).not.toMatch(/individual/i)
+    // The rooms never show it; the list of the unassigned labels it as in the assignment.
+    for (const name of ["Room A", "Room B"]) {
+      expect((await roomCard(name)).textContent).not.toMatch(/individual/i)
+    }
   })
 
   it("tells the shared rooms from the gendered ones", async () => {
@@ -241,6 +268,25 @@ describe("RoomsOverview (US-36)", () => {
     expect(card.getByText(/Overcrowded room/)).toBeInTheDocument()
     await user.click(card.getByRole("button", { name: "Confirm with a note" }))
     expect(await screen.findByRole("dialog")).toBeInTheDocument()
+  })
+
+  it("shows a confirmed warning as an icon in the header of the room with its note in a tooltip", async () => {
+    data.warnings = [
+      warning({
+        acknowledged: true,
+        note: "Family with a child",
+        acknowledgedBy: "Eva Malá",
+        acknowledgedAt: "2026-11-12T10:00:00.000Z",
+      }),
+    ]
+    const user = renderOverview()
+    const card = within(await roomCard("Room B"))
+    const mark = card.getByRole("button", { name: "Overcrowding confirmed" })
+    // In the title row with the name, not in a strip of its own.
+    expect(mark.parentElement).toContainElement(card.getByRole("heading", { name: "Room B" }))
+    expect(card.queryByText("Note: Family with a child")).not.toBeInTheDocument()
+    await user.hover(mark)
+    expect((await screen.findAllByText("Note: Family with a child")).length).toBeGreaterThan(0)
   })
 
   it("has no warning strip when only people without a bed are warned about", async () => {
@@ -303,12 +349,86 @@ describe("RoomsOverview (US-36)", () => {
       expect(onEditExtraBeds).toHaveBeenLastCalledWith("r1")
     })
 
+    const dragFrom = (applicationTermId: string, name: string, fromRoomId: string | null) => ({
+      active: { data: { current: { applicationTermId, name, fromRoomId } } },
+    })
+    const dropOnRoom = (from: ReturnType<typeof dragFrom>, roomId: string) => {
+      act(() => dnd.props?.onDragStart(from))
+      act(() => dnd.props?.onDragEnd({ ...from, over: { data: { current: { roomId } } } }))
+    }
+
+    it("lets a person be dragged from one room to another like in the assignment", async () => {
+      renderOverview()
+      await roomCard("Room A")
+      dropOnRoom(dragFrom("p1", "Jana Nováková", "r1"), "r2")
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p1", {
+        json: { roomId: "r2", alsoTermIds: [] },
+      })
+    })
+
+    it("lets a person without a room be dragged onto a room", async () => {
+      renderOverview()
+      await roomCard("Room A")
+      dropOnRoom(dragFrom("p4", "Barbora Šimková", null), "r1")
+      await waitFor(() => expect(put).toHaveBeenCalled())
+      expect(put).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p4", {
+        json: { roomId: "r1", alsoTermIds: [] },
+      })
+    })
+
+    it("removes a person from the room when they are dropped on the unassigned", async () => {
+      renderOverview()
+      await roomCard("Room A")
+      act(() => dnd.props?.onDragStart(dragFrom("p1", "Jana Nováková", "r1")))
+      act(() =>
+        dnd.props?.onDragEnd({
+          ...dragFrom("p1", "Jana Nováková", "r1"),
+          over: { data: { current: { isUnassigned: true } } },
+        }),
+      )
+      await waitFor(() => expect(del).toHaveBeenCalledOnce())
+    })
+
+    it("gives every person in a room a handle to drag", async () => {
+      renderOverview()
+      const card = within(await roomCard("Room A"))
+      const handle = card.getByText("Jana Nováková").closest("[aria-roledescription=draggable]")
+      expect(handle).not.toBeNull()
+    })
+
+    it("lists all the unassigned people in a full-width section with search, like the assignment", async () => {
+      data.unassigned = Array.from({ length: 12 }, (_, index) => ({
+        ...person(`u${index}`, `Name${index}`, "Unassigned"),
+        alsoInTerms: [],
+      }))
+      const user = renderOverview()
+      await roomCard("Room A")
+      const panel = screen
+        .getByRole("heading", { name: "Unassigned participants" })
+        .closest("div[class*=rounded-lg]")!
+      // All twelve at once, no paging; the search narrows them.
+      expect(
+        within(panel as HTMLElement).getAllByRole("button", { name: /^Assign / }),
+      ).toHaveLength(12)
+      await user.type(
+        screen.getByRole("searchbox", { name: "Search unassigned participants" }),
+        "Name11",
+      )
+      expect(
+        within(panel as HTMLElement).getAllByRole("button", { name: /^Assign / }),
+      ).toHaveLength(1)
+    })
+
     it("hides every control from the paper", async () => {
       renderOverview()
       await roomCard("Room A")
       const area = document.querySelector<HTMLElement>("[data-print-area]")!
-      for (const button of within(area).getAllByRole("button")) {
-        expect(button).toHaveClass("print:hidden")
+      const clickable = within(area)
+        .getAllByRole("button")
+        .filter((button) => button.getAttribute("aria-roledescription") !== "draggable")
+      for (const button of clickable) {
+        expect(button.closest(".print\\:hidden")).not.toBeNull()
       }
     })
 
@@ -351,7 +471,9 @@ describe("RoomsOverview (US-36)", () => {
       await roomCard("Room A")
       expect(summaryList()).toHaveClass("print:hidden")
       // Nothing that is clicked is printed: every button sits inside the hidden toolbar.
-      for (const button of screen.getAllByRole("button")) {
+      for (const button of screen
+        .getAllByRole("button")
+        .filter((item) => item.getAttribute("aria-roledescription") !== "draggable")) {
         expect(button.closest(".print\\:hidden")).not.toBeNull()
       }
     })

@@ -1,5 +1,7 @@
+import type { ReactNode } from "react"
+import { useDraggable, useDroppable } from "@dnd-kit/core"
 import { useQuery } from "@tanstack/react-query"
-import { BedSingle, MoreHorizontal } from "lucide-react"
+import { BedSingle, GripVertical, MoreHorizontal } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { EmptyState } from "@/components/molecules/EmptyState"
@@ -27,7 +29,7 @@ import {
   type UnassignedParticipant,
 } from "@/features/events/api/room-assignments"
 import type { TermRooms } from "@/features/events/api/rooms"
-import { ExtraBeds } from "@/features/events/components/AssignmentParts"
+import { ExtraBeds, type DragData } from "@/features/events/components/AssignmentParts"
 import {
   participantName,
   useAssignmentLabels,
@@ -39,7 +41,13 @@ import {
   type OverviewBed,
 } from "@/features/events/components/room-overview"
 import { useRoomAssignmentActions } from "@/features/events/components/RoomAssignmentActions"
-import { RoomWarningStrip, warningsOfRoom } from "@/features/events/components/RoomWarnings"
+import { RoomDndLayer, useRoomDnd } from "@/features/events/components/RoomDnd"
+import {
+  RoomWarningMark,
+  RoomWarningStrip,
+  warningsOfRoom,
+} from "@/features/events/components/RoomWarnings"
+import { UnassignedPanel } from "@/features/events/components/UnassignedPanel"
 
 // Pokoje (dříve Přehled ubytování): who sleeps where in one term, printable on A4: the rooms as cards
 // like in the room assignment (name, gender, occupancy bar, extra beds) with their beds (people with
@@ -68,6 +76,7 @@ export function RoomsOverview({
   const query = useQuery(roomAssignmentsQueryOptions(term.eventId, term.termId))
   const actions = useRoomAssignmentActions(term)
   const data = query.data
+  const dnd = useRoomDnd(actions, data)
   if (!data) {
     return query.isError ? (
       <ErrorState
@@ -107,7 +116,8 @@ export function RoomsOverview({
     { label: t("roomOverview.free"), value: totals.free, isWide: false },
   ]
 
-  return (
+  const isNobodyAssigned = data.rooms.every((room) => room.participants.length === 0)
+  const body = (
     <section
       className={cn("flex flex-col gap-6 print:text-black", isPrintOnly && "hidden print:flex")}
       data-print-area
@@ -169,6 +179,8 @@ export function RoomsOverview({
                     isPrintOnly
                       ? undefined
                       : {
+                          isEligible: dnd.isEligible(room),
+                          isDragActive: dnd.dragged !== null,
                           warnings: warningsOfRoom(data.warnings, room.id),
                           onAcknowledge: actions.acknowledge,
                           onEditExtraBeds: () => onEditExtraBeds(room.id),
@@ -184,12 +196,20 @@ export function RoomsOverview({
               </li>
             ))}
           </ul>
-          {withoutRoom.length > 0 ? (
-            <WithoutRoomCard
-              people={withoutRoom}
-              onAssign={isPrintOnly ? undefined : (person) => actions.openAssign(person, null)}
+          {isPrintOnly ? null : (
+            <UnassignedPanel
+              className="print:hidden"
+              isFullWidth
+              unassigned={data.unassigned}
+              isAllDone={data.unassigned.length === 0 && !isNobodyAssigned}
+              isNobodyAssigned={isNobodyAssigned}
+              hasRooms={hasRooms}
+              isDragActive={dnd.dragged !== null && dnd.dragged.fromRoomId !== null}
+              onAssign={(person) => actions.openAssign(person, null)}
             />
-          ) : null}
+          )}
+          {/* The paper lists the confirmed people without a room as before. */}
+          {withoutRoom.length > 0 ? <WithoutRoomCard people={withoutRoom} /> : null}
         </>
       ) : (
         <div className="rounded-lg border border-border px-6 print:hidden">
@@ -209,6 +229,7 @@ export function RoomsOverview({
       {isPrintOnly ? null : actions.dialogs(data.rooms)}
     </section>
   )
+  return isPrintOnly ? body : <RoomDndLayer dnd={dnd}>{body}</RoomDndLayer>
 }
 
 /**
@@ -230,6 +251,9 @@ function chunkBeds(beds: OverviewBed[]): OverviewBed[][] {
 
 /** A room like in the room assignment: name and gender, occupancy with a bar, extra beds, people. */
 type RoomControls = {
+  /** Something is being dragged and this room can take them. */
+  isEligible: boolean
+  isDragActive: boolean
   warnings: RoomWarning[]
   onAcknowledge: (warning: RoomWarning, room: AssignmentRoom) => void
   onEditExtraBeds: () => void
@@ -245,7 +269,11 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
   const share = Math.min(100, Math.round((count / Math.max(1, room.beds)) * 100))
   const chunks = chunkBeds(overviewBeds(room))
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card print:block print:h-auto print:overflow-visible print:rounded-none print:border-0">
+    <RoomShell
+      roomId={room.id}
+      controls={controls}
+      className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card print:block print:h-auto print:overflow-visible print:rounded-none print:border-0"
+    >
       {chunks.map((chunk, chunkIndex) => (
         // On screen the pieces are invisible wrappers (`contents`); on paper each is a bordered
         // block that stays on one page, so a header is never left alone at the bottom of a page.
@@ -270,6 +298,15 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
                       ? roomGenderLabel(room.gender)
                       : t("roomOverview.mixed")}
                 </Badge>
+                <ExtraBeds room={room} />
+                {controls?.warnings
+                  .filter((warning) => warning.acknowledged)
+                  .map((warning) => (
+                    <RoomWarningMark
+                      key={warning.kind}
+                      warning={warning}
+                    />
+                  ))}
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm font-semibold whitespace-nowrap">
@@ -314,11 +351,6 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
                   </Button>
                 ) : null}
               </div>
-              {room.extraBeds > 0 ? (
-                <div className="flex justify-end print:hidden">
-                  <ExtraBeds room={room} />
-                </div>
-              ) : null}
             </div>
           ) : (
             // The header repeated on the next page of a room that is longer than one page.
@@ -365,17 +397,26 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
                     : `free-${chunkIndex}-${index}`
                 }
                 bed={bed}
+                roomId={room.id}
                 controls={controls}
               />
             ))}
           </ul>
         </div>
       ))}
-    </div>
+    </RoomShell>
   )
 }
 
-function BedRow({ bed, controls }: { bed: OverviewBed; controls?: RoomControls }) {
+function BedRow({
+  bed,
+  roomId,
+  controls,
+}: {
+  bed: OverviewBed
+  roomId: string
+  controls?: RoomControls
+}) {
   const { t } = useTranslation("events")
   const rowClass =
     "flex items-center gap-3 border-b border-border px-4 py-2.5 last:border-b-0 print:border-black/30 print:px-2"
@@ -410,7 +451,11 @@ function BedRow({ bed, controls }: { bed: OverviewBed; controls?: RoomControls }
         aria-hidden
         className="size-3 shrink-0 rounded-full bg-primary print:hidden"
       />
-      <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+      <NameCell
+        participant={participant}
+        roomId={roomId}
+        isDraggable={controls !== undefined}
+      >
         <span className="break-words">{participantName(participant)}</span>
         {participant.status === "TO_EVALUATE" ? (
           <Badge
@@ -420,7 +465,7 @@ function BedRow({ bed, controls }: { bed: OverviewBed; controls?: RoomControls }
             {t("roomAssignments.statusToEvaluate")}
           </Badge>
         ) : null}
-      </span>
+      </NameCell>
       <BirthYear year={participant.birthYear} />
       {extra}
       {controls ? (
@@ -455,17 +500,11 @@ function BedRow({ bed, controls }: { bed: OverviewBed; controls?: RoomControls }
 }
 
 /** The confirmed people nobody has put in a room yet: name, gender and status, year of birth. */
-function WithoutRoomCard({
-  people,
-  onAssign,
-}: {
-  people: UnassignedParticipant[]
-  onAssign?: (person: UnassignedParticipant) => void
-}) {
+function WithoutRoomCard({ people }: { people: UnassignedParticipant[] }) {
   const { t } = useTranslation("events")
   const { genderLabel, statusLabel } = useAssignmentLabels()
   return (
-    <section className="flex flex-col overflow-hidden rounded-xl border border-border bg-card print:break-inside-avoid print:overflow-visible print:rounded-none print:border-black">
+    <section className="hidden flex-col overflow-hidden rounded-xl border border-border bg-card print:flex print:break-inside-avoid print:overflow-visible print:rounded-none print:border-black">
       <div className="flex items-center gap-2 border-b border-border px-4 py-3 print:border-black print:px-2">
         <h3 className="font-semibold">{t("roomOverview.unassignedTitle")}</h3>
         <Badge
@@ -488,20 +527,7 @@ function WithoutRoomCard({
                 {genderLabel(person.gender)} · {statusLabel(person.status)}
               </span>
             </span>
-            <span className="flex shrink-0 items-center gap-2">
-              <BirthYear year={person.birthYear} />
-              {onAssign ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="print:hidden"
-                  aria-label={t("roomAssignments.assignAria", { name: participantName(person) })}
-                  onClick={() => onAssign(person)}
-                >
-                  {t("roomAssignments.assign")}
-                </Button>
-              ) : null}
-            </span>
+            <BirthYear year={person.birthYear} />
           </li>
         ))}
       </ul>
@@ -516,6 +542,121 @@ function BirthYear({ year }: { year: number }) {
     <span className="shrink-0 text-sm text-muted-foreground print:text-black/70">
       <span className="print:hidden">{t("roomOverview.born", { year })}</span>
       <span className="hidden print:inline">{year}</span>
+    </span>
+  )
+}
+
+/** A room is a drop target while a person is dragged (a full one asks for an extra bed). */
+function RoomShell({
+  roomId,
+  controls,
+  className,
+  children,
+}: {
+  roomId: string
+  controls?: RoomControls
+  className: string
+  children: ReactNode
+}) {
+  return controls ? (
+    <DropShell
+      roomId={roomId}
+      controls={controls}
+      className={className}
+    >
+      {children}
+    </DropShell>
+  ) : (
+    <div className={className}>{children}</div>
+  )
+}
+
+function DropShell({
+  roomId,
+  controls,
+  className,
+  children,
+}: {
+  roomId: string
+  controls: RoomControls
+  className: string
+  children: ReactNode
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: `room:${roomId}`, data: { roomId } })
+  const isDropping = controls.isEligible && isOver
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        className,
+        controls.isDragActive &&
+          controls.isEligible &&
+          (isDropping ? "bg-accent outline-2 -outline-offset-2 outline-ring" : "bg-muted"),
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+/** The name of a person in a room; on screen it is the handle to drag them to another room. */
+function NameCell({
+  participant,
+  roomId,
+  isDraggable,
+  children,
+}: {
+  participant: AssignmentParticipant
+  roomId: string
+  isDraggable: boolean
+  children: ReactNode
+}) {
+  const className = "flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1"
+  return isDraggable ? (
+    <DraggableName
+      participant={participant}
+      roomId={roomId}
+      className={className}
+    >
+      {children}
+    </DraggableName>
+  ) : (
+    <span className={className}>{children}</span>
+  )
+}
+
+function DraggableName({
+  participant,
+  roomId,
+  className,
+  children,
+}: {
+  participant: AssignmentParticipant
+  roomId: string
+  className: string
+  children: ReactNode
+}) {
+  const data: DragData = {
+    applicationTermId: participant.applicationTermId,
+    name: participantName(participant),
+    fromRoomId: roomId,
+  }
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `bed:${participant.applicationTermId}`,
+    data,
+  })
+  return (
+    <span
+      {...attributes}
+      {...listeners}
+      ref={setNodeRef}
+      className={cn(className, "cursor-grab touch-manipulation", isDragging && "opacity-40")}
+    >
+      <GripVertical
+        className="size-3.5 shrink-0 text-muted-foreground print:hidden"
+        aria-hidden
+      />
+      {children}
     </span>
   )
 }

@@ -149,7 +149,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
           name={`participants.${index}.gender`}
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center gap-1">
+              <div className="flex h-5 items-center gap-1">
                 <FormLabel>{t("form.gender")}</FormLabel>
                 <GenderHelp index={index} />
               </div>
@@ -347,7 +347,7 @@ function GenderHelp({ index }: { index: number }) {
           type="button"
           variant="ghost"
           size="icon"
-          className="size-7"
+          className="-my-1 size-6"
           aria-label={t("form.genderHelpLabel")}
         >
           <Info
@@ -362,13 +362,14 @@ function GenderHelp({ index }: { index: number }) {
         onCloseAutoFocus={(event) => event.preventDefault()}
       >
         <p>{t("form.genderHelp")}</p>
-        <button
+        <Button
           type="button"
-          className="text-left font-medium text-link underline underline-offset-2"
+          variant="outline"
+          className="h-auto justify-start py-2 text-left whitespace-normal"
           onClick={jump}
         >
           {t("form.genderHelpLink")}
-        </button>
+        </Button>
       </PopoverContent>
     </Popover>
   )

@@ -26,7 +26,7 @@ import {
   participantName,
   useAssignmentLabels,
 } from "@/features/events/components/room-assignment-labels"
-import { RoomWarningStrip } from "@/features/events/components/RoomWarnings"
+import { RoomWarningMark, RoomWarningStrip } from "@/features/events/components/RoomWarnings"
 
 /** What is being dragged: a participant of the unassigned list, or one taken out of a room. */
 export type DragData = { applicationTermId: string; name: string; fromRoomId: string | null }
@@ -265,7 +265,12 @@ function Chips({
 export function ExtraBeds({ room }: { room: AssignmentRoom }) {
   const { t } = useTranslation("events")
   return room.extraBeds > 0 ? (
-    <Badge variant="info">{t("roomAssignments.extraBeds", { count: room.extraBeds })}</Badge>
+    <Badge
+      variant="info"
+      className="print:hidden"
+    >
+      {t("roomAssignments.extraBeds", { count: room.extraBeds })}
+    </Badge>
   ) : null
 }
 
@@ -316,25 +321,38 @@ function Occupancy({
   )
 }
 
-function WarningLabels({ kinds }: { kinds: RoomWarning["kind"][] }) {
+export function WarningLabels({ warnings }: { warnings: RoomWarning[] }) {
   const { t } = useTranslation("events")
+  const kinds = openKinds(warnings)
   const chips = [
     kinds.includes("OVERCROWDED") ? t("roomWarnings.overcrowdedLabel") : null,
     kinds.includes("MIXED_GENDER") ? t("roomWarnings.mixedGenderLabel") : null,
   ].filter((label): label is string => label !== null)
-  return chips.map((label) => (
-    <Badge
-      key={label}
-      variant="warning"
-      className="gap-1"
-    >
-      <AlertTriangle
-        className="size-3"
-        aria-hidden
-      />
-      {label}
-    </Badge>
-  ))
+  return (
+    <>
+      {chips.map((label) => (
+        <Badge
+          key={label}
+          variant="warning"
+          className="gap-1"
+        >
+          <AlertTriangle
+            className="size-3"
+            aria-hidden
+          />
+          {label}
+        </Badge>
+      ))}
+      {warnings
+        .filter((warning) => warning.acknowledged)
+        .map((warning) => (
+          <RoomWarningMark
+            key={warning.kind}
+            warning={warning}
+          />
+        ))}
+    </>
+  )
 }
 
 /** Warning strips of a room; marked for the jump from the summary. */
@@ -422,7 +440,7 @@ export function RoomTableRow({
             : isEligible && isDragActive
               ? "bg-muted"
               : isWarned && "bg-status-warning-bg hover:bg-status-warning-bg",
-          warnings.length > 0 && "border-b-0",
+          openKinds(warnings).length > 0 && "border-b-0",
         )}
       >
         <TableCell
@@ -436,7 +454,7 @@ export function RoomTableRow({
             <span className="min-w-6 text-right font-bold tabular-nums">{room.name}</span>
             {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
             {room.individual ? <Badge variant="secondary">{t("rooms.individual")}</Badge> : null}
-            <WarningLabels kinds={openKinds(warnings)} />
+            <WarningLabels warnings={warnings} />
           </div>
         </TableCell>
         <TableCell className="min-w-40 whitespace-normal">
@@ -459,7 +477,7 @@ export function RoomTableRow({
           <div className="flex items-center justify-end gap-1">{actions}</div>
         </TableCell>
       </TableRow>
-      {warnings.length > 0 ? (
+      {openKinds(warnings).length > 0 ? (
         <TableRow className="hover:bg-transparent">
           <TableCell
             colSpan={4}
@@ -519,7 +537,7 @@ export function RoomCard({
           <span className="font-semibold break-words">{room.name}</span>
           {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
           {room.individual ? <Badge variant="secondary">{t("rooms.individual")}</Badge> : null}
-          <WarningLabels kinds={kinds} />
+          <WarningLabels warnings={warnings} />
         </div>
         <div className="flex items-center gap-3">
           <span className="relative px-2 py-1 text-sm font-semibold whitespace-nowrap tabular-nums">

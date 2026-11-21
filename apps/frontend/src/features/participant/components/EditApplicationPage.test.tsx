@@ -307,14 +307,14 @@ describe("EditApplicationPage", () => {
       await user.click(await box())
       expect(
         screen.getByText(
-          "Tick this if room assignment by gender doesn’t suit you. Only the event organizers will see it.",
+          "If room assignment by gender doesn’t suit you. Only the organizers will see it.",
         ),
       ).toBeInTheDocument()
       expect(note()).toBeInTheDocument()
       expect(
         screen.getByText("Write what would suit you. You don’t have to give reasons."),
       ).toBeVisible()
-      expect(screen.getByText(/Want to room with friends\?/)).toBeVisible()
+      expect(screen.getByText(/Roommate wishes come later/)).toBeVisible()
       await user.click(await box())
       expect(note()).not.toBeInTheDocument()
       expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled()

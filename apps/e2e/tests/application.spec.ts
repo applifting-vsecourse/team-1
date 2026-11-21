@@ -45,7 +45,7 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await page.getByLabel("First name").fill("Karel")
     await page.getByLabel("Last name").fill(`Novotný ${unique}`)
     await page.getByLabel("Date of birth").fill("12/05/2012")
-    await page.getByRole("combobox", { name: "Gender for room allocation" }).click()
+    await page.getByRole("combobox", { name: "Gender" }).click()
     await page.getByRole("option", { name: "Man", exact: true }).click()
     await page
       .getByRole("group", { name: /Choose at least one term/ })

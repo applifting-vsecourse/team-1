@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { notify } from "@/lib/notify"
 import { roomCapacityIncreaseKey, type RoomCapacityIncrease } from "@/lib/room-capacity-increase"
@@ -232,28 +232,28 @@ export function RoomsPage({
   // A new view only has to be added to the switcher; it gets the print button without more work.
   const viewBar = (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end print:hidden">
-      <Tabs
+      <ToggleGroup
+        type="single"
+        variant="default"
+        spacing={2}
+        aria-label={t("roomOverview.views")}
+        className="max-w-full justify-start rounded-none border-b max-sm:w-full"
         value={view}
-        onValueChange={(next) => onSelectView(next === "overview" ? "overview" : "assignment")}
+        onValueChange={(next) => {
+          // Pressing the active view again must not leave the group empty.
+          if (next === "assignment" || next === "overview") onSelectView(next)
+        }}
       >
-        <TabsList
-          aria-label={t("roomOverview.views")}
-          className="h-11 w-full p-1 sm:w-auto"
-        >
-          <TabsTrigger
-            value="assignment"
-            className="px-4"
+        {(["assignment", "overview"] as const).map((item) => (
+          <ToggleGroupItem
+            key={item}
+            value={item}
+            className="h-auto rounded-none border-0 border-b border-border px-3 py-2 text-sm leading-5 font-medium shadow-none hover:bg-wash hover:text-foreground focus-visible:border-2 focus-visible:border-ring focus-visible:ring-0 data-[state=on]:border-b-2 data-[state=on]:border-primary data-[state=on]:bg-transparent data-[state=on]:text-link max-sm:flex-1"
           >
-            {t("roomOverview.viewAssignment")}
-          </TabsTrigger>
-          <TabsTrigger
-            value="overview"
-            className="px-4"
-          >
-            {t("roomOverview.viewOverview")}
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+            {t(item === "assignment" ? "roomOverview.viewAssignment" : "roomOverview.viewOverview")}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
       <div className="sm:w-60">{termSelect}</div>
       <Button
         variant="outline"

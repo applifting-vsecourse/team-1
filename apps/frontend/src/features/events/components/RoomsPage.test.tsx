@@ -181,10 +181,10 @@ describe("accommodation by term", () => {
   it("switches between Assignment and Rooms with a switcher left of the term (#542)", async () => {
     const { user, onSelectView } = renderRooms("t1")
     await screen.findByRole("table")
-    const views = screen.getByRole("tablist", { name: "Accommodation view" })
-    const assignment = within(views).getByRole("tab", { name: "Assignment" })
-    const rooms = within(views).getByRole("tab", { name: "Rooms" })
-    expect(assignment).toHaveAttribute("aria-selected", "true")
+    const views = screen.getByRole("radiogroup", { name: "Accommodation view" })
+    const assignment = within(views).getByRole("radio", { name: "Assignment" })
+    const rooms = within(views).getByRole("radio", { name: "Rooms" })
+    expect(assignment).toBeChecked()
     const term = screen.getByRole("combobox", { name: "Term" })
     expect(views.compareDocumentPosition(term) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     await user.click(rooms)
@@ -197,7 +197,7 @@ describe("accommodation by term", () => {
       await screen.findByRole("heading", { name: "Gendered room", level: 3 }),
     ).toBeInTheDocument()
     expect(screen.queryByRole("table")).not.toBeInTheDocument()
-    expect(screen.getByRole("tab", { name: "Rooms" })).toHaveAttribute("aria-selected", "true")
+    expect(screen.getByRole("radio", { name: "Rooms" })).toBeChecked()
     expect(screen.getByRole("combobox", { name: "Term" })).toBeInTheDocument()
     expect(get).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments")
   })
@@ -207,10 +207,10 @@ describe("accommodation by term", () => {
     async (view) => {
       const print = vi.spyOn(window, "print").mockImplementation(() => undefined)
       const { user } = renderRooms("t1", view)
-      await screen.findByRole("tablist", { name: "Accommodation view" })
+      await screen.findByRole("radiogroup", { name: "Accommodation view" })
       const button = await screen.findByRole("button", { name: "Print overview" })
       // The button sits in the bar with the switcher, hidden from the paper.
-      expect(button.parentElement).toContainElement(screen.getByRole("tablist"))
+      expect(button.parentElement).toContainElement(screen.getByRole("radiogroup"))
       expect(button.parentElement).toHaveClass("print:hidden")
       // Both views carry the one print sheet of the term.
       await vi.waitFor(() => expect(document.querySelectorAll("[data-print-area]")).toHaveLength(1))
@@ -232,7 +232,7 @@ describe("accommodation by term", () => {
     expect(await screen.findByRole("button", { name: "Print overview" })).toHaveClass(
       "max-sm:w-full",
     )
-    expect(screen.getByRole("tablist")).toHaveClass("w-full")
+    expect(screen.getByRole("radiogroup")).toHaveClass("max-sm:w-full")
   })
 
   it("shows the extra beds in the title only when a room has some, without a +0", async () => {
