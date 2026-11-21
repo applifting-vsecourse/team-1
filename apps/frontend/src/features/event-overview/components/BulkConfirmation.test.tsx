@@ -138,6 +138,21 @@ describe("bulk decisions on the queue (US-107, US-108)", () => {
     ).toBeInTheDocument()
   })
 
+  it("does not carry the selected applications to another term", async () => {
+    setup({ status: "TO_EVALUATE", term: "t1" }, 2)
+    const user = userEvent.setup()
+    await selectAll(user)
+    expect(screen.getByRole("button", { name: "Confirm" })).toBeInTheDocument()
+
+    await user.click(screen.getByRole("combobox", { name: "Term" }))
+    const terms = await screen.findAllByRole("option")
+    await user.click(terms[2]!)
+
+    expect(onFiltersChange).toHaveBeenLastCalledWith({ status: "TO_EVALUATE", term: "t2" })
+    expect(await screen.findByRole("checkbox", { name: /Select all in the filter/ })).not.toBeChecked()
+    expect(screen.queryByRole("button", { name: "Confirm" })).not.toBeInTheDocument()
+  })
+
   it("lets the only term be decided on without choosing it", async () => {
     setup({ status: "TO_EVALUATE" })
     expect(

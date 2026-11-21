@@ -299,6 +299,7 @@ export function ApplicationsPage({
             }))}
             onChange={(next) => {
               setPage(0)
+              if (next.term !== filters.term) setSelectedIds(new Set())
               onFiltersChange(next)
             }}
           />
@@ -551,7 +552,7 @@ export function ApplicationsPage({
                       )}
                     >
                       {bulkTerm && (
-                        <div className="flex min-h-10 items-center">
+                        <div className="flex min-h-11 items-center">
                           <SelectRow
                             row={row}
                             selectedIds={selectedIds}
@@ -682,7 +683,7 @@ function SelectRow({
   const { t } = useTranslation("eventOverview")
   return (
     <Checkbox
-      className="size-6"
+      className="relative size-6 after:absolute after:-inset-2.5 md:after:hidden"
       checked={selectedIds.has(row.id)}
       aria-label={t("bulk.selectRow", { name: `${row.firstName} ${row.lastName}` })}
       onCheckedChange={(checked) => {

@@ -57,13 +57,14 @@ export function ApplicationFilters({
     desktop.addEventListener("change", closeOnDesktop)
     return () => desktop.removeEventListener("change", closeOnDesktop)
   }, [])
+  const isStatusLocked = filters.status === "TO_EVALUATE" || filters.status === "WAITLISTED"
   const options: FilterOption[] = [
     { key: "term", label: t("applications.term"), all: t("applications.allTerms"), values: terms },
     {
       key: "status",
       label: t("applications.status"),
       all: t("applications.allStatuses"),
-      isLocked: filters.status === "TO_EVALUATE" || filters.status === "WAITLISTED",
+      isLocked: isStatusLocked,
       values: [
         { id: "TO_EVALUATE", name: t("applications.toEvaluate") },
         { id: "CONFIRMED", name: t("applications.confirmed") },
@@ -195,8 +196,8 @@ export function ApplicationFilters({
           <Button
             variant="ghost"
             size="lg"
-            disabled={!hasFilters}
-            onClick={() => onChange({})}
+            disabled={activeCount === 0 && !filters.q}
+            onClick={() => onChange(isStatusLocked ? { status: filters.status } : {})}
           >
             {t("applications.clear")}
           </Button>
@@ -220,7 +221,7 @@ export function ApplicationFilters({
         <Button
           variant="ghost"
           size="icon-lg"
-          className="shrink-0"
+          className="hidden shrink-0 md:inline-flex"
           aria-label={t("applications.clear")}
           title={t("applications.clear")}
           onClick={() => onChange({})}
@@ -295,15 +296,19 @@ function FilterFields({
         {option.isLocked ? (
           // A disabled control gets no pointer events, so the tooltip hangs on a wrapper.
           <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="block">{select}</span>
-              </TooltipTrigger>
-              <HelpTooltipContent isLong>{t("applications.statusLocked")}</HelpTooltipContent>
-            </Tooltip>
+            {idPrefix === "mobile" ? (
+              select
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="block">{select}</span>
+                </TooltipTrigger>
+                <HelpTooltipContent isLong>{t("applications.statusLocked")}</HelpTooltipContent>
+              </Tooltip>
+            )}
             <span
               id={`${idPrefix}-filter-${option.key}-locked`}
-              className="sr-only"
+              className={idPrefix === "mobile" ? "text-sm text-muted-foreground" : "sr-only"}
             >
               {t("applications.statusLocked")}
             </span>

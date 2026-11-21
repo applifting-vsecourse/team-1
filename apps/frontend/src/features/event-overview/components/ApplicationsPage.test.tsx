@@ -590,6 +590,18 @@ describe("ApplicationsPage", () => {
       )
     })
 
+    it("clears mobile filters while keeping the evaluation view", async () => {
+      const change = setup([waiting], false, undefined, null, { status: "TO_EVALUATE", term: "t1" })
+      const user = userEvent.setup()
+      await user.click(await screen.findByRole("button", { name: "Filters · 1" }))
+      const sheet = within(screen.getByRole("dialog", { name: "Filters" }))
+      expect(sheet.getByText(/The status is set by the chosen view/)).toBeVisible()
+
+      await user.click(sheet.getByRole("button", { name: "Clear filters" }))
+      expect(change).toHaveBeenLastCalledWith({ status: "TO_EVALUATE" })
+      expect(sheet.getByRole("button", { name: "Clear filters" })).toBeDisabled()
+    })
+
     it("says so when nothing waits", async () => {
       setup([], false, undefined, null, { status: "TO_EVALUATE" })
       expect(await screen.findByText("All applications are evaluated.")).toBeInTheDocument()
