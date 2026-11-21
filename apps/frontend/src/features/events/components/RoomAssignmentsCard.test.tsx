@@ -1,6 +1,14 @@
 import * as Dnd from "@dnd-kit/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { act, createEvent, fireEvent, render, screen, waitFor, within } from "@testing-library/react"
+import {
+  act,
+  createEvent,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -524,9 +532,7 @@ describe("room assignment", () => {
     const user = renderCard()
     await screen.findByRole("table")
     const cards = screen.getAllByRole("list").find((list) => list.classList.contains("lg:hidden"))
-    await user.click(
-      within(cards!).getByRole("button", { name: "Actions for Jana Nováková" }),
-    )
+    await user.click(within(cards!).getByRole("button", { name: "Actions for Jana Nováková" }))
     await user.click(await screen.findByRole("menuitem", { name: "Move to another room…" }))
     const dialog = await screen.findByRole("dialog")
     expect(within(dialog).getByRole("radio", { name: /Room A.*Current room/ })).toBeDisabled()
@@ -542,9 +548,7 @@ describe("room assignment", () => {
     const user = renderCard()
     await screen.findByRole("table")
     const cards = screen.getAllByRole("list").find((list) => list.classList.contains("lg:hidden"))
-    await user.click(
-      within(cards!).getByRole("button", { name: "Actions for Eva Horká" }),
-    )
+    await user.click(within(cards!).getByRole("button", { name: "Actions for Eva Horká" }))
     await user.click(await screen.findByRole("menuitem", { name: "Remove from room" }))
     await waitFor(() =>
       expect(del).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p2"),
