@@ -89,9 +89,9 @@ export function ParticipantTermActions({
 // Figma (Design system v2): #408 Dialog · změna termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-37880 (mobile: 22640-38042)
 // Figma (Design system v2): #408 Dialog · odhlášení termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-38153 (mobile: 22640-38316)
 // Figma (Design system v2): #408 Dialog · žádost o odhlášení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-38428 (mobile: 22640-38601)
-// Figma (Design system): #551 Dialog · změnit termín · zaplaceno · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29562-32740 (mobile: 29562-32885)
-// Figma (Design system): #551 Dialog · odhlásit · zaplaceno · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29562-33218 (mobile: 29562-33357)
-// Figma (Design system): #551 Dialog · žádost o odhlášení · zaplaceno · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29563-33919 (mobile: 29563-34060)
+// Figma (Design system v2): #551 Dialog · změnit termín · zaplaceno · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27256-31092 (mobile: 27256-31244)
+// Figma (Design system v2): #551 Dialog · odhlásit · zaplaceno · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27256-31590 (mobile: 27256-31736)
+// Figma (Design system v2): #551 Dialog · žádost o odhlášení · zaplaceno · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27256-32301 (mobile: 27256-32440)
 export function ParticipantTermChange({
   application,
   mode,

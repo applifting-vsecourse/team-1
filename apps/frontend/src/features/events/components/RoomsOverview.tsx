@@ -48,8 +48,8 @@ import { RoomWarningStrip, warningsOfRoom } from "@/features/events/components/R
 // room warnings use the same dialogs and mutations as the assignment (useRoomAssignmentActions).
 // Individual accommodation (US-38) is deliberately not read here (D-161). All controls are print:hidden.
 // Figma (Design system): #36 / Přehled ubytování · výchozí · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25846-112117 (mobile 25846-112551, print A4 25847-112218 · 25847-112433)
-// Figma (Design system): #542 / Pokoje · výchozí s ovládáním · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29570-118088 (mobile https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29570-118501)
-// Figma (Design system): #542 / Pokoje · nabídka účastníka v pokoji · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29571-118269 (mobile https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29571-118657)
+// Figma (Design system v2): #542 / Pokoje · výchozí s ovládáním · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27273-3956 (mobile https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27273-4515)
+// Figma (Design system v2): #542 / Pokoje · nabídka účastníka v pokoji · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27273-5152 (mobile https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27273-5584)
 export function RoomsOverview({
   term,
   onShowAssignment,

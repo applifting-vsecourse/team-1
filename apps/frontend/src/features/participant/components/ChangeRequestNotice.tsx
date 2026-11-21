@@ -15,7 +15,7 @@ import { participantChangeRequestsQueryOptions } from "@/features/participant/ap
 
 // Figma (Design system v2): #408 Detail · žádost odeslána · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-39109 (mobile: 22640-39243)
 // Figma (Design system v2): US-114 Detail přihlášky · Žádost čeká / Změna schválená / Žádost zamítnutá · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15928-9271 (mobile: 15928-9331)
-// Figma (Design system): #552 Detail · žádost schválena / zamítnuta / čeká · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29558-148950
+// Figma (Design system v2): #552 Detail · žádost schválena / zamítnuta / čeká · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27254-146307
 export function ChangeRequestNotice({
   applicationId,
   terms,

@@ -324,7 +324,7 @@ const individualAnchor = (index: number) => `participant-${index}-individual-acc
  * #528: the short help next to the gender question. A popover, not a tooltip: it holds a link, so it
  * opens by keyboard, touch and screen reader. The link jumps to the individual accommodation box.
  */
-// Figma (Design system): #528 Přihláška · nápověda u pohlaví otevřená · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29565-45366 (mobile: 29565-45442)
+// Figma (Design system v2): #528 Přihláška · nápověda u pohlaví otevřená · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27257-156197 (mobile: 27257-156225)
 function GenderHelp({ index }: { index: number }) {
   const { t } = useTranslation("applicationForm")
   const [isOpen, setIsOpen] = useState(false)

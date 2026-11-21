@@ -71,7 +71,7 @@ export type AccommodationTerm = {
 // Figma (Design system): #530 Ikona přistýlky · podle pohlaví · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26056-112911 (mobile 26064-113690)
 // Figma (Design system): #530 Ikona přistýlky · společné pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113154 (mobile 26064-114034)
 // Figma (Design system): #530 Ikona přistýlky · tooltip a fokus · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113550
-// Figma (Design system): #542 / Rozřazování · přepínač pohledů a tisk · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29570-117675 (mobile https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=29570-117919)
+// Figma (Design system v2): #542 / Rozřazování · přepínač pohledů a tisk · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27272-118788 (mobile https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27272-118920)
 export function RoomsPage({
   eventId,
   termId,
