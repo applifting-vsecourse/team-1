@@ -50,6 +50,17 @@ describe("TermStaySection", () => {
     expect(screen.queryByText(/^Departure /)).not.toBeInTheDocument()
   })
 
+  it("returns keyboard focus to the selected term after closing its dialog", async () => {
+    renderSection([term(), term({ termId: "t2" })])
+    const action = screen.getAllByRole("button", {
+      name: "Add late arrival or early departure",
+    })[1]!
+    await userEvent.click(action)
+    await userEvent.keyboard("{Escape}")
+    await waitFor(() => expect(action).toHaveFocus())
+    expect(put).not.toHaveBeenCalled()
+  })
+
   it("saves a departure only, leaving the arrival empty", async () => {
     renderSection([term()])
     await open()

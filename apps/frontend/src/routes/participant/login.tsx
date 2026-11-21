@@ -1,15 +1,13 @@
-import { createFileRoute, redirect } from "@tanstack/react-router"
+import { createFileRoute, Link, redirect } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
-import { BackLink } from "@/components/molecules/BackLink"
 import { AuthLayout } from "@/components/templates/AuthLayout"
-import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
-import { RequestMagicLinkForm } from "@/features/auth/components/RequestMagicLinkForm"
 import { SignInWithRedirect } from "@/features/auth/components/SignInWithRedirect"
 import { accountHome } from "@/features/auth/lib/account-home"
 
@@ -27,8 +25,9 @@ export const Route = createFileRoute("/participant/login")({
   component: ParticipantLoginPage,
 })
 
-// US-02 (S10). Participant accounts come from a submitted application (US-01);
-// whoever has no password yet (or lost the link) asks for a new link in the second card.
+// US-02 (S10). Participant accounts come from a submitted application (US-01).
+// Figma (Design system v2): US-02 / Přihlášení přihlašovatele · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-2 (mobil 15315-52, chybné údaje 18571-1482)
+// The recovery action opens the existing public magic-link request.
 function ParticipantLoginPage() {
   const { from } = Route.useSearch()
   const { t } = useTranslation("auth")
@@ -37,26 +36,35 @@ function ParticipantLoginPage() {
     <>
       <Seo title={t("participantLogin.title")} />
       <AuthLayout
+        isSingleCard
+        showDivider={false}
         title={t("participantLogin.title")}
-        back={<BackLink to={ROUTES.home}>{t("backHome")}</BackLink>}
         description={t("participantLogin.description")}
       >
-        <div className="flex flex-col gap-4">
-          <Card className="gap-5 p-6">
-            <h2 className="text-lg font-semibold">{t("participantLogin.cardTitle")}</h2>
-            <SignInWithRedirect
-              from={from}
-              accountType="PARTICIPANT"
-              fallback={ROUTES.participant.applications}
-              emailHint={t("participantLogin.emailHint")}
-              passwordHint={t("participantLogin.passwordHint")}
-            />
-          </Card>
-          <Card className="gap-5 p-6">
-            <h2 className="text-lg font-semibold">{t("requestLink.cardTitle")}</h2>
-            <p>{t("requestLink.body")}</p>
-            <RequestMagicLinkForm />
-          </Card>
+        <SignInWithRedirect
+          from={from}
+          accountType="PARTICIPANT"
+          fallback={ROUTES.participant.applications}
+        />
+        <div className="flex flex-col items-start gap-1">
+          <p>{t("participantLogin.noPassword")}</p>
+          <Button
+            asChild
+            variant="ghost"
+            size="lg"
+          >
+            <Link to={ROUTES.participant.magicLink}>{t("participantLogin.requestLink")}</Link>
+          </Button>
+        </div>
+        <div className="flex flex-col items-start gap-4">
+          <p className="text-muted-foreground">{t("participantLogin.otherAccount")}</p>
+          <Button
+            asChild
+            variant="ghost"
+            size="lg"
+          >
+            <Link to={ROUTES.organizer.login}>{t("organizerLogin.title")}</Link>
+          </Button>
         </div>
       </AuthLayout>
     </>

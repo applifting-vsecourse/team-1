@@ -99,6 +99,12 @@ export class OrganizerEventResponseDto {
   @ApiProperty({ enum: ["AUTOMATIC", "MANUAL"], description: "How applications are evaluated." })
   evaluationMode!: EvaluationMode
 
+  @ApiProperty({
+    description:
+      "The organizer has not chosen or confirmed the evaluation mode yet; `evaluationMode` is then only the stored default and the application link stays closed (US-560).",
+  })
+  evaluationModePending!: boolean
+
   @ApiProperty({ type: String, nullable: true, example: "2027-07-01" })
   cancellationStartsOn!: string | null
 
@@ -121,7 +127,7 @@ export class OrganizerEventResponseDto {
   applicationsOpen!: boolean
 
   @ApiProperty({
-    enum: ["TERM", "ROOM"],
+    enum: ["TERM", "ROOM", "EVALUATION_MODE"],
     isArray: true,
     description: "What is still missing before the application link works.",
   })
@@ -154,6 +160,7 @@ export class OrganizerEventResponseDto {
       applicationsOpen: event.applicationsOpen,
       missing: event.missing,
       evaluationMode: event.evaluationMode,
+      evaluationModePending: event.evaluationModePending,
       cancellationStartsOn: event.cancellationStartsOn,
       cancellationTerms: event.cancellationTerms,
       evaluationModeLocked: event.evaluationModeLocked,

@@ -2,7 +2,7 @@
 
 Tento soubor popisuje, jak se obrazovky Togeny převádějí do nového vzhledu. Platí pro každého člověka i agenta, který na redesignu pokračuje, aby každá další obrazovka vypadala, jako by ji udělal stejný autor.
 
-> **Rozsah.** Redesign se dělá přímo v **původním** souboru Design system `P7CQo6rDSptsyLvCR55b8J`. Vzhled komponent a obrazovek je ve stylu shadcn/ui (v kódu PR #112). Od 21. 10. 2026 mají primitivy DS / Primitives hodnoty barev ze souboru „Togena – Remake (Future Teal)“ `Oxlrm0tdW7aWH6C1rbP0fO` (téma Light / Dark); aliasy v DS / Semantic se nemění. Výjimky: primární barva je ztmavená z `#00bba7` na `#007f72` (hover `#006f63`, stisk `#005f55`), aby bílý text tlačítek měl kontrast aspoň 4,5 : 1; text odkazů a info stavů má tmavší `raw/teal-deep` `#006363` kvůli kontrastu a rámeček ovládacích prvků (`raw/control`) zůstal původní kvůli kontrastu 3 : 1.
+> **Rozsah.** Pro nové návrhy a implementaci používej [Design system v2](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15186-2) a konkrétní rámce v2 z podkladů issue. Původní soubor `P7CQo6rDSptsyLvCR55b8J` zachycuje předchozí iteraci. Vzhled komponent a obrazovek je ve stylu shadcn/ui (v kódu PR #112). Od 21. 10. 2026 mají primitivy DS / Primitives hodnoty barev ze souboru „Togena – Remake (Future Teal)“ `Oxlrm0tdW7aWH6C1rbP0fO` (téma Light / Dark); aliasy v DS / Semantic se nemění. Výjimky: primární barva je ztmavená z `#00bba7` na `#007f72` (hover `#006f63`, stisk `#005f55`), aby bílý text tlačítek měl kontrast aspoň 4,5 : 1; text odkazů a info stavů má tmavší `raw/teal-deep` `#006363` kvůli kontrastu a rámeček ovládacích prvků (`raw/control`) zůstal původní kvůli kontrastu 3 : 1.
 
 ## Co se mění a co zůstává
 
@@ -56,7 +56,7 @@ V sidebaru je jen jeden marker: když je otevřená konkrétní akce, nadřazen�
 
 ## Postup práce
 
-1. Načti původní rámec (issue story nebo `// Figma:` komentář v kódu) a jeho texty read-only skriptem.
+1. Načti aktuální rámec v2 z podkladů issue (u staršího `// Figma:` odkazu nejdřív ověř soubor a cílový rámec) a jeho texty read-only skriptem.
 2. Uprav ho podle vzorů výše; kostru aplikace a veřejnou hlavičku přebírej z hotových obrazovek (O01, V07).
 3. Zkontroluj screenshot: oříznuté texty, stíny, zalomení nadpisů.
 4. Ukaž dávku tech leadovi a vyjmenuj odchylky. Kód měň až po schválení.

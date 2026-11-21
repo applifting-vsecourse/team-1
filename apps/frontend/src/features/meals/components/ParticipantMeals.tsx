@@ -4,13 +4,13 @@ import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
@@ -23,7 +23,7 @@ const ALLERGIES_MAX_LENGTH = 1000
 const SPECIAL_REQUEST_MAX_LENGTH = 1000
 
 /** The meal restrictions of the participant of one application: ticked options and allergies. */
-// Figma (Design system): #64 / Stravování · Adam Dvořák / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-11810 (360 px: node-id=19795-11931)
+// Figma (Design system v2): US-64 / Upravit stravování / Desktop · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20697-16009 (360 px: node-id=20697-16148)
 export function ParticipantMeals({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("meals")
   const { data, isPending, error, refetch } = useQuery(ownMealsQueryOptions(applicationId))
@@ -89,75 +89,79 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
 
   return (
     <form
-      className="flex max-w-196 flex-col gap-6"
+      className="flex flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
         mutation.mutate()
       }}
     >
-      <BackLink
-        to={ROUTES.participant.application}
-        params={{ applicationId }}
-      >
-        {t("own.backToApplication")}
-      </BackLink>
       <PageHeader
-        title={t("own.pageTitle")}
-        description={`${meals.firstName} ${meals.lastName} · ${meals.eventName}`}
+        hasBand
+        motif="planning"
+        title={t("own.title", { name: `${meals.firstName} ${meals.lastName}` })}
+        description={meals.eventName}
       />
-      {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
-      <CheckboxRow
-        id="meal-none"
-        label={t("own.noRestrictions")}
-        checked={hasNone}
-        onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
-      />
-      {meals.options.map((option) => (
+      <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
+        <h2 className="text-2xl font-bold tracking-tight">{t("own.restrictions")}</h2>
+        {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
         <CheckboxRow
-          key={option.id}
-          id={`meal-${option.id}`}
-          label={option.name}
-          checked={optionIds.has(option.id)}
-          disabled={hasNone}
-          onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
+          id="meal-none"
+          label={t("own.noRestrictions")}
+          checked={hasNone}
+          onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
         />
-      ))}
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="meal-allergies">{t("own.allergiesLabel")}</Label>
-        <Textarea
-          id="meal-allergies"
-          className="min-h-32"
-          maxLength={ALLERGIES_MAX_LENGTH}
-          disabled={hasNone}
-          value={allergies}
-          onChange={(event) => setAllergies(event.target.value)}
-        />
-      </div>
-      {/* PM-requested addition (US-64), not drawn in Figma. */}
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="meal-special-request">{t("own.specialRequestLabel")}</Label>
-        <Textarea
-          id="meal-special-request"
-          className="min-h-32"
-          maxLength={SPECIAL_REQUEST_MAX_LENGTH}
-          disabled={hasNone}
-          value={specialRequest}
-          onChange={(event) => setSpecialRequest(event.target.value)}
-        />
-      </div>
-      {mutation.error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{mutation.error.message}</AlertDescription>
-        </Alert>
-      ) : null}
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        disabled={mutation.isPending}
-      >
-        {t("own.save")}
-      </Button>
+        {meals.options.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-muted-foreground">{t("own.multiple")}</p>
+            {meals.options.map((option) => (
+              <CheckboxRow
+                key={option.id}
+                id={`meal-${option.id}`}
+                label={option.name}
+                checked={optionIds.has(option.id)}
+                disabled={hasNone}
+                onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
+              />
+            ))}
+          </div>
+        ) : null}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="meal-allergies">{t("own.allergiesLabel")}</Label>
+          <Textarea
+            id="meal-allergies"
+            className="min-h-32"
+            maxLength={ALLERGIES_MAX_LENGTH}
+            disabled={hasNone}
+            value={allergies}
+            onChange={(event) => setAllergies(event.target.value)}
+          />
+        </div>
+        {/* PM-requested addition (US-64), not drawn in Figma. */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="meal-special-request">{t("own.specialRequestLabel")}</Label>
+          <Textarea
+            id="meal-special-request"
+            className="min-h-32"
+            maxLength={SPECIAL_REQUEST_MAX_LENGTH}
+            disabled={hasNone}
+            value={specialRequest}
+            onChange={(event) => setSpecialRequest(event.target.value)}
+          />
+        </div>
+        {mutation.error ? (
+          <Alert variant="destructive">
+            <AlertDescription>{mutation.error.message}</AlertDescription>
+          </Alert>
+        ) : null}
+        <PendingButton
+          isPending={mutation.isPending}
+          type="submit"
+          size="lg"
+          className="w-full sm:w-auto sm:self-start"
+        >
+          {t("own.save")}
+        </PendingButton>
+      </Card>
     </form>
   )
 }

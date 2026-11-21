@@ -41,21 +41,15 @@ import {
 } from "@/features/application-form/lib/application-form-schema"
 
 // Figma (Design system): "DS / Registration participant"
-// V07a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-2708
-// M02a https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-18899
-// M03  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12666-19517 (errors)
-// US-120 gender label + explanation: #245 Údaje účastníka
-//   desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67177
-//   mobile  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67279
-// US-38 individual accommodation (checkbox, hint, note; states: unticked, ticked with a note, note too long)
-//   desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25584-11418
-//   mobile  https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25584-11441
+// V07 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914 (mobile 15507-1033)
+// errors https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15506-544
+// US-120 gender label + explanation and US-38 individual accommodation are kept from their stories.
 
 type ParticipantFieldsProps = {
   /** Position in the form, 0-based. */
   index: number
   terms: PublicTerm[]
-  /** Only the second and later participants can be removed. */
+  /** Any participant can be removed while at least one other participant remains. */
   onRemove?: () => void
   isDisabled?: boolean
 }
@@ -77,9 +71,9 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
   const name = [firstName, lastName].filter(Boolean).join(" ").trim()
 
   return (
-    <Card className="gap-4 p-4 sm:p-6">
+    <Card className="gap-4 p-[15px]">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-lg font-bold">
+        <h3 className="text-2xl font-semibold">
           {name
             ? t("form.participantTitleNamed", { number, name })
             : t("form.participantTitle", { number })}
@@ -146,12 +140,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                   {...field}
                 />
               </FormControl>
-              <div className="flex flex-col">
-                <FormDescription className="text-xs leading-[18px] font-medium">
-                  {t("form.birthDateHint")}
-                </FormDescription>
-                <FormMessage className="text-xs leading-[18px] font-medium" />
-              </div>
+              <FormMessage className="text-xs leading-[18px] font-medium" />
             </FormItem>
           )}
         />
@@ -200,25 +189,32 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
         name={`participants.${index}.termIds`}
         render={({ field, fieldState }) => (
           <FormItem>
-            {/* Tiles: "DS / Term option" https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13196-776 */}
             <fieldset className="grid gap-2">
-              <legend className="mb-2 text-sm leading-5 font-medium">{t("form.terms")}</legend>
+              <legend className="mb-2 text-2xl font-semibold">{t("form.terms")}</legend>
               {terms.map((term) => {
                 const id = `participant-${index}-term-${term.id}`
                 const selected = field.value ?? []
+                const isSelected = selected.includes(term.id)
+                const isInvalid =
+                  fieldState.invalid &&
+                  (fieldState.error?.type !== "duplicate" ||
+                    fieldState.error.types?.termId === term.id)
                 return (
                   <Label
                     key={term.id}
                     htmlFor={id}
                     className={cn(
-                      "min-h-14 cursor-pointer gap-3 rounded-md border border-input bg-card px-4 py-3 text-base leading-6 transition-colors hover:bg-accent has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-primary",
-                      fieldState.invalid && "border-destructive",
+                      "min-h-20 cursor-pointer gap-2 rounded-lg border border-border bg-card p-4 text-sm leading-5 transition-colors hover:bg-accent",
+                      isSelected && "border-2 border-primary bg-accent",
+                      isInvalid && "border-2 border-action-destructive",
+                      isDisabled && "cursor-default opacity-65",
                     )}
                   >
                     <Checkbox
                       id={id}
-                      className="size-5"
-                      checked={selected.includes(term.id)}
+                      className="size-6"
+                      disabled={isDisabled}
+                      checked={isSelected}
                       onCheckedChange={(isChecked) =>
                         field.onChange(
                           isChecked
@@ -227,11 +223,13 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                         )
                       }
                       onBlur={field.onBlur}
-                      aria-invalid={fieldState.invalid}
-                      aria-describedby={fieldState.invalid ? termsMessageId : undefined}
+                      aria-invalid={isInvalid}
+                      aria-describedby={isInvalid ? termsMessageId : undefined}
                     />
-                    <span className="flex flex-1 flex-col">
-                      <span className="font-semibold">
+                    <span className="flex min-w-0 flex-1 flex-col gap-1">
+                      <span
+                        className={cn("font-medium", isSelected && "text-primary dark:text-link")}
+                      >
                         {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
                       </span>
                       {termName(term) ? (
@@ -243,7 +241,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                     </span>
                     <span className="sr-only"> · </span>
                     <TermPrice
-                      className="font-bold"
+                      className="font-medium"
                       amountCzk={term.priceCzk}
                     />
                   </Label>

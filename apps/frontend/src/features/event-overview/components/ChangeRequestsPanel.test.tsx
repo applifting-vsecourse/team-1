@@ -6,7 +6,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { ChangeRequestsPanel } from "@/features/event-overview/components/ChangeRequestsPanel"
 
 const { get, patch } = vi.hoisted(() => ({ get: vi.fn(), patch: vi.fn() }))
-vi.mock("@/lib/api-client", () => ({ api: { get, patch } }))
+vi.mock("@/lib/api-client", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  api: { get, patch },
+}))
 
 const request = {
   id: "r1",
@@ -96,7 +99,26 @@ describe("ChangeRequestsPanel", () => {
   })
 
   it("sends the entered rejection reason", async () => {
-    patch.mockResolvedValue(undefined)
+    let isRejected = false
+    patch.mockImplementation(() => {
+      isRejected = true
+      return Promise.resolve()
+    })
+    get.mockImplementation((path: string) => ({
+      json: () =>
+        Promise.resolve(
+          path.endsWith("/change-requests/r1")
+            ? {
+                ...request,
+                status: "REJECTED",
+                rejectionReason: "Please contact us",
+                reviewedAt: "2027-07-03T13:00:00Z",
+              }
+            : path.endsWith("/change-requests") && !isRejected
+              ? [request]
+              : [],
+        ),
+    }))
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
     render(
       <QueryClientProvider client={client}>
@@ -106,14 +128,22 @@ describe("ChangeRequestsPanel", () => {
     const user = userEvent.setup()
     await user.click(await screen.findByRole("button", { name: "Review request" }))
     const dialog = screen.getByRole("dialog", { name: "Review request" })
+    await user.click(within(dialog).getByRole("button", { name: "Decline request" }))
+    const confirmation = screen.getByRole("dialog", { name: "Decline request" })
+    expect(patch).not.toHaveBeenCalled()
     await user.type(
-      within(dialog).getByRole("textbox", { name: "Reason for declining" }),
+      within(confirmation).getByRole("textbox", { name: "Reason for declining" }),
       "Please contact us",
     )
-    await user.click(within(dialog).getByRole("button", { name: "Decline request" }))
+    await user.click(within(confirmation).getByRole("button", { name: "Decline request" }))
     expect(patch).toHaveBeenCalledWith("organizer/events/e1/change-requests/r1/reject", {
       json: { reason: "Please contact us" },
     })
+    expect(await screen.findByText("Please contact us")).toBeVisible()
+    expect(screen.getByText("Declined")).toBeVisible()
+    await user.click(screen.getByRole("button", { name: "Back to requests" }))
+    expect(await screen.findByText("There are no requests awaiting approval.")).toBeVisible()
+    expect(patch).toHaveBeenCalledTimes(1)
   })
 
   it("shows a health request with the current and the requested note and approves it", async () => {
@@ -170,11 +200,20 @@ describe("ChangeRequestsPanel", () => {
       renderPanel()
       const user = userEvent.setup()
       await user.click(await screen.findByRole("button", { name: "Review request" }))
+      if (_kind === "TERMS") {
+        await user.click(screen.getByRole("button", { name: "Decline request" }))
+      }
       await user.type(screen.getByRole("textbox", { name: "Reason for declining" }), "draft")
+      if (_kind === "TERMS") {
+        await user.click(screen.getByRole("button", { name: /^Back to request$/ }))
+      }
       await user.click(screen.getByRole("button", { name: "Back to requests" }))
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
       expect(patch).not.toHaveBeenCalled()
       await user.click(screen.getByRole("button", { name: "Review request" }))
+      if (_kind === "TERMS") {
+        await user.click(screen.getByRole("button", { name: "Decline request" }))
+      }
       expect(screen.getByRole("textbox", { name: "Reason for declining" })).toHaveValue("")
     })
 

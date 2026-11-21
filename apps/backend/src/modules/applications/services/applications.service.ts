@@ -7,7 +7,7 @@ import { evaluateManualSubmission } from "@/modules/applications/domain/manual-s
 import { isOpenForApplications } from "@/modules/applications/domain/public-event"
 import { evaluateSubmission, isValidBirthDate } from "@/modules/applications/domain/submission"
 import { hasEndedTerm } from "@/modules/applications/domain/term-ended"
-import { termLabel } from "@/modules/applications/domain/term-label"
+import { formatTermDates, termLabel } from "@/modules/applications/domain/term-label"
 import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 import {
   ApplicationsRepository,
@@ -46,6 +46,8 @@ export type ManualApplicationInput = {
   lastName: string
   birthDate: string
   gender: Gender
+  individualAccommodation?: boolean
+  accommodationRequest?: string | null
   terms: { termId: string; status: "CONFIRMED" | "WAITLISTED" }[]
   confirmOverCapacity?: boolean
 }
@@ -76,6 +78,7 @@ export class ApplicationsService {
       !isOpenForApplications({
         termCount: event.terms.length,
         termsWithoutRooms: event.termsWithoutRooms,
+        evaluationModePending: event.evaluationModePending,
       })
     ) {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
@@ -114,6 +117,7 @@ export class ApplicationsService {
       const submitted: ApplicationToSave = {
         ...participant,
         gender: input.gender,
+        ...normalizeAccommodation(input.individualAccommodation, input.accommodationRequest),
         email,
         phone: phone ?? undefined,
         locale,
@@ -171,6 +175,7 @@ export class ApplicationsService {
       !isOpenForApplications({
         termCount: event.terms.length,
         termsWithoutRooms: event.termsWithoutRooms,
+        evaluationModePending: event.evaluationModePending,
       })
     ) {
       throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
@@ -243,6 +248,7 @@ export class ApplicationsService {
    */
   private async sendConfirmation(
     event: {
+      organizationName: string
       name: string
       bankAccount: string
       terms: { id: string; name: string | null; startsOn: string; endsOn: string; number: number }[]
@@ -260,6 +266,7 @@ export class ApplicationsService {
         email,
         locale,
         eventName: event.name,
+        organizationName: event.organizationName,
         bankAccount: event.bankAccount,
         mustSetPassword,
         applications: saved.map((application) => ({
@@ -273,6 +280,7 @@ export class ApplicationsService {
             if (!eventTerm) throw new Error(`Term ${term.termId} is missing in the event`)
             return {
               name: termLabel(eventTerm, locale),
+              dates: formatTermDates(eventTerm.startsOn, eventTerm.endsOn, locale),
               termNumber: eventTerm.number,
               status: term.status,
               priceCzk: term.priceCzk,

@@ -1,13 +1,14 @@
 import { MailCheck, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { ListSkeleton } from "@/components/molecules/ListSkeleton"
+import { LoadingState } from "@/components/molecules/LoadingState"
 import {
   NotificationItem,
   type NotificationItemProps,
 } from "@/components/molecules/NotificationItem"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
 
 export type NotificationRow = Omit<NotificationItemProps, "onOpen" | "onMarkRead"> & {
   id: string
@@ -52,25 +53,14 @@ export function NotificationPanel({
 
   if (state === "loading") {
     return (
-      <div
-        role="status"
-        className="flex flex-col gap-3 rounded-lg border border-border p-4"
-      >
-        {[0, 1, 2].map((row) => (
-          <div
-            key={row}
-            aria-hidden="true"
-            className="flex items-center gap-3"
-          >
-            <Skeleton className="size-10 shrink-0 rounded-full" />
-            <div className="flex flex-1 flex-col gap-2">
-              <Skeleton className="h-3 rounded-full" />
-              <Skeleton className="h-2.5 rounded-full" />
-            </div>
-          </div>
-        ))}
-        <p className="text-sm text-muted-foreground">{t("panel.loading")}</p>
-      </div>
+      <>
+        <div className="md:hidden">
+          <ListSkeleton />
+        </div>
+        <div className="hidden md:block">
+          <LoadingState label={t("panel.loading")} />
+        </div>
+      </>
     )
   }
 

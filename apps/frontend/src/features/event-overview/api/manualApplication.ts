@@ -7,6 +7,8 @@ export type ManualApplicationInput = {
   lastName: string
   birthDate: string
   gender: "FEMALE" | "MALE"
+  individualAccommodation?: boolean
+  accommodationRequest?: string | null
   email: string
   phone: string | null
   consent: true

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { createEventWithTerm } from "./support/event-setup"
+import { chooseEvaluationMode, createEventWithTerm } from "./support/event-setup"
 
 // US-12 event, US-13 terms, US-16 term price, US-14 rooms. The application link works only once
 // the event has a term with a price and a room.
@@ -13,9 +13,7 @@ test.describe("Event setup", () => {
       .getByRole("navigation", { name: "Event sections" })
       .getByRole("link", { name: "Overview" })
       .click()
-    await expect(
-      page.getByRole("heading", { name: "What is missing to open applications" }),
-    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "1/3 done · Capacity setup" })).toBeVisible()
     await expect(page.getByRole("button", { name: /Copy/ })).toHaveCount(0)
   })
 
@@ -27,7 +25,7 @@ test.describe("Event setup", () => {
       .getByRole("navigation", { name: "Event sections" })
       .getByRole("link", { name: "Overview" })
       .click()
-    await page.getByRole("link", { name: "Add a room" }).click()
+    await page.getByRole("link", { name: "Set capacity" }).click()
     await page.getByRole("button", { name: "Add room" }).first().click()
     const dialog = page.getByRole("dialog")
     await dialog.getByLabel("Room name").fill("Pokoj E2E")
@@ -35,11 +33,13 @@ test.describe("Event setup", () => {
     await dialog.getByRole("button", { name: "Add room" }).click()
     await expect(page.getByRole("cell", { name: "Pokoj E2E", exact: true })).toBeVisible()
 
+    // A room alone does not open the link: the evaluation mode has to be chosen too (US-560).
+    await chooseEvaluationMode(page, "Automatic")
     await page
       .getByRole("navigation", { name: "Event sections" })
       .getByRole("link", { name: "Overview" })
       .click()
-    const link = await page.getByRole("link", { name: /\/apply\// }).innerText()
+    const link = await page.getByRole("link", { name: "Open page" }).getAttribute("href")
     await expect(page.getByRole("button", { name: /Copy/ })).toHaveCount(1)
     await page.getByRole("button", { name: "Copy link", exact: true }).click()
     await expect(page.getByText("Link copied to the clipboard")).toBeVisible()

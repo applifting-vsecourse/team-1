@@ -1,11 +1,12 @@
 import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { CircleAlert, Loader2 } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { CircleAlert } from "lucide-react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { DateField } from "@/components/molecules/DateField"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -30,6 +31,7 @@ import { Input } from "@/components/ui/input"
 import { isIsoDate } from "@/lib/date-input"
 
 import type { EventTerm } from "@/features/events/api/terms"
+import { TermRangeCalendar } from "@/features/events/components/TermRangeCalendar"
 import { useCreateTerm, useUpdateTerm } from "@/features/events/hooks/useTermMutations"
 
 const createSchema = (t: TFunction<"events">) =>
@@ -101,6 +103,7 @@ export function TermFormDialog({
       priceCzk: term ? String(term.priceCzk) : "",
     },
   })
+  const [startsOn, endsOn] = useWatch({ control: form.control, name: ["startsOn", "endsOn"] })
   const create = useCreateTerm(eventId)
   const update = useUpdateTerm(eventId, term?.id ?? "")
   const mutation = term ? update : create
@@ -121,7 +124,7 @@ export function TermFormDialog({
       open
       onOpenChange={(isOpen) => (isOpen ? undefined : onClose())}
     >
-      <DialogContent className="gap-4 p-6 sm:max-w-170">
+      <DialogContent className="max-h-dvh max-w-full gap-4 overflow-y-auto p-4 sm:max-h-[calc(100dvh-2rem)] sm:max-w-[800px] sm:p-6">
         <DialogHeader>
           <p className="text-xs font-medium text-muted-foreground uppercase">{eventName}</p>
           <DialogTitle className="text-lg tracking-tight">
@@ -135,85 +138,104 @@ export function TermFormDialog({
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="data-[error=true]:text-foreground">
-                    {t("terms.form.name")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      autoComplete="off"
-                      placeholder={t("terms.form.namePlaceholder")}
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="startsOn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="data-[error=true]:text-foreground">
-                      {t("terms.form.startsOn")}
-                    </FormLabel>
-                    <FormControl>
-                      <DateField {...field} />
-                    </FormControl>
-                    <FormMessage className="text-xs leading-[18px] font-medium" />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="endsOn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="data-[error=true]:text-foreground">
-                      {t("terms.form.endsOn")}
-                    </FormLabel>
-                    <FormControl>
-                      <DateField {...field} />
-                    </FormControl>
-                    <FormMessage className="text-xs leading-[18px] font-medium" />
-                  </FormItem>
-                )}
+            <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,408px)]">
+              <div className="flex min-w-0 flex-col gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="data-[error=true]:text-foreground">
+                        {t("terms.form.name")}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          autoComplete="off"
+                          placeholder={t("terms.form.namePlaceholder")}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>{t("terms.form.nameHint")}</FormDescription>
+                    </FormItem>
+                  )}
+                />
+                <div className="flex flex-col gap-4">
+                  <FormField
+                    control={form.control}
+                    name="startsOn"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="data-[error=true]:text-foreground">
+                          {t("terms.form.startsOn")}
+                        </FormLabel>
+                        <FormControl>
+                          <DateField
+                            {...field}
+                            disabled={mutation.isPending}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs leading-[18px] font-medium" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="endsOn"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="data-[error=true]:text-foreground">
+                          {t("terms.form.endsOn")}
+                        </FormLabel>
+                        <FormControl>
+                          <DateField
+                            {...field}
+                            disabled={mutation.isPending}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs leading-[18px] font-medium" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="priceCzk"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="data-[error=true]:text-foreground">
+                        {t("terms.form.price")}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          min={0}
+                          step={1}
+                          {...field}
+                        />
+                      </FormControl>
+                      {form.formState.errors.priceCzk ? (
+                        <FormMessage className="text-xs leading-[18px] font-medium" />
+                      ) : (
+                        <FormDescription className="text-xs leading-[18px] font-medium">
+                          {t("terms.form.priceHelper")}
+                        </FormDescription>
+                      )}
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <TermRangeCalendar
+                isDisabled={mutation.isPending}
+                startsOn={startsOn}
+                endsOn={endsOn}
+                onChange={(start, end) => {
+                  form.setValue("startsOn", start, { shouldDirty: true })
+                  form.setValue("endsOn", end, { shouldDirty: true })
+                  if (form.formState.isSubmitted) void form.trigger(["startsOn", "endsOn"])
+                }}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="priceCzk"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="data-[error=true]:text-foreground">
-                    {t("terms.form.price")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      step={1}
-                      {...field}
-                    />
-                  </FormControl>
-                  {form.formState.errors.priceCzk ? (
-                    <FormMessage className="text-xs leading-[18px] font-medium" />
-                  ) : (
-                    <FormDescription className="text-xs leading-[18px] font-medium">
-                      {t("terms.form.priceHelper")}
-                    </FormDescription>
-                  )}
-                </FormItem>
-              )}
-            />
-            <p className="text-xs font-medium text-muted-foreground">{t("terms.form.required")}</p>
-
             {mutation.isError ? (
               <Alert variant="destructive">
                 <CircleAlert />
@@ -242,14 +264,17 @@ export function TermFormDialog({
               >
                 {t("terms.form.close")}
               </Button>
-              <Button
+              <PendingButton
                 type="submit"
                 size="lg"
-                disabled={mutation.isPending}
+                isPending={mutation.isPending}
               >
-                {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-                {term ? t("terms.form.save") : t("terms.form.submitAdd")}
-              </Button>
+                {mutation.isPending
+                  ? t("terms.form.saving")
+                  : term
+                    ? t("terms.form.save")
+                    : t("terms.form.submitAdd")}
+              </PendingButton>
             </DialogFooter>
           </form>
         </Form>

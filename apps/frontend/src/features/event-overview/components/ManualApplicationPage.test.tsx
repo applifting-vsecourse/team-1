@@ -46,6 +46,7 @@ const savedTerm: TermStatusDetail = {
   allowedStatuses: [],
   history: [],
   substituteRecords: [],
+  waitlistPosition: null,
 }
 
 async function fillForm(
@@ -447,6 +448,90 @@ describe("ManualApplicationPage", () => {
         terms: [{ termId: "t1", status: "CONFIRMED" }],
         confirmOverCapacity: true,
       },
+    })
+  })
+
+  describe("individual accommodation (#518)", () => {
+    const sent = () => (post.mock.calls.at(-1)?.[1] as { json: Record<string, unknown> }).json
+    const consent = () =>
+      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ })
+
+    it("shows the note only after ticking the request and sends both, trimmed", async () => {
+      setup()
+      const user = userEvent.setup()
+      await fillForm(user)
+      expect(screen.queryByLabelText("Note for the organizer (optional)")).not.toBeInTheDocument()
+      // The organizer fills the form in themselves: the applicant hint of the public form is not shown.
+      expect(screen.queryByText(/Only the event organizer will see this/)).not.toBeInTheDocument()
+
+      await user.click(
+        screen.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
+      )
+      await user.type(
+        screen.getByLabelText("Note for the organizer (optional)"),
+        "  Ground floor please. ",
+      )
+      await user.click(consent())
+      await user.click(screen.getByRole("button", { name: "Create application" }))
+
+      expect(await screen.findByText("Application created")).toBeInTheDocument()
+      expect(sent()).toMatchObject({
+        individualAccommodation: true,
+        accommodationRequest: "Ground floor please.",
+      })
+    })
+
+    it("sends the request without a note as null", async () => {
+      setup()
+      const user = userEvent.setup()
+      await fillForm(user)
+      await user.click(
+        screen.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
+      )
+      await user.click(consent())
+      await user.click(screen.getByRole("button", { name: "Create application" }))
+
+      expect(await screen.findByText("Application created")).toBeInTheDocument()
+      expect(sent()).toMatchObject({
+        individualAccommodation: true,
+        accommodationRequest: null,
+      })
+    })
+
+    it("drops the note when the request is unticked again", async () => {
+      setup()
+      const user = userEvent.setup()
+      await fillForm(user)
+      const request = screen.getByRole("checkbox", {
+        name: "I want to arrange the accommodation individually",
+      })
+      await user.click(request)
+      await user.type(screen.getByLabelText("Note for the organizer (optional)"), "Not needed")
+      await user.click(request)
+      expect(screen.queryByLabelText("Note for the organizer (optional)")).not.toBeInTheDocument()
+      await user.click(consent())
+      await user.click(screen.getByRole("button", { name: "Create application" }))
+
+      expect(await screen.findByText("Application created")).toBeInTheDocument()
+      expect(sent()).not.toHaveProperty("individualAccommodation")
+      expect(sent()).not.toHaveProperty("accommodationRequest")
+    })
+
+    it("rejects a note over 2 000 characters and sends nothing", async () => {
+      setup()
+      const user = userEvent.setup()
+      await fillForm(user)
+      await user.click(
+        screen.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
+      )
+      fireEvent.change(screen.getByLabelText("Note for the organizer (optional)"), {
+        target: { value: "x".repeat(2001) },
+      })
+      await user.click(consent())
+      await user.click(screen.getByRole("button", { name: "Create application" }))
+
+      expect(screen.getByText("The note can have at most 2,000 characters.")).toBeInTheDocument()
+      expect(post).not.toHaveBeenCalled()
     })
   })
 })

@@ -12,7 +12,7 @@ export function ImpactFigure({
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       <dt className="min-w-0 text-sm text-muted-foreground">{label}</dt>
-      <dd className="font-mono text-base font-medium whitespace-nowrap tabular-nums">{children}</dd>
+      <dd className="text-base font-medium whitespace-nowrap tabular-nums">{children}</dd>
     </div>
   )
 }

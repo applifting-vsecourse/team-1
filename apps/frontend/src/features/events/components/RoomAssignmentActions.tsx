@@ -18,7 +18,10 @@ import {
   ExtraBedConfirmDialog,
   type ExtraBedRequest,
 } from "@/features/events/components/ExtraBedConfirmDialog"
-import { participantName } from "@/features/events/components/room-assignment-labels"
+import {
+  participantName,
+  useAssignmentLabels,
+} from "@/features/events/components/room-assignment-labels"
 
 type Term = { eventId: string; termId: string; startsOn: string; endsOn: string }
 
@@ -27,8 +30,13 @@ type Term = { eventId: string; termId: string; startsOn: string; endsOn: string 
  * (Rozřazování and Pokoje): the dialogs for assigning, moving, an extra bed and confirming a
  * warning, the mutations and the invalidation that refreshes both views at once.
  */
-export function useRoomAssignmentActions(term: Term) {
+export function useRoomAssignmentActions(
+  term: Term,
+  /** Called after a person is placed in a room, e.g. to highlight the room in the assignment. */
+  onPlaced?: (room: AssignmentRoom) => void,
+) {
   const { t } = useTranslation("events")
+  const { roomTitle } = useAssignmentLabels()
   const client = useQueryClient()
   const [dialog, setDialog] = useState<{ target: AssignTarget } | null>(null)
   const [extraBed, setExtraBed] = useState<ExtraBedRequest | null>(null)
@@ -48,6 +56,15 @@ export function useRoomAssignmentActions(term: Term) {
     mutationFn: (applicationTermId: string) =>
       unassignRoom(term.eventId, term.termId, applicationTermId),
   })
+  /** The toast and the refresh after a person was placed or moved; the same in both views. */
+  const confirmPlacement = (room: AssignmentRoom, name: string, isMove: boolean) => {
+    onPlaced?.(room)
+    notify.success(
+      t(isMove ? "roomAssignments.moved" : "roomAssignments.assigned"),
+      t("roomAssignments.assignedDescription", { name, room: roomTitle(room) }),
+    )
+    void refresh()
+  }
   const notifyFailure = (error: Error) => notify.error(t("roomAssignments.failed"), error.message)
 
   const toTarget = (
@@ -98,16 +115,7 @@ export function useRoomAssignmentActions(term: Term) {
               checkedTermIds,
             })
           }
-          onDone={async ({ roomTitle: title, isMoved }) => {
-            await refresh()
-            notify.success(
-              t(isMoved ? "roomAssignments.moved" : "roomAssignments.assigned"),
-              t("roomAssignments.assignedDescription", {
-                name: dialog.target.name,
-                room: title,
-              }),
-            )
-          }}
+          onDone={({ room, isMoved }) => confirmPlacement(room, dialog.target.name, isMoved)}
         />
       ) : null}
       {extraBed ? (
@@ -117,13 +125,7 @@ export function useRoomAssignmentActions(term: Term) {
           term={term}
           request={extraBed}
           onClose={() => setExtraBed(null)}
-          onDone={async ({ roomTitle: title, isMoved }) => {
-            await refresh()
-            notify.success(
-              t(isMoved ? "roomAssignments.moved" : "roomAssignments.assigned"),
-              t("roomAssignments.assignedDescription", { name: extraBed.name, room: title }),
-            )
-          }}
+          onDone={({ room, isMoved }) => confirmPlacement(room, extraBed.name, isMoved)}
         />
       ) : null}
       {acknowledging ? (
@@ -145,6 +147,7 @@ export function useRoomAssignmentActions(term: Term) {
   return {
     assign,
     refresh,
+    confirmPlacement,
     notifyFailure,
     openAssign,
     openExtraBed: setExtraBed,

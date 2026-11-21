@@ -1,8 +1,8 @@
 import { useRef, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -23,8 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { formatDate } from "@/lib/date"
-import { termDates, termDatesLine } from "@/lib/term-label"
+import { termLine } from "@/lib/term-label"
 
 import {
   copyProgram,
@@ -33,13 +32,13 @@ import {
   type TermProgram,
 } from "@/features/program/api/program"
 import { previewCopy } from "@/features/program/lib/copy"
-import { timeRange } from "@/features/program/lib/days"
+import { daysOfTerm, formatDayHeader, timeRange } from "@/features/program/lib/days"
 
 const named = (term: TermProgram) => ({ ...term, name: term.termName })
 
 // One step: pick the source term, the preview of the copy appears below it. With a program already in
 // the target the organizer chooses to add to it or replace it (same as the rooms, D-115).
-// Figma (Design system) US-142: Vybrat zdrojový termín · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=24910-16021
+// Figma v2 US-142: Vybrat zdrojový termín · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-16021
 // Náhled do prázdného programu · 24910-16314 · Přidat ke stávajícím · 24910-16615 · Nahradit · 24910-16923
 // Žádný vhodný zdrojový termín · 24910-17640 · Kopírování se nezdařilo · 24910-18026
 export function CopyProgramDialog({
@@ -56,7 +55,7 @@ export function CopyProgramDialog({
   onClose: () => void
   onCopied: (result: ProgramCopyResult, strategy: ProgramCopyStrategy) => Promise<void>
 }) {
-  const { t } = useTranslation("program")
+  const { t, i18n } = useTranslation("program")
   const cancelRef = useRef<HTMLButtonElement>(null)
   const [sourceId, setSourceId] = useState("")
   const [strategy, setStrategy] = useState<ProgramCopyStrategy>("ADD")
@@ -94,9 +93,9 @@ export function CopyProgramDialog({
           <DialogTitle>{t("copy.title")}</DialogTitle>
         </DialogHeader>
         <div className="flex min-w-0 flex-col gap-4">
-          <dl className="flex min-w-0 flex-col gap-1 rounded-lg border bg-muted p-4">
-            <dt className="text-sm text-muted-foreground">{t("copy.target")}</dt>
-            <dd className="font-medium">{termDatesLine(named(target))}</dd>
+          <dl className="flex min-w-0 flex-col gap-1 rounded-lg bg-accent/50 p-3">
+            <dt className="text-xs text-muted-foreground">{t("copy.target")}</dt>
+            <dd className="text-sm font-semibold">{termLine(named(target))}</dd>
           </dl>
           {candidates.length === 0 ? (
             <Alert>
@@ -124,7 +123,7 @@ export function CopyProgramDialog({
                       key={item.termId}
                       value={item.termId}
                     >
-                      {termDatesLine(named(item))}
+                      {termLine(named(item))}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -140,14 +139,15 @@ export function CopyProgramDialog({
                 <p className="text-sm text-muted-foreground">{t("copy.dayRule")}</p>
               </div>
               {first ? (
-                <div className="flex min-w-0 flex-col gap-1 rounded-lg border bg-muted p-4">
-                  <span className="text-sm text-muted-foreground">
+                <div className="flex min-w-0 flex-col gap-1 rounded-lg border bg-muted p-3 text-sm">
+                  <span className="text-xs text-muted-foreground">
                     {t("copy.firstBlock", {
-                      from: formatDate(first.sourceDate),
-                      to: formatDate(first.date),
+                      day: daysOfTerm(source).indexOf(first.sourceDate) + 1,
+                      from: formatDayHeader(first.sourceDate).date,
+                      to: formatDayHeader(first.date).date,
                     })}
                   </span>
-                  <span className="font-medium">{first.name}</span>
+                  <span className="font-semibold">{first.name}</span>
                   <span>
                     {timeRange(first)}
                     {first.place ? ` · ${first.place}` : ""}
@@ -158,45 +158,54 @@ export function CopyProgramDialog({
                 </div>
               ) : null}
               {hasTargetBlocks ? (
-                <>
+                <div className="flex flex-col gap-2">
+                  <Label
+                    id="copy-program-strategy"
+                    className="text-sm font-semibold"
+                  >
+                    {t("copy.strategy")}
+                  </Label>
                   <RadioGroup
                     value={strategy}
                     onValueChange={(value) => setStrategy(value as ProgramCopyStrategy)}
-                    aria-label={t("copy.strategy")}
+                    aria-labelledby="copy-program-strategy"
                     disabled={mutation.isPending}
                   >
                     {(["ADD", "REPLACE"] as const).map((option) => (
                       <div
                         key={option}
-                        className="flex items-center gap-3"
+                        className="flex min-h-11 items-center gap-3"
                       >
                         <RadioGroupItem
                           id={`copy-program-${option}`}
                           value={option}
+                          className="size-5"
                         />
-                        <Label htmlFor={`copy-program-${option}`}>
+                        <Label
+                          htmlFor={`copy-program-${option}`}
+                          className="text-base font-normal"
+                        >
                           {t(option === "ADD" ? "copy.strategyAdd" : "copy.strategyReplace")}
                         </Label>
                       </div>
                     ))}
                   </RadioGroup>
-                  <Alert variant={isReplacing ? "destructive" : "default"}>
-                    <AlertTitle>
-                      {t(isReplacing ? "copy.replaceHeading" : "copy.addHeading")}
-                    </AlertTitle>
-                    <AlertDescription className={isReplacing ? undefined : "text-foreground"}>
-                      {t(isReplacing ? "copy.replaceBody" : "copy.addBody", {
-                        count: target.blocks.length,
-                      })}
-                    </AlertDescription>
-                  </Alert>
-                </>
+                  <p className="text-sm text-muted-foreground">
+                    {t(isReplacing ? "copy.replaceBody" : "copy.addBody", {
+                      count: target.blocks.length,
+                    })}
+                  </p>
+                </div>
               ) : null}
               {plan.skipped > 0 ? (
                 <Alert variant="warning">
                   <AlertTitle>{t("copy.skippedHeading", { count: plan.skipped })}</AlertTitle>
                   <AlertDescription className="text-foreground">
-                    {t("copy.skippedBody", { days: plan.skippedDays.join(", ") })}
+                    {t("copy.skippedBody", {
+                      days: new Intl.ListFormat(i18n.language, { type: "conjunction" }).format(
+                        plan.skippedDays.map((day) => t("copy.dayNumber", { day })),
+                      ),
+                    })}
                   </AlertDescription>
                 </Alert>
               ) : null}
@@ -216,9 +225,7 @@ export function CopyProgramDialog({
                 </Alert>
               ) : null}
               {count === 0 ? <p>{t("copy.nothingToCopy")}</p> : null}
-              <p className="text-sm text-muted-foreground">
-                {t("copy.sourceUnchanged", { dates: termDates(source) })}
-              </p>
+              <p className="text-sm text-muted-foreground">{t("copy.sourceUnchanged")}</p>
             </div>
           ) : null}
         </div>
@@ -232,23 +239,27 @@ export function CopyProgramDialog({
           <DialogClose asChild>
             <Button
               ref={cancelRef}
-              variant="outline"
+              variant="ghost"
               size="lg"
-              className="sm:w-38"
               disabled={mutation.isPending}
             >
               {t("copy.cancel")}
             </Button>
           </DialogClose>
-          <Button
+          <PendingButton
+            isPending={mutation.isPending}
             size="lg"
+            variant={isReplacing ? "destructive" : "default"}
             className="sm:w-auto"
             disabled={!plan || count === 0 || mutation.isPending}
             onClick={() => mutation.mutate()}
           >
-            {mutation.isPending ? <Loader2 className="animate-spin" /> : null}
-            {isReplacing ? t("copy.replaceConfirm") : t("copy.confirm", { count })}
-          </Button>
+            {mutation.isError
+              ? t("copy.retry")
+              : isReplacing
+                ? t("copy.replaceConfirm")
+                : t("copy.confirm", { count })}
+          </PendingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

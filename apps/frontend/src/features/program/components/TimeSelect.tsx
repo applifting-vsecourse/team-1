@@ -1,90 +1,60 @@
+import { Clock } from "lucide-react"
+import { Select as SelectPrimitive } from "radix-ui"
 import { useTranslation } from "react-i18next"
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem } from "@/components/ui/select"
 
-const HOURS = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, "0"))
-const MINUTES = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, "0"))
+const HALF_HOURS = Array.from({ length: 48 }, (_, index) => {
+  const hours = String(Math.floor(index / 2)).padStart(2, "0")
+  return hours + (index % 2 === 0 ? ":00" : ":30")
+})
 
-const split = (value: string): [string, string] => {
-  const [hours, minutes] = value.split(":")
-  return HOURS.includes(hours ?? "") && /^[0-5]\d$/.test(minutes ?? "")
-    ? [hours ?? "09", minutes ?? "00"]
-    : ["09", "00"]
-}
-
-/**
- * Time as two lists, hours and minutes (every 5 minutes): nothing to type or scroll through by
- * segments. Picking an hour keeps the minutes, so a new time starts at `:00`. Extra props (id, aria-*)
- * land on the hours trigger, so a form label points at it.
- */
+// Figma v2: Time field · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=15271-7309
 export function TimeSelect({
   value,
   onChange,
   ...props
-}: {
-  value: string
-  onChange: (value: string) => void
-} & Omit<React.ComponentProps<typeof SelectTrigger>, "onChange" | "value">) {
-  const { t } = useTranslation("program")
-  const [hours, minutes] = split(value)
-  // A time saved earlier with minutes off the 5-minute grid stays selectable.
-  const minuteOptions = MINUTES.includes(minutes) ? MINUTES : [...MINUTES, minutes].sort()
+}: { value: string; onChange: (value: string) => void } & Omit<
+  React.ComponentProps<typeof Input>,
+  "onChange" | "value"
+>) {
+  const { t } = useTranslation("common")
+
   return (
-    <div className="flex items-center gap-2">
+    <div className="relative">
+      <Input
+        {...props}
+        type="time"
+        step={60}
+        className="w-full min-w-0 pr-12 tabular-nums [&::-webkit-calendar-picker-indicator]:hidden"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
       <Select
-        value={hours}
-        onValueChange={(next) => {
-          onChange(`${next}:${minutes}`)
-        }}
+        value={value}
+        onValueChange={onChange}
+        disabled={props.disabled}
       >
-        <SelectTrigger
-          {...props}
-          className="w-full"
+        {/* The full-width anchor aligns the menu with the field. Only the clock intercepts pointer input. */}
+        <SelectPrimitive.Trigger
+          aria-label={t("dateField.chooseTime")}
+          className="group pointer-events-none absolute inset-0 flex w-full items-center justify-end pr-1 outline-none"
         >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {HOURS.map((hour) => (
+          <span className="pointer-events-auto grid size-11 place-items-center rounded-control text-muted-foreground group-focus-visible:outline-2 group-focus-visible:outline-ring group-disabled:pointer-events-none group-disabled:opacity-45">
+            <Clock
+              aria-hidden="true"
+              className="size-5"
+            />
+          </span>
+        </SelectPrimitive.Trigger>
+        <SelectContent className="max-h-50.5">
+          {HALF_HOURS.map((time) => (
             <SelectItem
-              key={hour}
-              value={hour}
+              key={time}
+              value={time}
             >
-              {hour}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <span
-        aria-hidden
-        className="text-muted-foreground"
-      >
-        :
-      </span>
-      <Select
-        value={minutes}
-        onValueChange={(next) => {
-          onChange(`${hours}:${next}`)
-        }}
-      >
-        <SelectTrigger
-          aria-label={t("minutes")}
-          className="w-full"
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {minuteOptions.map((minute) => (
-            <SelectItem
-              key={minute}
-              value={minute}
-            >
-              {minute}
+              {time}
             </SelectItem>
           ))}
         </SelectContent>

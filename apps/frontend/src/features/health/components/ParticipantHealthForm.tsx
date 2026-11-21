@@ -1,16 +1,17 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useNavigate } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
@@ -29,8 +30,8 @@ const NOTE_MAX_LENGTH = 2000
  * The participant's health restriction: a note and the explicit consent with its processing.
  * Saving is possible only with the consent (an empty note, which removes the data, needs none).
  */
-// Figma (Design system): #68 / Zdravotní omezení · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13334 (360 px: node-id=19795-13459)
-// Figma (Design system): #68 / Zdravotní omezení · souhlas udělen · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19795-13534 (360 px: node-id=19795-13651)
+// Figma (Design system v2): US-68 / Před udělením souhlasu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21218-17181 (360 px: node-id=21218-17327)
+// Figma (Design system v2): US-68 / Souhlas udělen · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21218-17423 (360 px: node-id=21218-17559)
 export function ParticipantHealthForm({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("health")
   const { data, isPending, error, refetch } = useQuery(ownHealthQueryOptions(applicationId))
@@ -108,90 +109,117 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
 
   return (
     <form
-      className="flex max-w-196 flex-col gap-6"
+      className="flex flex-col gap-6"
       onSubmit={(event) => {
         event.preventDefault()
         mutation.mutate()
       }}
     >
-      <BackLink
-        to={ROUTES.participant.application}
-        params={{ applicationId }}
-      >
-        {t("backToApplication")}
-      </BackLink>
       <PageHeader
+        hasBand
+        motif="forms"
         title={t("title")}
         description={`${health.firstName} ${health.lastName} · ${health.eventName}`}
       />
-      {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
-      {isStored ? null : (
-        <CheckboxRow
-          id="health-none"
-          label={t("noRestriction")}
-          checked={hasNone}
-          onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
-        />
-      )}
-      <div className="flex flex-col gap-2">
-        <Label htmlFor={noteId}>{t("noteLabel")}</Label>
-        <Textarea
-          id={noteId}
-          className="min-h-32"
-          maxLength={NOTE_MAX_LENGTH}
-          readOnly={isLocked}
-          disabled={hasNone}
-          value={isLocked ? (health.note ?? "") : note}
-          onChange={(event) => setNote(event.target.value)}
-        />
-      </div>
-      <Alert>
-        <AlertTitle>{t("audienceTitle")}</AlertTitle>
-        <AlertDescription>{t("audienceText")}</AlertDescription>
-      </Alert>
-      <CheckboxRow
-        id="health-consent"
-        label={t("consent")}
-        checked={hasConsent}
-        disabled={isLocked || hasNone}
-        onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
-      />
-      {isStored && pending ? (
+      <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
         <Alert>
-          <AlertTitle>{t("pendingTitle")}</AlertTitle>
-          <AlertDescription>{t("pendingText")}</AlertDescription>
+          <AlertTitle>{t("audienceTitle")}</AlertTitle>
+          <AlertDescription>{t("audienceText")}</AlertDescription>
         </Alert>
-      ) : null}
-      {mutation.error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{mutation.error.message}</AlertDescription>
-        </Alert>
-      ) : null}
-      {isLocked ? (
         <Button
-          type="button"
-          size="lg"
-          variant="outline"
-          className="w-full"
-          disabled={pending !== null}
-          onClick={() => {
-            setIsEditing(true)
-            setNote(health.note ?? "")
-            setHasConsent(false)
-          }}
+          asChild
+          variant="ghost"
+          className="self-start"
         >
-          {t("requestChange")}
+          <Link
+            to={ROUTES.participant.applicationMeals}
+            params={{ applicationId }}
+          >
+            {t("goMeals")}
+          </Link>
         </Button>
-      ) : (
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full"
-          disabled={!canSave || mutation.isPending}
-        >
-          {t(isStored ? "requestSubmit" : "save")}
-        </Button>
-      )}
+        {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
+        {isStored ? null : (
+          <CheckboxRow
+            id="health-none"
+            label={t("noRestriction")}
+            checked={hasNone}
+            onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
+          />
+        )}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor={noteId}>{t("noteLabel")}</Label>
+          <Textarea
+            id={noteId}
+            className="min-h-32"
+            maxLength={NOTE_MAX_LENGTH}
+            readOnly={isLocked}
+            disabled={hasNone}
+            value={isLocked ? (health.note ?? "") : note}
+            onChange={(event) => setNote(event.target.value)}
+          />
+        </div>
+        <CheckboxRow
+          id="health-consent"
+          label={t("consent")}
+          checked={hasConsent}
+          disabled={isLocked || hasNone}
+          onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
+        />
+        {isStored && pending ? (
+          <Alert>
+            <AlertTitle>{t("pendingTitle")}</AlertTitle>
+            <AlertDescription>{t("pendingText")}</AlertDescription>
+          </Alert>
+        ) : null}
+        {mutation.error ? (
+          <Alert variant="destructive">
+            <AlertDescription>{mutation.error.message}</AlertDescription>
+          </Alert>
+        ) : null}
+        {!hasConsent && !isLocked && !hasNone && (
+          <p className="text-sm text-muted-foreground">{t("consentHint")}</p>
+        )}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {isLocked ? (
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              className="w-full sm:w-auto"
+              disabled={pending !== null}
+              onClick={() => {
+                setIsEditing(true)
+                setNote(health.note ?? "")
+                setHasConsent(false)
+              }}
+            >
+              {t("requestChange")}
+            </Button>
+          ) : (
+            <PendingButton
+              isPending={mutation.isPending}
+              type="submit"
+              size="lg"
+              className="w-full sm:w-auto"
+              disabled={!canSave || mutation.isPending}
+            >
+              {t(isStored ? "requestSubmit" : "save")}
+            </PendingButton>
+          )}
+          <Button
+            asChild
+            variant="ghost"
+          >
+            <Link
+              to={ROUTES.participant.application}
+              params={{ applicationId }}
+            >
+              {t("cancelChanges")}
+            </Link>
+          </Button>
+        </div>
+      </Card>
     </form>
   )
 }

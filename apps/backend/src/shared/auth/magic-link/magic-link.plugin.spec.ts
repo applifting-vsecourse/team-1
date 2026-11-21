@@ -55,21 +55,21 @@ describe("magic-link e-mail language", () => {
   it("sends Czech when the request came from the Czech UI, whatever User.locale says", async () => {
     await send({ locale: "cs" }, "en")
 
-    expect(sendEmail.mock.calls[0][1]).toBe("Váš přihlašovací odkaz do Togeny")
+    expect(sendEmail.mock.calls[0][1]).toBe("Odkaz pro přihlášení do Togeny")
     expect(sendEmail.mock.calls[0][2]).toContain('lang="cs"')
   })
 
   it("sends English when the request came from the English UI, whatever User.locale says", async () => {
     await send({ locale: "en" }, "cs")
 
-    expect(sendEmail.mock.calls[0][1]).toBe("Your Togena sign-in link")
+    expect(sendEmail.mock.calls[0][1]).toBe("Your sign-in link for Togena")
     expect(sendEmail.mock.calls[0][2]).toContain('lang="en"')
   })
 
   it("falls back to English when the language is missing", async () => {
     await send(undefined, "cs")
 
-    expect(sendEmail.mock.calls[0][1]).toBe("Your Togena sign-in link")
+    expect(sendEmail.mock.calls[0][1]).toBe("Your sign-in link for Togena")
   })
 })
 

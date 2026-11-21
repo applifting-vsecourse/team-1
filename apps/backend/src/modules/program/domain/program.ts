@@ -77,7 +77,13 @@ export const isDayWithinTerm = (
 export type ProgramCopyStrategy = "ADD" | "REPLACE"
 
 /** Two blocks of the same day whose time overlaps (touching ends do not count). */
-export type ProgramOverlap = { date: string; first: string; second: string }
+export type ProgramOverlap = {
+  date: string
+  first: string
+  second: string
+  startTime: string
+  endTime: string
+}
 
 export type ProgramCopyPlan = {
   /** Copies for the target term, shifted to its days. */
@@ -125,7 +131,13 @@ export function planProgramCopy(
   blocks.forEach((copy, i) => {
     for (const other of [...kept, ...blocks.slice(i + 1)]) {
       if (overlaps(copy, other))
-        found.push({ date: copy.date, first: copy.name, second: other.name })
+        found.push({
+          date: copy.date,
+          first: copy.name,
+          second: other.name,
+          startTime: copy.startTime > other.startTime ? copy.startTime : other.startTime,
+          endTime: copy.endTime < other.endTime ? copy.endTime : other.endTime,
+        })
     }
   })
   return { blocks, skipped, overlaps: found }

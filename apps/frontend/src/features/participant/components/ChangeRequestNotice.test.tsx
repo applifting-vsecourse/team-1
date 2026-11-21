@@ -142,7 +142,7 @@ describe("ChangeRequestNotice", () => {
   })
 
   it.each([
-    ["APPROVED", "Approved", "success"],
+    ["APPROVED", "Approved", "positive"],
     ["REJECTED", "Declined", "danger"],
   ])("colours the %s result chip by its outcome", async (status, label, variant) => {
     renderNotice([request({ status })])

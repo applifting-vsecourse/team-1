@@ -3,6 +3,8 @@ import { z } from "zod"
 
 import { api } from "@/lib/api-client"
 
+import { photoUploadTransport } from "@/features/events/api/photo-upload"
+
 export const eventTermSummarySchema = z.object({
   id: z.string(),
   name: z.string().nullable(),
@@ -43,6 +45,8 @@ export const organizerEventSchema = z.object({
   /** The application link works; otherwise the public page is a 404. */
   applicationsOpen: z.boolean(),
   evaluationMode: evaluationModeSchema,
+  /** The organizer has not chosen the mode yet; `evaluationMode` is then only the stored default (US-560). */
+  evaluationModePending: z.boolean(),
   /** ISO day; null means participant changes do not wait for approval. */
   cancellationStartsOn: z.string().nullable(),
   /** Free text shown to applicants (US-47); null until the organizer writes it. */
@@ -51,7 +55,7 @@ export const organizerEventSchema = z.object({
   evaluationModeLocked: z.boolean(),
   /** At least one application exists; the event can no longer be deleted. */
   hasApplications: z.boolean(),
-  missing: z.array(z.enum(["TERM", "ROOM"])),
+  missing: z.array(z.enum(["TERM", "ROOM", "EVALUATION_MODE"])),
   /** Terms that are still offered, in chronological order. */
   terms: z.array(eventTermSummarySchema),
 })
@@ -163,11 +167,16 @@ export async function savePublicPage(
 }
 
 /** `PUT /api/organizer/events/:eventId/photo` — the image itself is the body (JPEG / PNG, up to 2 MB). */
-export async function uploadEventPhoto(eventId: string, file: File): Promise<OrganizerEvent> {
+export async function uploadEventPhoto(
+  eventId: string,
+  file: File,
+  onProgress?: (fraction: number) => void,
+): Promise<OrganizerEvent> {
   return organizerEventSchema.parse(
     await api
       .put(`organizer/events/${encodeURIComponent(eventId)}/photo`, {
         body: file,
+        ...(onProgress && { fetch: photoUploadTransport(file, onProgress) }),
         headers: { "Content-Type": file.type, "X-File-Name": encodeURIComponent(file.name) },
       })
       .json(),

@@ -1,13 +1,13 @@
 import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { CircleAlert, Loader2 } from "lucide-react"
+import { CircleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -76,16 +76,15 @@ export function RequestMagicLinkForm() {
           )}
         />
 
-        <Button
+        <PendingButton
+          isPending={request.isPending}
           type="submit"
           variant="outline"
           size="lg"
           className="self-start"
-          disabled={request.isPending}
         >
-          {request.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
           {t("requestLink.submit")}
-        </Button>
+        </PendingButton>
 
         {request.isError ? (
           <Alert

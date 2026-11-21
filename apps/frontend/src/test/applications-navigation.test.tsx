@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
   createMemoryHistory,
   createRootRouteWithContext,
@@ -21,6 +21,7 @@ import {
   readApplicationsSearch,
   saveApplicationsSearch,
 } from "@/features/event-overview/lib/applications-search-session"
+import { eventKeys } from "@/features/events/api/events"
 
 vi.mock("@/features/event-overview/components/ApplicationsPage", () => ({
   ApplicationsPage: ({
@@ -61,14 +62,22 @@ function setup(entry = "/organizer/events/e1/applications") {
     }) => void,
     component: Route.options.component,
   })
+  const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } })
+  for (const eventId of ["e1", "e2"]) {
+    queryClient.setQueryData(eventKeys.detail(eventId), { evaluationMode: "MANUAL" })
+  }
   const router = createRouter({
     routeTree: root.addChildren([
       organizer.addChildren([app.addChildren([event.addChildren([overview, applications])])]),
     ]),
     history: createMemoryHistory({ initialEntries: [entry] }),
-    context: { queryClient: new QueryClient() },
+    context: { queryClient },
   })
-  render(<RouterProvider router={router} />)
+  render(
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  )
   return router
 }
 

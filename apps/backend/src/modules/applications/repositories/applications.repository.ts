@@ -58,7 +58,7 @@ export class ApplicationsRepository {
     const event = await this.prisma.event.findUnique({
       where,
       include: {
-        organization: { select: { bankAccount: true } },
+        organization: { select: { name: true, bankAccount: true } },
         terms: {
           where: { cancelledAt: null },
           orderBy: [{ startsOn: "asc" }, { endsOn: "asc" }, { id: "asc" }],
@@ -70,10 +70,12 @@ export class ApplicationsRepository {
     return {
       id: event.id,
       organizationId: event.organizationId,
+      organizationName: event.organization.name,
       name: event.name,
       bankAccount: event.organization.bankAccount,
       evaluationMode: event.evaluationMode,
       termsWithoutRooms: event.terms.filter((term) => term._count.rooms === 0).length,
+      evaluationModePending: event.evaluationModePending,
       terms: event.terms.map(({ id, name, startsOn, endsOn, number, priceCzk }) => ({
         id,
         name,
@@ -260,6 +262,8 @@ export class ApplicationsRepository {
       "APPLICATION_DUPLICATE",
       "Participant is already registered for this term",
       {
+        participantIndex: String(duplicate.participantIndex),
+        termId: duplicate.termId,
         participant: `${duplicate.participant.firstName} ${duplicate.participant.lastName}`,
         term: termLabel(term, locale),
       },

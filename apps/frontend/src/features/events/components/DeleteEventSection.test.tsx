@@ -34,6 +34,7 @@ const base = {
   endsOn: null,
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
+  evaluationModePending: false,
   cancellationStartsOn: null,
   cancellationTerms: null,
   evaluationModeLocked: false,

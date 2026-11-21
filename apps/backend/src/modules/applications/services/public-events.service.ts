@@ -15,6 +15,7 @@ export class PublicEventsService {
       !isOpenForApplications({
         termCount: found.event.terms.length,
         termsWithoutRooms: found.termsWithoutRooms,
+        evaluationModePending: found.evaluationModePending,
       })
     ) {
       throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")

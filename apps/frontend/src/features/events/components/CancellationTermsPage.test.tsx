@@ -24,6 +24,7 @@ const event = {
   endsOn: null,
   applicationsOpen: false,
   evaluationMode: "AUTOMATIC",
+  evaluationModePending: false,
   cancellationStartsOn: null,
   cancellationTerms: null as string | null,
   evaluationModeLocked: false,

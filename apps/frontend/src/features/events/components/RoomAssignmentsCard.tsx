@@ -11,19 +11,19 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core"
 import { useQuery } from "@tanstack/react-query"
-import { ChevronLeft, ChevronRight, Search } from "lucide-react"
+import { Search, X } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { Pagination } from "@/components/molecules/Pagination"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { usePagination } from "@/hooks/usePagination"
-import { notify } from "@/lib/notify"
 
 import {
   roomAssignmentsQueryOptions,
@@ -39,11 +39,7 @@ import {
   UnassignedRow,
   type DragData,
 } from "@/features/events/components/AssignmentParts"
-import {
-  freeBedCount,
-  participantName,
-  useAssignmentLabels,
-} from "@/features/events/components/room-assignment-labels"
+import { freeBedCount, participantName } from "@/features/events/components/room-assignment-labels"
 import { useRoomAssignmentActions } from "@/features/events/components/RoomAssignmentActions"
 import { RoomWarningsSummary, warningsOfRoom } from "@/features/events/components/RoomWarnings"
 
@@ -58,7 +54,7 @@ function useScrolledOut(element: HTMLElement | null): boolean {
   useEffect(() => {
     if (!element || typeof IntersectionObserver === "undefined") return
     const observer = new IntersectionObserver(([entry]) =>
-      setIsOut(entry ? !entry.isIntersecting : false),
+      setIsOut(entry ? !entry.isIntersecting && entry.boundingClientRect.bottom <= 0 : false),
     )
     observer.observe(element)
     return () => observer.disconnect()
@@ -98,9 +94,15 @@ export function RoomAssignmentsCard({
   onAddRoom: () => void
 }) {
   const { t } = useTranslation("events")
-  const { roomTitle } = useAssignmentLabels()
   const query = useQuery(roomAssignmentsQueryOptions(term.eventId, term.termId))
-  const actions = useRoomAssignmentActions(term)
+  const [placement, setPlacement] = useState<{ roomId: string; termId: string; sequence: number }>()
+  const actions = useRoomAssignmentActions(term, (room) =>
+    setPlacement((previous) => ({
+      roomId: room.id,
+      termId: term.termId,
+      sequence: (previous?.sequence ?? 0) + 1,
+    })),
+  )
   const [dragged, setDragged] = useState<DragData | null>(null)
   const [search, setSearch] = useState("")
   const [peopleSearch, setPeopleSearch] = useState("")
@@ -112,7 +114,7 @@ export function RoomAssignmentsCard({
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
   )
 
-  const { assign, refresh, notifyFailure, removeFromRoom } = actions
+  const { assign, notifyFailure, removeFromRoom, confirmPlacement } = actions
   const unassignedList = query.data?.unassigned ?? []
   const foundPeople = unassignedList.filter((participant) =>
     participantName(participant)
@@ -168,17 +170,7 @@ export function RoomAssignmentsCard({
     assign.mutate(
       { applicationTermId: drag.applicationTermId, roomId: room.id },
       {
-        onSuccess: () => {
-          void refresh().then(() =>
-            notify.success(
-              t(drag.fromRoomId ? "roomAssignments.moved" : "roomAssignments.assigned"),
-              t("roomAssignments.assignedDescription", {
-                name: drag.name,
-                room: roomTitle(room),
-              }),
-            ),
-          )
-        },
+        onSuccess: () => confirmPlacement(room, drag.name, drag.fromRoomId !== null),
         onError: notifyFailure,
       },
     )
@@ -199,6 +191,10 @@ export function RoomAssignmentsCard({
   }
   const roomProps = (room: AssignmentRoom) => ({
     room,
+    placementSequence:
+      placement?.roomId === room.id && placement.termId === term.termId
+        ? placement.sequence
+        : undefined,
     isEligible: isEligible(room),
     warnings: warningsOfRoom(data.warnings, room.id),
     onAcknowledge: (warning: RoomWarning, target: AssignmentRoom) =>
@@ -244,7 +240,7 @@ export function RoomAssignmentsCard({
           <div
             role="status"
             aria-label={t("roomAssignments.unassignedTitle")}
-            className="sticky top-14 z-20 -mx-4 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 shadow-sm xl:hidden"
+            className="sticky top-29 z-10 -mx-4 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 shadow-sm md:top-19 xl:hidden"
           >
             <span className="flex-1 text-sm font-medium">
               {t("roomAssignments.unassignedTitle")}
@@ -320,34 +316,15 @@ export function RoomAssignmentsCard({
                   ))}
                 </ul>
                 {paging.pageCount > 1 ? (
-                  <div className="flex items-center justify-between border-t border-border px-2 py-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-lg"
-                      aria-label={t("pagination.previous", { ns: "common" })}
-                      disabled={paging.page === 0}
-                      onClick={() => paging.setPage(paging.page - 1)}
-                    >
-                      <ChevronLeft className="size-5" />
-                    </Button>
-                    <span className="text-base font-medium whitespace-nowrap text-muted-foreground">
-                      {t("roomAssignments.range", {
-                        from: paging.page * paging.pageSize + 1,
-                        to: Math.min((paging.page + 1) * paging.pageSize, paging.total),
-                        count: paging.total,
-                      })}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-lg"
-                      aria-label={t("pagination.next", { ns: "common" })}
-                      disabled={paging.page + 1 === paging.pageCount}
-                      onClick={() => paging.setPage(paging.page + 1)}
-                    >
-                      <ChevronRight className="size-5" />
-                    </Button>
+                  <div className="border-t border-border px-2 py-3">
+                    <Pagination
+                      isCompact
+                      page={paging.page}
+                      pageCount={paging.pageCount}
+                      pageSize={paging.pageSize}
+                      total={paging.total}
+                      onPageChange={paging.setPage}
+                    />
                   </div>
                 ) : null}
               </>
@@ -356,7 +333,7 @@ export function RoomAssignmentsCard({
           <div className="flex min-w-0 flex-1 flex-col gap-3">
             {hasRooms ? (
               <>
-                <div className="relative hidden lg:block lg:w-85">
+                <div className="relative w-full lg:w-85">
                   <Search
                     className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground"
                     aria-hidden
@@ -365,10 +342,22 @@ export function RoomAssignmentsCard({
                     type="search"
                     aria-label={t("roomAssignments.searchLabel")}
                     placeholder={t("roomAssignments.searchPlaceholder")}
-                    className="pl-11"
+                    className="h-12.5 px-11 [&::-webkit-search-cancel-button]:hidden"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                   />
+                  {search && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-1/2 right-0 size-11 -translate-y-1/2"
+                      aria-label={t("roomAssignments.clearSearch")}
+                      onClick={() => setSearch("")}
+                    >
+                      <X aria-hidden />
+                    </Button>
+                  )}
                 </div>
                 {visibleRooms.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("roomAssignments.noMatch")}</p>
@@ -396,7 +385,7 @@ export function RoomAssignmentsCard({
                   </Table>
                 </div>
                 <ul className="flex flex-col gap-3 lg:hidden">
-                  {data.rooms.map((room) => (
+                  {visibleRooms.map((room) => (
                     <RoomCard
                       key={room.id}
                       {...roomProps(room)}

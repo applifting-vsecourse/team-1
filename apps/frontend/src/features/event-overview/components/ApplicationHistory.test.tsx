@@ -99,11 +99,11 @@ describe("ApplicationHistory", () => {
     const items = within(await screen.findByRole("list")).getAllByRole("listitem")
     expect(items).toHaveLength(4)
     expect(get).toHaveBeenCalledWith("organizer/applications/a1/history")
-    expect(items[0]).toHaveTextContent("Jakub Kafka · Refund")
+    expect(items[0]).toHaveTextContent(/^Refund.* · Jakub Kafka$/)
     expect(items[1]).toHaveTextContent("Payment +CZK 2,000")
     expect(items[1]).toHaveTextContent("Cancelled")
-    expect(items[2]).toHaveTextContent("System · Letní týden: Awaiting evaluation → Confirmed")
-    expect(items[3]).toHaveTextContent("jana@example.cz · Application created")
+    expect(items[2]).toHaveTextContent(/^Letní týden: Awaiting evaluation → Confirmed.* · System$/)
+    expect(items[3]).toHaveTextContent(/^Application created.* · jana@example\.cz$/)
   })
 
   it("shows an error with a retry when the history does not load", async () => {

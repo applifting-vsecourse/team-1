@@ -7,7 +7,7 @@
 1. Procesní a stavové modely ([zpracovani-prihlasky](../procesy/zpracovani-prihlasky/README.md)), potom registr [rozhodnutí](../rozhodnuti/README.md).
 2. [KATALOG.md](KATALOG.md): jediný přehled e-mailů. Která zpráva, kdy, komu, v jakém rozsahu. Tabulka „Figma a místo v kódu“ na konci říká, kde je rámec ve Figmě, šablona i odesílání.
 3. [TEXTY.md](TEXTY.md): schválené znění CS a EN, předměty, patičky, kontakty.
-4. Figma (Design system, stránka „HF / 09 E-maily · nový design“), odkazy v katalogu.
+4. Figma ([Design system v2, HF / 06 E-maily](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19678-482)), odkazy na desktopové a mobilní varianty jsou v katalogu.
 5. Kód. Stav realizace a čekající spouštěče jsou v [REALIZACE.md](REALIZACE.md). Kód nikdy nepřepisuje business pravidlo.
 
 ## Co dělat podle situace

@@ -1,6 +1,13 @@
 import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
+import {
+  allEmailsTo,
+  api,
+  connectTestPrisma,
+  hasSentNothingTo,
+  resetAndSeed,
+  signIn,
+} from "@/test/integration/test-api"
 
 type ImportResult = {
   matchedCount: number
@@ -138,6 +145,150 @@ describe("bank statement import (US-42)", () => {
       "UNKNOWN_VARIABLE_SYMBOL",
       "UNSUPPORTED_CURRENCY",
     ])
+  })
+
+  describe("summary variable symbol (US-148)", () => {
+    type Status = "CONFIRMED" | "WAITLISTED" | "ARCHIVED"
+    let participantId: string
+
+    /** An application of the participant account with the first terms of the event in these states. */
+    const createSummaryApplication = async (
+      statuses: Status[],
+    ): Promise<{ number: number; email: string; termNumbers: number[] }> => {
+      const event = await prisma.event.findUniqueOrThrow({
+        where: { id: eventId },
+        include: { terms: { orderBy: { startsOn: "asc" } } },
+      })
+      const email = `summary-${randomUUID()}@example.com`
+      const application = await prisma.application.create({
+        data: {
+          organizationId: event.organizationId,
+          eventId,
+          userId: participantId,
+          accessToken: `summary-test-${randomUUID()}`,
+          firstName: "Summary",
+          lastName: "Test",
+          birthDate: new Date("2000-01-01"),
+          gender: "FEMALE",
+          email,
+          consentAt: new Date(),
+          terms: {
+            create: statuses.map((status, index) => ({
+              organizationId: event.organizationId,
+              termId: event.terms[index].id,
+              status,
+              priceCzk: 1000 * (index + 1),
+            })),
+          },
+        },
+      })
+      return {
+        number: application.number,
+        email,
+        termNumbers: event.terms.slice(0, statuses.length).map((term) => term.number),
+      }
+    }
+
+    const rowsOf = async (number: number): Promise<{ term: number; amountCzk: number }[]> => {
+      const rows = await prisma.payment.findMany({
+        where: { applicationTerm: { application: { number } } },
+        include: { applicationTerm: { include: { term: { select: { number: true } } } } },
+        orderBy: { applicationTerm: { term: { startsOn: "asc" } } },
+      })
+      return rows.map((row) => ({
+        term: row.applicationTerm.term.number,
+        amountCzk: row.amountCzk,
+      }))
+    }
+
+    beforeAll(async () => {
+      participantId = (
+        await prisma.user.findUniqueOrThrow({ where: { email: "ucastnik@example.com" } })
+      ).id
+    })
+
+    it("splits a payment over the terms from the oldest, as one receipt, with one e-mail and a notification per term", async () => {
+      const application = await createSummaryApplication(["CONFIRMED", "CONFIRMED"])
+      const vs = String(application.number * 1000)
+      // 1000 + 2000 owed; 3500 pays both and leaves 500 as an overpayment of the last term (D-087).
+      const response = await upload(statement(String(Date.now()), [[3500, vs]]))
+      expect(await response.json()).toMatchObject({
+        matchedCount: 1,
+        matchedCzk: 3500,
+        overpaidCount: 1,
+        overpaidCzk: 500,
+        unmatchedCount: 0,
+      })
+      expect(await rowsOf(application.number)).toEqual([
+        { term: application.termNumbers[0], amountCzk: 1000 },
+        { term: application.termNumbers[1], amountCzk: 2500 },
+      ])
+      const rows = await prisma.payment.findMany({
+        where: { applicationTerm: { application: { number: application.number } } },
+      })
+      expect(new Set(rows.map((row) => row.receiptId)).size).toBe(1)
+      expect(rows.every((row) => row.source === "BANK_IMPORT" && row.isSummary)).toBe(true)
+      // E-mail no. 8 once for the application, naming both terms that were closed.
+      expect(allEmailsTo(application.email)).toHaveLength(1)
+      const notifications = await prisma.notification.findMany({
+        where: {
+          applicationId: (
+            await prisma.application.findFirstOrThrow({
+              where: { eventId, number: application.number },
+            })
+          ).id,
+        },
+      })
+      expect(notifications).toHaveLength(2)
+      expect(
+        notifications.every((row) => row.type === "PAYMENT" && row.kind === "PAYMENT_RECORDED"),
+      ).toBe(true)
+    })
+
+    it("keeps the shortfall on the latest term and counts the same upload once", async () => {
+      const application = await createSummaryApplication(["CONFIRMED", "CONFIRMED"])
+      const csv = statement(String(Date.now()), [[1500, String(application.number * 1000)]])
+      expect(await (await upload(csv)).json()).toMatchObject({ matchedCount: 1, overpaidCount: 0 })
+      expect(await rowsOf(application.number)).toEqual([
+        { term: application.termNumbers[0], amountCzk: 1000 },
+        { term: application.termNumbers[1], amountCzk: 500 },
+      ])
+      expect(allEmailsTo(application.email)).toHaveLength(1)
+      expect(await (await upload(csv)).json()).toMatchObject({ matchedCount: 0, duplicateCount: 1 })
+      expect(await rowsOf(application.number)).toHaveLength(2)
+      expect(allEmailsTo(application.email)).toHaveLength(1)
+    })
+
+    it("records the whole amount as an overpayment of a waitlisted application and sends no e-mail", async () => {
+      const application = await createSummaryApplication(["WAITLISTED"])
+      const result = await (
+        await upload(statement(String(Date.now()), [[800, String(application.number * 1000)]]))
+      ).json()
+      expect(result).toMatchObject({ matchedCount: 1, overpaidCount: 1, overpaidCzk: 800 })
+      expect(await rowsOf(application.number)).toEqual([
+        { term: application.termNumbers[0], amountCzk: 800 },
+      ])
+      expect(await hasSentNothingTo(application.email)).toBe(true)
+    })
+
+    it("stores a payment as unmatched when no term of the application can take it", async () => {
+      const application = await createSummaryApplication(["ARCHIVED"])
+      const result = await (
+        await upload(statement(String(Date.now()), [[800, String(application.number * 1000)]]))
+      ).json()
+      expect(result).toMatchObject({ matchedCount: 0, unmatchedCount: 1, unmatchedCzk: 800 })
+      expect(await rowsOf(application.number)).toEqual([])
+      const unmatched = (await (
+        await fetch(api(`/organizer/events/${eventId}/bank-transactions/unmatched`), {
+          headers: { Cookie: cookie },
+        })
+      ).json()) as { transactions: { variableSymbol: string; reason: string }[] }
+      expect(
+        unmatched.transactions.find(
+          (row) => row.variableSymbol === String(application.number * 1000),
+        ),
+      ).toMatchObject({ reason: "UNKNOWN_VARIABLE_SYMBOL" })
+    })
   })
 
   it("rejects a file that is not a statement and a missing or foreign session", async () => {

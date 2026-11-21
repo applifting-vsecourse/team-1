@@ -8,11 +8,13 @@ These are rules, not suggestions. When a rule and a "nicer looking" idea disagre
 
 ## Screens come from Figma
 
+Use the verified v2 frames under **Podklady** in the issue. Follow each screen’s interaction notes and the [Motion M01–M30 guide](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=26793-3466) for triggers, timing, results and reduced motion. Apply conditional effects only when their stated condition is met. Keep controls, results and errors available immediately. For interactions without a specified effect, update the state immediately.
+
 This file says how to build; **Figma says what to build.** Every UI story links its frames in the issue, and the screen is implemented as drawn — structure, copy, control types, sizes, states. The rules below fill in only what a frame doesn't spell out (spacing scale, accessibility floor, three list states); they never license redesigning a screen or adding what the design doesn't contain. Process and the `design-reviewer` agent: [`CLAUDE.md`, "UI follows Figma"](CLAUDE.md#ui-follows-figma--dont-invent).
 
 When a frame contradicts a rule below, build the frame and report the conflict in the PR; the tech lead decides which one changes. Decided so far (US-23): public pages are 800 px wide, and type stays on the Tailwind scale even where a frame is a few px off it (the "404" is `text-6xl`, not 64 px).
 
-**Visual style: shadcn look on the original colours.** The frames in the original Figma file are redrawn in the shadcn style ([`docs/FIGMA-REMAKE.md`](docs/FIGMA-REMAKE.md)): original DS colours, cards with a soft shadow, Inter (numbers in JetBrains Mono). The two logo arcs (`ActiveCorners`) mark one active thing — the active sidebar item, the active tab, the current step, the current event card — and nothing else: never rows, controls, badges, buttons, hover or empty states.
+**Visual style: shadcn look on the original colours.** The current frames in [Design system v2](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15186-2) use the shadcn style ([`docs/FIGMA-REMAKE.md`](docs/FIGMA-REMAKE.md)): original DS colours, cards with a soft shadow, Inter for text and numbers. The two logo arcs (`ActiveCorners`) mark one active thing — the active sidebar item, the active tab, the current step, the current event card — and nothing else: never rows, controls, badges, buttons, hover or empty states.
 
 **Tokens live in `apps/frontend/src/styles/global.css`.** That file is the only source of truth for colour, radius and shadows. This file says how to _use_ them.
 
@@ -41,7 +43,7 @@ Use the scale only: `1, 2, 3, 4, 6, 8, 12, 16` (Tailwind units — 4px…64px). 
 
 - One `h1` per page. Headings step down without skipping.
 - Sizes come from the scale: `text-sm` supporting, `text-base` body, `text-lg`/`text-xl` subheads, `text-2xl`+ page titles. Body does not.
-- Inter everywhere; numbers that line up (counts, amounts) may use `font-mono` (JetBrains Mono). Headings use `tracking-tight`.
+- Use Inter for all interface text, including counts, amounts and IDs. Use `tabular-nums` in Inter where digits must align. Headings use `tracking-tight`.
 - Sentence case everywhere. No ALL CAPS except a single small label style (`text-xs uppercase tracking-wider`, e.g. the role in the top bar), used sparingly.
 
 ## Surfaces

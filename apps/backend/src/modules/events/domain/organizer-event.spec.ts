@@ -18,6 +18,7 @@ const stored: StoredEvent = {
   termsWithoutRooms: 0,
   applicationCount: 0,
   evaluationMode: "AUTOMATIC",
+  evaluationModePending: false,
   cancellationStartsOn: null,
   cancellationTerms: null,
   startsOn: null,
@@ -44,6 +45,15 @@ describe("toOrganizerEvent", () => {
     expect(toOrganizerEvent({ ...stored, termCount: 2, termsWithoutRooms: 1 })).toMatchObject({
       applicationsOpen: false,
       missing: ["ROOM"],
+    })
+  })
+
+  it("keeps the link closed and lists the mode until the organizer chooses it (US-560)", () => {
+    expect(
+      toOrganizerEvent({ ...stored, termCount: 2, evaluationModePending: true }),
+    ).toMatchObject({
+      applicationsOpen: false,
+      missing: ["EVALUATION_MODE"],
     })
   })
 

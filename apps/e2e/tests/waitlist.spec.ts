@@ -19,6 +19,36 @@ test.describe("Waitlist", () => {
     await page.goto(`${page.url()}?status=WAITLISTED`)
     await expect(page.getByText(/not a confirmed place/)).toBeVisible()
     await expect(page.getByText("Waitlisted · 1").first()).toBeVisible()
-    await expect(page.getByText("Waitlisted · 2").first()).toBeVisible()
+    const second = page
+      .getByRole("row")
+      .filter({ has: page.getByText("Waitlisted · 2", { exact: true }) })
+      .first()
+    await expect(second).toBeVisible()
+    await second.getByRole("link", { name: "Detail" }).click()
+    await expect(page.getByText("#2 on the waitlist", { exact: true })).toBeVisible()
+    await page.setViewportSize({ width: 360, height: 800 })
+    await expect(page.getByText("#2 on the waitlist", { exact: true })).toBeVisible()
+    const waitlistedTerm = page.getByRole("listitem").filter({
+      has: page.getByText("#2 on the waitlist", { exact: true }),
+    })
+    const [changeTerm, withdraw, confirm] = await Promise.all(
+      ["Change term", "Withdraw", "Confirm"].map((name) =>
+        waitlistedTerm.getByRole("button", { name, exact: true }).evaluate((button) => {
+          const { bottom, top, left, right, width } = button.getBoundingClientRect()
+          return { bottom, top, left, right, width }
+        }),
+      ),
+    )
+
+    expect(changeTerm.bottom).toBeLessThan(withdraw.top)
+    expect(withdraw.top).toBeCloseTo(confirm.top)
+    expect(withdraw.right).toBeLessThan(confirm.left)
+    expect(withdraw.width).toBeCloseTo(confirm.width, 0)
+    expect(changeTerm.left).toBeCloseTo(withdraw.left)
+    expect(changeTerm.right).toBeCloseTo(confirm.right)
+
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(360)
   })
 })

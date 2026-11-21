@@ -137,6 +137,45 @@ describe("organizer adds an application (US-83)", () => {
     }
   })
 
+  it("stores the request for individual accommodation like the public form does (#518)", async () => {
+    const stored = async (override: object) => {
+      const response = await create(input("WAITLISTED", override))
+      expect(response.status).toBe(201)
+      const created = (await response.json()) as Created
+      return prisma.application.findUniqueOrThrow({
+        where: { id: created.applicationId },
+        select: { individualAccommodation: true, accommodationRequest: true },
+      })
+    }
+    expect(
+      await stored({ individualAccommodation: true, accommodationRequest: "  Ground floor. " }),
+    ).toEqual({ individualAccommodation: true, accommodationRequest: "Ground floor." })
+    expect(await stored({ individualAccommodation: true, accommodationRequest: "  " })).toEqual({
+      individualAccommodation: true,
+      accommodationRequest: null,
+    })
+    // The note belongs to the request: without it none is kept.
+    expect(await stored({ accommodationRequest: "Not asked" })).toEqual({
+      individualAccommodation: false,
+      accommodationRequest: null,
+    })
+    expect(await stored({})).toEqual({
+      individualAccommodation: false,
+      accommodationRequest: null,
+    })
+  })
+
+  it("rejects an invalid request for individual accommodation and stores nothing (#518)", async () => {
+    for (const invalid of [
+      { individualAccommodation: "yes" },
+      { individualAccommodation: true, accommodationRequest: "x".repeat(2001) },
+    ]) {
+      const body = input("WAITLISTED", invalid) as { email: string }
+      expect((await create(body)).status).toBe(400)
+      expect(await prisma.application.count({ where: { email: body.email } })).toBe(0)
+    }
+  })
+
   it("creates an application only for the second term without enrolling in the first", async () => {
     const response = await create(
       input("CONFIRMED", { terms: [{ termId: termIds[1], status: "CONFIRMED" }] }),

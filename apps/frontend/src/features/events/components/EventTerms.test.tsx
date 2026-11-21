@@ -33,6 +33,7 @@ const event = {
   endsOn: "2027-08-08",
   applicationsOpen: true,
   evaluationMode: "AUTOMATIC",
+  evaluationModePending: false,
   cancellationStartsOn: null,
   cancellationTerms: null,
   evaluationModeLocked: true,
@@ -110,11 +111,13 @@ describe("EventTerms", () => {
   it("lists active terms with period, price and occupancy, and the cancelled ones apart", async () => {
     renderTerms()
 
-    expect(await screen.findByRole("heading", { name: "Event terms · 2" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: "Terms, prices and occupancy" }),
+    ).toBeInTheDocument()
     expect(screen.getByText("12–18 Jul 2027")).toBeInTheDocument()
-    expect(screen.getByText(/^Letní turnus 1 · /)).toBeInTheDocument()
-    expect(screen.getByText("0 / 60 places")).toBeInTheDocument()
-    expect(screen.getByRole("progressbar", { name: "18 / 60 places" })).toBeInTheDocument()
+    expect(screen.getByText("Letní turnus 1", { exact: true })).toBeInTheDocument()
+    expect(screen.getByText("Occupied 0/60")).toBeInTheDocument()
+    expect(screen.getByRole("progressbar", { name: "Occupied 18/60" })).toBeInTheDocument()
     expect(screen.getByText("Cancelled term")).toBeInTheDocument()
     expect(screen.getByText("Zrušený · 12–18 Jul 2027 · Cancelled")).toBeInTheDocument()
   })
@@ -122,13 +125,13 @@ describe("EventTerms", () => {
   it("highlights a term with more confirmed than beds in red, and leaves a normal one alone", async () => {
     renderTerms([term({ id: "t1", confirmedCount: 63 }), terms[1]])
 
-    const over = await screen.findByText("63 / 60 places")
+    const over = await screen.findByText("Occupied 63/60")
     expect(over).toHaveClass("text-destructive")
-    expect(screen.getByRole("progressbar", { name: "63 / 60 places" })).toHaveClass(
+    expect(screen.getByRole("progressbar", { name: "Occupied 63/60" })).toHaveClass(
       "[&_[data-slot=progress-indicator]]:bg-destructive",
     )
-    expect(screen.getByText("18 / 60 places")).not.toHaveClass("text-destructive")
-    expect(screen.getByRole("progressbar", { name: "18 / 60 places" })).not.toHaveClass(
+    expect(screen.getByText("Occupied 18/60")).not.toHaveClass("text-destructive")
+    expect(screen.getByRole("progressbar", { name: "Occupied 18/60" })).not.toHaveClass(
       "[&_[data-slot=progress-indicator]]:bg-destructive",
     )
   })
@@ -165,6 +168,35 @@ describe("EventTerms", () => {
     })
   })
 
+  it("reflects typed dates in the range and submits the days picked in the calendar", async () => {
+    renderTerms()
+    await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
+    const dialog = within(await screen.findByRole("dialog"))
+    const start = dialog.getByLabelText("Start date *")
+    const end = dialog.getByLabelText("End date *")
+    await userEvent.type(start, "12/07/2027")
+    await userEvent.type(end, "18/07/2027")
+    const calendar = within(dialog.getByRole("region", { name: "Term dates *" }))
+    expect(calendar.getByText("12–18 Jul 2027")).toBeInTheDocument()
+    const grid = within(calendar.getByRole("grid"))
+    await userEvent.click(grid.getByText("19"))
+    expect(start).toHaveValue("19/07/2027")
+    expect(end).toHaveValue("")
+    await userEvent.click(grid.getByText("25"))
+    expect(end).toHaveValue("25/07/2027")
+    expect(calendar.getByText("19–25 Jul 2027")).toBeInTheDocument()
+    await userEvent.type(dialog.getByLabelText("Term price (CZK) *"), "5600")
+    await userEvent.click(dialog.getByRole("button", { name: "Add term" }))
+    await waitFor(() =>
+      expect(sentBodies).toContainEqual({
+        name: "",
+        startsOn: "2027-07-19",
+        endsOn: "2027-07-25",
+        priceCzk: 5600,
+      }),
+    )
+  })
+
   it("has the optional name first, then the dates and the price", async () => {
     window.innerWidth = 360
     renderTerms()
@@ -172,7 +204,7 @@ describe("EventTerms", () => {
     const dialog = await screen.findByRole("dialog")
 
     const dates = within(dialog).getByLabelText("Start date *")
-    const name = within(dialog).getByLabelText("Term name")
+    const name = within(dialog).getByLabelText("Term name (optional)")
     const price = within(dialog).getByLabelText("Term price (CZK) *")
     expect(name).toHaveAttribute("placeholder", "e.g. 1st turn, class 5, ages 8–10")
     expect(name).not.toBeRequired()
@@ -194,7 +226,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "09/08/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "08/08/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "7600")
@@ -210,7 +242,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "31/02/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "15/08/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "7600")
@@ -227,7 +259,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 3")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 3")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "09/08/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "15/08/2027")
     await userEvent.click(within(dialog).getByRole("button", { name: "Add term" }))
@@ -248,7 +280,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name"), "Letní turnus 1")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Letní turnus 1")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "6900")
@@ -270,7 +302,7 @@ describe("EventTerms", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add term" }))
     const dialog = await screen.findByRole("dialog")
 
-    await userEvent.type(within(dialog).getByLabelText("Term name"), "Zdarma")
+    await userEvent.type(within(dialog).getByLabelText("Term name (optional)"), "Zdarma")
     await userEvent.type(within(dialog).getByLabelText("Start date *"), "12/07/2027")
     await userEvent.type(within(dialog).getByLabelText("End date *"), "18/07/2027")
     await userEvent.type(within(dialog).getByLabelText("Term price (CZK) *"), "0")
@@ -281,7 +313,9 @@ describe("EventTerms", () => {
   })
 
   const openCancelDialog = async () => {
-    const row = (await screen.findByText(/^Srpnový turnus · /)).closest("li") as HTMLElement
+    const row = (await screen.findByText("Srpnový turnus", { exact: true })).closest(
+      "li",
+    ) as HTMLElement
     await userEvent.click(within(row).getByRole("button", { name: "Actions for Srpnový turnus" }))
     await userEvent.click(await screen.findByRole("menuitem", { name: "Cancel term" }))
     return screen.findByRole("dialog")

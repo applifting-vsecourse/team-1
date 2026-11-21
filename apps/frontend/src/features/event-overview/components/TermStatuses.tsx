@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 import { termDatesLine } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import {
   termStatusesQueryOptions,
@@ -41,8 +42,9 @@ const POSITIVE = ["WAITLISTED", "CONFIRMED"] as const satisfies TermStatus[]
 /**
  * US-28: status of the application in every term, with the manual changes the status diagram
  * allows and the system log of past changes (who, when, from which status to which).
- * No Figma frame exists for this block yet; built from the kit following DESIGN.md.
+ * Waitlist position is supplied by the same domain calculation as the Applications tab.
  */
+// Figma (Design system): #364 Detail přihlášky · pořadí u termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-89925 (360 px: 22642-90090)
 export function TermStatuses({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("eventOverview")
   const { data, isPending, error, refetch } = useQuery(termStatusesQueryOptions(applicationId))
@@ -86,13 +88,27 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
           >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <span className="font-medium">{termDatesLine(term)}</span>
-              <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
-              {/* On a phone the actions stack at full width; from sm up they wrap in a row. */}
+              <div className="flex items-center gap-3">
+                <Badge variant={BADGE[term.status]}>{t(`termStatus.state.${term.status}`)}</Badge>
+                {term.status === "WAITLISTED" && term.waitlistPosition !== null ? (
+                  <span className="text-sm font-bold">
+                    {t("termStatus.waitlistPosition", { position: term.waitlistPosition })}
+                  </span>
+                ) : null}
+              </div>
               {term.status === "CANCELLED" || term.status === "ARCHIVED" ? null : (
-                <div className="flex w-full flex-col gap-2 *:w-full sm:ml-auto sm:w-auto sm:flex-row sm:flex-wrap sm:*:w-auto">
+                <div
+                  className={cn(
+                    "grid w-full gap-2 sm:ml-auto sm:flex sm:w-auto sm:flex-wrap",
+                    term.status === "WAITLISTED" && "max-sm:grid-cols-2",
+                  )}
+                >
                   <OrganizerTermChange
                     applicationId={applicationId}
                     term={term}
+                    triggerClassName={
+                      term.status === "WAITLISTED" ? "max-sm:col-span-2" : undefined
+                    }
                   />
                   {/* US-32: a confirmed or waitlisted term is left through the withdrawal. */}
                   {term.status === "CONFIRMED" || term.status === "WAITLISTED" ? (

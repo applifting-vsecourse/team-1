@@ -1,28 +1,14 @@
 import { cn } from "@/lib/utils"
 
-/**
- * Figma: DS / Graphic / Divider — two lines meeting in a dot. Drawn in
- * `currentColor` (set it with a `text-*` token) and scaled by its width.
- */
+// Figma v2: compact form heading divider · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914
 export function BrandDivider({ className }: { className?: string }) {
   return (
-    <svg
-      aria-hidden
-      viewBox="0 0 296 22.2"
-      fill="none"
-      className={cn("block h-auto w-full text-primary", className)}
+    <div
+      aria-hidden="true"
+      className={cn("relative h-6 w-full", className)}
     >
-      <path
-        d="M3.7 11.1H118.4M177.6 11.1H292.3"
-        stroke="currentColor"
-        strokeWidth="1.85"
-      />
-      <circle
-        cx="148"
-        cy="11.1"
-        r="3.7"
-        fill="currentColor"
-      />
-    </svg>
+      <span className="absolute inset-x-0 bottom-px h-px bg-border" />
+      <span className="absolute inset-s-0 bottom-0 h-[3px] w-12 bg-primary md:w-20" />
+    </div>
   )
 }

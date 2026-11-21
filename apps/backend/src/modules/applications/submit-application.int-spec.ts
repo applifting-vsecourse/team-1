@@ -235,7 +235,7 @@ describe("submit application (integration)", () => {
       expect(second.status).toBe(409)
       expect(await second.json()).toMatchObject({
         code: "APPLICATION_DUPLICATE",
-        params: { participant: "Jan Novák", term: "T1" },
+        params: { participantIndex: "0", termId: t1, participant: "Jan Novák", term: "T1" },
       })
       expect(await countByName("Novák")).toBe(1)
       // A rejected submission must not leave a participant account behind.
@@ -269,15 +269,26 @@ describe("submit application (integration)", () => {
       expect((await submit([person([t1], { birthDate: "2013-03-10" })])).status).toBe(201)
     })
 
-    it("rejects a repeated participant inside one submission and stores nothing of it", async () => {
-      const [, t2] = termIds
+    it("rejects a repeated participant and accepts the group after correcting the second selection", async () => {
+      const [t1, t2] = termIds
       const before = await prisma.application.count({ where: { eventId } })
-      const response = await submit([
-        person([t2], { firstName: "Eva", gender: "FEMALE" }),
-        person([t2], { firstName: "Eva", gender: "FEMALE" }),
-      ])
+      const email = "corrected-group@example.com"
+      const eva = (terms: string[]): object => person(terms, { firstName: "Eva", gender: "FEMALE" })
+      const response = await submit([eva([t2]), eva([t1, t2])], email)
       expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({
+        code: "APPLICATION_DUPLICATE",
+        params: { participantIndex: "1", termId: t2, participant: "Eva Novák", term: "T2" },
+      })
       expect(await prisma.application.count({ where: { eventId } })).toBe(before)
+
+      const corrected = await submit([eva([t2]), eva([t1])], email)
+      expect(corrected.status).toBe(201)
+      const { applications } = (await corrected.json()) as SubmitBody
+      expect(
+        applications.map((application) => application.terms.map((term) => term.termId)),
+      ).toEqual([[t2], [t1]])
+      expect(await prisma.application.count({ where: { eventId } })).toBe(before + 2)
     })
 
     it("lets only one of many concurrent identical submissions through and leaves no account of the rest", async () => {
