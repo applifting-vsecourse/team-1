@@ -153,20 +153,20 @@ export function ProgramBlockDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="flex max-h-[92dvh] flex-col overflow-hidden bg-card p-4 shadow-md sm:max-w-140 sm:p-6 [@media(max-height:480px)]:overflow-y-auto">
-        <DialogTitle className="pr-8">{t(block ? "editTitle" : "addTitle")}</DialogTitle>
+      <DialogContent className="bg-card p-4 shadow-md sm:max-w-140 sm:p-6">
+        <DialogTitle>{t(block ? "editTitle" : "addTitle")}</DialogTitle>
         <DialogDescription>{t(block ? "hintEdit" : "hintAdd")}</DialogDescription>
         <Form {...form}>
           <form
             noValidate
-            className="flex min-h-0 flex-col gap-3 [@media(max-height:480px)]:shrink-0"
+            className="flex min-w-0 flex-col gap-3"
             onSubmit={(event) => {
               void submit(event)
             }}
           >
             <fieldset
               disabled={isPending}
-              className="flex min-h-0 min-w-0 flex-col gap-3 overflow-y-auto overscroll-contain px-1 py-1 [@media(max-height:480px)]:overflow-visible"
+              className="flex min-w-0 flex-col gap-3 px-1 py-1"
             >
               <FormField
                 control={form.control}
@@ -307,7 +307,7 @@ export function ProgramBlockDialog({
                 error={mutation.error}
               />
             ) : null}
-            <DialogFooter className="shrink-0 gap-2 border-t bg-card pt-3 max-sm:flex-col-reverse sm:items-center sm:justify-end">
+            <DialogFooter className="gap-2 border-t bg-card pt-3 sm:items-center">
               <DialogClose asChild>
                 <Button
                   type="button"
