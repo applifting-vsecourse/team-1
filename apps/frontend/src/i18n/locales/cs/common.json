@@ -130,6 +130,11 @@
     "downloadError": "QR kód se nepodařilo stáhnout.",
     "due": "Částka k úhradě",
     "listTitle": "Platby po termínech",
+    "note": {
+      "CANCELLED": "V tomto termínu se akce neúčastníte.",
+      "TO_EVALUATE": "Přihlášku posoudí organizátor. Zatím nic neplaťte.",
+      "WAITLISTED": "O případném potvrzení vám dáme vědět. Zatím nic neplaťte."
+    },
     "overpaid": "Přeplatek",
     "owed": "Zbývá zaplatit",
     "paid": "Zaplaceno",
@@ -138,11 +143,14 @@
     "retryDownload": "Zkuste stažení znovu nebo použijte účet a variabilní symbol na této kartě.",
     "saveQr": "Stáhnout QR kód",
     "status": {
+      "CANCELLED": "Zrušeno",
       "NOTHING_DUE": "Nic k úhradě",
       "OVERPAID": "Přeplaceno",
       "PAID": "Zaplaceno",
       "PARTIALLY_PAID": "Částečně zaplaceno",
-      "UNPAID": "Nezaplaceno"
+      "TO_EVALUATE": "Čeká na vyhodnocení",
+      "UNPAID": "Nezaplaceno",
+      "WAITLISTED": "Náhradník"
     },
     "summaryQrAlt": "QR kód pro souhrnnou platbu",
     "variableSymbol": "Variabilní symbol",

@@ -130,6 +130,11 @@
     "downloadError": "The QR code could not be downloaded.",
     "due": "Amount due",
     "listTitle": "Payments by term",
+    "note": {
+      "CANCELLED": "You are not attending this term.",
+      "TO_EVALUATE": "The organizer will assess your application. Don't pay yet.",
+      "WAITLISTED": "We will let you know if your place is confirmed. Don't pay yet."
+    },
     "overpaid": "Overpayment",
     "owed": "Left to pay",
     "paid": "Paid",
@@ -138,11 +143,14 @@
     "retryDownload": "Try downloading again or use the account and variable symbol on this card.",
     "saveQr": "Download QR code",
     "status": {
+      "CANCELLED": "Cancelled",
       "NOTHING_DUE": "Nothing due",
       "OVERPAID": "Overpaid",
       "PAID": "Paid",
       "PARTIALLY_PAID": "Partly paid",
-      "UNPAID": "Unpaid"
+      "TO_EVALUATE": "Awaiting evaluation",
+      "UNPAID": "Unpaid",
+      "WAITLISTED": "Waitlisted"
     },
     "summaryQrAlt": "QR code for the combined payment",
     "variableSymbol": "Variable symbol",

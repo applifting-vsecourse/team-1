@@ -126,7 +126,8 @@ const cardOf = (heading: RegExp): HTMLElement =>
 /** Cards of the term payments start collapsed; open them all (US-41). */
 const openAll = async (): Promise<void> => {
   const user = userEvent.setup()
-  const triggers = await screen.findAllByRole("button", { expanded: false })
+  await screen.findByRole("heading", { level: 1 })
+  const triggers = screen.queryAllByRole("button", { expanded: false })
   for (const trigger of triggers.filter(
     (el) => el.getAttribute("data-slot") === "accordion-trigger",
   )) {
@@ -284,11 +285,12 @@ describe("ApplicationDetail", () => {
     const write = vi.spyOn(navigator.clipboard, "writeText")
     renderDetail(application())
     await openAll()
-    await user.click(await screen.findByRole("button", { name: "Copy account number" }))
+    const term = within(cardOf(/^4–10 Jul 2027/))
+    await user.click(term.getByRole("button", { name: "Copy account number" }))
     expect(write).toHaveBeenLastCalledWith("2900123456/2010")
-    await user.click(screen.getByRole("button", { name: "Copy variable symbol" }))
+    await user.click(term.getByRole("button", { name: "Copy variable symbol" }))
     expect(write).toHaveBeenLastCalledWith("48001")
-    await user.click(screen.getByRole("button", { name: "Copy amount" }))
+    await user.click(term.getByRole("button", { name: "Copy amount" }))
     expect(write).toHaveBeenLastCalledWith("2500")
   })
 
@@ -539,12 +541,16 @@ describe("ApplicationDetail", () => {
     expect(screen.getByText("Partly paid")).toBeInTheDocument()
     expect(screen.getByText("Amount due").nextSibling).toHaveTextContent("4,500")
     expect(screen.getByText("Paid").nextSibling).toHaveTextContent("2,000")
-    expect(screen.getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("2,500")
-    expect(screen.getByText("2900123456/2010")).toBeInTheDocument()
+    const term = within(cardOf(/^4–10 Jul 2027/))
+    expect(term.getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("2,500")
+    expect(term.getByText("2900123456/2010")).toBeInTheDocument()
     expect(screen.getByText("48001")).toBeInTheDocument()
-    // The summary symbol and the total are for the whole application, not for one term.
-    expect(screen.queryByText("48000")).not.toBeInTheDocument()
-    expect(screen.queryByText("Left to pay in total")).not.toBeInTheDocument()
+    // The combined QR uses the application variable symbol.
+    expect(screen.getByText("48000")).toBeInTheDocument()
+    expect(
+      await screen.findByRole("img", { name: "QR code for the combined payment" }),
+    ).toBeVisible()
+    expect(screen.getByText("Left to pay in total")).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Back to my applications" })).toHaveAttribute(
       "href",
       "/participant",
@@ -586,8 +592,9 @@ describe("ApplicationDetail", () => {
       screen.getByRole("heading", { name: "Left to pay in total" }).nextSibling,
     ).toHaveTextContent("1,200")
     expect(
-      screen.getByRole("button", { name: "One payment for both terms · show QR" }),
-    ).toBeInTheDocument()
+      await screen.findByRole("img", { name: "QR code for the combined payment" }),
+    ).toBeVisible()
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
     expect(screen.queryByText(/You pay each term separately/)).not.toBeInTheDocument()
     const one = cardOf(/^4–10 Jul 2027/)
     const two = cardOf(/^11–17 Jul 2027/)
@@ -595,11 +602,11 @@ describe("ApplicationDetail", () => {
     expect(within(one).getByText("48001")).toBeInTheDocument()
     expect(within(two).getAllByText("Left to pay")[0]?.nextSibling).toHaveTextContent("700")
     expect(within(two).getByText("48002")).toBeInTheDocument()
-    // One symbol per term, no symbol of the whole application.
-    expect(screen.queryByText("48000")).not.toBeInTheDocument()
+    // The summary symbol stays above the independent term symbols.
+    expect(screen.getByText("48000")).toBeInTheDocument()
   })
 
-  it("keeps separate-term instructions when the summary QR cannot be generated", async () => {
+  it("never shows separate-term instructions when the summary QR cannot be generated", async () => {
     const data = withTerms([
       termPayment(1, 4900, 4400, "PARTIALLY_PAID"),
       termPayment(2, 5600, 4900, "PARTIALLY_PAID"),
@@ -613,15 +620,32 @@ describe("ApplicationDetail", () => {
     })
 
     await openAll()
-    expect(
-      await screen.findByText(/You pay each term separately\. Use its variable symbol/),
-    ).toBeInTheDocument()
+    expect(screen.queryByText(/You pay each term separately/)).not.toBeInTheDocument()
     expect(
       screen.queryByRole("button", { name: "One payment for both terms · show QR" }),
     ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("img", { name: "QR code for the combined payment" }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Download QR code" })).toBeDisabled()
     expect(within(cardOf(/^4–10 Jul 2027/)).getByText("48001")).toBeInTheDocument()
     expect(within(cardOf(/^11–17 Jul 2027/)).getByText("48002")).toBeInTheDocument()
   })
+
+  it.each(["", "invalid-account"])(
+    "shows the summary symbol but no QR for unusable account %s",
+    async (bankAccount) => {
+      const data = application()
+      renderDetail({ ...data, paymentDetails: { ...data.paymentDetails!, bankAccount } })
+
+      expect(await screen.findByText("48000")).toBeInTheDocument()
+      expect(
+        screen.queryByRole("img", { name: "QR code for the combined payment" }),
+      ).not.toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "Download QR code" })).toBeDisabled()
+      expect(toDataURL).not.toHaveBeenCalled()
+    },
+  )
 
   it("keeps the paid term collapsed and the term confirmed later, with its debt, first", async () => {
     renderDetail(withTerms([termPayment(1, 4500, 4500, "PAID"), termPayment(2, 4900, 0, "UNPAID")]))
@@ -660,6 +684,24 @@ describe("ApplicationDetail", () => {
     expect(toggles[1]).toHaveAttribute("aria-expanded", "false")
   })
 
+  it("keeps the other term's debt in the combined QR when a term is overpaid", async () => {
+    renderDetail(
+      withTerms([termPayment(1, 4900, 5400, "OVERPAID"), termPayment(2, 4900, 0, "UNPAID")]),
+    )
+
+    expect(
+      await screen.findByRole("img", { name: "QR code for the combined payment" }),
+    ).toBeVisible()
+    expect(
+      screen.getByText("An overpayment is not carried over between terms."),
+    ).toBeInTheDocument()
+    expect(toDataURL).toHaveBeenCalledWith(
+      expect.stringContaining("AM:4900.00*CC:CZK*X-VS:48000"),
+      { width: 200, margin: 2 },
+    )
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+  })
+
   it("shows an overpaid term as an overpayment, without the details to pay", async () => {
     renderDetail(withTerms([termPayment(1, 4500, 5100, "OVERPAID")], [confirmed]))
 
@@ -674,8 +716,13 @@ describe("ApplicationDetail", () => {
   it("shows a waitlisted term as waitlisted without a place in line, nothing to pay yet", async () => {
     renderDetail(application({ terms: [confirmed, waitlisted] }))
 
-    expect(await screen.findByText(/11–17 Jul 2027 · 2\. týden · Waitlisted/)).toBeInTheDocument()
-    expect(screen.getByText("You don't pay anything yet.")).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: /11–17 Jul 2027 · 2\. týden/ }),
+    ).toBeInTheDocument()
+    expect(screen.getByText("Waitlisted", { exact: true })).toBeInTheDocument()
+    expect(
+      screen.getByText("We will let you know if your place is confirmed. Don't pay yet."),
+    ).toBeInTheDocument()
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     // Its payment details are not shown: there is no variable symbol to pay.
     expect(screen.queryByText("48002")).not.toBeInTheDocument()
@@ -695,9 +742,35 @@ describe("ApplicationDetail", () => {
 
     expect(await screen.findByText("Awaiting evaluation")).toBeInTheDocument()
     expect(screen.queryByText(/waitlisted/i)).not.toBeInTheDocument()
-    expect(screen.getByText("Don't pay yet.")).toBeInTheDocument()
-    expect(screen.getByText(/not a confirmed place or a waitlist spot yet/)).toBeInTheDocument()
+    expect(
+      screen.getByText("The organizer will assess your application. Don't pay yet."),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Status by term" })).not.toBeInTheDocument()
     expect(screen.queryByText("Account")).not.toBeInTheDocument()
+  })
+
+  it("shows a cancelled term in its own card without payment instructions", async () => {
+    renderDetail(application({ terms: [{ ...waitlisted, status: "CANCELLED" }] }))
+
+    const heading = await screen.findByRole("heading", { name: /11–17 Jul 2027/ })
+    const card = heading.closest<HTMLElement>("[data-slot='card']")!
+    expect(within(card).getByText("You are not attending this term.")).toBeInTheDocument()
+    expect(within(card).queryByText("Left to pay")).not.toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Status by term" })).not.toBeInTheDocument()
+  })
+
+  it("labels a free confirmed term Nothing due", async () => {
+    renderDetail(
+      application({
+        paymentDetails: {
+          bankAccount: "2900123456/2010",
+          summary: { variableSymbol: "48000", payableCzk: 0 },
+          terms: [{ ...termPayment(1, 0, 0, "PAID"), paymentStatus: "NOTHING_DUE" }],
+        },
+      }),
+    )
+    expect(await screen.findByRole("button", { name: /Nothing due/ })).toBeInTheDocument()
+    expect(screen.queryByRole("img")).not.toBeInTheDocument()
   })
 
   it("shows only waitlisted cards, with no payment details, when every term is waitlisted", async () => {
@@ -713,7 +786,9 @@ describe("ApplicationDetail", () => {
     )
 
     expect(await screen.findByText(/Waitlisted/)).toBeInTheDocument()
-    expect(screen.getByText("You don't pay anything yet.")).toBeInTheDocument()
+    expect(
+      screen.getByText("We will let you know if your place is confirmed. Don't pay yet."),
+    ).toBeInTheDocument()
     expect(screen.queryByText("Account")).not.toBeInTheDocument()
     expect(screen.queryByText("Variable symbol")).not.toBeInTheDocument()
   })
@@ -754,23 +829,21 @@ describe("ApplicationDetail", () => {
         },
       }),
     )
-    const user = userEvent.setup()
-    await user.click(
-      await screen.findByRole("button", { name: "One payment for both terms · show QR" }),
-    )
-    const dialog = screen.getByRole("dialog")
-    expect(within(dialog).getByText("Summary variable symbol")).toBeInTheDocument()
-    expect(within(dialog).getByText("48000")).toBeInTheDocument()
-    expect(within(dialog).getByText("Breakdown")).toBeInTheDocument()
-    expect(within(dialog).getByText(/Covers all confirmed terms/)).toBeInTheDocument()
+    const heading = await screen.findByRole("heading", { name: "Left to pay in total" })
+    const summary = heading.closest<HTMLElement>("[data-slot='card']")!
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    expect(within(summary).getByText("Summary variable symbol")).toBeInTheDocument()
+    expect(within(summary).getByText("48000")).toBeInTheDocument()
+    expect(within(summary).getByText("Breakdown")).toBeInTheDocument()
+    expect(within(summary).getByText(/Covers all confirmed terms/)).toBeInTheDocument()
     expect(
-      within(dialog).getByText(
+      within(summary).getByText(
         (_, element) =>
           element?.tagName === "DIV" && /^4–10 Jul 2027.*500/.test(element.textContent ?? ""),
       ),
     ).toBeInTheDocument()
     expect(
-      within(dialog).getByText(
+      within(summary).getByText(
         (_, element) =>
           element?.tagName === "DIV" && /^11–17 Jul 2027.*700/.test(element.textContent ?? ""),
       ),
@@ -782,7 +855,7 @@ describe("ApplicationDetail", () => {
       { width: 200, margin: 2 },
     )
     expect(
-      await within(dialog).findByRole("img", { name: "QR code for the combined payment" }),
+      await within(summary).findByRole("img", { name: "QR code for the combined payment" }),
     ).toHaveAttribute("src", "data:image/png;base64,AAAA")
   })
 
@@ -809,7 +882,7 @@ describe("ApplicationDetail", () => {
     it("draws no QR for a paid term", async () => {
       renderDetail(withTerms([paidTerm], [confirmed]))
 
-      await screen.findByRole("heading", { name: "Steps before the event" })
+      await screen.findByRole("heading", { name: /^4–10 Jul/ })
       expect(screen.queryByRole("img", { name: "QR code for the term payment" })).toBeNull()
       expect(toDataURL).not.toHaveBeenCalled()
     })
@@ -822,7 +895,7 @@ describe("ApplicationDetail", () => {
         ),
       )
 
-      await screen.findByRole("heading", { name: "Steps before the event" })
+      await screen.findByRole("heading", { name: /^4–10 Jul/ })
       expect(screen.queryByRole("img", { name: "QR code for the term payment" })).toBeNull()
       expect(screen.queryByText("Due date")).toBeNull()
     })
@@ -850,7 +923,7 @@ describe("ApplicationDetail", () => {
     it("shows no simulation where the backend does not offer it (production)", async () => {
       renderDetail(application())
 
-      await screen.findByRole("heading", { name: "Steps before the event" })
+      await screen.findByRole("heading", { name: /^4–10 Jul/ })
       expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
       expect(screen.queryByText("Demo: payments are simulated.")).toBeNull()
     })
@@ -919,7 +992,7 @@ describe("ApplicationDetail", () => {
         canSimulatePayment: true,
       })
 
-      await screen.findByRole("heading", { name: "Steps before the event" })
+      await screen.findByRole("heading", { name: /^4–10 Jul/ })
       expect(screen.queryByRole("button", { name: "I paid" })).toBeNull()
     })
   })
@@ -981,9 +1054,12 @@ describe("ApplicationDetail", () => {
 
       const payment = await stepRow(/^1\. týden$/, "Payment")
       expect(within(payment).getByText("To do")).toBeVisible()
-      expect(within(payment).getByRole("link", { name: /^Pay / })).toHaveAttribute(
-        "href",
-        "#application-payment",
+      const link = within(payment).getByRole("link", { name: /^Pay / })
+      const target = link.getAttribute("href")
+      expect(target).toBe("#application-payment")
+      const summary = document.getElementById(target?.slice(1) ?? "")
+      expect(summary).toContainElement(
+        screen.getByRole("heading", { name: "Left to pay in total" }),
       )
     })
 

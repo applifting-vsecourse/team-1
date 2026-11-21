@@ -12,7 +12,7 @@ export function PaymentQrDownload({
   spayd,
   variableSymbol,
 }: {
-  spayd: string
+  spayd: string | null
   variableSymbol: string
 }) {
   const { t } = useTranslation("common")
@@ -20,6 +20,7 @@ export function PaymentQrDownload({
   const [isSaving, setSaving] = useState(false)
   const [hasFailed, setFailed] = useState(false)
   const save = async () => {
+    if (!spayd) return
     setSaving(true)
     setFailed(false)
     try {
@@ -47,7 +48,7 @@ export function PaymentQrDownload({
       <Button
         type="button"
         variant="outline"
-        disabled={isSaving}
+        disabled={!spayd || isSaving}
         onClick={() => void save()}
       >
         <Download aria-hidden />
