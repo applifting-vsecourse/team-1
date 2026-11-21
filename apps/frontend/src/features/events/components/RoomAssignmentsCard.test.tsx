@@ -1,4 +1,4 @@
-import { MouseSensor, TouchSensor } from "@dnd-kit/core"
+import * as Dnd from "@dnd-kit/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, createEvent, fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
@@ -13,12 +13,12 @@ const { dnd } = vi.hoisted(() => ({
     props: null as null | {
       onDragStart: (e: unknown) => void
       onDragEnd: (e: unknown) => void
-        sensors: { sensor: unknown; options: unknown }[]
+      sensors: { sensor: unknown; options: unknown }[]
     },
   },
 }))
 vi.mock("@dnd-kit/core", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@dnd-kit/core")>()
+  const actual = await importOriginal<typeof Dnd>()
   return {
     ...actual,
     DndContext: (props: React.ComponentProps<typeof actual.DndContext>) => {
@@ -525,7 +525,7 @@ describe("room assignment", () => {
     await screen.findByRole("table")
     const cards = screen.getAllByRole("list").find((list) => list.classList.contains("lg:hidden"))
     await user.click(
-      within(cards as HTMLElement).getByRole("button", { name: "Actions for Jana Nováková" }),
+      within(cards!).getByRole("button", { name: "Actions for Jana Nováková" }),
     )
     await user.click(await screen.findByRole("menuitem", { name: "Move to another room…" }))
     const dialog = await screen.findByRole("dialog")
@@ -543,7 +543,7 @@ describe("room assignment", () => {
     await screen.findByRole("table")
     const cards = screen.getAllByRole("list").find((list) => list.classList.contains("lg:hidden"))
     await user.click(
-      within(cards as HTMLElement).getByRole("button", { name: "Actions for Eva Horká" }),
+      within(cards!).getByRole("button", { name: "Actions for Eva Horká" }),
     )
     await user.click(await screen.findByRole("menuitem", { name: "Remove from room" }))
     await waitFor(() =>
@@ -559,8 +559,8 @@ describe("room assignment", () => {
     const participant = await screen.findByText("Barbora Šimková")
     const roomRow = screen.getByRole("cell", { name: "Room C" }).closest("tr")
     expect(dnd.props?.sensors).toEqual([
-      { sensor: MouseSensor, options: { activationConstraint: { distance: 6 } } },
-      { sensor: TouchSensor, options: { activationConstraint: { delay: 250, tolerance: 8 } } },
+      { sensor: Dnd.MouseSensor, options: { activationConstraint: { distance: 6 } } },
+      { sensor: Dnd.TouchSensor, options: { activationConstraint: { delay: 250, tolerance: 8 } } },
     ])
 
     vi.useFakeTimers()
