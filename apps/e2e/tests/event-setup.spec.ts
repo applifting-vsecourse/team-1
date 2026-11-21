@@ -1,5 +1,17 @@
-import { expect, test } from "@playwright/test"
+import { devices, expect, test } from "@playwright/test"
 import { chooseEvaluationMode, createEventWithTerm } from "./support/event-setup"
+import {
+  assertSwipeAndCancelDoNotAssign,
+  dragToRoom,
+  FIRST_ROOM,
+  FULL_ROOM,
+  LAST_FREE_ROOM,
+  openAssignments,
+  openRoomAction,
+  roomCard,
+  roomChoice,
+  test as assignmentTest,
+} from "./support/room-assignment"
 
 // US-12 event, US-13 terms, US-16 term price, US-14 rooms. The application link works only once
 // the event has a term with a price and a room.
@@ -46,3 +58,71 @@ test.describe("Event setup", () => {
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(link)
   })
 })
+
+assignmentTest.describe("Room assignments on a touch phone", () => {
+  assignmentTest.use({ ...devices["Pixel 7"], viewport: { width: 360, height: 800 } })
+
+  assignmentTest(
+    "organizer assigns, moves and removes a participant at 360 px",
+    async ({ page, assignment }) => {
+      const { person } = assignment
+      await openAssignments(page, assignment)
+      await assertSwipeAndCancelDoNotAssign(page, person)
+
+      const assign = page.getByRole("button", { name: "Assign " + person + " to a room" })
+      const actions = page.getByRole("button", { name: "Actions for " + person })
+      const dialog = page.getByRole("dialog")
+      await assign.tap()
+      expect(await page.evaluate(() => [innerWidth, document.documentElement.scrollWidth])).toEqual(
+        [360, 360],
+      )
+      expect(await dialog.evaluate((element) => element.scrollWidth)).toBeLessThanOrEqual(328)
+      await roomChoice(page, LAST_FREE_ROOM).tap()
+      await expect(dialog.getByRole("button", { name: "Assign", exact: true })).toBeInViewport()
+      await dialog.getByRole("button", { name: "Assign", exact: true }).tap()
+      await expect(
+        roomCard(page, LAST_FREE_ROOM).getByRole("button", { name: "Actions for " + person }),
+      ).toBeVisible()
+
+      await openRoomAction(page, actions, "Move to another room…")
+      await expect(roomChoice(page, LAST_FREE_ROOM)).toBeDisabled()
+      await roomChoice(page, FULL_ROOM).tap()
+      await dialog.getByRole("button", { name: "Continue" }).tap()
+      const fullDialog = page.getByRole("dialog", { name: FULL_ROOM + " is full" })
+      await expect(fullDialog.getByRole("button", { name: "Assign as an extra bed" })).toBeVisible()
+      await fullDialog.getByRole("button", { name: "Cancel" }).tap()
+      await expect(
+        roomCard(page, LAST_FREE_ROOM).getByRole("button", { name: "Actions for " + person }),
+      ).toBeVisible()
+
+      await openRoomAction(page, actions, "Move to another room…")
+      await roomChoice(page, FIRST_ROOM).tap()
+      await dialog.getByRole("button", { name: "Move", exact: true }).tap()
+      await expect(
+        roomCard(page, FIRST_ROOM).getByRole("button", { name: "Actions for " + person }),
+      ).toBeVisible()
+      await openRoomAction(page, actions, "Remove from room")
+      await expect(assign).toBeVisible()
+      await expect(actions).toHaveCount(0)
+    },
+  )
+})
+
+assignmentTest(
+  "organizer drags with a mouse and gets the same extra-bed confirmation",
+  async ({ page, assignment }) => {
+    const { person } = assignment
+    await openAssignments(page, assignment)
+    await dragToRoom(page, person, page.getByText(person, { exact: true }), LAST_FREE_ROOM)
+    const actions = page.getByRole("button", { name: "Actions for " + person })
+    await expect(actions).toBeVisible()
+    await dragToRoom(page, person, actions, FULL_ROOM, "E2E Room 1")
+    const fullDialog = page.getByRole("dialog", { name: FULL_ROOM + " is full" })
+    await expect(fullDialog.getByRole("button", { name: "Assign as an extra bed" })).toBeVisible()
+    await fullDialog.getByRole("button", { name: "Cancel" }).click()
+    const originalRoom = page.getByRole("row").filter({
+      has: page.getByRole("cell", { name: LAST_FREE_ROOM, exact: true }),
+    })
+    await expect(originalRoom.getByRole("button", { name: "Actions for " + person })).toBeVisible()
+  },
+)

@@ -29,6 +29,8 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                         | `application.spec.ts`        | ✅   |
 | Odeslání přihlášky → stránka potvrzení → po přihlášení vidí přihlášku se stavem         | `application.spec.ts`        | ✅   |
 | Organizátor založí akci s termínem a cenou, přidá pokoj termínu a zkopíruje odkaz       | `event-setup.spec.ts`        | ✅   |
+| Organizátor na 360 px přiřadí, přesune a odebere účastníka v Rozřazování                | `event-setup.spec.ts`        | ✅   |
+| Organizátor přetáhne účastníka myší do pokoje a potvrdí nebo odmítne přistýlku          | `event-setup.spec.ts`        | ✅   |
 | Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky | `capacity.spec.ts`           | ✅   |
 | Organizátor vidí přihlášku v seznamu a zapíše platbu                                    | `payments.spec.ts`           | ✅   |
 | Organizátor odhlásí účastníka z termínu a změna se zapíše do záznamu                    | `term-status.spec.ts`        | ✅   |
