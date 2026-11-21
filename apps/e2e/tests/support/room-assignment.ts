@@ -92,14 +92,29 @@ export async function openRoomAction(page: Page, participant: Locator, name: str
   await page.getByRole("menuitem", { name }).tap()
 }
 
+function activeDrag(page: Page) {
+  return page.getByRole("status").filter({
+    hasText:
+      /Picked up draggable item|was moved over droppable area|is no longer over a droppable area/,
+  })
+}
+
 export async function assertSwipeAndCancelDoNotAssign(page: Page, person: string) {
-  const name = page.getByText(person, { exact: true }).filter({ visible: true })
+  const name = page.getByText(person, { exact: true })
   const cdp = await page.context().newCDPSession(page)
-  await name.evaluate((element) => element.scrollIntoView({ block: "center" }))
+  await name.evaluate((element) => element.scrollIntoView({ block: "center", behavior: "instant" }))
   const origin = await name.boundingBox()
   if (!origin) throw new Error("Participant row is outside the viewport")
   const x = origin.x + origin.width / 2
   const y = origin.y + origin.height / 2
+
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] })
+  await expect(activeDrag(page)).toHaveCount(1)
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchCancel", touchPoints: [] })
+  await expect(page.getByRole("status").filter({ hasText: "Dragging was cancelled." })).toHaveCount(
+    1,
+  )
+
   const scrollBefore = await page.evaluate(() => window.scrollY)
   await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] })
   await cdp.send("Input.dispatchTouchEvent", {
@@ -108,28 +123,12 @@ export async function assertSwipeAndCancelDoNotAssign(page: Page, person: string
   })
   await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(scrollBefore)
-
-  await name.evaluate((element) => element.scrollIntoView({ block: "center" }))
-  const centered = await name.boundingBox()
-  if (!centered) throw new Error("Participant row is outside the viewport after a swipe")
-  await cdp.send("Input.dispatchTouchEvent", {
-    type: "touchStart",
-    touchPoints: [{ x, y: centered.y + centered.height / 2 }],
-  })
-  await expect(name).toHaveCount(2)
-  await cdp.send("Input.dispatchTouchEvent", { type: "touchCancel", touchPoints: [] })
-  await expect(name).toHaveCount(1)
+  await expect(activeDrag(page)).toHaveCount(0)
   await expect(page.getByRole("button", { name: "Assign " + person + " to a room" })).toBeVisible()
   await cdp.detach()
 }
 
-export async function dragToRoom(
-  page: Page,
-  person: string,
-  source: Locator,
-  room: string,
-  search = room,
-) {
+export async function dragToRoom(page: Page, source: Locator, room: string, search = room) {
   await page.getByRole("searchbox", { name: "Search rooms" }).fill(search)
   const target = page.getByRole("cell", { name: room, exact: true })
   await source.scrollIntoViewIfNeeded()
@@ -141,7 +140,7 @@ export async function dragToRoom(
   await page.mouse.move(start.x + start.width / 2, start.y + start.height / 2)
   await page.mouse.down()
   await page.mouse.move(start.x + start.width / 2 + 12, start.y + start.height / 2)
-  await expect(page.getByText(person, { exact: true }).filter({ visible: true })).toHaveCount(2)
+  await expect(activeDrag(page)).toHaveCount(1)
   await page.mouse.move(end.x + end.width / 2, end.y + end.height / 2, { steps: 10 })
   await page.mouse.up()
 }

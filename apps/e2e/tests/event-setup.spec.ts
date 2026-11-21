@@ -94,7 +94,7 @@ assignmentTest.describe("Room assignments on a touch phone", () => {
       await openRoomAction(page, actions, "Move to another room…")
       await expect(roomChoice(page, LAST_FREE_ROOM)).toBeDisabled()
       await roomChoice(page, FULL_ROOM).tap()
-      await dialog.getByRole("button", { name: "Continue" }).tap()
+      await dialog.getByRole("button", { name: "Move", exact: true }).tap()
       const fullDialog = page.getByRole("dialog", { name: FULL_ROOM + " is full" })
       await expect(fullDialog.getByRole("button", { name: "Assign as an extra bed" })).toBeVisible()
       await fullDialog.getByRole("button", { name: "Cancel" }).tap()
@@ -120,10 +120,10 @@ assignmentTest(
   async ({ page, assignment }) => {
     const { person } = assignment
     await openAssignments(page, assignment)
-    await dragToRoom(page, person, page.getByText(person, { exact: true }), LAST_FREE_ROOM)
+    await dragToRoom(page, page.getByText(person, { exact: true }), LAST_FREE_ROOM)
     const actions = page.getByRole("button", { name: "Actions for " + person })
     await expect(actions).toBeVisible()
-    await dragToRoom(page, person, actions, FULL_ROOM, "E2E Room 1")
+    await dragToRoom(page, actions, FULL_ROOM, "E2E Room 1")
     const fullDialog = page.getByRole("dialog", { name: FULL_ROOM + " is full" })
     await expect(fullDialog.getByRole("button", { name: "Assign as an extra bed" })).toBeVisible()
     await fullDialog.getByRole("button", { name: "Cancel" }).click()
