@@ -1,4 +1,4 @@
-import { createRoomWishEvaluator } from "./room-wish-status"
+import { createRoomWishEvaluator, isWishableStatus } from "./room-wish-status"
 
 const birch = { id: "birch-204", name: "Bříza 204" }
 const oak = { id: "oak-101", name: "Dub 101" }
@@ -37,5 +37,14 @@ describe("createRoomWishEvaluator", () => {
     expect(evaluate(["Eva Černá"], { ...author, room: null })).toEqual([
       { name: "Eva Černá", status: "unfulfilled", roomName: null },
     ])
+  })
+})
+
+describe("isWishableStatus", () => {
+  it("counts only applications that can sleep in a room (open business question)", () => {
+    expect(["CONFIRMED", "TO_EVALUATE"].every((s) => isWishableStatus(s as never))).toBe(true)
+    expect(["WAITLISTED", "CANCELLED", "ARCHIVED"].some((s) => isWishableStatus(s as never))).toBe(
+      false,
+    )
   })
 })

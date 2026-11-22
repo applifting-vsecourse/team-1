@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
-type Wish = { name: string; fulfilled: boolean }
+type Wish = { name: string; status: string; roomName: string | null }
 type Overview = {
   rooms: { participants: { firstName: string; lastName: string; wishes: Wish[] }[] }[]
 }
@@ -172,8 +172,8 @@ describe("room wishes (integration)", () => {
 
     const participants = (await overview()).rooms.flatMap((room) => room.participants)
     expect(participants.find((p) => p.lastName === "Nováková")?.wishes).toEqual([
-      { name: "eva cerna", fulfilled: true },
-      { name: "Tereza Malá", fulfilled: false },
+      { name: "eva cerna", status: "fulfilled", roomName: expect.any(String) },
+      { name: "Tereza Malá", status: "impossible", roomName: null },
     ])
     expect(participants.find((p) => p.lastName === "Černá")?.wishes).toEqual([])
   })

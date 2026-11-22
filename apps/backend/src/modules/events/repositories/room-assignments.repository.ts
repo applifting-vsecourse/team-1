@@ -15,11 +15,11 @@ import {
 } from "@/modules/events/domain/room-assignment"
 import { proposeRoomAssignments, RoomProposal } from "@/modules/events/domain/room-proposal"
 import { RoomWarningKind } from "@/modules/events/domain/room-warnings"
+import { createRoomWishEvaluator, isWishableStatus } from "@/modules/events/domain/room-wish-status"
 import {
   loadRoomWarnings,
   pruneAcknowledgements,
 } from "@/modules/events/repositories/room-warnings.queries"
-import { evaluateRoomWishes } from "@/shared/domain/room-wishes"
 import { AppException } from "@/shared/errors/app.exception"
 import { releaseAssignments } from "@/shared/room-assignments/release-assignments"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -79,7 +79,25 @@ export class RoomAssignmentsRepository {
       },
     })
 
-    const toParticipant = (row: (typeof waiting)[number]): AssignmentParticipant => ({
+    const roster = [
+      ...term.rooms.flatMap((room) =>
+        room.assignments.map(({ applicationTerm }) => ({ row: applicationTerm, room })),
+      ),
+      ...waiting.map((row) => ({ row, room: null })),
+    ]
+      .filter(({ row }) => isWishableStatus(row.status))
+      .map(({ row, room }) => ({
+        applicationTermId: row.id,
+        firstName: row.application.firstName,
+        lastName: row.application.lastName,
+        room: room && { id: room.id, name: room.name },
+      }))
+    const evaluateWishes = createRoomWishEvaluator(roster)
+
+    const toParticipant = (
+      row: (typeof waiting)[number],
+      room: { id: string; name: string } | null,
+    ): AssignmentParticipant => ({
       applicationTermId: row.id,
       applicationId: row.applicationId,
       firstName: row.application.firstName,
@@ -88,8 +106,10 @@ export class RoomAssignmentsRepository {
       gender: row.application.gender,
       individualAccommodation: row.application.individualAccommodation,
       status: row.status,
-      // Nobody is in the room of an unassigned participant, so no wish of theirs is fulfilled yet.
-      wishes: row.application.individualAccommodation ? [] : evaluateRoomWishes(row.roomWishes, []),
+      // Individual accommodation has no wishes, even when some were saved before the switch.
+      wishes: row.application.individualAccommodation
+        ? []
+        : evaluateWishes(row.roomWishes, { applicationTermId: row.id, room }),
     })
 
     const rooms: AssignmentRoom[] = term.rooms.map((room) => ({
@@ -100,22 +120,13 @@ export class RoomAssignmentsRepository {
       beds: computeRoomBeds(room),
       gender: room.gender,
       individual: room.individual,
-      participants: room.assignments.map((assignment) => ({
-        ...toParticipant(assignment.applicationTerm),
-        // Individual accommodation has no wishes, even when some were saved before the switch.
-        wishes: assignment.applicationTerm.application.individualAccommodation
-          ? []
-          : evaluateRoomWishes(
-              assignment.applicationTerm.roomWishes,
-              room.assignments
-                .filter((other) => other.id !== assignment.id)
-                .map((other) => other.applicationTerm.application),
-            ),
-      })),
+      participants: room.assignments.map((assignment) =>
+        toParticipant(assignment.applicationTerm, { id: room.id, name: room.name }),
+      ),
     }))
 
     const unassigned = waiting.map((row) => ({
-      ...toParticipant(row),
+      ...toParticipant(row, null),
       alsoInTerms: others
         .filter((other) => other.applicationId === row.applicationId)
         .map(({ term: other }): AssignmentOtherTerm => ({

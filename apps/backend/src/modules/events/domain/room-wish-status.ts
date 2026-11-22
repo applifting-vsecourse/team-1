@@ -1,3 +1,4 @@
+import { ApplicationTermStatus, isAssignable } from "@/modules/applications/domain/evaluation"
 import { normalizeName } from "@/shared/domain/room-wishes"
 
 export const ROOM_WISH_STATUSES = ["fulfilled", "unfulfilled", "impossible"] as const
@@ -6,6 +7,15 @@ export type RoomWishStatus = {
   name: string
   status: (typeof ROOM_WISH_STATUSES)[number]
   roomName: string | null
+}
+
+/**
+ * Whose name in a wish counts as "in the applications of the term". OPEN BUSINESS QUESTION (see the
+ * PR): the docs only say who can sleep in a room (confirmed or to-evaluate), not who a wish may
+ * name, so this is the most conservative reading. Change it here only.
+ */
+export function isWishableStatus(status: ApplicationTermStatus): boolean {
+  return isAssignable(status)
 }
 
 type Room = { id: string; name: string }
