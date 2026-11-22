@@ -12,7 +12,7 @@ import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { formatDate } from "@/lib/date"
+import { formatDate, formatDateTime } from "@/lib/date"
 
 import { ApplicationsPage } from "@/features/event-overview/components/ApplicationsPage"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
@@ -362,7 +362,7 @@ describe("ApplicationsPage", () => {
   })
   it("passes combined filters, displays all terms and links to payment", async () => {
     setup()
-    expect(await screen.findAllByText("jana@example.com", { exact: false })).toHaveLength(2)
+    expect(await screen.findAllByRole("button", { name: "Jana Test" })).toHaveLength(2)
     expect(screen.getAllByText("Waitlisted").length).toBeGreaterThan(0)
     expect(screen.getByRole("link", { name: "Record payment" })).toHaveAttribute(
       "href",
@@ -422,7 +422,7 @@ describe("ApplicationsPage", () => {
     expect(onFilters).toHaveBeenLastCalledWith({})
     expect(screen.queryByRole("button", { name: /Substitutes with a free bed/ })).toBeNull()
   })
-  it("keeps identifying and contact details in mobile cards for same-name participants", async () => {
+  it("reveals identifying details from the keyboard without leaving the list", async () => {
     setup([
       application,
       {
@@ -433,14 +433,35 @@ describe("ApplicationsPage", () => {
         email: "other@example.com",
       },
     ])
-    const first = await screen.findByRole("link", { name: /Jana Test.*jana@example.com/ })
-    expect(first).toHaveTextContent(formatDate("2000-01-01"))
-    expect(first).toHaveTextContent("woman")
-    expect(first).toHaveAttribute("href", "/organizer/events/e1/applications/a1")
-    const second = screen.getByRole("link", { name: /Jana Test.*other@example.com/ })
-    expect(second).toHaveTextContent(formatDate("2001-02-03"))
-    expect(second).toHaveTextContent("man")
-    expect(second).toHaveAttribute("href", "/organizer/events/e1/applications/a2")
+    const user = userEvent.setup()
+    const table = await screen.findByRole("table")
+    const [, first, second] = within(table).getAllByRole("row")
+    const firstTrigger = within(first!).getByRole("button", { name: "Jana Test" })
+    const secondTrigger = within(second!).getByRole("button", { name: "Jana Test" })
+
+    const received = formatDateTime(application.submittedAt)
+    expect(within(table).queryByRole("columnheader", { name: "Received" })).toBeNull()
+    expect(within(first!).queryByText(received, { exact: false })).toBeNull()
+    expect(firstTrigger).toHaveAttribute("aria-expanded", "false")
+    expect(within(first!).queryByText("jana@example.com")).not.toBeInTheDocument()
+
+    firstTrigger.focus()
+    await user.keyboard("{Enter}")
+    expect(firstTrigger).toHaveAttribute("aria-expanded", "true")
+    expect(within(first!).getByText(received, { exact: false })).toBeVisible()
+    await user.click(within(first!).getByText("jana@example.com"))
+    expect(firstTrigger).toHaveAttribute("aria-expanded", "true")
+    expect(screen.queryByText("Application detail page")).not.toBeInTheDocument()
+    expect(within(first!).getByText(formatDate("2000-01-01"), { exact: false })).toBeVisible()
+    expect(within(first!).getByRole("link", { name: "Record payment" })).toHaveAttribute(
+      "href",
+      "/organizer/events/e1/applications/a1",
+    )
+
+    await user.click(secondTrigger)
+    expect(within(second!).getByText("other@example.com")).toBeVisible()
+    expect(within(second!).getByText(formatDate("2001-02-03"), { exact: false })).toBeVisible()
+    expect(screen.queryByText("Application detail page")).not.toBeInTheDocument()
   })
   it("clears search and every filter from an empty result and distinguishes an event with no applications", async () => {
     const change = setup([], false, "Nobody")
@@ -464,7 +485,7 @@ describe("ApplicationsPage", () => {
   it("offers the five payment states and sends the chosen one to the API", async () => {
     const change = setup([application], false, undefined, null, {})
     const user = userEvent.setup()
-    await screen.findAllByText("jana@example.com", { exact: false })
+    await screen.findByRole("row", { name: /Jana Test/ })
     await user.click(screen.getAllByRole("combobox", { name: "Payment" })[0]!)
     expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
       "All payments",
@@ -503,7 +524,7 @@ describe("ApplicationsPage", () => {
     it("opens the detail when the row is clicked", async () => {
       setup([application], false, undefined, null, {})
       const row = await screen.findByRole("row", { name: /Jana Test/ })
-      await userEvent.setup().click(within(row).getByText("jana@example.com", { exact: false }))
+      await userEvent.setup().click(within(row).getByText("Confirmed", { exact: true }))
       expect(await screen.findByText("Application detail page")).toBeInTheDocument()
     })
     it("keeps the detail link as the keyboard path", async () => {
@@ -518,7 +539,7 @@ describe("ApplicationsPage", () => {
     it("does not open the detail when a row is selected", async () => {
       setup([application], false, undefined, null, { status: "TO_EVALUATE" })
       const user = userEvent.setup()
-      await screen.findAllByText("jana@example.com", { exact: false })
+      await screen.findByRole("row", { name: /Jana Test/ })
       const checkbox = screen.getAllByRole("checkbox", {
         name: /Select application: Jana Test/,
       })[0]!
@@ -567,7 +588,7 @@ describe("ApplicationsPage", () => {
     it("lists who is waiting in the common table, oldest first", async () => {
       setup([waiting], false, undefined, null, { status: "TO_EVALUATE" })
       const row = await screen.findByRole("row", { name: /Jana Test/ })
-      expect(within(row).getByText(/jana@example.com/)).toBeInTheDocument()
+      expect(within(row).getByRole("button", { name: "Jana Test" })).toBeVisible()
       expect(within(row).getByText("Awaiting evaluation")).toBeInTheDocument()
       expect(screen.getByText("Sorted: in order of receipt, oldest first")).toBeInTheDocument()
       expect(screen.getByRole("heading", { name: "Applications", level: 2 })).toBeVisible()

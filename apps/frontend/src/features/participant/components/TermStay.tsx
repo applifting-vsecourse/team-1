@@ -90,14 +90,16 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
       aria-labelledby={headingId}
       className="flex flex-col gap-4"
     >
-      <Card className="gap-3 p-4 sm:max-w-190 sm:p-6">
-        <h2
-          id={headingId}
-          className="text-2xl font-semibold tracking-tight"
-        >
-          {t("stay.title")}
-        </h2>
-        <p className="text-sm text-muted-foreground">{termLine(term)}</p>
+      <Card className="gap-2 p-3 sm:p-4">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h2
+            id={headingId}
+            className="text-2xl font-semibold tracking-tight"
+          >
+            {t("stay.title")}
+          </h2>
+          <p className="text-sm font-medium tabular-nums">{termLine(term)}</p>
+        </div>
         {hasSaved ? (
           <div className="flex flex-col gap-1">
             {saved.lateArrival ? (

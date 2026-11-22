@@ -53,7 +53,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   if (isPending) return <LoadingState />
   if (error) {
     return (
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
         {back}
         <ErrorState
           title={t("detail.errorTitle")}
@@ -69,8 +69,8 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const isArchived = isFullyArchived(data)
 
   return (
-    <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
         {back}
         <PageHeader
           hasBand
@@ -94,18 +94,20 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           }
         />
       </div>
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
+      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
         <section
           aria-labelledby="application-terms"
-          className="flex min-w-0 flex-col gap-6"
+          className="flex min-w-0 flex-col gap-4"
         >
-          <h2
-            id="application-terms"
-            className="text-2xl font-semibold tracking-tight"
-          >
-            {t("detail.sections.terms")}
-          </h2>
-          <p className="text-sm text-muted-foreground tabular-nums">{data.code}</p>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h2
+              id="application-terms"
+              className="text-2xl font-semibold tracking-tight"
+            >
+              {t("detail.sections.terms")}
+            </h2>
+            <p className="text-sm font-medium tabular-nums">{data.code}</p>
+          </div>
           <TermSteps
             application={data}
             onEditRoomWishes={setEditRoomWishesTerm}
@@ -182,7 +184,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           {(Boolean(edit.data?.phone) ||
             data.applicantEmail !== undefined ||
             (data.birthDate !== undefined && data.gender !== undefined)) && (
-            <Card className="min-w-0 gap-4 p-4 sm:p-6">
+            <Card className="min-w-0 gap-3 p-4">
               <h2 className="text-xl font-semibold">{t("detail.participantCard")}</h2>
               {data.birthDate && data.gender && (
                 <DetailItem label={t("detail.birthGender")}>

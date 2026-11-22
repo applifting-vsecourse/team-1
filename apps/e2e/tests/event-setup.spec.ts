@@ -88,8 +88,10 @@ assignmentTest.describe("Room assignments on a touch phone", () => {
       await roomChoice(page, LAST_FREE_ROOM).tap()
       await expect(dialog.getByRole("button", { name: "Assign", exact: true })).toBeInViewport()
       await dialog.getByRole("button", { name: "Assign", exact: true }).tap()
+      const originalRoom = roomCard(page, LAST_FREE_ROOM)
+      await originalRoom.getByRole("button", { name: "Participants", exact: true }).tap()
       await expect(
-        roomCard(page, LAST_FREE_ROOM).getByRole("button", { name: "Actions for " + person }),
+        originalRoom.getByRole("button", { name: "Actions for " + person }),
       ).toBeVisible()
 
       await openRoomAction(page, actions, "Move to another room…")
@@ -100,14 +102,16 @@ assignmentTest.describe("Room assignments on a touch phone", () => {
       await expect(fullDialog.getByRole("button", { name: "Assign as an extra bed" })).toBeVisible()
       await fullDialog.getByRole("button", { name: "Cancel" }).tap()
       await expect(
-        roomCard(page, LAST_FREE_ROOM).getByRole("button", { name: "Actions for " + person }),
+        originalRoom.getByRole("button", { name: "Actions for " + person }),
       ).toBeVisible()
 
       await openRoomAction(page, actions, "Move to another room…")
       await roomChoice(page, FIRST_ROOM).tap()
       await dialog.getByRole("button", { name: "Move", exact: true }).tap()
+      const destinationRoom = roomCard(page, FIRST_ROOM)
+      await destinationRoom.getByRole("button", { name: "Participants", exact: true }).tap()
       await expect(
-        roomCard(page, FIRST_ROOM).getByRole("button", { name: "Actions for " + person }),
+        destinationRoom.getByRole("button", { name: "Actions for " + person }),
       ).toBeVisible()
       await openRoomAction(page, actions, "Remove from room")
       await expect(assign).toBeVisible()
@@ -122,15 +126,16 @@ assignmentTest(
     const { person } = assignment
     await openAssignments(page, assignment)
     await dragToRoom(page, unassignedDragHandle(page, person), LAST_FREE_ROOM)
-    const actions = page.getByRole("button", { name: "Actions for " + person })
+    const originalRoom = page.getByRole("row").filter({
+      has: page.getByRole("cell", { name: LAST_FREE_ROOM, exact: true }),
+    })
+    await originalRoom.getByRole("button", { name: "Participants", exact: true }).press("Enter")
+    const actions = originalRoom.getByRole("button", { name: "Actions for " + person })
     await expect(actions).toBeVisible()
     await dragToRoom(page, actions, FULL_ROOM, "E2E Room 1")
     const fullDialog = page.getByRole("dialog", { name: FULL_ROOM + " is full" })
     await expect(fullDialog.getByRole("button", { name: "Assign as an extra bed" })).toBeVisible()
     await fullDialog.getByRole("button", { name: "Cancel" }).click()
-    const originalRoom = page.getByRole("row").filter({
-      has: page.getByRole("cell", { name: LAST_FREE_ROOM, exact: true }),
-    })
-    await expect(originalRoom.getByRole("button", { name: "Actions for " + person })).toBeVisible()
+    await expect(actions).toBeVisible()
   },
 )

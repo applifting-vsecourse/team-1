@@ -317,6 +317,7 @@ describe("RoomsOverview (US-36)", () => {
     it("moves a person from the menu with the same dialog as the assignment", async () => {
       const user = renderOverview()
       const card = within(await roomCard("Room A"))
+      await user.click(card.getByRole("button", { name: "Beds · Room A" }))
       await user.click(card.getByRole("button", { name: "Actions for Jana Nováková" }))
       await user.click(await screen.findByRole("menuitem", { name: "Move to another room…" }))
       expect(
@@ -328,6 +329,7 @@ describe("RoomsOverview (US-36)", () => {
       del.mockReturnValue(Promise.resolve({}))
       const user = renderOverview()
       const card = within(await roomCard("Room A"))
+      await user.click(card.getByRole("button", { name: "Beds · Room A" }))
       await user.click(card.getByRole("button", { name: "Actions for Jana Nováková" }))
       await user.click(await screen.findByRole("menuitem", { name: "Remove from room" }))
       await vi.waitFor(() => expect(del).toHaveBeenCalledOnce())

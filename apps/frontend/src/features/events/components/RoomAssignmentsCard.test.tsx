@@ -183,13 +183,16 @@ describe("room assignment", () => {
   })
 
   it("lists the unassigned with their status, the rooms with people and free beds, and the count", async () => {
-    renderCard()
+    const user = renderCard()
     expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
     expect(screen.getByText("Woman · Confirmed")).toBeInTheDocument()
     expect(screen.getByText("Woman · Awaiting evaluation")).toBeInTheDocument()
     expect(screen.getByLabelText("Unassigned participants: 2")).toHaveTextContent("2")
     const table = screen.getByRole("table")
-    expect(within(table).getByText("Jana Nováková")).toBeInTheDocument()
+    const roomA = within(table).getByRole("row", { name: /Room A/ })
+    expect(within(roomA).queryByText("Jana Nováková")).not.toBeInTheDocument()
+    await user.click(within(roomA).getByRole("button", { name: "Participants" }))
+    expect(within(roomA).getByText("Jana Nováková")).toBeVisible()
     expect(within(table).getAllByText("3 free beds")).toHaveLength(2)
     expect(within(table).getByText("Full")).toBeInTheDocument()
   })
@@ -532,7 +535,11 @@ describe("room assignment", () => {
     const user = renderCard()
     await screen.findByRole("table")
     const cards = screen.getAllByRole("list").find((list) => list.classList.contains("lg:hidden"))
-    await user.click(within(cards!).getByRole("button", { name: "Actions for Jana Nováková" }))
+    const card = within(cards!)
+      .getAllByRole("listitem")
+      .find((item) => within(item).queryByRole("button", { name: "Actions r1" }))!
+    await user.click(within(card).getByRole("button", { name: "Participants" }))
+    await user.click(within(card).getByRole("button", { name: "Actions for Jana Nováková" }))
     const sheet = await screen.findByRole("dialog", { name: "Jana Nováková" })
     expect(sheet).toHaveAccessibleDescription(/Room A/)
     await user.click(within(sheet).getByRole("button", { name: "Move to another room…" }))
@@ -550,7 +557,11 @@ describe("room assignment", () => {
     const user = renderCard()
     await screen.findByRole("table")
     const cards = screen.getAllByRole("list").find((list) => list.classList.contains("lg:hidden"))
-    await user.click(within(cards!).getByRole("button", { name: "Actions for Eva Horká" }))
+    const card = within(cards!)
+      .getAllByRole("listitem")
+      .find((item) => within(item).queryByRole("button", { name: "Actions r2" }))!
+    await user.click(within(card).getByRole("button", { name: "Participants" }))
+    await user.click(within(card).getByRole("button", { name: "Actions for Eva Horká" }))
     const sheet = await screen.findByRole("dialog", { name: "Eva Horká" })
     await user.click(within(sheet).getByRole("button", { name: "Remove from room" }))
     await waitFor(() =>
@@ -683,16 +694,17 @@ describe("room assignment", () => {
           { ...person("p4", "Nikola", "Králová"), alsoInTerms: [] },
         ],
       }
-      renderCard()
+      const user = renderCard()
       expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
       expect(screen.getByText("Woman · Awaiting evaluation")).toBeInTheDocument()
-      // The unassigned one has the full badge; in the room, in the table and in the card of the
-      // phone layout, the chip carries a short one. Nobody else has any.
       expect(screen.getAllByText("Individual accommodation")).toHaveLength(1)
-      expect(screen.getAllByText("Individual")).toHaveLength(2)
       const table = screen.getByRole("table")
-      expect(within(table).getByText("Individual")).toBeInTheDocument()
-      expect(within(table).getByText("Eva Horká")).toBeInTheDocument()
+      const roomA = within(table).getByRole("row", { name: /Room A/ })
+      const roomB = within(table).getByRole("row", { name: /Room B/ })
+      await user.click(within(roomA).getByRole("button", { name: "Participants" }))
+      await user.click(within(roomB).getByRole("button", { name: "Participants" }))
+      expect(within(roomA).getByText("Individual")).toBeVisible()
+      expect(within(roomB).getByText("Eva Horká")).toBeVisible()
       expect(screen.getByRole("button", { name: "Assign Barbora Šimková to a room" })).toBeEnabled()
     })
 
