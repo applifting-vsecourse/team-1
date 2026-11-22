@@ -307,12 +307,12 @@ describe("application summary over its terms (D-088)", () => {
     expect(computeApplicationPayable(terms)).toBe(0)
     expect(computeApplicationPaymentStatus(terms)).toBe("PAID")
   })
-  it("shows the overpayment when no term owes anything", () => {
+  it("keeps zero debt and the overpaid status when no term owes anything", () => {
     const terms = [
       confirmed(1000, 1500),
       { status: "WAITLISTED" as const, priceCzk: 500, payments: [{ amountCzk: 200 }] },
     ]
-    expect(computeApplicationOwed(terms)).toBe(-700)
+    expect(computeApplicationOwed(terms)).toBe(0)
     expect(computeApplicationPaymentStatus(terms)).toBe("OVERPAID")
   })
   it("has nothing due without a confirmed term", () => {

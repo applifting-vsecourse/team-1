@@ -117,14 +117,9 @@ export function computeApplicationPayable(terms: PricedTerm[]): number {
   )
 }
 
-/**
- * Owed of an application in the list (US-52): its debt (see `computeApplicationPayable`). Only
- * when no term owes anything it is the (negative) overpayment of its terms, so the list still shows it.
- */
+/** Debt in the application list is never negative; overpayments have their own payment status. */
 export function computeApplicationOwed(terms: PricedTerm[]): number {
-  const payable = computeApplicationPayable(terms)
-  if (payable > 0) return payable
-  return terms.reduce((sum, term) => sum + Math.min(0, computeTermOwed(term, term.payments)), 0)
+  return computeApplicationPayable(terms)
 }
 
 /** A confirmed term in debt makes the application unpaid whatever another term was overpaid (D-088). */
@@ -134,7 +129,7 @@ export function computeApplicationPaymentStatus(terms: PricedTerm[]): PaymentSta
     const paid = computeAmountPaid(terms.flatMap((term) => term.payments))
     return paid === 0 ? "UNPAID" : "PARTIALLY_PAID"
   }
-  if (owed < 0) return "OVERPAID"
+  if (terms.some((term) => computeTermOwed(term, term.payments) < 0)) return "OVERPAID"
   return computeAmountDue(terms) === 0 ? "NOTHING_DUE" : "PAID"
 }
 

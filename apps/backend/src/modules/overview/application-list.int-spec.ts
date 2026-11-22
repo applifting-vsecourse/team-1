@@ -177,6 +177,24 @@ describe("application list API", () => {
     expect(await find("?payment=PARTIALLY_PAID")).toContain(source.id)
     expect(await find("?payment=OVERPAID")).not.toContain(source.id)
     expect(await find("?payment=PAID")).not.toContain(source.id)
+
+    // Once the other term is settled, the overpayment remains a status, not a negative debt.
+    await prisma.payment.create({
+      data: {
+        applicationTermId: secondId,
+        amountCzk: 1500,
+        organizationId: source.organizationId,
+        receiptId: randomUUID(),
+        recordedById: organizer.id,
+      },
+    })
+    const settled = ((await (await get()).json()) as { id: string }[]).find(
+      (entry) => entry.id === source.id,
+    )
+    expect(settled).toMatchObject({ amountOwedCzk: 0, paymentStatus: "OVERPAID" })
+    expect(await find("?payment=OVERPAID")).toContain(source.id)
+    expect(await find("?payment=DEBT")).not.toContain(source.id)
+    expect(await find("?payment=PAID")).not.toContain(source.id)
   })
 
   it("flags and filters applications with a request for individual accommodation (US-38)", async () => {
