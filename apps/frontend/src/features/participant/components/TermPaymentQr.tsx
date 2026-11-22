@@ -33,7 +33,7 @@ export function TermPaymentQr({
       src={image}
       width={200}
       height={200}
-      className="size-50 max-w-full object-contain"
+      className="size-40 max-w-full object-contain"
       alt={t("termPayment.qrAlt")}
     />
   )

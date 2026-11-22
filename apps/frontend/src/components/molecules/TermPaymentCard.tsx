@@ -138,45 +138,52 @@ export function TermPaymentCard({
       {status === "UNPAID" || status === "PARTIALLY_PAID" || status === "PAID" ? (
         <div className="flex flex-col gap-2">
           <h4 className="text-sm font-medium">{t("termPayment.paymentDetails")}</h4>
-          <dl className={isStacked ? "flex flex-col gap-3 text-sm" : "flex flex-col gap-2 text-sm"}>
-            {owedCzk > 0 ? (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+            <dl
+              className={cn(
+                "flex flex-col text-sm sm:min-w-0 sm:flex-1",
+                isStacked ? "gap-3" : "gap-2",
+              )}
+            >
+              {owedCzk > 0 ? (
+                <CopyRow
+                  isStacked={isStacked}
+                  label={t("termPayment.owed")}
+                  value={String(owedCzk)}
+                  copyLabel={t("clipboard.copyAmount")}
+                >
+                  <MoneyAmount amountCzk={owedCzk} />
+                </CopyRow>
+              ) : null}
               <CopyRow
                 isStacked={isStacked}
-                label={t("termPayment.owed")}
-                value={String(owedCzk)}
-                copyLabel={t("clipboard.copyAmount")}
+                label={t("termPayment.account")}
+                value={bankAccount}
+                copyLabel={t("clipboard.copyAccount")}
               >
-                <MoneyAmount amountCzk={owedCzk} />
+                <span className="break-all">{bankAccount}</span>
               </CopyRow>
-            ) : null}
-            <CopyRow
-              isStacked={isStacked}
-              label={t("termPayment.account")}
-              value={bankAccount}
-              copyLabel={t("clipboard.copyAccount")}
-            >
-              <span className="break-all">{bankAccount}</span>
-            </CopyRow>
-            <CopyRow
-              isStacked={isStacked}
-              label={t("termPayment.variableSymbol")}
-              value={variableSymbol}
-              copyLabel={t("clipboard.copyVariableSymbol")}
-            >
-              <span className="break-all">{variableSymbol}</span>
-            </CopyRow>
-            {owedCzk > 0 && paymentDeadline ? (
-              <div
-                className={
-                  isStacked ? "flex flex-col" : "flex items-center justify-between gap-4 py-2"
-                }
+              <CopyRow
+                isStacked={isStacked}
+                label={t("termPayment.variableSymbol")}
+                value={variableSymbol}
+                copyLabel={t("clipboard.copyVariableSymbol")}
               >
-                <dt className="text-muted-foreground">{t("termPayment.deadline")}</dt>
-                <dd className="text-base">{formatDate(paymentDeadline)}</dd>
-              </div>
-            ) : null}
-          </dl>
-          {owedCzk > 0 && qr ? <div className="flex justify-center pt-2">{qr}</div> : null}
+                <span className="break-all">{variableSymbol}</span>
+              </CopyRow>
+              {owedCzk > 0 && paymentDeadline ? (
+                <div
+                  className={
+                    isStacked ? "flex flex-col" : "flex items-center justify-between gap-4 py-2"
+                  }
+                >
+                  <dt className="text-muted-foreground">{t("termPayment.deadline")}</dt>
+                  <dd className="text-base">{formatDate(paymentDeadline)}</dd>
+                </div>
+              ) : null}
+            </dl>
+            {owedCzk > 0 && qr ? <div className="flex shrink-0 justify-center">{qr}</div> : null}
+          </div>
         </div>
       ) : null}
       {note}
