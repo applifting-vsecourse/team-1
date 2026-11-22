@@ -75,7 +75,7 @@ export function BoardPage({ postId }: { postId?: string }) {
       ) : posts.length === 0 ? (
         <EmptyState message={t("empty")} />
       ) : (
-        <div className="grid items-start gap-6 lg:grid-cols-[400px_minmax(0,1fr)]">
+        <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[400px_minmax(0,1fr)]">
           <div className={cn(postId && "max-lg:hidden")}>
             <BoardPostList
               posts={posts}
