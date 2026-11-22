@@ -46,6 +46,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const { data, isPending, error, refetch } = useQuery(myApplicationQueryOptions(applicationId))
   const edit = useQuery({ ...applicationEditQueryOptions(applicationId), enabled: Boolean(data) })
   const [changeMode, setChangeMode] = useState<ChangeMode | null>(null)
+  const [editRoomWishesTerm, setEditRoomWishesTerm] = useState<string | null>(null)
 
   const back = <BackLink to={ROUTES.participant.applications}>{t("detail.back")}</BackLink>
 
@@ -105,7 +106,10 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
             {t("detail.sections.terms")}
           </h2>
           <p className="text-sm text-muted-foreground tabular-nums">{data.code}</p>
-          <TermSteps application={data} />
+          <TermSteps
+            application={data}
+            onEditRoomWishes={setEditRoomWishesTerm}
+          />
           <TermStaySection
             applicationId={applicationId}
             terms={data.terms}
@@ -125,6 +129,11 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           <RoomWishesSection
             applicationId={applicationId}
             terms={data.terms}
+            editingTermId={editRoomWishesTerm}
+            onStartEditing={setEditRoomWishesTerm}
+            onStopEditing={(termId) =>
+              setEditRoomWishesTerm((current) => (current === termId ? null : current))
+            }
           />
           {hasSteps ? (
             <div>

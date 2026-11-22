@@ -79,6 +79,11 @@ export class MyApplicationTermDto {
   roomWishes?: string[]
 
   @ApiPropertyOptional({
+    description: "The participant explicitly chose no roommate wishes for this term.",
+  })
+  noRoomWishes?: boolean
+
+  @ApiPropertyOptional({
     type: "object",
     properties: {
       lateArrival: { type: "string", nullable: true, example: "2027-07-13T10:30" },

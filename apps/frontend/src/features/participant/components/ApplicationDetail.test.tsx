@@ -1028,20 +1028,53 @@ describe("ApplicationDetail", () => {
       )
     })
 
-    it("links to the wishes and published room of the matching term", async () => {
-      renderDetail(
-        withSteps({ terms: [{ ...confirmed, roomWishes: [], room: { name: "Bříza 204" } }] }),
-      )
+    it("opens the matching term's roommate-wishes editor from the step", async () => {
+      const user = userEvent.setup()
+      renderDetail(withSteps({ terms: [{ ...confirmed, roomWishes: [] }] }))
       const wishes = await stepRow(/^1\. týden$/, "Roommate wishes")
       expect(within(wishes).getByText("To do")).toBeVisible()
-      const room = await stepRow(/^1\. týden$/, "Room")
-      expect(within(room).getByText("Done")).toBeVisible()
-      for (const row of [wishes, room]) {
-        const link = within(row).getByRole("link")
-        const target = document.querySelector(link.getAttribute("href")!)
-        expect(target).toBeVisible()
-      }
+      await user.click(within(wishes).getByRole("link", { name: "Enter roommate wishes" }))
+      expect(screen.getByLabelText("Name 1")).toBeVisible()
     })
+
+    it("saves the no-wishes response only for the selected term and shows it as done", async () => {
+      const user = userEvent.setup()
+      const firstTerm = { ...confirmed, roomWishes: [], noRoomWishes: false }
+      const secondTerm = { ...waitlisted, status: "CONFIRMED" as const, roomWishes: ["Eva Černá"] }
+      put.mockImplementationOnce(() => {
+        firstTerm.noRoomWishes = true
+        return Promise.resolve()
+      })
+      renderDetail(withSteps({ terms: [firstTerm, secondTerm] }))
+
+      const second = await stepRow(/^2\. týden$/, "Roommate wishes")
+      expect(within(second).getByText("Eva Černá")).toBeVisible()
+      expect(within(second).getByText("Done")).toBeVisible()
+      const first = await stepRow(/^1\. týden$/, "Roommate wishes")
+      await user.click(within(first).getByRole("button", { name: "I have no wishes" }))
+      expect(put).toHaveBeenCalledWith("participant/applications/a1/terms/t1/room-wishes", {
+        json: { names: [], noRoomWishes: true },
+      })
+      expect(await within(first).findByText("No wishes")).toBeVisible()
+      expect(within(first).getByText("Done")).toBeVisible()
+      expect(within(first).getByRole("link", { name: "Change" })).toBeVisible()
+      expect(within(first).queryByRole("button", { name: "I have no wishes" })).toBeNull()
+    })
+
+    it.each([
+      ["Bříza 204", "Bříza 204"],
+      [null, "You have no room assigned yet."],
+    ])(
+      "keeps a published room (%s) outside the steps and removes the wishes step",
+      async (name, text) => {
+        renderDetail(withSteps({ terms: [{ ...confirmed, roomWishes: [], room: { name } }] }))
+        expect(await screen.findByText(text)).toBeVisible()
+        expect(screen.getByRole("heading", { name: "Room" })).toBeVisible()
+        const card = within(cardOf(/^1\. týden$/))
+        expect(card.queryByText("Roommate wishes")).not.toBeInTheDocument()
+        expect(card.queryByText("Room")).not.toBeInTheDocument()
+      },
+    )
 
     it("shows the payment step as to do while something is owed and links to the payment", async () => {
       renderDetail(withSteps())
