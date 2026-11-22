@@ -93,16 +93,19 @@
       "meals": "Meals",
       "mealsFill": "Fill in meals",
       "mealsView": "View meals",
+      "noWishes": "No wishes",
       "payment": "Payment",
       "paymentPay": "Pay {{amount}}",
       "paymentView": "View payment details",
-      "roomView": "View room",
       "title": "Steps before the event",
       "todo": "To do",
       "transport": "Transport",
       "transportChoose": "Choose transport",
       "transportView": "View transport",
-      "wishesView": "View wishes"
+      "wishesAdd": "Enter roommate wishes",
+      "wishesChange": "Change",
+      "wishesDecline": "I have no wishes",
+      "wishesSaveFailed": "Could not save your response."
     },
     "title": "Application details",
     "toEvaluate": {

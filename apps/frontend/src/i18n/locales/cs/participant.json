@@ -93,16 +93,19 @@
       "meals": "Stravování",
       "mealsFill": "Doplnit stravování",
       "mealsView": "Zobrazit stravování",
+      "noWishes": "Bez přání",
       "payment": "Zaplacení",
       "paymentPay": "Zaplatit {{amount}}",
       "paymentView": "Zobrazit platební údaje",
-      "roomView": "Zobrazit pokoj",
       "title": "Kroky před akcí",
       "todo": "Zbývá",
       "transport": "Doprava",
       "transportChoose": "Vybrat dopravu",
       "transportView": "Zobrazit dopravu",
-      "wishesView": "Zobrazit přání"
+      "wishesAdd": "Zadat spolubydlící",
+      "wishesChange": "Změnit",
+      "wishesDecline": "Nemám přání",
+      "wishesSaveFailed": "Odpověď se nepodařilo uložit."
     },
     "title": "Detail přihlášky",
     "toEvaluate": {

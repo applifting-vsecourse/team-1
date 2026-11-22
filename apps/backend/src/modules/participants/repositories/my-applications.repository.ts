@@ -156,6 +156,7 @@ function toRecord(row: Row | DetailRow): MyApplicationRecord {
         transportId,
         roomAssignment,
         roomWishes,
+        noRoomWishes,
         lateArrivalAt,
         earlyDepartureAt,
       }) => ({
@@ -184,6 +185,7 @@ function toRecord(row: Row | DetailRow): MyApplicationRecord {
           : {}),
         termCancelled: term.cancelledAt !== null,
         roomWishes,
+        noRoomWishes,
         lateArrival: lateArrivalAt && toPragueWallTime(lateArrivalAt),
         earlyDeparture: earlyDepartureAt && toPragueWallTime(earlyDepartureAt),
       }),
