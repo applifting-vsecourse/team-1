@@ -270,7 +270,9 @@ function UnmatchedTransactions({ eventId }: { eventId: string }) {
                           <UnmatchedTransactionPanel
                             eventId={eventId}
                             transaction={row}
-                            onClose={() => setOpenId(null)}
+                            onClose={() =>
+                              setOpenId((current) => (current === row.id ? null : current))
+                            }
                           />
                         </TableCell>
                       </TableRow>

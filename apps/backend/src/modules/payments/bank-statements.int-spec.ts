@@ -46,7 +46,7 @@ describe("bank statement import (US-42)", () => {
       ),
     ].join("\r\n")
 
-  const createApplication = async (confirmed: boolean): Promise<number> => {
+  const createApplication = async (confirmed: boolean, lastName = "Test"): Promise<number> => {
     const event = await prisma.event.findUniqueOrThrow({
       where: { id: eventId },
       include: { terms: { orderBy: { startsOn: "asc" } } },
@@ -57,7 +57,7 @@ describe("bank statement import (US-42)", () => {
         eventId,
         accessToken: `bank-test-${randomUUID()}`,
         firstName: "Bank",
-        lastName: "Test",
+        lastName,
         birthDate: new Date("2000-01-01"),
         gender: "FEMALE",
         email: `bank-${randomUUID()}@example.com`,
@@ -188,6 +188,25 @@ describe("bank statement import (US-42)", () => {
     expect(second[1]).toBe(`${original[1]};Skipped: already imported earlier`)
     expect(second[2]).toBe(`${original[2]};Unmatched: no variable symbol`)
     expect(second[3]).toBe(`${original[3]};Skipped: outgoing transaction`)
+  })
+
+  it("imports parallel statements for one application without a deadlock", async () => {
+    const number = await createApplication(true, "Parallel")
+    const vs = String(number * 1000 + firstTerm.number)
+    const responses = await Promise.all(
+      [1, 2, 3, 4].map((n) => upload(statement(`par${Date.now()}-${n}-`, [[100 * n, vs]]))),
+    )
+    expect(responses.map((response) => response.status)).toEqual([200, 200, 200, 200])
+    const application = await prisma.application.findFirstOrThrow({ where: { eventId, number } })
+    const stored = await prisma.bankTransaction.findMany({
+      where: { applicationId: application.id },
+    })
+    expect(stored).toHaveLength(4)
+    expect(stored.every((row) => row.status === "MATCHED")).toBe(true)
+    const payments = await prisma.payment.findMany({
+      where: { applicationTerm: { applicationId: application.id } },
+    })
+    expect(payments.map((payment) => payment.amountCzk).sort()).toEqual([100, 200, 300, 400])
   })
 
   describe("summary variable symbol (US-148)", () => {
@@ -462,6 +481,30 @@ describe("bank statement import (US-42)", () => {
           "UNMATCHED",
         )
       }
+    })
+
+    it("reads the amount under the lock: a re-import that turned it into cents meanwhile is refused", async () => {
+      const application = await applicationOf(await createApplication(true, "Locked"))
+      const { id } = await importUnmatched(500)
+      let request: Promise<Response> | undefined
+      await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT id FROM bank_transaction WHERE id = ${id} FOR UPDATE`
+        request = match(id, { applicationId: application.id, termId: firstTerm.id })
+        // The request has read the row (whole crowns) and waits for the lock.
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        await tx.bankTransaction.update({ where: { id }, data: { amountCents: 50050 } })
+      })
+      const response = await request!
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "BANK_TRANSACTION_NOT_ASSIGNABLE" })
+      expect(
+        await prisma.payment.count({
+          where: { applicationTerm: { applicationId: application.id } },
+        }),
+      ).toBe(0)
+      expect((await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).status).toBe(
+        "UNMATCHED",
+      )
     })
 
     it("refuses a term outside the application, an unknown application and a foreign session", async () => {

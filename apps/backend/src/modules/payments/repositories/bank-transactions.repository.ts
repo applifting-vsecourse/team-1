@@ -1,7 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeTermOwed, computeTermPaid } from "@/modules/applications/domain/pricing"
-import { CandidateSource } from "@/modules/payments/domain/application-candidates"
+import { CandidateSource, isAssignable } from "@/modules/payments/domain/application-candidates"
 import {
   FoundApplication,
   StatementRow,
@@ -127,9 +127,11 @@ export class BankTransactionsRepository {
    * row of the bank transaction is locked first (and must still belong to the event and
    * organization it was read for), so a parallel assignment or import of the same transaction waits
    * and then finds it matched; the payment lock of `PaymentsRepository.record` is per application
-   * only. Nothing is written when the transaction is not unmatched any more.
-   * @returns the terms the payment closed (for the e-mail, sent after the commit), or null when the
-   * transaction is not an unmatched one of this event and organization.
+   * only. The amount and currency are read from the locked row, so a re-import that changed them
+   * meanwhile is honoured. Nothing is written when the transaction is not unmatched any more.
+   * @returns the terms the payment closed (for the e-mail, sent after the commit), "NOT_ASSIGNABLE"
+   * when the locked row is not in whole crowns, or null when the transaction is not an unmatched
+   * one of this event and organization.
    */
   async assign(input: {
     id: string
@@ -138,20 +140,22 @@ export class BankTransactionsRepository {
     recordedById: string
     applicationId: string
     termId: string
-    amountCzk: number
     receiptId: string
-  }): Promise<PaidTermNotice[] | null> {
+  }): Promise<PaidTermNotice[] | "NOT_ASSIGNABLE" | null> {
     return this.prisma.$transaction(async (tx) => {
       const locked = await tx.$queryRaw<
-        { id: string }[]
-      >`SELECT id FROM bank_transaction WHERE id = ${input.id} AND "eventId" = ${input.eventId} AND "organizationId" = ${input.organizationId} AND status = 'UNMATCHED' FOR UPDATE`
+        { amountCents: number; currency: string }[]
+      >`SELECT "amountCents", currency FROM bank_transaction WHERE id = ${input.id} AND "eventId" = ${input.eventId} AND "organizationId" = ${input.organizationId} AND status = 'UNMATCHED' FOR UPDATE`
       if (!locked.length) return null
+      const [row] = locked
+      if (!isAssignable(row)) return "NOT_ASSIGNABLE"
+      // The application is locked by recordWithin before the row gets a foreign key to it.
       const paid = await this.payments.recordWithin(tx, {
         applicationId: input.applicationId,
         organizationId: input.organizationId,
         recordedById: input.recordedById,
         requestId: input.receiptId,
-        amountCzk: input.amountCzk,
+        amountCzk: row.amountCents / 100,
         termId: input.termId,
         source: "BANK_IMPORT",
       })
@@ -171,7 +175,10 @@ export class BankTransactionsRepository {
   /**
    * Import of a row that matched an application: the row and its payment are written in one
    * database transaction, under the lock of an earlier unmatched row (`retryOf`) or the unique key of
-   * a new one.
+   * a new one. The row is reserved without the application first and gets its `applicationId` only
+   * after `recordWithin` locked the application: the foreign key check would otherwise hold a shared
+   * lock on the application in two parallel imports and both would then wait for the exclusive one
+   * (deadlock).
    * @returns the terms the payment closed, or null when a parallel upload or assignment stored or
    * matched the row first.
    */
@@ -191,26 +198,29 @@ export class BankTransactionsRepository {
       status: "MATCHED" as const,
       reason: null,
       receiptId: input.receiptId,
-      applicationId: input.applicationId,
+      applicationId: null,
     }
     try {
       return await this.prisma.$transaction(async (tx) => {
+        let id: string
         if (input.retryOf) {
           const locked = await tx.$queryRaw<
             { id: string }[]
           >`SELECT id FROM bank_transaction WHERE id = ${input.retryOf} AND "organizationId" = ${input.organizationId} AND status = 'UNMATCHED' FOR UPDATE`
           if (!locked.length) return null
-          await tx.bankTransaction.update({ where: { id: input.retryOf }, data })
+          id = input.retryOf
+          await tx.bankTransaction.update({ where: { id }, data })
         } else {
-          await tx.bankTransaction.create({
+          ;({ id } = await tx.bankTransaction.create({
             data: {
               ...data,
               organizationId: input.organizationId,
               externalId: input.row.externalId,
             },
-          })
+            select: { id: true },
+          }))
         }
-        return this.payments.recordWithin(tx, {
+        const paid = await this.payments.recordWithin(tx, {
           applicationId: input.applicationId,
           organizationId: input.organizationId,
           recordedById: input.importedById,
@@ -219,6 +229,11 @@ export class BankTransactionsRepository {
           termId: input.termId,
           source: "BANK_IMPORT",
         })
+        await tx.bankTransaction.update({
+          where: { id },
+          data: { applicationId: input.applicationId },
+        })
+        return paid
       })
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002")

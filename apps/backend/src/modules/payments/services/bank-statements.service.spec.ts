@@ -2,6 +2,7 @@ import { BankTransactionsRepository } from "@/modules/payments/repositories/bank
 import { PaymentsService } from "@/modules/payments/services/payments.service"
 import { Identity } from "@/shared/auth/domain/identity"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
+import { Logger } from "@nestjs/common"
 import { BankStatementsService } from "./bank-statements.service"
 
 describe("BankStatementsService.match (US-562)", () => {
@@ -46,7 +47,6 @@ describe("BankStatementsService.match (US-562)", () => {
       recordedById: "u1",
       applicationId: "a1",
       termId: "term1",
-      amountCzk: 4900,
       receiptId: "bank:org:777",
     })
     expect(notify).toHaveBeenCalledWith("a1", "org", expect.any(Array))
@@ -75,6 +75,22 @@ describe("BankStatementsService.match (US-562)", () => {
       response: { code: "BANK_TRANSACTION_ALREADY_MATCHED" },
     })
     expect(notify).not.toHaveBeenCalled()
+  })
+
+  it("refuses with a conflict when the locked row turned out not to be assignable", async () => {
+    repository.assign.mockResolvedValue("NOT_ASSIGNABLE")
+    await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
+      response: { code: "BANK_TRANSACTION_NOT_ASSIGNABLE" },
+    })
+    expect(notify).not.toHaveBeenCalled()
+  })
+
+  it("finishes with success when the e-mail after the commit fails", async () => {
+    repository.assign.mockResolvedValue([{ name: null, startsOn: new Date(), endsOn: new Date() }])
+    notify.mockRejectedValue(new Error("mail context failed"))
+    jest.spyOn(Logger.prototype, "error").mockImplementation(() => undefined)
+    await expect(service.match(user, "e1", "t1", "a1", "term1")).resolves.toBeUndefined()
+    expect(Logger.prototype.error).toHaveBeenCalled()
   })
 
   it("sends no e-mail when the write fails", async () => {

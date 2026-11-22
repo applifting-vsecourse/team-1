@@ -65,6 +65,8 @@ function renderPage(options: {
   rows: ReturnType<typeof transaction>[]
   candidates?: unknown[]
   match?: () => Response
+  /** The match request answers only after this promise settles. */
+  matchGate?: Promise<void>
 }) {
   let rows = options.rows
   const calls: Request[] = []
@@ -77,7 +79,7 @@ function renderPage(options: {
     if (request.url.endsWith("/match")) {
       const response = options.match?.() ?? new Response(null, { status: 204 })
       if (response.ok) rows = rows.filter((row) => !request.url.includes(`/${row.id}/`))
-      return Promise.resolve(response)
+      return (options.matchGate ?? Promise.resolve()).then(() => response)
     }
     return Promise.resolve(json({ transactions: rows }))
   })
@@ -145,6 +147,28 @@ describe("manual match of an unmatched payment (US-562)", () => {
     expect(await screen.findByText("No unmatched payments.")).toBeVisible()
     const post = calls.find((request) => request.url.endsWith("/bank-transactions/b1/match"))!
     expect(await post.json()).toEqual({ applicationId: "a1", termId: "t2" })
+  })
+
+  it("closes only the panel of the saved transaction, not the one opened meanwhile", async () => {
+    let release = (): void => undefined
+    const matchGate = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    renderPage({
+      rows: [transaction("b1"), transaction("b2", { counterpartyName: "Petr Svoboda" })],
+      candidates: [jana],
+      matchGate,
+    })
+    await userEvent.click(await screen.findByRole("button", { name: "Assign Hana Novotná" }))
+    await userEvent.type(screen.getByLabelText("Find an application"), "Jana")
+    await userEvent.click((await screen.findAllByRole("radio"))[0]!)
+    await userEvent.click(screen.getByRole("button", { name: "Assign payment" }))
+    // The save of b1 is still running when the panel of b2 is opened and filled in.
+    await userEvent.click(screen.getByRole("button", { name: "Assign Petr Svoboda" }))
+    await userEvent.type(screen.getByLabelText("Find an application"), "Draft")
+    release()
+    await waitFor(() => expect(screen.queryByText("Hana Novotná")).toBeNull())
+    expect(screen.getByLabelText("Find an application")).toHaveValue("Draft")
   })
 
   it("shows an overpayment instead of what is left", async () => {

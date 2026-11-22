@@ -17,11 +17,12 @@ import {
   BankTransactionsRepository,
   StoredBankTransaction,
 } from "@/modules/payments/repositories/bank-transactions.repository"
+import { PaidTermNotice } from "@/modules/payments/repositories/payments.repository"
 import { PaymentsService } from "@/modules/payments/services/payments.service"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
-import { HttpStatus, Injectable } from "@nestjs/common"
+import { HttpStatus, Injectable, Logger } from "@nestjs/common"
 
 export type StatementImportResult = {
   matchedCount: number
@@ -44,6 +45,8 @@ export type StatementImportResult = {
 
 @Injectable()
 export class BankStatementsService {
+  private readonly logger = new Logger(BankStatementsService.name)
+
   constructor(
     private readonly repository: BankTransactionsRepository,
     private readonly payments: PaymentsService,
@@ -134,7 +137,7 @@ export class BankStatementsService {
         outcomes.set(record, { kind: "duplicate" })
         continue
       }
-      await this.payments.notifyPaymentReceived(decision.applicationId, organizationId, paid)
+      await this.notifyAfterCommit(decision.applicationId, organizationId, paid)
       // A matched decision always comes with the application it was looked up for.
       if (application)
         outcomes.set(record, {
@@ -220,11 +223,29 @@ export class BankStatementsService {
       recordedById: user.id,
       applicationId,
       termId,
-      amountCzk: transaction.amountCents / 100,
       receiptId: `bank:${organizationId}:${transaction.externalId}`,
     })
     // The row was matched or moved to another event after it was read.
     if (!paid) throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")
-    await this.payments.notifyPaymentReceived(applicationId, organizationId, paid)
+    // Amount or currency changed by a re-import after it was read.
+    if (paid === "NOT_ASSIGNABLE")
+      throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_NOT_ASSIGNABLE")
+    await this.notifyAfterCommit(applicationId, organizationId, paid)
+  }
+
+  /** The payment is committed: a failing e-mail is logged and never fails the request. */
+  private async notifyAfterCommit(
+    applicationId: string,
+    organizationId: string,
+    paid: PaidTermNotice[],
+  ): Promise<void> {
+    try {
+      await this.payments.notifyPaymentReceived(applicationId, organizationId, paid)
+    } catch (error) {
+      this.logger.error(
+        `Payment received e-mail for application ${applicationId} failed after the payment was saved`,
+        error instanceof Error ? error.stack : String(error),
+      )
+    }
   }
 }
