@@ -1,0 +1,151 @@
+name: Capture PR 676 screenshots
+on:
+  push:
+    branches: [tmp/pr-676-capture-c6ae847-1122]
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        include:
+          - revision: before
+            sha: fc4caae0a5a8f569ea000de6b05996c80300a909
+          - revision: after
+            sha: c6ae847dc6e8873eec3dfb6be522b5a43de8fb68
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: togena
+          POSTGRES_PASSWORD: togena
+          POSTGRES_DB: togena
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U togena -d togena"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ matrix.sha }}
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      # The browser download is cached per Playwright version; the system
+      # libraries it needs are installed every time (they live outside the cache).
+      - name: Playwright version
+        id: playwright
+        working-directory: apps/e2e
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
+
+      - name: Install Chromium for Playwright
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm e2e exec playwright install --with-deps chromium
+
+      - name: Install Chromium system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm e2e exec playwright install-deps chromium
+
+      - name: Capture seeded views
+        env:
+          REVISION: ${{ matrix.revision }}
+          SOURCE_SHA: ${{ matrix.sha }}
+        run: |
+          cat > apps/e2e/tests/zz-screenshots.spec.ts <<'SPEC'
+          import { expect, test, type Page } from "@playwright/test"
+          import { MANUAL_EVENT_LINK, ORGANIZER } from "./support/accounts"
+          import { openEventList, signIn } from "./support/auth"
+          
+          async function applyForTerm(page: Page, firstName: string, lastName: string) {
+            await page.goto(MANUAL_EVENT_LINK)
+            await page.getByLabel("First name").fill(firstName)
+            await page.getByLabel("Last name").fill(lastName)
+            await page.getByLabel("Date of birth").fill("03/09/2013")
+            await page.getByRole("combobox", { name: "Gender" }).click()
+            await page.getByRole("option", { name: "Woman", exact: true }).click()
+            await page
+              .getByRole("group", { name: /Choose at least one term/ })
+              .getByRole("checkbox")
+              .first()
+              .check()
+            await page
+              .getByLabel("Contact e-mail")
+              .fill(`${firstName.toLowerCase()}-preview@example.com`)
+            await page.getByLabel(/I agree to the processing/).check()
+            await page.getByRole("button", { name: "Continue to review" }).click()
+            await page.getByRole("button", { name: "Submit application" }).click()
+            await expect(page).toHaveURL(/\/apply\/confirmation\//)
+          }
+          
+          
+          test("Compare the queue on a phone and desktop", async ({ page }) => {
+            test.setTimeout(180_000)
+            await page.setViewportSize({ width: 1280, height: 800 })
+            await applyForTerm(page, "Lenka", "Novotná")
+            await applyForTerm(page, "Irena", "Malá")
+            await signIn(page, "organizer", ORGANIZER)
+            await openEventList(page)
+            await page.getByRole("link", { name: /Ruční vyhodnocení 2028/ }).click()
+            await page.getByRole("navigation", { name: "Event sections" }).getByRole("link", { name: "Applications" }).click()
+            const queue = page.getByRole("radio", { name: "Awaiting evaluation" })
+            await queue.click()
+            await expect(queue).toBeChecked()
+            const queueUrl = page.url()
+            const after = process.env.REVISION === "after"
+            for (const width of [360,1280]) {
+              await page.setViewportSize({ width, height: 800 })
+              await page.goto(queueUrl)
+              const save = async (state: string) => {
+                await page.waitForLoadState("networkidle")
+                await page.evaluate(() => document.fonts.ready.then(() => undefined))
+                await page.mouse.move(0, 0)
+                await page.screenshot({ path: `test-results/screenshots/${state}-${width}-${process.env.REVISION}-${process.env.SOURCE_SHA!.slice(0,7)}-20261122.png`, fullPage: true, animations: "disabled" })
+              }
+              for (const name of ["Lenka Novotná", "Irena Malá"]) {
+                const checkbox = page.getByRole("checkbox", { name: "Select application: " + name })
+                await checkbox.click()
+                await expect(checkbox).toBeChecked()
+              }
+              await expect(page.getByRole("status").filter({hasText: /^2 applications$/})).toBeVisible()
+              await save("bulk")
+              await page.goto(queueUrl)
+              if (width === 360) await page.getByRole("button", {name: /^Filters/}).click()
+              await page.getByRole("combobox", {name:"Payment",exact:true}).click()
+              await page.getByRole("option", { name: "Overpaid", exact:true }).click()
+              if (width === 360) {
+                const sheet = page.getByRole("dialog", {name:"Filters"})
+                await expect(sheet.getByRole("combobox", {name:"Status"})).toBeDisabled()
+                await save("filters")
+                await sheet.getByRole("button", {name:"Show applications"}).click()
+              }
+              await expect(page.getByText(after ? "We found no applications matching this selection." : "All applications are evaluated.", {exact:true})).toBeVisible()
+              await save("empty")
+              await page.getByRole("searchbox").fill("Preview")
+              const reset = page.getByRole("button", {name:"Clear search and filters"})
+              await expect(reset).toBeVisible()
+              await reset.click()
+              await expect(page.getByRole("radio", {name: after ? "Awaiting evaluation" : "All applications",exact:true})).toBeChecked()
+              await expect(page.getByRole("searchbox")).toHaveValue("")
+              await expect(page.getByText("Lenka Novotná",{exact:true}).filter({visible:true}).first()).toBeVisible()
+              await save("reset")
+            }
+          })
+          SPEC
+          pnpm e2e test tests/zz-screenshots.spec.ts --project=desktop
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: capture-${{ matrix.revision }}
+          path: apps/e2e/test-results/screenshots/*.png
+          if-no-files-found: error
