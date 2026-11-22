@@ -11,6 +11,7 @@ import {
   roomCard,
   roomChoice,
   test as assignmentTest,
+  unassignedDragHandle,
 } from "./support/room-assignment"
 
 // US-12 event, US-13 terms, US-16 term price, US-14 rooms. The application link works only once
@@ -120,7 +121,7 @@ assignmentTest(
   async ({ page, assignment }) => {
     const { person } = assignment
     await openAssignments(page, assignment)
-    await dragToRoom(page, page.getByText(person, { exact: true }), LAST_FREE_ROOM)
+    await dragToRoom(page, unassignedDragHandle(page, person), LAST_FREE_ROOM)
     const actions = page.getByRole("button", { name: "Actions for " + person })
     await expect(actions).toBeVisible()
     await dragToRoom(page, actions, FULL_ROOM, "E2E Room 1")

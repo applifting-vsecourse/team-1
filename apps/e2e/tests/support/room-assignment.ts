@@ -79,6 +79,10 @@ export async function openAssignments(page: Page, { eventId, termId }: Assignmen
   await expect(page.getByRole("heading", { name: "Rooms of the selected term" })).toBeVisible()
 }
 
+export function unassignedDragHandle(page: Page, person: string) {
+  return page.getByRole("button").filter({ has: page.getByText(person, { exact: true }) })
+}
+
 export function roomCard(page: Page, room: string) {
   return page.getByRole("listitem").filter({ has: page.getByText(room, { exact: true }) })
 }
@@ -100,7 +104,7 @@ function activeDrag(page: Page) {
 }
 
 export async function assertSwipeAndCancelDoNotAssign(page: Page, person: string) {
-  const name = page.getByText(person, { exact: true })
+  const name = unassignedDragHandle(page, person)
   const cdp = await page.context().newCDPSession(page)
   await name.evaluate((element) => element.scrollIntoView({ block: "center", behavior: "instant" }))
   const origin = await name.boundingBox()
