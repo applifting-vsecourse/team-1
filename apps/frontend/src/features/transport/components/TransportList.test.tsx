@@ -85,6 +85,31 @@ describe("TransportList", () => {
     expect(screen.queryByRole("button", { name: "Add own transport" })).not.toBeInTheDocument()
   })
 
+  it("shows outlined participant links that can be focused and activated with the keyboard", async () => {
+    renderList()
+    const user = userEvent.setup()
+    const link = await screen.findByRole("link", {
+      name: "Show participants of transport Own transport",
+    })
+    expect(link).toHaveAttribute("data-variant", "outline")
+    expect(link).toHaveAttribute("data-size", "lg")
+    expect(link).toHaveClass(
+      "border",
+      "rounded-control",
+      "max-w-full",
+      "whitespace-normal",
+      "focus-visible:outline-2",
+    )
+    expect(link).toHaveAttribute("href", "/organizer/events/e1/transport/own1/participants")
+    screen.getByRole("button", { name: "Delete transport Own transport" }).focus()
+    await user.tab()
+    expect(link).toHaveFocus()
+    const activated = vi.fn((event: MouseEvent) => event.preventDefault())
+    link.addEventListener("click", activated)
+    await user.keyboard("{Enter}")
+    expect(activated).toHaveBeenCalledOnce()
+  })
+
   it("asks for an acknowledgement before deleting a transport that participants chose", async () => {
     renderList()
     const user = userEvent.setup()

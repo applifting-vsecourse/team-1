@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
 import { DetailItem } from "@/components/molecules/DetailItem"
@@ -92,20 +93,12 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
     <div className="flex flex-col gap-6">
       <Seo title={t("payment.title")} />
       <div className="flex flex-col gap-2">
-        {/* Figma DS / Button Style=Quiet, aligned with the heading (no left padding). */}
-        <Button
-          asChild
-          variant="ghost"
-          size="lg"
-          className="self-start px-0 hover:bg-transparent hover:underline dark:hover:bg-transparent"
+        <BackLink
+          to={ROUTES.organizer.eventApplications}
+          params={{ eventId: data.eventId }}
         >
-          <Link
-            to={ROUTES.organizer.eventApplications}
-            params={{ eventId: data.eventId }}
-          >
-            {t("payment.back")}
-          </Link>
-        </Button>
+          {t("payment.back")}
+        </BackLink>
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
