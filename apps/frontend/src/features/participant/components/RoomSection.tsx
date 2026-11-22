@@ -64,51 +64,46 @@ const MAX_VISIBLE_VACANCIES = 20
 
 function RoomBeds({ occupancy }: { occupancy: Occupancy }) {
   const { t } = useTranslation("participant")
-  const vacancies = Math.max(0, occupancy.beds - occupancy.occupants.length)
-  const visibleVacancies = Math.min(vacancies, MAX_VISIBLE_VACANCIES)
+  const visibleVacancies = Math.min(
+    MAX_VISIBLE_VACANCIES,
+    Math.max(0, occupancy.beds - occupancy.occupants.length),
+  )
   return (
-    <>
-      <ul
-        aria-label={t("detail.roomBeds")}
-        className="flex flex-wrap gap-x-2 gap-y-3"
-      >
-        {occupancy.occupants.map((occupant, index) => (
-          <li
-            key={index}
-            className="flex w-12.5 flex-col items-center gap-1 text-center"
+    <ul
+      aria-label={t("detail.roomBeds")}
+      className="flex flex-wrap gap-x-2 gap-y-3"
+    >
+      {occupancy.occupants.map((occupant, index) => (
+        <li
+          key={index}
+          className="flex w-12.5 flex-col items-center gap-1 text-center"
+        >
+          <Avatar
+            aria-hidden
+            className={cn("size-12", occupant.isSelf && "border-2 border-primary")}
           >
-            <Avatar
-              aria-hidden
-              className={cn("size-12", occupant.isSelf && "border-2 border-primary")}
-            >
-              <AvatarFallback className="bg-accent text-sm font-medium text-link">
-                {occupant.initials}
-              </AvatarFallback>
-            </Avatar>
-            <span className={cn("w-full text-xs break-words", occupant.isSelf && "font-bold")}>
-              {occupant.firstName}
-              {occupant.isSelf ? <span className="sr-only"> {t("detail.roomSelf")}</span> : null}
-            </span>
-          </li>
-        ))}
-        {Array.from({ length: visibleVacancies }, (_, index) => (
-          <li
-            key={`vacant-${index}`}
-            className="flex w-12.5 flex-col items-center gap-1 text-center"
-          >
-            <span
-              aria-hidden
-              className="size-12 rounded-full border border-dashed border-field-border"
-            />
-            <span className="text-xs text-muted-foreground">{t("detail.roomVacant")}</span>
-          </li>
-        ))}
-      </ul>
-      {vacancies > visibleVacancies ? (
-        <p className="text-sm text-muted-foreground">
-          {t("detail.roomMoreVacant", { count: vacancies - visibleVacancies })}
-        </p>
-      ) : null}
-    </>
+            <AvatarFallback className="bg-accent text-sm font-medium text-link">
+              {occupant.initials}
+            </AvatarFallback>
+          </Avatar>
+          <span className={cn("w-full text-xs break-words", occupant.isSelf && "font-bold")}>
+            {occupant.firstName}
+            {occupant.isSelf ? <span className="sr-only"> {t("detail.roomSelf")}</span> : null}
+          </span>
+        </li>
+      ))}
+      {Array.from({ length: visibleVacancies }, (_, index) => (
+        <li
+          key={`vacant-${index}`}
+          className="flex w-12.5 flex-col items-center gap-1 text-center"
+        >
+          <span
+            aria-hidden
+            className="size-12 rounded-full border border-dashed border-field-border"
+          />
+          <span className="text-xs text-muted-foreground">{t("detail.roomVacant")}</span>
+        </li>
+      ))}
+    </ul>
   )
 }

@@ -8,6 +8,7 @@ import {
   computeSharedFreePlaces,
   computeTermCapacity,
   computeTotalBeds,
+  computeVisibleRoomBeds,
   countByGender,
   hasSharedRooms,
   RoomCapacity,
@@ -86,6 +87,20 @@ describe("computeFreePlaces", () => {
   it("goes negative when a removed room leaves the term overbooked", () => {
     const capacity = computeTermCapacity(rooms(1, 5, "FEMALE"))
     expect(computeFreePlaces(capacity, { FEMALE: 7, MALE: 0 }).FEMALE).toBe(-2)
+  })
+})
+
+describe("computeVisibleRoomBeds", () => {
+  const room = { capacity: 4, extraBeds: 1 }
+
+  it("includes the extra bed and omits the beds of hidden occupants", () => {
+    expect(computeVisibleRoomBeds(room, 4, 2)).toBe(3)
+    expect(computeVisibleRoomBeds(room, 4, 4)).toBe(5)
+  })
+
+  it("shows all visible occupants and no vacancies when the room is overfilled", () => {
+    expect(computeVisibleRoomBeds(room, 7, 6)).toBe(6)
+    expect(computeVisibleRoomBeds(room, 6, 2)).toBe(2)
   })
 })
 

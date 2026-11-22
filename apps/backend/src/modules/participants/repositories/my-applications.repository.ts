@@ -1,6 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { computeRoomBeds } from "@/modules/applications/domain/capacity"
+import { computeVisibleRoomBeds } from "@/modules/applications/domain/capacity"
 import { MyApplicationRecord, RoomOccupancy } from "@/modules/participants/domain/my-application"
 import { toPragueWallTime } from "@/shared/domain/prague-wall-time"
 import { Injectable } from "@nestjs/common"
@@ -84,9 +84,10 @@ function roomOccupancy(room: DetailRoom, ownApplicationTermId: string): RoomOccu
       }),
     )
     .sort((a, b) => Number(b.isSelf) - Number(a.isSelf))
-  const hiddenBeds = room._count.assignments - occupants.length
-  // Only the participant's visible capacity; organizer calculations continue to use all beds.
-  return { beds: Math.max(occupants.length, computeRoomBeds(room) - hiddenBeds), occupants }
+  return {
+    beds: computeVisibleRoomBeds(room, room._count.assignments, occupants.length),
+    occupants,
+  }
 }
 
 /** The only place of the participant's application overview that touches the database. */

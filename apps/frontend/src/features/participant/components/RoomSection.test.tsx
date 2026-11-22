@@ -76,7 +76,6 @@ describe("RoomSection", () => {
     )
     expect(screen.getByText("1 of 1000 beds occupied")).toBeVisible()
     expect(screen.getAllByRole("listitem")).toHaveLength(21)
-    expect(screen.getByText("979 more vacant beds")).toBeVisible()
   })
 
   it("says there is no room yet when the participant is not assigned", () => {
