@@ -3,6 +3,8 @@
   "APPLICATION_NOT_EDITABLE": "Tuto přihlášku už nelze upravit: nemá žádný aktivní termín, nebo všechny její termíny už skončily.",
   "BANK_STATEMENT_INVALID": "Soubor není podporovaný výpis z banky. Nahrajte CSV export z Fio banky.",
   "BED_ALREADY_TAKEN": "Lůžko mezitím obsadil jiný organizátor.",
+  "BOARD_POST_NOT_FOUND": "Příspěvek nebyl nalezen.",
+  "BOARD_POST_TERM_INVALID": "Vyberte aspoň jeden termín, který ještě není zrušený.",
   "CANCELLATION_APPROVAL_REQUIRED": "Změny nyní vyžadují schválení organizátora. Obraťte se na organizátora.",
   "CANCELLATION_START_IN_PAST": "Datum začátku schvalování nesmí být v minulosti.",
   "CAPACITY_EXCEEDED": "Potvrzením by se překročila kapacita termínu. Potvrďte vědomě.",

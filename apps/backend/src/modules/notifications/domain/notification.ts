@@ -2,7 +2,7 @@ import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import { ApplicationChangeKind } from "@/modules/participants/domain/submission-confirmation"
 
 /** What the notification is about; the organizer's bell (US-86) reuses the same types. */
-export type NotificationType = "STATUS_CHANGED" | "PAYMENT" | "REQUEST"
+export type NotificationType = "STATUS_CHANGED" | "PAYMENT" | "REQUEST" | "BOARD"
 
 /**
  * The event within the type. The copy is composed from it and `params` by the frontend in the
@@ -29,6 +29,8 @@ export type NotificationKind =
   | "APPLICATION_EDITED"
   /** US-131: the organizer cancelled the term and the application in it (e-mail no. 15). */
   | "TERM_CANCELLED"
+  /** US-91: the organizer published a post on the event board. */
+  | "BOARD_POST_PUBLISHED"
 
 /** The data the copy is composed from. Dates are ISO days, amounts whole CZK. */
 export type NotificationParams = {
@@ -45,6 +47,9 @@ export type NotificationParams = {
   amountCzk?: number
   /** PAYMENT: what is still owed in the term after the change. */
   owedCzk?: number
+  /** BOARD: the post the notification leads to and its title at the time of publishing. */
+  postId?: string
+  postTitle?: string
 }
 
 export type Notification = {
@@ -64,15 +69,19 @@ export type NewNotification = {
   type: NotificationType
   kind: NotificationKind
   applicationId: string | null
+  /** BOARD: deleting the post deletes the notification. */
+  eventPostId?: string
   params: NotificationParams
 }
 
 export const typeOfKind = (kind: NotificationKind): NotificationType =>
   kind.startsWith("PAYMENT_")
     ? "PAYMENT"
-    : kind.startsWith("REQUEST_") || kind === "APPLICATION_EDITED"
-      ? "REQUEST"
-      : "STATUS_CHANGED"
+    : kind.startsWith("BOARD_")
+      ? "BOARD"
+      : kind.startsWith("REQUEST_") || kind === "APPLICATION_EDITED"
+        ? "REQUEST"
+        : "STATUS_CHANGED"
 
 /** The day of a `@db.Date` column as `2027-07-12`. */
 export const isoDay = (date: Date): string => date.toISOString().slice(0, 10)
@@ -84,6 +93,7 @@ export const isoDay = (date: Date): string => date.toISOString().slice(0, 10)
 export function buildNotification(input: {
   userId: string | null
   applicationId: string
+  eventPostId?: string
   kind: NotificationKind
   params: NotificationParams
 }): NewNotification | null {
@@ -93,6 +103,7 @@ export function buildNotification(input: {
     type: typeOfKind(input.kind),
     kind: input.kind,
     applicationId: input.applicationId,
+    ...(input.eventPostId ? { eventPostId: input.eventPostId } : {}),
     params: input.params,
   }
 }

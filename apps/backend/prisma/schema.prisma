@@ -146,6 +146,8 @@ model User {
   notifications    Notification[]
   applicationEdits ApplicationEdit[]
   lastOpenedEvent  LastOpenedEvent?
+  eventPosts       EventPost[]
+  eventPostReads   EventPostRead[]
 
   bankTransactions BankTransaction[]
   @@unique([email])
@@ -184,6 +186,7 @@ model Organization {
   applicationHealth ApplicationHealth[]
   transports       Transport[]
   programBlocks    ProgramBlock[]
+  eventPosts       EventPost[]
 
   bankTransactions BankTransaction[]
   @@map("organization")
@@ -252,6 +255,7 @@ model Event {
   photo        EventPhoto?
   mealOptions  MealOption[]
   lastOpenedBy LastOpenedEvent[]
+  eventPosts   EventPost[]
 
   bankTransactions BankTransaction[]
   @@index([organizationId])
@@ -321,6 +325,7 @@ model Term {
   roomWarningAcknowledgements RoomWarningAcknowledgement[]
   transports       Transport[]
   programBlocks    ProgramBlock[]
+  eventPostTerms   EventPostTerm[]
 
   @@unique([eventId, number])
   @@index([organizationId])
@@ -769,6 +774,9 @@ model Notification {
   // The application the notification leads to; null for notifications that belong to none.
   application   Application?     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   applicationId String?
+  // US-91: the board post a BOARD_POST_PUBLISHED notification is about; deleting the post removes it.
+  eventPost     EventPost?       @relation(fields: [eventPostId], references: [id], onDelete: Cascade)
+  eventPostId   String?
   // Data the copy is composed from (event, participant, term dates, amounts).
   params        Json
   createdAt     DateTime         @default(now())
@@ -777,6 +785,7 @@ model Notification {
   @@index([userId, createdAt])
   @@index([userId, readAt])
   @@index([applicationId])
+  @@index([eventPostId])
   @@map("notification")
 }
 
@@ -784,6 +793,66 @@ enum NotificationType {
   STATUS_CHANGED
   PAYMENT
   REQUEST
+  BOARD
+}
+
+// US-91: a post of the event's board (nástěnka). The organizer writes it for chosen terms; the
+// applicants with an application in one of them in the status CONFIRMED or WAITLISTED see it.
+// Plain text, line breaks kept.
+model EventPost {
+  id             String          @id @default(cuid())
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  event          Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId        String
+  title          String
+  body           String          @db.Text
+  // The organizer who wrote it; null for a post made by the system (the bulk message, US-57).
+  createdBy      User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById    String?
+  source         EventPostSource @default(MANUAL)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now()) @updatedAt
+
+  terms         EventPostTerm[]
+  reads         EventPostRead[]
+  notifications Notification[]
+
+  @@index([organizationId])
+  @@index([eventId, createdAt])
+  @@map("event_post")
+}
+
+enum EventPostSource {
+  MANUAL
+  // Prepared for US-57: a bulk message lands on the board by itself. Nothing creates it yet.
+  BULK_MESSAGE
+}
+
+// The terms a post is shown for.
+model EventPostTerm {
+  post   EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+  term   Term      @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId String
+
+  @@id([postId, termId])
+  @@index([termId])
+  @@map("event_post_term")
+}
+
+// What an account has opened: a post without a row for the user is "new" to them. Per account, not
+// per application, so a post is not new again for a second child of the same account.
+model EventPostRead {
+  post   EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  readAt DateTime  @default(now())
+
+  @@id([postId, userId])
+  @@index([userId])
+  @@map("event_post_read")
 }
 
 // The event an organizer opened last (US-51): where the administration lands after login,
