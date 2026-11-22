@@ -269,7 +269,7 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
   const share = Math.min(100, Math.round((count / Math.max(1, room.beds)) * 100))
   const chunks = chunkBeds(overviewBeds(room))
   const bedsId = useId()
-  const [showBeds, setShowBeds] = useState(false)
+  const [isBedListOpen, setIsBedListOpen] = useState(false)
   return (
     <RoomShell
       roomId={room.id}
@@ -374,15 +374,15 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
               size="lg"
               className="mx-3 mb-1 justify-between print:hidden"
               aria-label={`${t("roomOverview.beds")} · ${room.name}`}
-              aria-expanded={showBeds}
+              aria-expanded={isBedListOpen}
               aria-controls={chunks.map((_, index) => `${bedsId}-${index}`).join(" ")}
-              data-beds-open={showBeds}
-              onClick={() => setShowBeds((open) => !open)}
+              data-beds-open={isBedListOpen}
+              onClick={() => setIsBedListOpen((isOpen) => !isOpen)}
             >
               {t("roomOverview.beds")}
               <ChevronDown
                 aria-hidden
-                className={cn("size-4", showBeds && "rotate-180")}
+                className={cn("size-4", isBedListOpen && "rotate-180")}
               />
             </Button>
           ) : null}
@@ -404,7 +404,7 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
             id={`${bedsId}-${chunkIndex}`}
             className={cn(
               "flex-1 border-border print:border-t print:border-black",
-              controls && !showBeds && "hidden print:block",
+              controls && !isBedListOpen && "hidden print:block",
               chunkIndex === 0 && "border-t",
               // Between the pieces of a room the rows keep their line on screen, but not on paper.
               chunkIndex < chunks.length - 1 && "[&>li:last-child]:border-b",
