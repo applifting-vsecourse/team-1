@@ -3,14 +3,18 @@ import {
   StatementImportResponseDto,
   UnmatchedTransactionsResponseDto,
 } from "@/modules/payments/controllers/dto/bank-statement.response.dto"
+import {
+  ApplicationCandidatesResponseDto,
+  MatchBankTransactionRequestDto,
+} from "@/modules/payments/controllers/dto/bank-transaction-match.dto"
 import { BankStatementsService } from "@/modules/payments/services/bank-statements.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
 import { User } from "@/shared/auth/decorators/user.decorator"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { RequestLocale } from "@/shared/i18n/request-locale"
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post } from "@nestjs/common"
-import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from "@nestjs/common"
+import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger"
 
 @ApiTags("payments")
 @Auth("ORGANIZER")
@@ -51,5 +55,43 @@ export class BankStatementsController {
     return UnmatchedTransactionsResponseDto.fromDomain(
       await this.statements.listUnmatched(user, eventId),
     )
+  }
+
+  @Get("bank-transactions/application-candidates")
+  @ApiOperation({
+    summary:
+      "Applications of the event for the manual match of a transaction (US-562): by a part of the name, a variable symbol or an application number; at most ten, each with what its terms owe",
+  })
+  @ApiQuery({ name: "q", required: false })
+  @ApiResponse({ status: 200, type: ApplicationCandidatesResponseDto })
+  async candidates(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Query("q") query?: string,
+  ): Promise<ApplicationCandidatesResponseDto> {
+    return ApplicationCandidatesResponseDto.fromDomain(
+      await this.statements.searchCandidates(user, eventId, query ?? ""),
+    )
+  }
+
+  @Post("bank-transactions/:id/match")
+  @HttpCode(204)
+  @ApiOperation({
+    summary:
+      "Assigns an unmatched transaction to one term of an application as a payment of source BANK_IMPORT (US-562)",
+  })
+  @ApiResponse({ status: 204 })
+  @ApiResponse({ status: 400, description: "PAYMENT_TERM_NOT_IN_APPLICATION" })
+  @ApiResponse({
+    status: 409,
+    description: "BANK_TRANSACTION_ALREADY_MATCHED, BANK_TRANSACTION_NOT_ASSIGNABLE",
+  })
+  async match(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("id") id: string,
+    @Body() body: MatchBankTransactionRequestDto,
+  ): Promise<void> {
+    await this.statements.match(user, eventId, id, body.applicationId, body.termId)
   }
 }

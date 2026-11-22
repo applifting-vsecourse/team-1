@@ -93,16 +93,17 @@ const csv = new File(["ID operace;Datum;Objem;VS"], "vypis.csv", { type: "text/c
 afterEach(() => vi.restoreAllMocks())
 
 describe("BankStatementImportPage", () => {
-  it("lists the unmatched payments with the reason and links the application when known", async () => {
+  it("lists the unmatched payments with the reason; only a payment in whole crowns can be assigned", async () => {
     renderPage()
     const row = (await screen.findByText("Hana Novotná")).closest("tr")!
     expect(row).toHaveTextContent("No variable symbol")
     expect(screen.getByText("The currency is not CZK")).toBeVisible()
     expect(screen.getByText(/€100\.00/)).toBeVisible()
     expect(screen.getByText(/1,443\.50/)).toBeVisible()
-    expect(
-      screen.getByRole("link", { name: "Detail Jana Nováková" }).getAttribute("href"),
-    ).toContain("/organizer/events/e1/applications/a1")
+    // Cents (1,443.50) and EUR: no button, and no extra "cannot assign" text next to the reason.
+    expect(screen.queryByRole("button", { name: /^Assign/ })).toBeNull()
+    expect(screen.queryByText(/Cannot assign/i)).toBeNull()
+    expect(screen.queryByRole("link", { name: /Detail/ })).toBeNull()
   })
 
   it("shows the summary after the upload: matched, unmatched, overpayments, skipped duplicates", async () => {

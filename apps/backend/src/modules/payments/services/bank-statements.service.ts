@@ -1,6 +1,11 @@
 import { Locale } from "@/core/email/locale"
 import { parseVariableSymbol } from "@/modules/applications/domain/variable-symbol"
 import {
+  CandidateSource,
+  findCandidates,
+  isAssignable,
+} from "@/modules/payments/domain/application-candidates"
+import {
   decideMatch,
   InvalidStatementError,
   parseBankStatement,
@@ -156,5 +161,56 @@ export class BankStatementsService {
   async listUnmatched(user: Identity, eventId: string): Promise<StoredBankTransaction[]> {
     const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
     return this.repository.listUnmatched(eventId, organizationId)
+  }
+
+  /** Applications of the event for the search of a manual match (at most ten). */
+  async searchCandidates(
+    user: Identity,
+    eventId: string,
+    query: string,
+  ): Promise<CandidateSource[]> {
+    await this.access.assertCanAccessEvent(user, eventId)
+    if (query.trim() === "") return []
+    return findCandidates(await this.repository.listCandidateSources(eventId), query)
+  }
+
+  /**
+   * US-562: the organizer assigns an unmatched transaction to one term of an application. The payment
+   * is written like an import writes it, under the same receipt id, so an upload of the statement
+   * later counts the row as a duplicate. The payment and the change of the transaction are two steps
+   * (the payment has a transaction of its own, like in the import); the receipt id is fixed, so a
+   * retry after a failure between them adds no second payment.
+   */
+  async match(
+    user: Identity,
+    eventId: string,
+    transactionId: string,
+    applicationId: string,
+    termId: string,
+  ): Promise<void> {
+    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+    const transaction = await this.repository.findTransaction(
+      transactionId,
+      eventId,
+      organizationId,
+    )
+    if (!transaction) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    if (transaction.status !== "UNMATCHED")
+      throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")
+    if (!isAssignable(transaction))
+      throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_NOT_ASSIGNABLE")
+    if (!(await this.repository.applicationBelongsToEvent(eventId, applicationId)))
+      throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    const receiptId = `bank:${organizationId}:${transaction.externalId}`
+    await this.payments.record(
+      user,
+      applicationId,
+      receiptId,
+      transaction.amountCents / 100,
+      termId,
+      "BANK_IMPORT",
+    )
+    if (!(await this.repository.markMatched(transaction.id, applicationId, receiptId)))
+      throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")
   }
 }

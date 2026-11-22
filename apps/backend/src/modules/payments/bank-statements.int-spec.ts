@@ -342,4 +342,182 @@ describe("bank statement import (US-42)", () => {
     const foreign = await signIn("organizator2@example.com", "password2")
     expect((await upload("x", foreign)).status).toBe(403)
   })
+
+  describe("manual match of an unmatched transaction (US-562)", () => {
+    let seq = 0
+    /** Imports one row without a variable symbol, so it stays unmatched. */
+    const importUnmatched = async (
+      amount: string | number,
+      currency = "CZK",
+    ): Promise<{ id: string; externalId: string }> => {
+      const externalId = `manual-${Date.now()}-${seq++}`
+      const csv = [
+        "ID operace;Datum;Objem;Měna;Protiúčet;Název protiúčtu;Kód banky;Název banky;KS;VS;SS;Poznámka;Zpráva pro příjemce;Typ",
+        `${externalId};05.05.2026;${amount};${currency};1;Test Payer;800;CS;;;;;;Platba`,
+      ].join("\r\n")
+      expect((await upload(csv)).status).toBe(200)
+      const row = await prisma.bankTransaction.findFirstOrThrow({ where: { externalId } })
+      return { id: row.id, externalId }
+    }
+    const match = (
+      transactionId: string,
+      body: { applicationId: string; termId: string },
+      auth = cookie,
+    ): Promise<Response> =>
+      fetch(api(`/organizer/events/${eventId}/bank-transactions/${transactionId}/match`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Cookie: auth },
+        body: JSON.stringify(body),
+      })
+    const applicationOf = async (number: number) =>
+      prisma.application.findFirstOrThrow({ where: { eventId, number } })
+
+    it("records a BANK_IMPORT payment under the receipt id of the import and marks the transaction", async () => {
+      const number = await createApplication(true)
+      const application = await applicationOf(number)
+      const { id, externalId } = await importUnmatched(6900)
+
+      const response = await match(id, { applicationId: application.id, termId: firstTerm.id })
+      expect(response.status).toBe(204)
+
+      const organizationId = application.organizationId
+      const payments = await prisma.payment.findMany({
+        where: { applicationTerm: { applicationId: application.id } },
+      })
+      expect(payments).toMatchObject([
+        {
+          amountCzk: 6900,
+          source: "BANK_IMPORT",
+          receiptId: `bank:${organizationId}:${externalId}`,
+        },
+      ])
+      expect(await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).toMatchObject({
+        status: "MATCHED",
+        reason: null,
+        applicationId: application.id,
+        receiptId: `bank:${organizationId}:${externalId}`,
+      })
+
+      // The second assignment is refused and adds nothing; the row is gone from the list.
+      const again = await match(id, { applicationId: application.id, termId: firstTerm.id })
+      expect(again.status).toBe(409)
+      expect(await again.json()).toMatchObject({ code: "BANK_TRANSACTION_ALREADY_MATCHED" })
+      expect(
+        await prisma.payment.count({
+          where: { applicationTerm: { applicationId: application.id } },
+        }),
+      ).toBe(1)
+      const unmatched = (await (
+        await fetch(api(`/organizer/events/${eventId}/bank-transactions/unmatched`), {
+          headers: { Cookie: cookie },
+        })
+      ).json()) as { transactions: { id: string }[] }
+      expect(unmatched.transactions.map((row) => row.id)).not.toContain(id)
+    })
+
+    it("counts the row as a duplicate when the statement is uploaded again", async () => {
+      const number = await createApplication(true)
+      const application = await applicationOf(number)
+      const { id, externalId } = await importUnmatched(500)
+      await match(id, { applicationId: application.id, termId: firstTerm.id })
+      const csv = [
+        "ID operace;Datum;Objem;Měna;Protiúčet;Název protiúčtu;Kód banky;Název banky;KS;VS;SS;Poznámka;Zpráva pro příjemce;Typ",
+        `${externalId};05.05.2026;500;CZK;1;Test Payer;800;CS;;;;;;Platba`,
+      ].join("\r\n")
+      expect(await (await upload(csv)).json()).toMatchObject({
+        matchedCount: 0,
+        unmatchedCount: 0,
+        duplicateCount: 1,
+      })
+      expect(
+        await prisma.payment.count({
+          where: { applicationTerm: { applicationId: application.id } },
+        }),
+      ).toBe(1)
+    })
+
+    it("writes an amount above the debt as an overpayment", async () => {
+      const application = await applicationOf(await createApplication(true))
+      const { id } = await importUnmatched(8000)
+      expect(
+        (await match(id, { applicationId: application.id, termId: firstTerm.id })).status,
+      ).toBe(204)
+      const payment = await prisma.payment.findFirstOrThrow({
+        where: { applicationTerm: { applicationId: application.id } },
+      })
+      expect(payment.amountCzk).toBe(8000)
+    })
+
+    it("refuses cents and another currency", async () => {
+      const application = await applicationOf(await createApplication(true))
+      for (const [amount, currency] of [
+        ["1000,50", "CZK"],
+        ["1000", "EUR"],
+      ] as const) {
+        const { id } = await importUnmatched(amount, currency)
+        const response = await match(id, { applicationId: application.id, termId: firstTerm.id })
+        expect(response.status).toBe(409)
+        expect(await response.json()).toMatchObject({ code: "BANK_TRANSACTION_NOT_ASSIGNABLE" })
+        expect((await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).status).toBe(
+          "UNMATCHED",
+        )
+      }
+    })
+
+    it("refuses a term outside the application, an unknown application and a foreign session", async () => {
+      const application = await applicationOf(await createApplication(true))
+      const otherTerm = await prisma.term.findFirstOrThrow({
+        where: { eventId, id: { not: firstTerm.id } },
+      })
+      const { id } = await importUnmatched(300)
+      const outside = await match(id, { applicationId: application.id, termId: otherTerm.id })
+      expect(outside.status).toBe(400)
+      expect(await outside.json()).toMatchObject({ code: "PAYMENT_TERM_NOT_IN_APPLICATION" })
+      expect((await match(id, { applicationId: "nope", termId: firstTerm.id })).status).toBe(403)
+      const foreign = await signIn("organizator2@example.com", "password2")
+      expect(
+        (await match(id, { applicationId: application.id, termId: firstTerm.id }, foreign)).status,
+      ).toBe(403)
+      expect(
+        (await match(id, { applicationId: application.id, termId: firstTerm.id }, "")).status,
+      ).toBe(401)
+      expect((await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).status).toBe(
+        "UNMATCHED",
+      )
+    })
+
+    it("searches applications by name, variable symbol and number, with what each term owes", async () => {
+      const number = await createApplication(true)
+      const search = async (q: string) =>
+        (await (
+          await fetch(
+            api(
+              `/organizer/events/${eventId}/bank-transactions/application-candidates?q=${encodeURIComponent(q)}`,
+            ),
+            { headers: { Cookie: cookie } },
+          )
+        ).json()) as {
+          candidates: {
+            number: number
+            terms: { termId: string; owedCzk: number; paidCzk: number }[]
+          }[]
+        }
+      for (const q of ["bank test", String(number * 1000 + firstTerm.number), String(number)]) {
+        const found = (await search(q)).candidates.find((candidate) => candidate.number === number)
+        expect(found?.terms[0]).toMatchObject({
+          termId: firstTerm.id,
+          owedCzk: 6900,
+          paidCzk: 0,
+        })
+      }
+      expect((await search("")).candidates).toEqual([])
+      expect((await search("bank")).candidates.length).toBeLessThanOrEqual(10)
+      const foreign = await signIn("organizator2@example.com", "password2")
+      const denied = await fetch(
+        api(`/organizer/events/${eventId}/bank-transactions/application-candidates?q=bank`),
+        { headers: { Cookie: foreign } },
+      )
+      expect(denied.status).toBe(403)
+    })
+  })
 })

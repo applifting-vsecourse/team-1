@@ -72,3 +72,56 @@ export async function uploadBankStatement(
       .json(),
   )
 }
+
+const candidatesSchema = z.object({
+  candidates: z.array(
+    z.object({
+      id: z.string(),
+      number: z.number().int(),
+      firstName: z.string(),
+      lastName: z.string(),
+      terms: z.array(
+        z.object({
+          termId: z.string(),
+          termNumber: z.number().int(),
+          name: z.string().nullable(),
+          startsOn: z.string(),
+          endsOn: z.string(),
+          status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIVED"]),
+          /** Due minus paid; negative = an overpayment. */
+          owedCzk: z.number().int(),
+          paidCzk: z.number().int(),
+        }),
+      ),
+    }),
+  ),
+})
+export type ApplicationCandidate = z.infer<typeof candidatesSchema>["candidates"][number]
+export type CandidateTerm = ApplicationCandidate["terms"][number]
+
+/** `GET …/bank-transactions/application-candidates?q=` — at most ten applications of the event. */
+export const applicationCandidatesQueryOptions = (eventId: string, query: string) =>
+  queryOptions({
+    queryKey: ["eventOverview", "applicationCandidates", eventId, query] as const,
+    queryFn: async ({ signal }) =>
+      candidatesSchema.parse(
+        await api
+          .get(`${path(eventId)}/bank-transactions/application-candidates`, {
+            signal,
+            searchParams: { q: query },
+          })
+          .json(),
+      ).candidates,
+  })
+
+/** `POST …/bank-transactions/:id/match` — the payment of the transaction goes to one term. */
+export async function matchTransaction(
+  eventId: string,
+  transactionId: string,
+  applicationId: string,
+  termId: string,
+): Promise<void> {
+  await api.post(`${path(eventId)}/bank-transactions/${encodeURIComponent(transactionId)}/match`, {
+    json: { applicationId, termId },
+  })
+}

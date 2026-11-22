@@ -130,14 +130,19 @@
     },
     "title": "Nahrání výpisu",
     "unmatchedList": {
+      "afterSaveLine": "Zaplaceno {{from}} → {{to}}, zbývá {{rest}}",
+      "afterSaveOver": "Zaplaceno {{from}} → {{to}}, přeplatek {{over}}",
       "amount": "Částka",
       "application": "Přihláška",
+      "assign": "Přiřadit",
+      "assigned": "Platba přiřazena",
+      "cancel": "Zrušit",
       "date": "Datum",
-      "detail": "Detail",
       "empty": "Žádné nespárované platby.",
       "error": "Nespárované platby se nepodařilo načíst",
-      "hint": "Otevřete přihlášku a zapište platbu u ní.",
       "list": "Nespárované platby z bankovních výpisů",
+      "noResults": "Žádná přihláška neodpovídá hledání",
+      "owed": "dluh {{amount}}",
       "payer": "Plátce a zpráva",
       "reason": "Důvod",
       "reasons": {
@@ -146,6 +151,10 @@
         "UNKNOWN_VARIABLE_SYMBOL": "Variabilní symbol neodpovídá přihlášce ani termínu, na který lze platbu zapsat",
         "UNSUPPORTED_CURRENCY": "Měna není CZK"
       },
+      "searchError": "Přihlášky se nepodařilo načíst",
+      "searchLabel": "Hledat přihlášku",
+      "searchPlaceholder": "Jméno nebo VS",
+      "submit": "Přiřadit platbu",
       "title": "Platby k ručnímu přiřazení",
       "variableSymbol": "Variabilní symbol"
     },

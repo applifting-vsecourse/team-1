@@ -130,14 +130,19 @@
     },
     "title": "Bank statement upload",
     "unmatchedList": {
+      "afterSaveLine": "Paid {{from}} → {{to}}, {{rest}} left",
+      "afterSaveOver": "Paid {{from}} → {{to}}, overpaid by {{over}}",
       "amount": "Amount",
       "application": "Application",
+      "assign": "Assign",
+      "assigned": "Payment assigned",
+      "cancel": "Cancel",
       "date": "Date",
-      "detail": "Detail",
       "empty": "No unmatched payments.",
       "error": "Unmatched payments could not be loaded",
-      "hint": "Open the application and record the payment there.",
       "list": "Unmatched payments from bank statements",
+      "noResults": "No application matches",
+      "owed": "owed {{amount}}",
       "payer": "Payer and message",
       "reason": "Reason",
       "reasons": {
@@ -146,6 +151,10 @@
         "UNKNOWN_VARIABLE_SYMBOL": "The variable symbol matches no application or term the payment can be recorded on",
         "UNSUPPORTED_CURRENCY": "The currency is not CZK"
       },
+      "searchError": "The applications could not be loaded",
+      "searchLabel": "Find an application",
+      "searchPlaceholder": "Name or VS",
+      "submit": "Assign payment",
       "title": "Payments to assign manually",
       "variableSymbol": "Variable symbol"
     },
