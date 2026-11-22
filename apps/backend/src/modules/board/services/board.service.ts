@@ -11,7 +11,7 @@ import { BoardRepository } from "@/modules/board/repositories/board.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
-import { ForbiddenException, HttpStatus, Injectable } from "@nestjs/common"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 @Injectable()
 export class BoardService {
@@ -42,8 +42,8 @@ export class BoardService {
    * A post of another organization or account and a missing one end in the same 403 with no
    * content, so the answer never reveals whether the id exists (rules of the repo).
    */
-  private notFound(): ForbiddenException {
-    return new ForbiddenException()
+  private notFound(): AppException {
+    return new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
   }
 
   // --- Organizer ---
