@@ -36,7 +36,7 @@ export function ApplicationViews({
     <ToggleGroup
       type="single"
       variant="default"
-      spacing={2}
+      spacing={0}
       aria-label={t("queue.views")}
       className="max-w-full flex-wrap justify-start rounded-none border-b"
       // The queue and the waitlist are views of their own; any other status is still "All".
@@ -75,7 +75,7 @@ export function ApplicationViews({
               ? t("queue.proposalCount", { view: t(`queue.${view.key}`), count: proposalCount })
               : undefined
           }
-          className="h-auto rounded-none border-0 border-b border-border px-3 py-2 text-sm leading-5 font-medium shadow-none hover:bg-wash hover:text-foreground focus-visible:border-2 focus-visible:border-ring focus-visible:ring-0 data-[state=on]:border-b-2 data-[state=on]:border-primary data-[state=on]:bg-transparent data-[state=on]:text-link"
+          className="-mb-px h-auto rounded-none border-0 border-b-2 border-transparent px-3 py-2 text-sm leading-5 font-medium shadow-none hover:bg-wash hover:text-foreground focus-visible:border-2 focus-visible:border-ring focus-visible:ring-0 data-[state=on]:border-primary data-[state=on]:bg-transparent data-[state=on]:text-link"
         >
           {t(`queue.${view.key}`)}
           {view.value === "WAITLISTED" && proposalCount > 0 ? (
