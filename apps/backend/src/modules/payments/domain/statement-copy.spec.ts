@@ -37,7 +37,7 @@ describe("annotateStatement", () => {
   it("adds the result column to the header and every row, the rest stays byte for byte", () => {
     const result = annotate(FIO, (index) =>
       index === 0
-        ? { kind: "matched", applicationNumber: 12, applicantName: "Hana Novotná", termNumber: 1 }
+        ? { kind: "matched", applicationNumber: 12, termNumber: 1 }
         : { kind: "unmatched", reason: "NO_VARIABLE_SYMBOL" },
     )
     const lines = result.split("\r\n")
@@ -45,7 +45,7 @@ describe("annotateStatement", () => {
     expect(lines.slice(0, 3)).toEqual(FIO.split("\r\n").slice(0, 3))
     expect(lines[3]).toBe(`${HEADER};Výsledek párování`)
     expect(lines[4]).toBe(
-      "1;05.05.2026;6900;CZK;Hana Novotná;12001;Záloha;Spárováno: přihláška č. 12 (Hana Novotná), termín 1",
+      "1;05.05.2026;6900;CZK;Hana Novotná;12001;Záloha;Spárováno: přihláška č. 12, termín 1",
     )
     expect(lines[5]).toBe("2;06.05.2026;-1034;CZK;Fio MC Debit;;Nákup;Přeskočeno: odchozí platba")
     expect(lines[6]).toBe(
@@ -79,13 +79,12 @@ describe("annotateStatement", () => {
     const outcome: RowOutcome = {
       kind: "matched",
       applicationNumber: 12,
-      applicantName: "Hana Novotná",
     }
     expect(annotate(text, () => outcome, "cs")).toContain(
-      ";Spárováno: přihláška č. 12 (Hana Novotná), souhrnná platba",
+      ";Spárováno: přihláška č. 12, souhrnná platba",
     )
     expect(annotate(text, () => outcome, "en")).toContain(
-      ";Matched: application no. 12 (Hana Novotná), summary payment",
+      ";Matched: application no. 12, summary payment",
     )
   })
 
@@ -106,17 +105,14 @@ describe("annotateStatement", () => {
     )
   })
 
-  it("quotes a result that has a delimiter or a quote in it", () => {
-    const text = `${HEADER}\n1;05.05.2026;5;CZK;X;12001;`
-    const outcome: RowOutcome = {
-      kind: "matched",
-      applicationNumber: 1,
-      applicantName: 'Ann; "A"',
-      termNumber: 2,
-    }
-    expect(annotate(text, () => outcome, "en")).toContain(
-      ';"Matched: application no. 1 (Ann; ""A""), term 2"',
-    )
+  it.each(["cs", "en"] as const)("adds only the application number in %s, preserving the original payer", (locale) => {
+    const text = `${HEADER}\n1;05.05.2026;5;CZK;"Ann; ""A""";12001;`
+    const result = annotate(text, () => ({ kind: "matched", applicationNumber: 12, termNumber: 1 }), locale)
+    const [row] = parseBankStatement(result).incoming
+    expect(row.counterpartyName).toBe('Ann; "A"')
+    const outcome = result.split("\n")[1].slice(text.split("\n")[1].length)
+    expect(outcome).toBe(locale === "cs" ? ";Spárováno: přihláška č. 12, termín 1" : ";Matched: application no. 12, term 1")
+    expect(outcome).not.toContain("Ann")
   })
 
   it("keeps LF endings, a quoted line break and a last row without a line ending", () => {

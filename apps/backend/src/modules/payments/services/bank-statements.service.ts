@@ -140,7 +140,6 @@ export class BankStatementsService {
         outcomes.set(record, {
           kind: "matched",
           applicationNumber: application.number,
-          applicantName: `${application.firstName} ${application.lastName}`,
           termNumber: application.terms.find((term) => term.termId === decision.termId)?.termNumber,
         })
       result.matchedCount++

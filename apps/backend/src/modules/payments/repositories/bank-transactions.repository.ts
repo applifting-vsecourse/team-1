@@ -41,8 +41,6 @@ export class BankTransactionsRepository {
     return {
       id: application.id,
       number: application.number,
-      firstName: application.firstName,
-      lastName: application.lastName,
       terms: application.terms.map((applicationTerm) => ({
         termId: applicationTerm.termId,
         termNumber: applicationTerm.term.number,

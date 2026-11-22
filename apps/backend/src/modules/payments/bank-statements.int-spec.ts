@@ -172,13 +172,15 @@ describe("bank statement import (US-42)", () => {
     first.forEach((line, index) => expect(line.startsWith(original[index])).toBe(true))
     expect(first[0]).toBe(`${original[0]};Výsledek párování`)
     expect(first[1]).toBe(
-      `${original[1]};Spárováno: přihláška č. ${confirmedNumber} (Bank Test), termín ${firstTerm.number}`,
+      `${original[1]};Spárováno: přihláška č. ${confirmedNumber}, termín ${firstTerm.number}`,
     )
     expect(first[2]).toBe(`${original[2]};Nespárováno: chybí variabilní symbol`)
     expect(first[3]).toBe(`${original[3]};Přeskočeno: odchozí platba`)
     expect(first[4]).toBe(
-      `${original[4]};Spárováno: přihláška č. ${confirmedNumber} (Bank Test), souhrnná platba`,
+      `${original[4]};Spárováno: přihláška č. ${confirmedNumber}, souhrnná platba`,
     )
+
+    expect(first.join("\n")).not.toContain("Bank Test")
 
     // The same file again: the rows paid before are not counted twice, and the copy says so.
     const second = await send("en")

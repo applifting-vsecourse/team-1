@@ -6,7 +6,6 @@ export type RowOutcome =
   | {
       kind: "matched"
       applicationNumber: number
-      applicantName: string
       /** Undefined = summary symbol, the payment is spread over the terms of the application. */
       termNumber?: number
     }
@@ -28,7 +27,7 @@ const COPY: Record<Locale, Copy> = {
   cs: {
     header: "Výsledek párování",
     matched: (outcome) =>
-      `Spárováno: přihláška č. ${outcome.applicationNumber} (${outcome.applicantName}), ` +
+      `Spárováno: přihláška č. ${outcome.applicationNumber}, ` +
       (outcome.termNumber === undefined ? "souhrnná platba" : `termín ${outcome.termNumber}`),
     unmatched: {
       NO_VARIABLE_SYMBOL: "Nespárováno: chybí variabilní symbol",
@@ -43,7 +42,7 @@ const COPY: Record<Locale, Copy> = {
   en: {
     header: "Matching result",
     matched: (outcome) =>
-      `Matched: application no. ${outcome.applicationNumber} (${outcome.applicantName}), ` +
+      `Matched: application no. ${outcome.applicationNumber}, ` +
       (outcome.termNumber === undefined ? "summary payment" : `term ${outcome.termNumber}`),
     unmatched: {
       NO_VARIABLE_SYMBOL: "Unmatched: no variable symbol",

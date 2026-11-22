@@ -190,8 +190,6 @@ export type MatchableApplication = {
 /** The application found for a variable symbol, with what the copy of the statement says about it. */
 export type FoundApplication = MatchableApplication & {
   number: number
-  firstName: string
-  lastName: string
 }
 
 export type MatchDecision =
