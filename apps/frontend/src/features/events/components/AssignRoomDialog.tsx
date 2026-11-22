@@ -174,7 +174,7 @@ export function AssignRoomDialog({
       }}
     >
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-3 overflow-hidden bg-card p-4 shadow-md sm:max-h-[90dvh] sm:max-w-160 sm:gap-4 sm:p-6">
-        <DialogTitle>
+        <DialogTitle className="pr-10">
           {t(isMove ? "roomAssignments.moveTitle" : "roomAssignments.assignTitle")}
         </DialogTitle>
         <DialogDescription className="text-base">
