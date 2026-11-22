@@ -259,14 +259,16 @@ function Occupancy({ eventId }: { eventId: string }) {
           >
             <h3 className="text-lg font-semibold tracking-tight">{termLine(term)}</h3>
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium">{t("overview.occupied")}</span>
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-sm font-medium">{t("overview.occupied")}</span>
+                <span className="font-semibold tabular-nums">
+                  {term.confirmed}/{term.capacity}
+                </span>
+              </div>
               <Progress
                 value={term.capacity ? Math.min(100, (term.confirmed / term.capacity) * 100) : 0}
                 aria-label={t("overview.occupied")}
               />
-              <span className="text-sm text-muted-foreground tabular-nums">
-                {term.confirmed}/{term.capacity}
-              </span>
             </div>
             <dl className="grid grid-cols-2 gap-3">
               <div>

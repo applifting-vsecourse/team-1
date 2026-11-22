@@ -1,7 +1,7 @@
-import type { ReactNode } from "react"
+import { useId, useState, type ReactNode } from "react"
 import { useDraggable, useDroppable } from "@dnd-kit/core"
 import { useQuery } from "@tanstack/react-query"
-import { BedSingle, GripVertical, MoreHorizontal } from "lucide-react"
+import { BedSingle, ChevronDown, GripVertical, MoreHorizontal } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { EmptyState } from "@/components/molecules/EmptyState"
@@ -161,7 +161,7 @@ export function RoomsOverview({
               </Card>
             ))}
           </dl>
-          <ul className="grid items-stretch gap-4 md:auto-rows-fr md:grid-cols-2 print:block print:columns-2 print:gap-4">
+          <ul className="grid items-stretch gap-3 md:auto-rows-fr md:grid-cols-2 md:has-[[data-beds-open=true]]:auto-rows-auto print:block print:columns-2 print:gap-4">
             {data.rooms.map((room) => (
               <li
                 key={room.id}
@@ -268,6 +268,8 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
   const isFull = count >= room.beds
   const share = Math.min(100, Math.round((count / Math.max(1, room.beds)) * 100))
   const chunks = chunkBeds(overviewBeds(room))
+  const bedsId = useId()
+  const [showBeds, setShowBeds] = useState(false)
   return (
     <RoomShell
       roomId={room.id}
@@ -285,8 +287,8 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
           )}
         >
           {chunkIndex === 0 ? (
-            <div className="flex flex-col gap-3 p-4 print:flex-row print:items-center print:justify-between print:gap-3 print:px-2 print:py-2">
-              <div className="flex flex-wrap items-center justify-center gap-2 print:justify-start">
+            <div className="flex flex-col gap-2 p-3 print:flex-row print:items-center print:justify-between print:gap-3 print:px-2 print:py-2">
+              <div className="flex flex-wrap items-center justify-start gap-2">
                 <h3 className="font-semibold break-words">{room.name}</h3>
                 <Badge
                   variant="secondary"
@@ -366,6 +368,24 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
               </span>
             </div>
           )}
+          {chunkIndex === 0 && controls ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              className="mx-3 mb-1 justify-between print:hidden"
+              aria-label={`${t("roomOverview.beds")} · ${room.name}`}
+              aria-expanded={showBeds}
+              aria-controls={chunks.map((_, index) => `${bedsId}-${index}`).join(" ")}
+              data-beds-open={showBeds}
+              onClick={() => setShowBeds((open) => !open)}
+            >
+              {t("roomOverview.beds")}
+              <ChevronDown
+                aria-hidden
+                className={cn("size-4", showBeds && "rotate-180")}
+              />
+            </Button>
+          ) : null}
           {chunkIndex === 0 && controls
             ? controls.warnings.map((warning) => (
                 <div
@@ -381,8 +401,10 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
               ))
             : null}
           <ul
+            id={`${bedsId}-${chunkIndex}`}
             className={cn(
               "flex-1 border-border print:border-t print:border-black",
+              controls && !showBeds && "hidden print:block",
               chunkIndex === 0 && "border-t",
               // Between the pieces of a room the rows keep their line on screen, but not on paper.
               chunkIndex < chunks.length - 1 && "[&>li:last-child]:border-b",

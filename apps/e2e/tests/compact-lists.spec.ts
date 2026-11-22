@@ -116,6 +116,27 @@ for (const viewport of [
       await actions.click()
       await expect(page.getByRole("menuitem", { name: "Move to another room…" })).toBeVisible()
       await expect(page.getByRole("menuitem", { name: "Remove from room" })).toBeVisible()
+
+      await page.goto(`${eventPath}/rooms?view=overview`)
+      const card = page.getByRole("listitem").filter({
+        has: page.getByRole("heading", { name: room.name, exact: true, level: 3 }),
+      })
+      const beds = card.getByRole("button", { name: `Beds · ${room.name}`, exact: true })
+      const person = card.getByText(participant, { exact: true })
+      await expectFitsViewport(page, beds)
+      await expect(person).toBeHidden()
+      await expect(card.getByText(`${count} / ${room.beds}`, { exact: true })).toBeVisible()
+      await disclose(beds, touch)
+      await expectFitsViewport(
+        page,
+        person,
+        card.getByRole("button", { name: `Actions for ${participant}` }),
+      )
+      await beds.click()
+      await expect(person).toBeHidden()
+      await page.emulateMedia({ media: "print" })
+      await expect(person).toBeVisible()
+      await expect(beds).toBeHidden()
     })
 
     test("opens transport details and participant contact on demand", async ({ page, browser }) => {

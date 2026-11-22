@@ -105,8 +105,8 @@ function FilteredEvents({
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="grid items-end gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="relative">
+      <div className="grid grid-cols-2 items-end gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="relative col-span-2 lg:col-span-1">
           <Search
             aria-hidden
             className="pointer-events-none absolute start-[17px] top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
@@ -129,7 +129,7 @@ function FilteredEvents({
             <SelectTrigger
               id="event-organization"
               aria-label={t("list.organizationFilter")}
-              className="w-full"
+              className="w-full text-start max-lg:*:data-[slot=select-value]:whitespace-normal"
             >
               <SelectValue />
             </SelectTrigger>
@@ -155,7 +155,7 @@ function FilteredEvents({
             <SelectTrigger
               id="event-status"
               aria-label={t("list.statusFilter")}
-              className="w-full"
+              className="w-full text-start max-lg:*:data-[slot=select-value]:whitespace-normal"
             >
               <SelectValue />
             </SelectTrigger>

@@ -202,7 +202,7 @@ export function isFullyArchived(application: MyApplication): boolean {
 export function ArchivedApplicationCard() {
   const { t } = useTranslation("participant")
   return (
-    <Card className="gap-2 p-6">
+    <Card className="gap-2 p-4">
       <h3 className="text-lg font-semibold tracking-tight">{t("detail.archivedTitle")}</h3>
       <p className="text-sm text-muted-foreground">{t("detail.archivedText")}</p>
     </Card>
@@ -226,11 +226,11 @@ export function TermSteps({
   if (cards.length === 0) return null
 
   return (
-    <ul className="flex flex-col gap-4">
+    <ul className="flex flex-col gap-3">
       {cards.map(({ term, steps }) => (
         <li key={term.termId}>
           <Card
-            className="gap-3 rounded-lg p-4"
+            className="gap-2 rounded-lg p-3 sm:p-4"
             aria-labelledby={`steps-${term.termId}`}
           >
             <div className="flex items-start justify-between gap-3">
@@ -242,12 +242,12 @@ export function TermSteps({
                   {termName(term) ?? termDates(term)}
                 </h3>
                 {termName(term) ? (
-                  <p className="text-sm text-muted-foreground tabular-nums">{termDates(term)}</p>
+                  <p className="text-sm font-medium tabular-nums">{termDates(term)}</p>
                 ) : null}
               </div>
               <TermStatusBadge term={term} />
             </div>
-            <h4 className="border-t pt-3 text-base font-medium">{t("detail.steps.title")}</h4>
+            <h4 className="border-t pt-2 text-base font-medium">{t("detail.steps.title")}</h4>
             <ul className="flex flex-col gap-2">
               {steps.map((step) => (
                 <li
