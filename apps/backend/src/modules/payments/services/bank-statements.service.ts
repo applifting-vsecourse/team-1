@@ -1,9 +1,10 @@
 import { Locale } from "@/core/email/locale"
 import { parseVariableSymbol } from "@/modules/applications/domain/variable-symbol"
 import {
-  CandidateSource,
+  CandidateWithAfterPayment,
   findCandidates,
   isAssignable,
+  withAfterPayment,
 } from "@/modules/payments/domain/application-candidates"
 import {
   decideMatch,
@@ -115,31 +116,25 @@ export class BankStatementsService {
         if (!row.currency || row.currency === "CZK") result.unmatchedCzk += row.amountCents / 100
         continue
       }
-      // Deterministic receipt id: when the upload dies between payment and row, the retry adds nothing.
+      // Deterministic receipt id: the row and its payment commit together, a retry adds nothing.
       const receiptId = `bank:${organizationId}:${row.externalId}`
-      await this.payments.record(
-        user,
-        decision.applicationId,
+      const paid = await this.repository.saveMatched({
+        organizationId,
+        eventId,
+        importedById: user.id,
+        row,
+        retryOf,
+        applicationId: decision.applicationId,
+        termId: decision.termId,
+        amountCzk: decision.amountCzk,
         receiptId,
-        decision.amountCzk,
-        decision.termId,
-        "BANK_IMPORT",
-      )
-      if (
-        !(await this.repository.save({
-          organizationId,
-          eventId,
-          importedById: user.id,
-          row,
-          retryOf,
-          applicationId: decision.applicationId,
-          receiptId,
-        }))
-      ) {
+      })
+      if (!paid) {
         result.duplicateCount++
         outcomes.set(record, { kind: "duplicate" })
         continue
       }
+      await this.payments.notifyPaymentReceived(decision.applicationId, organizationId, paid)
       // A matched decision always comes with the application it was looked up for.
       if (application)
         outcomes.set(record, {
@@ -163,23 +158,39 @@ export class BankStatementsService {
     return this.repository.listUnmatched(eventId, organizationId)
   }
 
-  /** Applications of the event for the search of a manual match (at most ten). */
+  /**
+   * Applications of the event for the search of a manual match (at most ten). With the transaction
+   * the terms carry what its payment would do to them (the debt rules stay in the backend domain).
+   */
   async searchCandidates(
     user: Identity,
     eventId: string,
     query: string,
-  ): Promise<CandidateSource[]> {
-    await this.access.assertCanAccessEvent(user, eventId)
+    transactionId?: string,
+  ): Promise<CandidateWithAfterPayment[]> {
+    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+    let amountCzk: number | null = null
+    if (transactionId) {
+      const transaction = await this.repository.findTransaction(
+        transactionId,
+        eventId,
+        organizationId,
+      )
+      if (!transaction) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      if (isAssignable(transaction)) amountCzk = transaction.amountCents / 100
+    }
     if (query.trim() === "") return []
-    return findCandidates(await this.repository.listCandidateSources(eventId), query)
+    return withAfterPayment(
+      findCandidates(await this.repository.listCandidateSources(eventId), query),
+      amountCzk,
+    )
   }
 
   /**
    * US-562: the organizer assigns an unmatched transaction to one term of an application. The payment
    * is written like an import writes it, under the same receipt id, so an upload of the statement
-   * later counts the row as a duplicate. The transaction is claimed first and given back when the
-   * payment fails; the payment has a database transaction of its own (`PaymentsRepository.record`),
-   * so the two cannot share one.
+   * later counts the row as a duplicate. The payment and the matched status commit together under a
+   * lock of the transaction row; the e-mail follows the commit.
    */
   async match(
     user: Identity,
@@ -202,22 +213,18 @@ export class BankStatementsService {
       throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_NOT_ASSIGNABLE")
     if (!(await this.repository.applicationBelongsToEvent(eventId, applicationId)))
       throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-    const receiptId = `bank:${organizationId}:${transaction.externalId}`
-    // Claimed first: the parallel assignment of the same transaction stops here, before a payment.
-    if (!(await this.repository.claim(transaction.id, applicationId, receiptId)))
-      throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")
-    try {
-      await this.payments.record(
-        user,
-        applicationId,
-        receiptId,
-        transaction.amountCents / 100,
-        termId,
-        "BANK_IMPORT",
-      )
-    } catch (error) {
-      await this.repository.release(transaction.id, transaction.reason)
-      throw error
-    }
+    const paid = await this.repository.assign({
+      id: transaction.id,
+      eventId,
+      organizationId,
+      recordedById: user.id,
+      applicationId,
+      termId,
+      amountCzk: transaction.amountCents / 100,
+      receiptId: `bank:${organizationId}:${transaction.externalId}`,
+    })
+    // The row was matched or moved to another event after it was read.
+    if (!paid) throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")
+    await this.payments.notifyPaymentReceived(applicationId, organizationId, paid)
   }
 }

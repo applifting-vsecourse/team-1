@@ -75,6 +75,29 @@ export function computeTermOwed(
   return computeAmountOwed(computeTermDue(term), computeTermPaid(payments))
 }
 
+/** What one more payment does to a term: paid before → after, and what is then left or over. */
+export type TermAfterPayment = {
+  fromCzk: number
+  toCzk: number
+  restCzk: number
+  overCzk: number
+}
+
+/** `owedCzk` is the debt of the term now (negative = already overpaid), `paidCzk` what was paid. */
+export function computeTermAfterPayment(
+  paidCzk: number,
+  owedCzk: number,
+  paymentCzk: number,
+): TermAfterPayment {
+  const rest = owedCzk - paymentCzk
+  return {
+    fromCzk: paidCzk,
+    toCzk: paidCzk + paymentCzk,
+    restCzk: Math.max(0, rest),
+    overCzk: Math.max(0, -rest),
+  }
+}
+
 export function computeTermPaymentStatus(
   term: { status: ApplicationTermStatus; priceCzk: number },
   payments: { amountCzk: number }[],

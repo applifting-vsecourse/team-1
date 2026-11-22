@@ -486,6 +486,26 @@ describe("bank statement import (US-42)", () => {
       )
     })
 
+    it("rejects a request without a term or with unknown fields before anything is written", async () => {
+      const application = await applicationOf(await createApplication(true))
+      const { id } = await importUnmatched(300)
+      for (const body of [
+        { applicationId: application.id },
+        { applicationId: application.id, termId: firstTerm.id, amountCzk: 1 },
+      ]) {
+        const response = await match(id, body as { applicationId: string; termId: string })
+        expect(response.status).toBe(400)
+      }
+      expect((await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).status).toBe(
+        "UNMATCHED",
+      )
+      expect(
+        await prisma.payment.count({
+          where: { applicationTerm: { applicationId: application.id } },
+        }),
+      ).toBe(0)
+    })
+
     it("searches applications by name, variable symbol and number, with what each term owes", async () => {
       const number = await createApplication(true)
       const search = async (q: string) =>

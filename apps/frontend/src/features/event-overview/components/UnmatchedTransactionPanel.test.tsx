@@ -26,7 +26,14 @@ const transaction = (id: string, overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 })
 
-const term = (termId: string, termNumber: number, owedCzk: number, paidCzk = 0) => ({
+// The backend computes what the payment does to the term; the mock does the same arithmetic.
+const term = (
+  termId: string,
+  termNumber: number,
+  owedCzk: number,
+  paidCzk = 0,
+  amountCzk = 4900,
+) => ({
   termId,
   termNumber,
   name: `Week ${termNumber}`,
@@ -35,6 +42,12 @@ const term = (termId: string, termNumber: number, owedCzk: number, paidCzk = 0) 
   status: "CONFIRMED",
   owedCzk,
   paidCzk,
+  afterPayment: {
+    fromCzk: paidCzk,
+    toCzk: paidCzk + amountCzk,
+    restCzk: Math.max(0, owedCzk - amountCzk),
+    overCzk: Math.max(0, amountCzk - owedCzk),
+  },
 })
 const jana = {
   id: "a1",
@@ -137,7 +150,7 @@ describe("manual match of an unmatched payment (US-562)", () => {
   it("shows an overpayment instead of what is left", async () => {
     renderPage({
       rows: [transaction("b1", { amountCents: 550000 })],
-      candidates: [jana],
+      candidates: [{ ...jana, terms: [term("t1", 1, 4900, 0, 5500)] }],
     })
     await userEvent.click(await screen.findByRole("button", { name: /^Assign/ }))
     await userEvent.type(screen.getByLabelText("Find an application"), "Jana")
@@ -166,5 +179,20 @@ describe("manual match of an unmatched payment (US-562)", () => {
     const alert = await screen.findByRole("alert")
     expect(within(alert).getByText(/already assigned/)).toBeVisible()
     expect(screen.getByRole("button", { name: "Assign payment" })).toBeEnabled()
+  })
+
+  it("does not send the old selection while the changed search is still waiting", async () => {
+    const calls = renderPage({ rows: [transaction("b1")], candidates: [jana] })
+    await userEvent.click(await screen.findByRole("button", { name: /^Assign/ }))
+    await userEvent.type(screen.getByRole("textbox", { name: "Find an application" }), "Jana")
+    await userEvent.click(await screen.findByRole("radio"))
+    expect(screen.getByRole("radio")).toBeChecked()
+
+    // The text changes and Enter / the button come before the search of the new text settles.
+    await userEvent.type(screen.getByRole("textbox", { name: "Find an application" }), "x")
+    expect(screen.queryByRole("radio")).toBeNull()
+    await userEvent.click(screen.getByRole("button", { name: "Assign payment" }))
+    expect(calls.some((request) => request.url.endsWith("/match"))).toBe(false)
+    expect(await screen.findByRole("alert")).toBeVisible()
   })
 })

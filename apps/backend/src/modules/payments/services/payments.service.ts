@@ -170,6 +170,15 @@ export class PaymentsService {
     await this.sendPaymentReceived(applicationId, organizationId, paid)
   }
 
+  /** E-mail no. 8 for a payment that was committed by the caller (a bank transaction assigned to an application). */
+  async notifyPaymentReceived(
+    applicationId: string,
+    organizationId: string,
+    terms: PaidTermNotice[],
+  ): Promise<void> {
+    await this.sendPaymentReceived(applicationId, organizationId, terms)
+  }
+
   /** E-mail no. 8: one per payment for the terms whose debt was closed, in the language of the other change e-mails. */
   private async sendPaymentReceived(
     applicationId: string,

@@ -145,8 +145,16 @@ export class PaymentsRepository {
    * lock on the application and retries of the same `requestId` add nothing.
    */
   async record(input: RecordPaymentInput): Promise<PaidTermNotice[]> {
+    return this.prisma.$transaction((tx) => this.recordWithin(tx, input))
+  }
+
+  /** `record` inside the transaction of the caller, so the payment commits together with its other writes. */
+  async recordWithin(
+    tx: Prisma.TransactionClient,
+    input: RecordPaymentInput,
+  ): Promise<PaidTermNotice[]> {
     const { applicationId, organizationId, requestId, termId, isRefund = false } = input
-    return this.prisma.$transaction(async (tx) => {
+    {
       const locked = await tx.$queryRaw<
         { id: string }[]
       >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
@@ -185,7 +193,7 @@ export class PaymentsRepository {
       const owedBefore = await this.confirmedTermBalances(tx, applicationId)
       await this.createReceipt(tx, input)
       return this.closedDebts(tx, applicationId, owedBefore)
-    })
+    }
   }
 
   /** A correction cancels and replaces a whole receipt under the same application lock. */

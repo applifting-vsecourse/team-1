@@ -1,4 +1,5 @@
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
+import { computeTermAfterPayment, TermAfterPayment } from "@/modules/applications/domain/pricing"
 import { parseVariableSymbol } from "@/modules/applications/domain/variable-symbol"
 
 /** How many applications the search of a manual match hands back. */
@@ -52,4 +53,23 @@ export function findCandidates(rows: CandidateSource[], query: string): Candidat
 /** A transaction can be assigned by hand only in crowns and in whole crowns. */
 export function isAssignable(transaction: { amountCents: number; currency: string }): boolean {
   return transaction.currency === "CZK" && transaction.amountCents % 100 === 0
+}
+
+export type CandidateWithAfterPayment = Omit<CandidateSource, "terms"> & {
+  terms: (CandidateSource["terms"][number] & { afterPayment: TermAfterPayment | null })[]
+}
+
+/** Adds to each term what the payment of the transaction would do to it (null without a payment). */
+export function withAfterPayment(
+  rows: CandidateSource[],
+  amountCzk: number | null,
+): CandidateWithAfterPayment[] {
+  return rows.map((row) => ({
+    ...row,
+    terms: row.terms.map((term) => ({
+      ...term,
+      afterPayment:
+        amountCzk === null ? null : computeTermAfterPayment(term.paidCzk, term.owedCzk, amountCzk),
+    })),
+  }))
 }

@@ -22,7 +22,7 @@ import {
   unmatchedTransactionsKey,
   type UnmatchedTransaction,
 } from "@/features/event-overview/api/bankStatements"
-import { afterAssignment, preselectedTermId } from "@/features/event-overview/lib/assignment"
+import { preselectedTermId } from "@/features/event-overview/lib/assignment"
 
 const SEARCH_DELAY_MS = 250
 const choiceOf = (applicationId: string, termId: string) => `${applicationId}:${termId}`
@@ -56,11 +56,13 @@ export function UnmatchedTransactionPanel({
     return () => clearTimeout(timer)
   }, [text])
 
+  // The result of an older query never counts while the typed text is newer (the 250 ms of the debounce).
+  const isSettled = query === text.trim()
   const candidates = useQuery({
-    ...applicationCandidatesQueryOptions(eventId, query),
+    ...applicationCandidatesQueryOptions(eventId, query, transaction.id),
     enabled: query !== "",
   })
-  const found = query === "" ? [] : (candidates.data ?? [])
+  const found = query === "" || !isSettled ? [] : (candidates.data ?? [])
 
   // The choice of the organizer, else the term the symbol points to or the only one there is.
   const fallback = (() => {
@@ -75,14 +77,7 @@ export function UnmatchedTransactionPanel({
     .flatMap((candidate) => candidate.terms.map((term) => ({ candidate, term })))
     .find(({ candidate, term }) => choiceOf(candidate.id, term.termId) === selected)
 
-  const amountCzk = transaction.amountCents / 100
-  const after = selection
-    ? afterAssignment({
-        paidCzk: selection.term.paidCzk,
-        owedCzk: selection.term.owedCzk,
-        amountCzk,
-      })
-    : null
+  const after = selection?.term.afterPayment ?? null
 
   // The mutation carries the selection that was sent, so a change made while it runs does not matter.
   const assign = useMutation({
@@ -123,12 +118,15 @@ export function UnmatchedTransactionPanel({
             className="h-11 pl-10"
             value={text}
             placeholder={t("bankStatement.unmatchedList.searchPlaceholder")}
-            onChange={(event) => setText(event.target.value)}
+            onChange={(event) => {
+              setText(event.target.value)
+              setChosen(null)
+            }}
             autoComplete="off"
           />
         </div>
       </div>
-      {query === "" ? null : candidates.isPending ? (
+      {text.trim() === "" ? null : !isSettled || candidates.isPending ? (
         <LoadingState />
       ) : candidates.error ? (
         <Alert variant="destructive">

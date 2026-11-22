@@ -91,6 +91,15 @@ const candidatesSchema = z.object({
           /** Due minus paid; negative = an overpayment. */
           owedCzk: z.number().int(),
           paidCzk: z.number().int(),
+          /** What the payment of the requested transaction does to the term, computed by the backend. */
+          afterPayment: z
+            .object({
+              fromCzk: z.number().int(),
+              toCzk: z.number().int(),
+              restCzk: z.number().int(),
+              overCzk: z.number().int(),
+            })
+            .nullable(),
         }),
       ),
     }),
@@ -100,15 +109,19 @@ export type ApplicationCandidate = z.infer<typeof candidatesSchema>["candidates"
 export type CandidateTerm = ApplicationCandidate["terms"][number]
 
 /** `GET …/bank-transactions/application-candidates?q=` — at most ten applications of the event. */
-export const applicationCandidatesQueryOptions = (eventId: string, query: string) =>
+export const applicationCandidatesQueryOptions = (
+  eventId: string,
+  query: string,
+  transactionId: string,
+) =>
   queryOptions({
-    queryKey: ["eventOverview", "applicationCandidates", eventId, query] as const,
+    queryKey: ["eventOverview", "applicationCandidates", eventId, transactionId, query] as const,
     queryFn: async ({ signal }) =>
       candidatesSchema.parse(
         await api
           .get(`${path(eventId)}/bank-transactions/application-candidates`, {
             signal,
-            searchParams: { q: query },
+            searchParams: { q: query, transactionId },
           })
           .json(),
       ).candidates,

@@ -13,7 +13,17 @@ import { User } from "@/shared/auth/decorators/user.decorator"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { RequestLocale } from "@/shared/i18n/request-locale"
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from "@nestjs/common"
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  ValidationPipe,
+} from "@nestjs/common"
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger"
 
 @ApiTags("payments")
@@ -63,14 +73,16 @@ export class BankStatementsController {
       "Applications of the event for the manual match of a transaction (US-562): by a part of the name, a variable symbol or an application number; at most ten, each with what its terms owe",
   })
   @ApiQuery({ name: "q", required: false })
+  @ApiQuery({ name: "transactionId", required: false })
   @ApiResponse({ status: 200, type: ApplicationCandidatesResponseDto })
   async candidates(
     @User() user: Identity,
     @Param("eventId") eventId: string,
     @Query("q") query?: string,
+    @Query("transactionId") transactionId?: string,
   ): Promise<ApplicationCandidatesResponseDto> {
     return ApplicationCandidatesResponseDto.fromDomain(
-      await this.statements.searchCandidates(user, eventId, query ?? ""),
+      await this.statements.searchCandidates(user, eventId, query ?? "", transactionId),
     )
   }
 
@@ -90,7 +102,8 @@ export class BankStatementsController {
     @User() user: Identity,
     @Param("eventId") eventId: string,
     @Param("id") id: string,
-    @Body() body: MatchBankTransactionRequestDto,
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
+    body: MatchBankTransactionRequestDto,
   ): Promise<void> {
     await this.statements.match(user, eventId, id, body.applicationId, body.termId)
   }

@@ -1,4 +1,4 @@
-import { CandidateSource } from "@/modules/payments/domain/application-candidates"
+import { CandidateWithAfterPayment } from "@/modules/payments/domain/application-candidates"
 import { ApiProperty } from "@nestjs/swagger"
 import { IsString, MaxLength, MinLength } from "class-validator"
 
@@ -16,6 +16,13 @@ export class MatchBankTransactionRequestDto {
   termId!: string
 }
 
+class AfterPaymentDto {
+  @ApiProperty({ description: "Paid before the payment, whole CZK" }) fromCzk!: number
+  @ApiProperty({ description: "Paid after the payment, whole CZK" }) toCzk!: number
+  @ApiProperty({ description: "Still owed after the payment" }) restCzk!: number
+  @ApiProperty({ description: "Overpayment after the payment" }) overCzk!: number
+}
+
 class CandidateTermDto {
   @ApiProperty() termId!: string
   @ApiProperty() termNumber!: number
@@ -27,6 +34,12 @@ class CandidateTermDto {
   @ApiProperty({ description: "Due minus paid in whole CZK; negative = an overpayment" })
   owedCzk!: number
   @ApiProperty({ description: "Paid in whole CZK" }) paidCzk!: number
+  @ApiProperty({
+    type: AfterPaymentDto,
+    nullable: true,
+    description: "What the payment of the requested transaction does to the term; null without one",
+  })
+  afterPayment!: AfterPaymentDto | null
 }
 
 class CandidateDto {
@@ -43,7 +56,7 @@ class CandidateDto {
 export class ApplicationCandidatesResponseDto {
   @ApiProperty({ type: [CandidateDto] }) candidates!: CandidateDto[]
 
-  static fromDomain(rows: CandidateSource[]): ApplicationCandidatesResponseDto {
+  static fromDomain(rows: CandidateWithAfterPayment[]): ApplicationCandidatesResponseDto {
     return { candidates: rows.map((row) => ({ ...row, terms: row.terms.map((t) => ({ ...t })) })) }
   }
 }
