@@ -49,7 +49,7 @@ export class BoardService {
     await this.scope(user, eventId)
     return (await this.repository.eventTerms(eventId))
       .filter((term) => !term.isCancelled)
-      .map(({ isCancelled: _isCancelled, ...term }) => term)
+      .map(({ id, name, startsOn, endsOn }) => ({ id, name, startsOn, endsOn }))
   }
 
   async list(user: Identity, eventId: string): Promise<OrganizerPostItem[]> {
