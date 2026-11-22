@@ -456,6 +456,7 @@ export function RoomsPage({
             )}
           </RoomProposal>
           <RoomWishesOverview
+            key={term.termId}
             eventId={term.eventId}
             termId={term.termId}
           />

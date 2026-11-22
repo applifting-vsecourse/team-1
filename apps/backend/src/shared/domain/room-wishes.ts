@@ -27,23 +27,3 @@ export function normalizeName(name: string): string {
     .trim()
     .replace(/\s+/g, " ")
 }
-
-export type RoomWish = { name: string; fulfilled: boolean }
-
-/**
- * A wish is fulfilled when the person it names sleeps in the same room of the same term. The name is
- * free text, so it counts as a match when it equals a roommate's "first last" or "last first"
- * (ignoring case and diacritics). The participant's own name never fulfils their wish.
- */
-export function evaluateRoomWishes(
-  wishes: readonly string[],
-  roommates: readonly { firstName: string; lastName: string }[],
-): RoomWish[] {
-  const names = new Set(
-    roommates.flatMap(({ firstName, lastName }) => [
-      normalizeName(`${firstName} ${lastName}`),
-      normalizeName(`${lastName} ${firstName}`),
-    ]),
-  )
-  return wishes.map((name) => ({ name, fulfilled: names.has(normalizeName(name)) }))
-}

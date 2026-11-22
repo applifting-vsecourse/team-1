@@ -463,12 +463,18 @@
     "women_other": "{{count}} women"
   },
   "roomWishes": {
+    "all": "All",
+    "filterCount": "{{label}} · {{count}}",
     "fulfilled": "Fulfilled",
-    "list": "Roommate wishes",
-    "loadFailed": "Couldn't load the wishes",
+    "impossible": "Cannot be fulfilled",
     "none": "No roommate wishes",
+    "openApplication": "Open application: {{name}}",
+    "participant": "Participant",
+    "status": "Status",
     "title": "Roommate wishes",
-    "unfulfilled": "Not fulfilled"
+    "unfulfilled": "Not fulfilled",
+    "wish": "Wish",
+    "wishName": "Wish: {{name}}"
   },
   "rooms": {
     "actionsColumn": "Actions",
