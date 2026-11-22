@@ -80,7 +80,7 @@ export function ProgramBlockDetailDialog({
           ) : null}
         </dl>
         {onEdit && onDelete ? (
-          <DialogFooter className="gap-3 border-t p-6 max-sm:flex-col-reverse sm:items-center">
+          <DialogFooter className="gap-3 border-t p-6 sm:items-center">
             <Button
               type="button"
               variant="outline"

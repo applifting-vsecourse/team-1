@@ -77,6 +77,7 @@ function useDialogViewport() {
 
       setViewportState({
         style: {
+          "--dialog-viewport-top": `${viewport.offsetTop}px`,
           "--dialog-viewport-center": `${viewport.offsetTop + viewport.height / 2}px`,
           "--dialog-viewport-height": `${viewport.height}px`,
         } as React.CSSProperties,

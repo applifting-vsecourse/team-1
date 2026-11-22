@@ -40,6 +40,8 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Účastník odešle přihlášku v ručním režimu → organizátor ji vidí ve frontě K vyhodnocení | `queue.spec.ts`              | ✅   |
 | Návštěvník: landing → katalog → organizace → akce → přihláška (i na mobilu)             | `catalog.spec.ts`            | ✅   |
 | Organizátor zavře a dokončí tři typy dialogů programu (360 px i desktop)                | `dialog-layout.spec.ts`      | ✅   |
+| Organizátor zavře a dokončí kopírování pokojů a návrh rozdělení (360 px i desktop)      | `dialog-layout.spec.ts`      | ✅   |
+| Organizátor zavře úpravu údajů účastníka i po posunu viditelné plochy klávesnicí        | `dialog-layout.spec.ts`      | ✅   |
 
 Novou cestu přidej do tabulky v tomtéž PR. Cesta mimo tabulku se domlouvá s tech leadem. Okrajové stavy (chybné heslo, prošlý odkaz…) do E2E nepatří, pokud nejsou součástí hlavní cesty.
 

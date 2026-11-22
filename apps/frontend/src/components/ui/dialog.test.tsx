@@ -22,6 +22,7 @@ it("repositions the dialog when the keyboard resizes and pans the visual viewpor
   const dialog = screen.getByRole("dialog")
   const { style } = dialog
   expect(dialog).not.toHaveAttribute("data-visual-viewport-constrained")
+  expect(style.getPropertyValue("--dialog-viewport-top")).toBe("0px")
   expect(style.getPropertyValue("--dialog-viewport-center")).toBe("400px")
   expect(style.getPropertyValue("--dialog-viewport-height")).toBe("800px")
 
@@ -40,4 +41,5 @@ it("repositions the dialog when the keyboard resizes and pans the visual viewpor
   })
 
   expect(style.getPropertyValue("--dialog-viewport-center")).toBe("260px")
+  expect(style.getPropertyValue("--dialog-viewport-top")).toBe("80px")
 })

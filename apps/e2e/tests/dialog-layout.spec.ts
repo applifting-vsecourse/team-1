@@ -1,14 +1,20 @@
 import { expect, type Locator, type Page, test } from "@playwright/test"
-import { ORGANIZER } from "./support/accounts"
+import { MOUNTAIN_ORGANIZER, ORGANIZER } from "./support/accounts"
 import { openEventList, signIn } from "./support/auth"
 
-async function openProgram(page: Page, width: number, height: number) {
-  await signIn(page, "organizer", ORGANIZER)
+async function openEventSection(
+  page: Page,
+  section: string,
+  width: number,
+  height: number,
+  event = { account: ORGANIZER, name: /Letní kemp 2027(?! – demo)/ },
+) {
+  await signIn(page, "organizer", event.account)
   await openEventList(page)
-  await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
+  await page.getByRole("link", { name: event.name }).click()
   await page
     .getByRole("navigation", { name: "Event sections" })
-    .getByRole("link", { name: "Program" })
+    .getByRole("link", { name: section })
     .click()
   await page.setViewportSize({ width, height })
 }
@@ -32,7 +38,7 @@ async function openBlock(page: Page, name: string, action: "Edit" | "Delete bloc
     .click()
 }
 
-async function expectDialogToFit(dialog: Locator, width: number, height: number) {
+async function expectDialogToFit(dialog: Locator, width: number, height: number, top = 0) {
   // Measure the border box and any horizontal overflow after the opening animation.
   await expect
     .poll(() =>
@@ -42,15 +48,38 @@ async function expectDialogToFit(dialog: Locator, width: number, height: number)
           return (
             rect.left >= 0 &&
             rect.right <= bounds.width &&
-            rect.top >= 0 &&
-            rect.bottom <= bounds.height &&
+            rect.top >= bounds.top &&
+            rect.bottom <= bounds.top + bounds.height &&
             element.scrollWidth <= element.clientWidth + 1
           )
         },
-        { width, height },
+        { width, height, top },
       ),
     )
     .toBe(true)
+}
+
+async function expectScrollable(dialog: Locator) {
+  await expect
+    .poll(() => dialog.evaluate((element) => element.scrollHeight - element.clientHeight))
+    .toBeGreaterThan(0)
+}
+
+async function simulateVisualViewport(page: Page, height: number, offsetTop = 0) {
+  // Keep the layout viewport intact while emulating the area left by a software keyboard.
+  await page.evaluate(
+    ({ height, offsetTop }) => {
+      const viewport = window.visualViewport
+      if (!viewport) throw new Error("Chromium must expose VisualViewport")
+      Object.defineProperties(viewport, {
+        height: { value: height },
+        offsetTop: { value: offsetTop },
+      })
+      viewport.dispatchEvent(new Event("resize"))
+      viewport.dispatchEvent(new Event("scroll"))
+    },
+    { height, offsetTop },
+  )
 }
 
 async function expectActionOrder(secondary: Locator, primary: Locator, width: number) {
@@ -77,13 +106,37 @@ async function openCopyPreview(page: Page) {
   return dialog
 }
 
-for (const width of [360, 1280]) {
+async function selectTerm(page: Page, name: RegExp) {
+  await page.getByRole("combobox", { name: "Term", exact: true }).click()
+  await page.getByRole("option", { name }).click()
+}
+
+async function confirmRoomProposal(page: Page, width: number, title: string, action: string) {
+  const launch = page.getByRole("button", { name: action, exact: true })
+  await launch.click()
+  const dialog = page.getByRole("dialog", { name: title })
+  const back = dialog.getByRole("button", { name: "Back to the proposal" })
+  const confirm = dialog.getByRole("button", { name: action, exact: true })
+  await expectDialogToFit(dialog, width, 480)
+  await expectActionOrder(back, confirm, width)
+  await back.click()
+  await expect(dialog).toBeHidden()
+  await launch.click()
+  await confirm.click()
+  await expect(dialog).toBeHidden()
+}
+
+for (const [index, width] of [360, 1280].entries()) {
   test(`short confirmation fits and can be closed or completed at ${width} px`, async ({
     page,
   }) => {
-    await openProgram(page, width, 800)
+    await openEventSection(page, "Program", width, 800)
     const name = await addBlock(page)
-    await openBlock(page, name, "Delete block")
+    await page.getByRole("button", { name: `Show details of ${name}` }).click()
+    const detail = page.getByRole("dialog", { name })
+    const deleteBlock = detail.getByRole("button", { name: "Delete block" })
+    await expectActionOrder(deleteBlock, detail.getByRole("button", { name: "Edit" }), width)
+    await deleteBlock.click()
     const dialog = page.getByRole("dialog", { name: "Delete block?" })
     const primary = dialog.getByRole("button", { name: "Delete block" })
     await expectDialogToFit(dialog, width, 800)
@@ -101,16 +154,14 @@ for (const width of [360, 1280]) {
   })
 
   test(`long program copy preview scrolls and completes at ${width} px`, async ({ page }) => {
-    await openProgram(page, width, 480)
+    await openEventSection(page, "Program", width, 480)
     await addBlock(page, "Long description for the program copy preview. ".repeat(40))
     await page.getByRole("combobox", { name: "Term", exact: true }).click()
     await page.getByRole("option").last().click()
     const dialog = await openCopyPreview(page)
     const copy = dialog.getByRole("button", { name: /^Copy \d+ blocks?$/ })
     await expectDialogToFit(dialog, width, 480)
-    await expect
-      .poll(() => dialog.evaluate((element) => element.scrollHeight - element.clientHeight))
-      .toBeGreaterThan(0)
+    await expectScrollable(dialog)
     await expectActionOrder(dialog.getByRole("button", { name: "Back" }), copy, width)
     await dialog.getByRole("button", { name: "Back" }).click()
     await expect(dialog).toBeHidden()
@@ -121,20 +172,14 @@ for (const width of [360, 1280]) {
   })
 
   test(`program edit can validate, scroll and save at ${width} px`, async ({ page }) => {
-    await openProgram(page, width, 800)
+    await openEventSection(page, "Program", width, 800)
     const name = await addBlock(page)
     await openBlock(page, name, "Edit")
     const dialog = page.getByRole("dialog", { name: "Edit block" })
     const nameField = dialog.getByLabel("Block name")
     await nameField.fill("")
-    // Emulate only the visible area lost to a software keyboard while the layout stays 800 px.
     const visibleHeight = width === 360 ? 360 : 800
-    await page.evaluate((height) => {
-      const viewport = window.visualViewport
-      if (!viewport) throw new Error("Chromium must expose VisualViewport")
-      Object.defineProperty(viewport, "height", { value: height })
-      viewport.dispatchEvent(new Event("resize"))
-    }, visibleHeight)
+    await simulateVisualViewport(page, visibleHeight)
     await expectDialogToFit(dialog, width, visibleHeight)
     const save = dialog.getByRole("button", { name: "Save changes" })
     await save.click()
@@ -156,4 +201,84 @@ for (const width of [360, 1280]) {
     await page.keyboard.press("Escape")
     await expect(dialog).toBeHidden()
   })
+
+  test(`room copy preview fits, scrolls and replaces rooms at ${width} px`, async ({ page }) => {
+    // Use separate target terms and leave the common source term untouched.
+    await openEventSection(page, "Accommodation", width, 480, {
+      account: MOUNTAIN_ORGANIZER,
+      name: /Zimní kurz 2027/,
+    })
+    await selectTerm(page, index === 0 ? /První týden/ : /Druhý týden/)
+    const launch = page.getByRole("button", { name: "Copy rooms from term…" })
+    await launch.click()
+    const dialog = page.getByRole("dialog", { name: "Copy rooms to the term" })
+    const preview = dialog.getByRole("button", { name: "Show preview" })
+    const cancel = dialog.getByRole("button", { name: "Cancel" })
+    await expectDialogToFit(dialog, width, 480)
+    await expectActionOrder(cancel, preview, width)
+    await cancel.click()
+    await expect(dialog).toBeHidden()
+    await launch.click()
+    await dialog.getByRole("combobox", { name: "Source term" }).click()
+    await page.getByRole("option", { name: /Třetí týden/ }).click()
+    await preview.click()
+    await expectDialogToFit(dialog, width, 480)
+    if (width === 360) await expectScrollable(dialog)
+    const back = dialog.getByRole("button", { name: "Back", exact: true })
+    await expectActionOrder(back, dialog.getByRole("button", { name: "Add 2 rooms" }), width)
+    await back.click()
+    await preview.click()
+    await dialog.getByRole("radio", { name: "Replace the existing rooms" }).click()
+    await dialog.getByRole("button", { name: "Replace rooms" }).click()
+    await expect(dialog).toBeHidden()
+    await expect(page.getByText("2 rooms copied", { exact: true })).toBeVisible()
+  })
+
+  test(`room proposal dialogs can edit, discard and save at ${width} px`, async ({ page }) => {
+    await openEventSection(page, "Accommodation", width, 480)
+    await selectTerm(page, new RegExp(`${index + 1}\\. týden`))
+    const launch = page.getByRole("button", { name: "Propose distribution" })
+    await launch.click()
+    const edit = page.getByRole("button", { name: /^Edit assignment:/ }).first()
+    await edit.click()
+    const dialog = page.getByRole("dialog", { name: "Edit assignment" })
+    const cancel = dialog.getByRole("button", { name: "Cancel" })
+    const apply = dialog.getByRole("button", { name: "Use in proposal" })
+    await expectDialogToFit(dialog, width, 480)
+    await expectActionOrder(cancel, apply, width)
+    await cancel.click()
+    await expect(dialog).toBeHidden()
+    await edit.click()
+    if (width === 360) await expectScrollable(dialog)
+    await dialog.getByRole("radio").last().click()
+    await apply.click()
+    await expect(dialog).toBeHidden()
+
+    await confirmRoomProposal(page, width, "Discard the proposal?", "Discard proposal")
+    await launch.click()
+    await confirmRoomProposal(page, width, "Save the distribution?", "Save distribution")
+    await expect(page.getByText("Distribution saved", { exact: true })).toBeVisible()
+  })
 }
+
+test("participant details stay reachable when the mobile visual viewport pans", async ({
+  page,
+}) => {
+  await openEventSection(page, "Applications", 360, 800)
+  await page.getByRole("link", { name: "Record payment" }).first().click()
+  await page
+    .getByRole("group", { name: "Participant details" })
+    .getByRole("button", { name: "Edit", exact: true })
+    .click()
+  const dialog = page.getByRole("dialog", { name: "Edit participant details" })
+  await dialog.getByLabel("First name").fill("")
+  await simulateVisualViewport(page, 360, 80)
+  await expectDialogToFit(dialog, 360, 360, 80)
+  await dialog.getByRole("button", { name: "Save changes" }).click()
+  await expect(dialog.getByText("Enter the first name.")).toBeVisible()
+  const close = dialog.getByRole("button", { name: "Close", exact: true })
+  await close.scrollIntoViewIfNeeded()
+  await expect.poll(async () => (await close.boundingBox())?.y ?? 0).toBeGreaterThanOrEqual(80)
+  await close.click()
+  await expect(dialog).toBeHidden()
+})
