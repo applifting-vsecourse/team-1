@@ -553,7 +553,7 @@ export function ApplicationsPage({
                           asChild
                           variant="outline"
                           size="lg"
-                          className="ms-auto"
+                          className="ms-auto h-auto min-h-11 max-w-full whitespace-normal"
                         >
                           <Link
                             to={ROUTES.organizer.application}

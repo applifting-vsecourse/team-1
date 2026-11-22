@@ -534,7 +534,7 @@ describe("PaymentDetail", () => {
     expect(await screen.findByRole("heading", { name: "Adam Test" })).toBeInTheDocument()
     expect(screen.getByText(/application C-0047/)).toBeInTheDocument()
     expect(screen.getByText("No payment recorded yet.")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "← Back to applications" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Back to applications" })).toHaveAttribute(
       "href",
       "/organizer/events/e1/applications",
     )
@@ -712,4 +712,22 @@ describe("PaymentDetail refund of an overpayment (#399)", () => {
     expect(within(dialog).getByRole("combobox", { name: "Term *" })).toHaveTextContent(/500/)
     expect(within(dialog).getByLabelText("Amount *")).toHaveValue("500")
   })
+})
+
+it("renders the return to applications as an outlined, keyboard-accessible link", async () => {
+  respondWith(() => application([first]))
+  setup()
+  const link = await screen.findByRole("link", { name: "Back to applications" })
+  expect(link).toHaveAttribute("href", "/organizer/events/e1/applications")
+  expect(link).toHaveAttribute("data-variant", "outline")
+  expect(link).toHaveAttribute("data-size", "lg")
+  expect(link).toHaveClass(
+    "border",
+    "rounded-control",
+    "max-w-full",
+    "whitespace-normal",
+    "focus-visible:outline-2",
+  )
+  await userEvent.tab()
+  expect(link).toHaveFocus()
 })

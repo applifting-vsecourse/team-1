@@ -507,7 +507,7 @@
     "amountRequired": "Amount *",
     "applicant": "Applicant",
     "applicationCode": "application {{code}}",
-    "back": "← Back to applications",
+    "back": "Back to applications",
     "backToPayments": "Back to payments",
     "cancelAllAllocations": "If the receipt is split across several terms, all its rows are cancelled.",
     "cancelCorrection": "Cancel",

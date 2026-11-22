@@ -252,9 +252,9 @@ export function ManualApplicationPage({
             <p>{t("manual.emailSent")}</p>
             <Button
               asChild
-              variant="ghost"
+              variant="outline"
               size="lg"
-              className="self-start"
+              className="max-w-full self-start whitespace-normal"
             >
               <Link
                 to={ROUTES.organizer.application}

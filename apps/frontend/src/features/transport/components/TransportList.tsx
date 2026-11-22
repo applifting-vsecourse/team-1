@@ -170,8 +170,9 @@ export function TransportList({ eventId }: { eventId: string }) {
                           ) : null}
                           <Button
                             asChild
-                            variant="ghost"
-                            className="min-h-11"
+                            variant="outline"
+                            size="lg"
+                            className="h-auto min-h-11 max-w-full whitespace-normal"
                           >
                             <Link
                               to={ROUTES.organizer.eventTransportParticipants}
