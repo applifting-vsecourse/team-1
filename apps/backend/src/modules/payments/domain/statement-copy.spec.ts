@@ -105,15 +105,26 @@ describe("annotateStatement", () => {
     )
   })
 
-  it.each(["cs", "en"] as const)("adds only the application number in %s, preserving the original payer", (locale) => {
-    const text = `${HEADER}\n1;05.05.2026;5;CZK;"Ann; ""A""";12001;`
-    const result = annotate(text, () => ({ kind: "matched", applicationNumber: 12, termNumber: 1 }), locale)
-    const [row] = parseBankStatement(result).incoming
-    expect(row.counterpartyName).toBe('Ann; "A"')
-    const outcome = result.split("\n")[1].slice(text.split("\n")[1].length)
-    expect(outcome).toBe(locale === "cs" ? ";Spárováno: přihláška č. 12, termín 1" : ";Matched: application no. 12, term 1")
-    expect(outcome).not.toContain("Ann")
-  })
+  it.each(["cs", "en"] as const)(
+    "adds only the application number in %s, preserving the original payer",
+    (locale) => {
+      const text = `${HEADER}\n1;05.05.2026;5;CZK;"Ann; ""A""";12001;`
+      const result = annotate(
+        text,
+        () => ({ kind: "matched", applicationNumber: 12, termNumber: 1 }),
+        locale,
+      )
+      const [row] = parseBankStatement(result).incoming
+      expect(row.counterpartyName).toBe('Ann; "A"')
+      const outcome = result.split("\n")[1].slice(text.split("\n")[1].length)
+      expect(outcome).toBe(
+        locale === "cs"
+          ? ";Spárováno: přihláška č. 12, termín 1"
+          : ";Matched: application no. 12, term 1",
+      )
+      expect(outcome).not.toContain("Ann")
+    },
+  )
 
   it("keeps LF endings, a quoted line break and a last row without a line ending", () => {
     const text = `${HEADER}\n1;05.05.2026;5;CZK;"two\nlines";1;\n2;06.05.2026;5;CZK;X;2;`
