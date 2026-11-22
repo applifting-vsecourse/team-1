@@ -1,5 +1,6 @@
 import csApplicationForm from "@/i18n/locales/cs/applicationForm.json"
 import csAuth from "@/i18n/locales/cs/auth.json"
+import csBoard from "@/i18n/locales/cs/board.json"
 import csCatalog from "@/i18n/locales/cs/catalog.json"
 import csCommon from "@/i18n/locales/cs/common.json"
 import csErrors from "@/i18n/locales/cs/errors.json"
@@ -14,6 +15,7 @@ import csProgram from "@/i18n/locales/cs/program.json"
 import csTransport from "@/i18n/locales/cs/transport.json"
 import enApplicationForm from "@/i18n/locales/en/applicationForm.json"
 import enAuth from "@/i18n/locales/en/auth.json"
+import enBoard from "@/i18n/locales/en/board.json"
 import enCatalog from "@/i18n/locales/en/catalog.json"
 import enCommon from "@/i18n/locales/en/common.json"
 import enErrors from "@/i18n/locales/en/errors.json"
@@ -32,6 +34,7 @@ import enTransport from "@/i18n/locales/en/transport.json"
 export const resources = {
   en: {
     common: enCommon,
+    board: enBoard,
     catalog: enCatalog,
     errors: enErrors,
     auth: enAuth,
@@ -48,6 +51,7 @@ export const resources = {
   },
   cs: {
     common: csCommon,
+    board: csBoard,
     catalog: csCatalog,
     errors: csErrors,
     auth: csAuth,

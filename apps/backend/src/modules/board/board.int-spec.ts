@@ -241,6 +241,16 @@ describe("board (integration)", () => {
       expect(await prisma.eventPost.count()).toBe(0)
     })
 
+    it("offers the active terms of the event for the dialog", async () => {
+      const terms = (await (
+        await send(`/organizer/events/${eventId}/board/terms`, organizer)
+      ).json()) as Term[]
+      expect(terms.map((item) => item.id)).toEqual([t1, t2])
+      expect((await send(`/organizer/events/${eventId}/board/terms`, otherOrganizer)).status).toBe(
+        403,
+      )
+    })
+
     it("edits the texts and the terms", async () => {
       const post = await publish()
 

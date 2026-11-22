@@ -1,5 +1,6 @@
 import {
   BoardPostRequestDto,
+  BoardTermDto,
   OrganizerPostDto,
   OrganizerPostItemDto,
 } from "@/modules/board/controllers/dto/board.dto"
@@ -23,14 +24,21 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
 @ApiTags("board")
 @Auth("ORGANIZER")
-@Controller("organizer/events/:eventId/board/posts")
+@Controller("organizer/events/:eventId/board")
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
 @ApiResponse({ status: 401, description: "Session required" })
 @ApiResponse({ status: 403, description: "Wrong account type, foreign or missing event" })
 export class OrganizerBoardController {
   constructor(private readonly board: BoardService) {}
 
-  @Get()
+  @Get("terms")
+  @ApiOperation({ summary: "Active terms of the event, the choice in the post dialog" })
+  @ApiResponse({ status: 200, type: [BoardTermDto] })
+  async terms(@User() user: Identity, @Param("eventId") eventId: string): Promise<BoardTermDto[]> {
+    return this.board.activeTerms(user, eventId)
+  }
+
+  @Get("posts")
   @ApiOperation({ summary: "Posts of the event board, newest first (US-91)" })
   @ApiResponse({ status: 200, type: [OrganizerPostItemDto] })
   async list(
@@ -40,7 +48,7 @@ export class OrganizerBoardController {
     return (await this.board.list(user, eventId)).map(OrganizerPostItemDto.fromDomain)
   }
 
-  @Get(":postId")
+  @Get("posts/:postId")
   @ApiOperation({ summary: "One post with its text, to edit it" })
   @ApiResponse({ status: 200, type: OrganizerPostDto })
   @ApiResponse({ status: 404, description: "BOARD_POST_NOT_FOUND" })
@@ -52,7 +60,7 @@ export class OrganizerBoardController {
     return OrganizerPostDto.fromDomain(await this.board.get(user, eventId, postId))
   }
 
-  @Post()
+  @Post("posts")
   @ApiOperation({
     summary: "Publish a post for the chosen terms",
     description:
@@ -72,7 +80,7 @@ export class OrganizerBoardController {
     return OrganizerPostDto.fromDomain(await this.board.create(user, eventId, body))
   }
 
-  @Put(":postId")
+  @Put("posts/:postId")
   @ApiOperation({
     summary: "Edit a post",
     description: "Sends no new notification and keeps who has read it.",
@@ -89,7 +97,7 @@ export class OrganizerBoardController {
     return OrganizerPostDto.fromDomain(await this.board.update(user, eventId, postId, body))
   }
 
-  @Delete(":postId")
+  @Delete("posts/:postId")
   @HttpCode(204)
   @ApiOperation({ summary: "Delete a post; its notifications and reads go with it" })
   @ApiResponse({ status: 204 })

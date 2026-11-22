@@ -57,6 +57,7 @@
   },
   "eventTabs": {
     "applications": "Applications",
+    "board": "Board",
     "capacity": "Capacity",
     "meals": "Meals",
     "overview": "Overview",

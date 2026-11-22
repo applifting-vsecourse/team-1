@@ -1,0 +1,56 @@
+{
+  "admin": {
+    "bulkMessage": "Hromadná zpráva",
+    "columns": {
+      "actions": "Akce",
+      "published": "Zveřejněno",
+      "terms": "Termíny",
+      "title": "Nadpis"
+    },
+    "delete": "Smazat",
+    "edit": "Upravit",
+    "empty": "Tady se zobrazí příspěvky, které přidáte pro přihlašovatele akce.",
+    "loadFailed": "Nástěnku se nepodařilo načíst.",
+    "new": "Nový příspěvek",
+    "title": "Nástěnka"
+  },
+  "back": "Zpět na přihlášky",
+  "backToList": "Zpět",
+  "deleteDialog": {
+    "cancel": "Zrušit",
+    "confirm": "Smazat",
+    "deleted": "Příspěvek byl smazán",
+    "description": "Příspěvek zmizí všem přihlašovatelům. Nelze vzít zpět.",
+    "failed": "Příspěvek se nepodařilo smazat.",
+    "title": "Smazat příspěvek?"
+  },
+  "dialog": {
+    "add": "Přidat příspěvek",
+    "added": "Příspěvek byl přidán",
+    "bodyLabel": "Text",
+    "bodyRequired": "Zadejte text.",
+    "cancel": "Zrušit",
+    "editTitle": "Upravit příspěvek",
+    "loadFailed": "Příspěvek se nepodařilo načíst.",
+    "newTitle": "Nový příspěvek",
+    "save": "Uložit",
+    "saveFailed": "Příspěvek se nepodařilo uložit.",
+    "saved": "Příspěvek byl uložen",
+    "termsLabel": "Termíny",
+    "termsRequired": "Vyberte aspoň jeden termín.",
+    "titleLabel": "Nadpis",
+    "titleRequired": "Zadejte nadpis.",
+    "tooLong": "Text je příliš dlouhý."
+  },
+  "empty": "Tady se zobrazí příspěvky organizátora k vaší akci.",
+  "loadFailed": "Informace k akci se nepodařilo načíst.",
+  "new": "Nové",
+  "newCount_few": "{{count}} nové",
+  "newCount_one": "{{count}} nový",
+  "newCount_other": "{{count}} nových",
+  "showAll": "Zobrazit vše ›",
+  "terms": {
+    "both": "Oba termíny"
+  },
+  "title": "Informace k akci"
+}

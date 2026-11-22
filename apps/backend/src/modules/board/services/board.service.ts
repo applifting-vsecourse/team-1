@@ -1,5 +1,6 @@
 import {
   BoardSummary,
+  BoardTerm,
   OrganizerPost,
   OrganizerPostItem,
   ParticipantPost,
@@ -42,6 +43,14 @@ export class BoardService {
   }
 
   // --- Organizer ---
+
+  /** The terms the dialog offers: the active ones of the event. */
+  async activeTerms(user: Identity, eventId: string): Promise<BoardTerm[]> {
+    await this.scope(user, eventId)
+    return (await this.repository.eventTerms(eventId))
+      .filter((term) => !term.isCancelled)
+      .map(({ isCancelled: _isCancelled, ...term }) => term)
+  }
 
   async list(user: Identity, eventId: string): Promise<OrganizerPostItem[]> {
     return this.repository.listForEvent(await this.scope(user, eventId))
