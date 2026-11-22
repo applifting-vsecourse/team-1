@@ -160,13 +160,13 @@ function EventTabs({ eventId }: { eventId: string }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="start"
-            className="w-(--radix-dropdown-menu-trigger-width)"
+            className="w-(--radix-dropdown-menu-trigger-width) overscroll-contain"
           >
             {SECTIONS.map(({ key, to, icon: Icon }, index) => (
               <DropdownMenuItem
                 key={key}
                 asChild
-                className={cn("h-10 gap-3", index === activeIndex && "bg-accent font-medium")}
+                className={cn("min-h-11 gap-3", index === activeIndex && "bg-accent font-medium")}
               >
                 <Link
                   to={to}
@@ -175,7 +175,12 @@ function EventTabs({ eventId }: { eventId: string }) {
                 >
                   <Icon aria-hidden />
                   {t(`eventTabs.${key}`)}
-                  {index === activeIndex ? <Check className="ml-auto" /> : null}
+                  {index === activeIndex ? (
+                    <Check
+                      className="ml-auto"
+                      aria-hidden="true"
+                    />
+                  ) : null}
                 </Link>
               </DropdownMenuItem>
             ))}

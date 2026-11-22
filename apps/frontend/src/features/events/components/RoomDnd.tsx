@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react"
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
+  MouseSensor,
   pointerWithin,
   TouchSensor,
   useSensor,
@@ -27,7 +27,7 @@ export function useRoomDnd(
 ) {
   const [dragged, setDragged] = useState<DragData | null>(null)
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
   )
   // A full room is a target too: the organizer confirms an extra bed for the one dropped on it.

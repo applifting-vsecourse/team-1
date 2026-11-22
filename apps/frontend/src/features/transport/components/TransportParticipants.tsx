@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useId, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Search } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -17,6 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { usePagination } from "@/hooks/usePagination"
 import { termLine, termTitle } from "@/lib/term-label"
@@ -92,18 +93,13 @@ export function TransportParticipants({
               onChange={(event) => setSearch(event.target.value)}
             />
           </div>
-          <p aria-live="polite">
-            {t("termParticipants", { term: termTitle(termValue), count: shown.length })}
-          </p>
-          {shown.length === 0 ? (
-            <EmptyState message={t("noSearchResults")} />
-          ) : (
-            <ParticipantTable
-              participants={shown}
-              term={termLine(termValue)}
-              resetKey={search}
-            />
-          )}
+          <ParticipantTable
+            key={transportId}
+            participants={shown}
+            summary={t("termParticipants", { term: termTitle(termValue), count: shown.length })}
+            term={termLine(termValue)}
+            resetKey={search}
+          />
         </>
       )}
     </div>
@@ -112,43 +108,81 @@ export function TransportParticipants({
 
 function ParticipantTable({
   participants,
+  summary,
   term,
   resetKey,
 }: {
   participants: TransportParticipant[]
+  summary: string
   term: string
   resetKey: string
 }) {
+  const { t } = useTranslation("transport")
+  const accordionId = useId()
   const { pageItems, ...pagination } = usePagination(participants, resetKey)
+  const [expandedIds, setExpandedIds] = useState<string[]>([])
+  const expanded = new Set(expandedIds)
+  const participantIds = new Set(participants.map(({ applicationId }) => applicationId))
+  const isEntireListExpanded = [...participantIds].every((id) => expanded.has(id))
+
   return (
     <div className="flex flex-col gap-4">
-      <Accordion
-        type="multiple"
-        className="rounded-lg border bg-card"
-      >
-        {pageItems.map((participant) => (
-          <AccordionItem
-            key={participant.applicationId}
-            value={participant.applicationId}
-            className="px-3"
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p aria-live="polite">{summary}</p>
+        {participants.length > 0 && (
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            aria-controls={accordionId}
+            onClick={() =>
+              setExpandedIds(
+                isEntireListExpanded
+                  ? expandedIds.filter((id) => !participantIds.has(id))
+                  : [...new Set([...expandedIds, ...participantIds])],
+              )
+            }
           >
-            <AccordionTrigger className="min-h-11 items-center gap-2 py-2">
-              <span className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1 wrap-anywhere">
-                <span className="text-base font-semibold">{participant.name}</span>
-                <span className="text-muted-foreground">{term}</span>
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="pb-2 wrap-anywhere text-muted-foreground">
-              <p>{participant.email}</p>
-              {participant.phone ? <p>{participant.phone}</p> : null}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
-      <Pagination
-        {...pagination}
-        onPageChange={pagination.setPage}
-      />
+            {t(isEntireListExpanded ? "collapseAllContacts" : "expandAllContacts")}
+          </Button>
+        )}
+      </div>
+      {participants.length === 0 ? (
+        <EmptyState message={t("noSearchResults")} />
+      ) : (
+        <>
+          <Accordion
+            id={accordionId}
+            type="multiple"
+            value={expandedIds}
+            onValueChange={setExpandedIds}
+            className="rounded-lg border bg-card"
+          >
+            {pageItems.map((participant) => (
+              <AccordionItem
+                key={participant.applicationId}
+                value={participant.applicationId}
+                className="px-3"
+              >
+                <AccordionTrigger className="min-h-11 items-center gap-2 py-2">
+                  <span className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1 wrap-anywhere">
+                    <span className="text-base font-semibold">{participant.name}</span>
+                    <span className="text-muted-foreground">{term}</span>
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="pb-2 wrap-anywhere text-muted-foreground">
+                  <p>{participant.email}</p>
+                  {participant.phone ? <p>{participant.phone}</p> : null}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+          <Pagination
+            {...pagination}
+            onPageChange={pagination.setPage}
+          />
+        </>
+      )}
     </div>
   )
 }

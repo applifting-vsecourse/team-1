@@ -63,7 +63,10 @@ for (const viewport of [
       await expect(received).toBeHidden()
       await expectFitsViewport(page, action)
       await disclose(trigger, touch)
-      await expectFitsViewport(page, received, row.getByText(PARTICIPANT.email), action)
+      const email = row.getByText(PARTICIPANT.email)
+      await expectFitsViewport(page, received, email, action)
+      await email.click()
+      await expect(trigger).toHaveAttribute("aria-expanded", "true")
       await action.click()
 
       const title = page.getByRole("heading", { name: participant })
@@ -114,8 +117,12 @@ for (const viewport of [
       await disclose(trigger, touch)
       await expectFitsViewport(page, actions, edit)
       await actions.click()
-      await expect(page.getByRole("menuitem", { name: "Move to another room…" })).toBeVisible()
-      await expect(page.getByRole("menuitem", { name: "Remove from room" })).toBeVisible()
+      const roomActions = touch ? page.getByRole("dialog", { name: participant }) : page
+      const actionRole = touch ? "button" : "menuitem"
+      await expect(
+        roomActions.getByRole(actionRole, { name: "Move to another room…" }),
+      ).toBeVisible()
+      await expect(roomActions.getByRole(actionRole, { name: "Remove from room" })).toBeVisible()
 
       await page.goto(`${eventPath}/rooms?view=overview`)
       const card = page.getByRole("listitem").filter({
@@ -207,6 +214,16 @@ for (const viewport of [
       await expectFitsViewport(page, participantTrigger)
       await expect(page.getByText(PARTICIPANT.email)).toBeHidden()
       await disclose(participantTrigger, touch)
+      await expectFitsViewport(page, page.getByText(PARTICIPANT.email))
+      const collapse = page.getByRole("button", { name: "Collapse all contacts" })
+      await expectFitsViewport(page, collapse)
+      if (touch) await collapse.tap()
+      else await collapse.press("Enter")
+      await expect(page.getByText(PARTICIPANT.email)).toBeHidden()
+      const expand = page.getByRole("button", { name: "Expand all contacts" })
+      await expectFitsViewport(page, expand)
+      if (touch) await expand.tap()
+      else await expand.press("Enter")
       await expectFitsViewport(page, page.getByText(PARTICIPANT.email))
     })
   })

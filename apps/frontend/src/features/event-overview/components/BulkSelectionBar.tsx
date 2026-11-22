@@ -36,7 +36,7 @@ export function BulkSelectionBar({
       <div className="grid grid-cols-2 gap-2 md:flex md:gap-3">
         <Button
           size="lg"
-          className="col-span-2"
+          className="h-auto min-h-11 whitespace-normal"
           onClick={onEvaluate}
         >
           {t("bulkEvaluation.action")}
@@ -60,7 +60,7 @@ export function BulkSelectionBar({
         <Button
           size="lg"
           variant="destructive"
-          className="col-span-2 h-auto min-h-11 whitespace-normal md:col-span-1"
+          className="h-auto min-h-11 whitespace-normal"
           onClick={() => onDecide("REJECT")}
         >
           {t("bulkDecision.reject")}

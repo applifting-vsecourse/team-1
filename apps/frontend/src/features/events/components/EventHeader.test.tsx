@@ -90,5 +90,9 @@ describe("EventHeader sections", () => {
     ])
     expect(items[0]).toHaveAttribute("aria-current", "page")
     expect(items[3]).toHaveAttribute("href", "/organizer/events/e1/capacity")
+
+    await userEvent.click(items[3]!)
+    expect(await screen.findByRole("button", { name: "Capacity" })).toBeVisible()
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument()
   })
 })
