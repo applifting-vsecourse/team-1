@@ -99,20 +99,42 @@ export class BankTransactionsRepository {
     status: "MATCHED" | "UNMATCHED"
     amountCents: number
     currency: string
+    reason: UnmatchedReason | null
   } | null> {
-    return this.prisma.bankTransaction.findFirst({
+    const row = await this.prisma.bankTransaction.findFirst({
       where: { id, eventId, organizationId },
-      select: { id: true, externalId: true, status: true, amountCents: true, currency: true },
+      select: {
+        id: true,
+        externalId: true,
+        status: true,
+        amountCents: true,
+        currency: true,
+        reason: true,
+      },
     })
+    return row && { ...row, reason: row.reason as UnmatchedReason | null }
   }
 
-  /** @returns false when the transaction was matched meanwhile. */
-  async markMatched(id: string, applicationId: string, receiptId: string): Promise<boolean> {
+  /**
+   * Takes an unmatched transaction before its payment is written, so two parallel assignments of
+   * the same transaction cannot both write a payment (the lock of `PaymentsRepository.record` is per
+   * application).
+   * @returns false when the transaction was matched meanwhile.
+   */
+  async claim(id: string, applicationId: string, receiptId: string): Promise<boolean> {
     const result = await this.prisma.bankTransaction.updateMany({
       where: { id, status: "UNMATCHED" },
       data: { status: "MATCHED", reason: null, applicationId, receiptId },
     })
     return result.count === 1
+  }
+
+  /** Gives a claimed transaction back when its payment could not be written. */
+  async release(id: string, reason: UnmatchedReason | null): Promise<void> {
+    await this.prisma.bankTransaction.updateMany({
+      where: { id, status: "MATCHED" },
+      data: { status: "UNMATCHED", reason, applicationId: null, receiptId: null },
+    })
   }
 
   /** An earlier import of the same operation: matched ones are final, unmatched ones may be retried. */

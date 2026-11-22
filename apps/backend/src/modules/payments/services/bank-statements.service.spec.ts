@@ -10,13 +10,14 @@ describe("BankStatementsService.match (US-562)", () => {
     id: "t1",
     externalId: "777",
     status: "UNMATCHED" as const,
+    reason: "NO_VARIABLE_SYMBOL" as const,
     amountCents: 490000,
     currency: "CZK",
   }
   let repository: jest.Mocked<
     Pick<
       BankTransactionsRepository,
-      "findTransaction" | "applicationBelongsToEvent" | "markMatched"
+      "findTransaction" | "applicationBelongsToEvent" | "claim" | "release"
     >
   >
   let record: jest.Mock
@@ -26,7 +27,8 @@ describe("BankStatementsService.match (US-562)", () => {
     repository = {
       findTransaction: jest.fn().mockResolvedValue(unmatched),
       applicationBelongsToEvent: jest.fn().mockResolvedValue(true),
-      markMatched: jest.fn().mockResolvedValue(true),
+      claim: jest.fn().mockResolvedValue(true),
+      release: jest.fn().mockResolvedValue(undefined),
     }
     record = jest.fn().mockResolvedValue(undefined)
     service = new BankStatementsService(
@@ -41,7 +43,7 @@ describe("BankStatementsService.match (US-562)", () => {
   it("records a BANK_IMPORT payment under the receipt id of the import and marks the transaction", async () => {
     await service.match(user, "e1", "t1", "a1", "term1")
     expect(record).toHaveBeenCalledWith(user, "a1", "bank:org:777", 4900, "term1", "BANK_IMPORT")
-    expect(repository.markMatched).toHaveBeenCalledWith("t1", "a1", "bank:org:777")
+    expect(repository.claim).toHaveBeenCalledWith("t1", "a1", "bank:org:777")
   })
 
   it.each([
@@ -62,10 +64,17 @@ describe("BankStatementsService.match (US-562)", () => {
     })
     expect(record).not.toHaveBeenCalled()
     repository.findTransaction.mockResolvedValue(unmatched)
-    repository.markMatched.mockResolvedValue(false)
+    repository.claim.mockResolvedValue(false)
     await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
       response: { code: "BANK_TRANSACTION_ALREADY_MATCHED" },
     })
+    expect(record).not.toHaveBeenCalled()
+  })
+
+  it("gives the transaction back when the payment fails", async () => {
+    record.mockRejectedValue(new Error("boom"))
+    await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toThrow("boom")
+    expect(repository.release).toHaveBeenCalledWith("t1", "NO_VARIABLE_SYMBOL")
   })
 
   it("refuses an application of another event and an unknown transaction", async () => {
@@ -75,7 +84,7 @@ describe("BankStatementsService.match (US-562)", () => {
     })
     repository.findTransaction.mockResolvedValue(null)
     await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
-      status: 404,
+      status: 403,
     })
   })
 })

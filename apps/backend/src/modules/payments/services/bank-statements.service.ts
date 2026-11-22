@@ -177,9 +177,9 @@ export class BankStatementsService {
   /**
    * US-562: the organizer assigns an unmatched transaction to one term of an application. The payment
    * is written like an import writes it, under the same receipt id, so an upload of the statement
-   * later counts the row as a duplicate. The payment and the change of the transaction are two steps
-   * (the payment has a transaction of its own, like in the import); the receipt id is fixed, so a
-   * retry after a failure between them adds no second payment.
+   * later counts the row as a duplicate. The transaction is claimed first and given back when the
+   * payment fails; the payment has a database transaction of its own (`PaymentsRepository.record`),
+   * so the two cannot share one.
    */
   async match(
     user: Identity,
@@ -194,7 +194,8 @@ export class BankStatementsService {
       eventId,
       organizationId,
     )
-    if (!transaction) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    // Not found for this organization and event covers a foreign record: 403 with no content.
+    if (!transaction) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     if (transaction.status !== "UNMATCHED")
       throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")
     if (!isAssignable(transaction))
@@ -202,15 +203,21 @@ export class BankStatementsService {
     if (!(await this.repository.applicationBelongsToEvent(eventId, applicationId)))
       throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     const receiptId = `bank:${organizationId}:${transaction.externalId}`
-    await this.payments.record(
-      user,
-      applicationId,
-      receiptId,
-      transaction.amountCents / 100,
-      termId,
-      "BANK_IMPORT",
-    )
-    if (!(await this.repository.markMatched(transaction.id, applicationId, receiptId)))
+    // Claimed first: the parallel assignment of the same transaction stops here, before a payment.
+    if (!(await this.repository.claim(transaction.id, applicationId, receiptId)))
       throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")
+    try {
+      await this.payments.record(
+        user,
+        applicationId,
+        receiptId,
+        transaction.amountCents / 100,
+        termId,
+        "BANK_IMPORT",
+      )
+    } catch (error) {
+      await this.repository.release(transaction.id, transaction.reason)
+      throw error
+    }
   }
 }
