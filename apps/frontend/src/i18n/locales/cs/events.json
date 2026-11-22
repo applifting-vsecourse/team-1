@@ -463,12 +463,18 @@
     "women_other": "{{count}} žen"
   },
   "roomWishes": {
+    "all": "Vše",
+    "filterCount": "{{label}} · {{count}}",
     "fulfilled": "Splněno",
-    "list": "Přání spolubydlení",
-    "loadFailed": "Přání se nepodařilo načíst",
+    "impossible": "Nelze splnit",
     "none": "Bez přání spolubydlení",
+    "openApplication": "Otevřít přihlášku: {{name}}",
+    "participant": "Účastník",
+    "status": "Stav",
     "title": "Přání spolubydlení",
-    "unfulfilled": "Nesplněno"
+    "unfulfilled": "Nesplněno",
+    "wish": "Přání",
+    "wishName": "Přání: {{name}}"
   },
   "rooms": {
     "actionsColumn": "Akce",
