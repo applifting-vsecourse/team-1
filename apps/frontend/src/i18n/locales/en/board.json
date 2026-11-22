@@ -15,6 +15,7 @@
     "title": "Board"
   },
   "back": "Back to applications",
+  "backToApplication": "Back to application",
   "backToList": "Back",
   "deleteDialog": {
     "cancel": "Cancel",
@@ -48,6 +49,9 @@
   "newCount_few": "{{count}} new",
   "newCount_one": "{{count}} new",
   "newCount_other": "{{count}} new",
+  "postsNewCount_few": "{{count}} new posts",
+  "postsNewCount_one": "{{count}} new post",
+  "postsNewCount_other": "{{count}} new posts",
   "showAll": "Show all ›",
   "terms": {
     "both": "Both terms"

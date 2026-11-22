@@ -27,7 +27,10 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 @Controller("organizer/events/:eventId/board")
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
 @ApiResponse({ status: 401, description: "Session required" })
-@ApiResponse({ status: 403, description: "Wrong account type, foreign or missing event" })
+@ApiResponse({
+  status: 403,
+  description: "Wrong account type, foreign or missing event or post",
+})
 export class OrganizerBoardController {
   constructor(private readonly board: BoardService) {}
 
@@ -51,7 +54,7 @@ export class OrganizerBoardController {
   @Get("posts/:postId")
   @ApiOperation({ summary: "One post with its text, to edit it" })
   @ApiResponse({ status: 200, type: OrganizerPostDto })
-  @ApiResponse({ status: 404, description: "BOARD_POST_NOT_FOUND" })
+  @ApiResponse({ status: 403, description: "A foreign or missing post" })
   async get(
     @User() user: Identity,
     @Param("eventId") eventId: string,
@@ -87,7 +90,7 @@ export class OrganizerBoardController {
   })
   @ApiResponse({ status: 200, type: OrganizerPostDto })
   @ApiResponse({ status: 400, description: "Same as publishing" })
-  @ApiResponse({ status: 404, description: "BOARD_POST_NOT_FOUND" })
+  @ApiResponse({ status: 403, description: "A foreign or missing post" })
   async update(
     @User() user: Identity,
     @Param("eventId") eventId: string,
@@ -101,7 +104,7 @@ export class OrganizerBoardController {
   @HttpCode(204)
   @ApiOperation({ summary: "Delete a post; its notifications and reads go with it" })
   @ApiResponse({ status: 204 })
-  @ApiResponse({ status: 404, description: "BOARD_POST_NOT_FOUND" })
+  @ApiResponse({ status: 403, description: "A foreign or missing post" })
   async remove(
     @User() user: Identity,
     @Param("eventId") eventId: string,

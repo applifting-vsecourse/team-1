@@ -17,6 +17,7 @@ import { notify } from "@/lib/notify"
 import { boardKeys, deletePost, type OrganizerPostItem } from "@/features/board/api/board"
 
 /** Deleting a post: one confirmation; it is gone for every applicant at once. */
+// Figma (Návrh #91 – Nástěnka): O1 správa příspěvků, ikona Smazat · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/?node-id=29546-131700 — the confirmation itself is not drawn (copy and layout follow DeleteProgramBlockDialog; see „Odchylky od Figmy“ in the PR)
 export function DeleteBoardPostDialog({
   eventId,
   post,

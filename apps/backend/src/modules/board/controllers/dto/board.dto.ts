@@ -42,6 +42,7 @@ export class OrganizerPostItemDto {
   @ApiProperty() createdAt!: string
   @ApiProperty({ enum: ["MANUAL", "BULK_MESSAGE"] }) source!: EventPostSource
   @ApiProperty({ type: [BoardTermDto] }) terms!: BoardTermDto[]
+  @ApiProperty({ description: "Active terms of the event" }) eventTermCount!: number
 
   static fromDomain(post: OrganizerPostItem): OrganizerPostItemDto {
     return {
@@ -50,6 +51,7 @@ export class OrganizerPostItemDto {
       createdAt: post.createdAt.toISOString(),
       source: post.source,
       terms: post.terms,
+      eventTermCount: post.eventTermCount,
     }
   }
 }
@@ -70,6 +72,7 @@ export class ParticipantPostItemDto {
   @ApiProperty() eventName!: string
   @ApiProperty({ type: [BoardTermDto], description: "Only the terms the account is in" })
   terms!: BoardTermDto[]
+  @ApiProperty({ description: "Active terms of the event" }) eventTermCount!: number
   @ApiProperty({ description: "True until the account opens the post" }) isNew!: boolean
 
   static fromDomain(post: ParticipantPost): ParticipantPostItemDto {
@@ -80,6 +83,7 @@ export class ParticipantPostItemDto {
       createdAt: post.createdAt.toISOString(),
       eventName: post.eventName,
       terms: post.terms,
+      eventTermCount: post.eventTermCount,
       isNew: post.isNew,
     }
   }
@@ -98,7 +102,17 @@ export class LatestPostDto {
   @ApiProperty() title!: string
 }
 
+export class UnreadByApplicationDto {
+  @ApiProperty() applicationId!: string
+  @ApiProperty() unreadCount!: number
+}
+
 export class BoardSummaryDto implements BoardSummary {
   @ApiProperty({ description: "Posts the account has not opened" }) unreadCount!: number
   @ApiProperty({ type: LatestPostDto, nullable: true }) latest!: LatestPostDto | null
+  @ApiProperty({
+    type: [UnreadByApplicationDto],
+    description: "New posts per application; applications without one are left out",
+  })
+  unreadByApplication!: UnreadByApplicationDto[]
 }

@@ -20,10 +20,13 @@ import { termsLabel } from "@/features/board/lib/post-label"
 export function BoardPostList({
   posts,
   selectedId,
+  applicationId,
   isShowingEvent,
 }: {
   posts: ParticipantPostItem[]
   selectedId?: string
+  /** Kept in the link, so the way back from a post still leads to the application. */
+  applicationId?: string
   /** More events on the board: the name of the event is part of the line above the title. */
   isShowingEvent: boolean
 }) {
@@ -35,7 +38,7 @@ export function BoardPostList({
           const meta = [
             formatDate(post.createdAt),
             ...(isShowingEvent ? [post.eventName] : []),
-            termsLabel(post.terms, t),
+            termsLabel(post.terms, post.eventTermCount, t),
           ].join(" · ")
           return (
             <li
@@ -45,6 +48,7 @@ export function BoardPostList({
               <Link
                 to={ROUTES.participant.boardPost}
                 params={{ postId: post.id }}
+                search={{ applicationId }}
                 aria-current={post.id === selectedId ? "page" : undefined}
                 className={cn(
                   "flex items-center gap-2 rounded-md p-4 hover:bg-accent/40 aria-[current=page]:bg-accent",

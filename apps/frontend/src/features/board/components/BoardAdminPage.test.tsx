@@ -31,6 +31,7 @@ const posts = [
     createdAt: "2027-06-14T09:05:00.000Z",
     source: "MANUAL",
     terms: [terms[0]],
+    eventTermCount: 2,
   },
   {
     id: "p2",
@@ -38,6 +39,7 @@ const posts = [
     createdAt: "2027-06-09T09:05:00.000Z",
     source: "BULK_MESSAGE",
     terms,
+    eventTermCount: 2,
   },
 ]
 

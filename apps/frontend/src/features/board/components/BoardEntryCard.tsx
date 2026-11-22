@@ -13,7 +13,7 @@ import { boardSummaryQueryOptions } from "@/features/board/api/board"
  * account without a post sees no card.
  */
 // Figma (Návrh #91 – Nástěnka): C4 vstup z Moje přihlášky · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/?node-id=29545-32742
-export function BoardEntryCard() {
+export function BoardEntryCard({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("board")
   const { data } = useQuery(boardSummaryQueryOptions())
   if (!data?.latest) return null
@@ -36,6 +36,7 @@ export function BoardEntryCard() {
       <p className="text-sm font-medium break-words">{data.latest.title}</p>
       <Link
         to={ROUTES.participant.board}
+        search={{ applicationId }}
         className="w-fit text-sm font-medium text-link"
       >
         {t("showAll")}

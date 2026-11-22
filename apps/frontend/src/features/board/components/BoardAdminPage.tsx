@@ -89,7 +89,7 @@ export function BoardAdminPage({ eventId }: { eventId: string }) {
                     </span>
                   </TableCell>
                   <TableCell className="px-4 py-1.5 whitespace-normal">
-                    {termsLabel(post.terms, t)}
+                    {termsLabel(post.terms, post.eventTermCount, t)}
                   </TableCell>
                   <TableCell className="px-4 py-1.5 tabular-nums">
                     {formatDate(post.createdAt)}

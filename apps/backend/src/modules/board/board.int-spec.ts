@@ -13,6 +13,7 @@ type OrganizerPost = {
   body: string
   source: string
   terms: Term[]
+  eventTermCount: number
 }
 type ParticipantPost = {
   id: string
@@ -20,6 +21,7 @@ type ParticipantPost = {
   excerpt: string
   eventName: string
   terms: Term[]
+  eventTermCount: number
   isNew: boolean
   body?: string
 }
@@ -68,6 +70,7 @@ describe("board (integration)", () => {
     (await (await send("/participant/board/summary", cookie)).json()) as {
       unreadCount: number
       latest: { id: string; title: string } | null
+      unreadByApplication: { applicationId: string; unreadCount: number }[]
     }
   const bell = async (cookie = participant): Promise<Notification[]> =>
     ((await (await send("/notifications", cookie)).json()) as Notification[]).filter(
@@ -200,6 +203,70 @@ describe("board (integration)", () => {
       }
       expect(await prisma.eventPost.count({ where: { id: post.id } })).toBe(1)
     })
+
+    it("gives 403, the same as for a missing id, for a post of another event or organization on an own event", async () => {
+      const foreignOrganizationId = (
+        await prisma.organizationMember.findFirstOrThrow({
+          where: { user: { email: "organizator2@example.com" } },
+        })
+      ).organizationId
+      const foreignEvent = await prisma.event.create({
+        data: {
+          organizationId: foreignOrganizationId,
+          name: "US-91 foreign organization event",
+          publicToken: `us91-${randomUUID()}`,
+          terms: {
+            create: [
+              {
+                organizationId: foreignOrganizationId,
+                number: 1,
+                name: "F1",
+                startsOn: new Date("2027-05-10"),
+                endsOn: new Date("2027-05-16"),
+                priceCzk: 1000,
+              },
+            ],
+          },
+        },
+        include: { terms: true },
+      })
+      try {
+        const foreignPost = await prisma.eventPost.create({
+          data: {
+            organizationId: foreignOrganizationId,
+            eventId: foreignEvent.id,
+            title: "Cizí",
+            body: "Cizí text",
+            terms: { create: [{ termId: foreignEvent.terms[0].id }] },
+          },
+        })
+        const sameOrganizationPost = await prisma.eventPost.create({
+          data: {
+            organizationId,
+            eventId: otherEventId,
+            title: "Jiná akce",
+            body: "Text",
+            terms: { create: [{ termId: otherEventTerm }] },
+          },
+        })
+        for (const id of [foreignPost.id, sameOrganizationPost.id, "missing"]) {
+          for (const method of ["GET", "PUT", "DELETE"]) {
+            const response = await send(
+              `${base()}/${id}`,
+              organizer,
+              method,
+              method === "PUT" ? draft() : undefined,
+            )
+            expect(response.status).toBe(403)
+            expect(await response.text()).not.toContain("Cizí")
+          }
+        }
+        expect(await prisma.eventPost.count({ where: { id: foreignPost.id } })).toBe(1)
+        expect(await prisma.eventPost.count({ where: { id: sameOrganizationPost.id } })).toBe(1)
+      } finally {
+        await prisma.event.delete({ where: { id: foreignEvent.id } })
+      }
+    })
   })
 
   describe("the organizer's posts", () => {
@@ -280,15 +347,56 @@ describe("board (integration)", () => {
       )
     })
 
-    it("answers a missing post with 404 BOARD_POST_NOT_FOUND", async () => {
+    it("keeps the terms of the last saved edit when two edits run at once", async () => {
+      const event = await prisma.event.create({
+        data: {
+          organizationId,
+          name: "US-91 concurrent edit event",
+          publicToken: `us91-${randomUUID()}`,
+          terms: {
+            create: [1, 2, 3].map((number) => ({
+              organizationId,
+              number,
+              name: `C${number}`,
+              startsOn: new Date(`2027-0${number}-10`),
+              endsOn: new Date(`2027-0${number}-16`),
+              priceCzk: 1000,
+            })),
+          },
+        },
+        include: { terms: { orderBy: { number: "asc" } } },
+      })
+      try {
+        const [a, b, c] = event.terms.map((item) => item.id)
+        const url = `/organizer/events/${event.id}/board/posts`
+        const created = await send(url, organizer, "POST", draft({ termIds: [a] }))
+        expect(created.status).toBe(201)
+        const { id } = (await created.json()) as OrganizerPost
+        for (let round = 0; round < 8; round += 1) {
+          await prisma.eventPostTerm.deleteMany({ where: { postId: id, termId: { not: a } } })
+          const responses = await Promise.all([
+            send(`${url}/${id}`, organizer, "PUT", draft({ termIds: [a, b] })),
+            send(`${url}/${id}`, organizer, "PUT", draft({ termIds: [a, c] })),
+          ])
+          expect(responses.map((response) => response.status)).toEqual([200, 200])
+          const stored = (await prisma.eventPostTerm.findMany({ where: { postId: id } }))
+            .map((item) => item.termId)
+            .sort()
+          expect([[a, b].sort(), [a, c].sort()]).toContainEqual(stored)
+        }
+      } finally {
+        await prisma.event.delete({ where: { id: event.id } })
+      }
+    })
+
+    it("answers a missing post with 403, the same as a foreign one", async () => {
       for (const [method, path] of [
         ["GET", `${base()}/missing`],
         ["PUT", `${base()}/missing`],
         ["DELETE", `${base()}/missing`],
       ]) {
         const response = await send(path, organizer, method, method === "PUT" ? draft() : undefined)
-        expect(response.status).toBe(404)
-        expect(await response.json()).toMatchObject({ code: "BOARD_POST_NOT_FOUND" })
+        expect(response.status).toBe(403)
       }
     })
 
@@ -426,7 +534,7 @@ describe("board (integration)", () => {
       expect(await board()).toHaveLength(1)
     })
 
-    it("opens a post with its whole text, and 404 for one the account does not see", async () => {
+    it("opens a post with its whole text, and 403 for one the account does not see or that is missing", async () => {
       await apply(participantId, t1, "CONFIRMED")
       const post = await publish()
 
@@ -435,18 +543,27 @@ describe("board (integration)", () => {
       expect(await response.json()).toMatchObject({ id: post.id, body: "Sraz v 9:00\nu nádraží" })
 
       const foreign = await send(`/participant/board/posts/${post.id}`, otherParticipant)
-      expect(foreign.status).toBe(404)
-      expect(await foreign.json()).toMatchObject({ code: "BOARD_POST_NOT_FOUND" })
+      expect(foreign.status).toBe(403)
+      expect(await foreign.text()).not.toContain("Sraz v 9:00")
       expect(
         (await send(`/participant/board/posts/${post.id}/read`, otherParticipant, "POST")).status,
-      ).toBe(404)
+      ).toBe(403)
+      expect((await send("/participant/board/posts/missing", participant)).status).toBe(403)
+      expect(
+        (await send("/participant/board/posts/missing/read", participant, "POST")).status,
+      ).toBe(403)
+      expect(await prisma.eventPostRead.count({ where: { userId: participantId } })).toBe(0)
     })
 
     it("counts the new posts and drops them when opened, in the bell too, however often", async () => {
-      await apply(participantId, t1, "CONFIRMED")
+      const applicationId = await apply(participantId, t1, "CONFIRMED")
       const first = await publish({ title: "První" })
       const second = await publish({ title: "Druhý" })
-      expect(await summary()).toEqual({ unreadCount: 2, latest: { id: second.id, title: "Druhý" } })
+      expect(await summary()).toEqual({
+        unreadCount: 2,
+        latest: { id: second.id, title: "Druhý" },
+        unreadByApplication: [{ applicationId, unreadCount: 2 }],
+      })
       expect(await bellCount()).toBe(2)
 
       const read = () => send(`/participant/board/posts/${first.id}/read`, participant, "POST")
@@ -471,7 +588,33 @@ describe("board (integration)", () => {
     })
 
     it("has an empty summary without posts", async () => {
-      expect(await summary()).toEqual({ unreadCount: 0, latest: null })
+      expect(await summary()).toEqual({ unreadCount: 0, latest: null, unreadByApplication: [] })
+    })
+
+    it("tells how many active terms the event has, a cancelled one not counted", async () => {
+      await apply(participantId, t1, "CONFIRMED")
+      const post = await publish({ termIds: [t1] })
+
+      expect((await board())[0].eventTermCount).toBe(2)
+      expect(post.eventTermCount).toBe(2)
+    })
+
+    it("counts the new posts per application of the account", async () => {
+      const first = await apply(participantId, t1, "CONFIRMED")
+      const second = await apply(participantId, t2, "WAITLISTED")
+      await apply(participantId, t1, "TO_EVALUATE")
+      await publish({ title: "Oba", termIds: [t1, t2] })
+      await publish({ title: "Druhý termín", termIds: [t2] })
+
+      const { unreadByApplication } = await summary()
+
+      expect(unreadByApplication).toHaveLength(2)
+      expect(unreadByApplication).toEqual(
+        expect.arrayContaining([
+          { applicationId: first, unreadCount: 1 },
+          { applicationId: second, unreadCount: 2 },
+        ]),
+      )
     })
   })
 })

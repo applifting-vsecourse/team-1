@@ -25,7 +25,14 @@ import { useIsDesktop } from "@/features/board/hooks/use-is-desktop"
 // Figma (Návrh #91 – Nástěnka): C1 seznam a detail · Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/?node-id=29544-1216
 // Figma (Návrh #91 – Nástěnka): C2 seznam · Mobil 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/?node-id=29545-32408
 // Figma (Návrh #91 – Nástěnka): C3 detail · Mobil 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/?node-id=29545-32592
-export function BoardPage({ postId }: { postId?: string }) {
+export function BoardPage({
+  postId,
+  applicationId,
+}: {
+  postId?: string
+  /** The application the applicant came from (the card in its detail): the way back leads there. */
+  applicationId?: string
+}) {
   const { t } = useTranslation("board")
   const navigate = useNavigate()
   const isDesktop = useIsDesktop()
@@ -38,10 +45,11 @@ export function BoardPage({ postId }: { postId?: string }) {
       void navigate({
         to: ROUTES.participant.boardPost,
         params: { postId: firstId },
+        search: { applicationId },
         replace: true,
       })
     }
-  }, [isDesktop, postId, firstId, navigate])
+  }, [isDesktop, postId, firstId, applicationId, navigate])
 
   const events = new Set(posts?.map((post) => post.eventName))
   const eventName = events.size === 1 ? [...events][0] : undefined
@@ -52,11 +60,25 @@ export function BoardPage({ postId }: { postId?: string }) {
       <Seo title={t("title")} />
       {postId ? (
         <div className="flex lg:hidden">
-          <BackLink to={ROUTES.participant.board}>{t("backToList")}</BackLink>
+          <BackLink
+            to={ROUTES.participant.board}
+            search={{ applicationId }}
+          >
+            {t("backToList")}
+          </BackLink>
         </div>
       ) : null}
       <div className={cn("flex flex-col gap-4", postId && "max-lg:hidden")}>
-        <BackLink to={ROUTES.participant.applications}>{t("back")}</BackLink>
+        {applicationId ? (
+          <BackLink
+            to={ROUTES.participant.application}
+            params={{ applicationId }}
+          >
+            {t("backToApplication")}
+          </BackLink>
+        ) : (
+          <BackLink to={ROUTES.participant.applications}>{t("back")}</BackLink>
+        )}
         <PageHeader
           title={t("title")}
           description={eventName}
@@ -80,6 +102,7 @@ export function BoardPage({ postId }: { postId?: string }) {
             <BoardPostList
               posts={posts}
               selectedId={postId}
+              applicationId={applicationId}
               isShowingEvent={events.size > 1}
             />
           </div>

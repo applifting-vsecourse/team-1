@@ -21,7 +21,7 @@ function ParticipantApplicationPage() {
       <Seo title={t("detail.title")} />
       <ApplicationDetail
         applicationId={applicationId}
-        boardEntry={<BoardEntryCard />}
+        boardEntry={<BoardEntryCard applicationId={applicationId} />}
       />
     </>
   )

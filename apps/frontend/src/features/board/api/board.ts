@@ -22,12 +22,18 @@ const participantPostItemSchema = z.object({
   eventName: z.string(),
   /** Only the terms the account is in. */
   terms: z.array(termSchema),
+  /** The active terms of the event: "both terms" is said only for an event with exactly two. */
+  eventTermCount: z.number().int().nonnegative(),
   isNew: z.boolean(),
 })
 const participantPostSchema = participantPostItemSchema.extend({ body: z.string() })
 const summarySchema = z.object({
   unreadCount: z.number().int().nonnegative(),
   latest: z.object({ id: z.string(), title: z.string() }).nullable(),
+  /** New posts per application; applications without one are left out. */
+  unreadByApplication: z.array(
+    z.object({ applicationId: z.string(), unreadCount: z.number().int().positive() }),
+  ),
 })
 
 const organizerPostItemSchema = z.object({
@@ -36,6 +42,7 @@ const organizerPostItemSchema = z.object({
   createdAt: z.string(),
   source: z.enum(["MANUAL", "BULK_MESSAGE"]),
   terms: z.array(termSchema),
+  eventTermCount: z.number().int().nonnegative(),
 })
 const organizerPostSchema = organizerPostItemSchema.extend({ body: z.string() })
 

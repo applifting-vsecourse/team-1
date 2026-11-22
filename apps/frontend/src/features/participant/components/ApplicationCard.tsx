@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
 import { CalendarDays, ChevronRight, UserRound, Wallet } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -11,11 +12,15 @@ import { formatDate } from "@/lib/date"
 import type { MyApplication } from "@/features/participant/api/applications"
 import { PaymentStatusBadge, TermStatusBadge } from "@/features/participant/components/TermSummary"
 
-type ApplicationCardProps = { application: MyApplication }
+type ApplicationCardProps = {
+  application: MyApplication
+  /** The number of new posts of the board (US-91); a route composes it, as features do not import each other. */
+  boardBadge?: ReactNode
+}
 
 /** One application in the list: event, who and which number, every term with its status. Opens the detail. */
 // Figma (Design system v2): US-54 / Moje přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-2 (360 px: node-id=15649-122)
-export function ApplicationCard({ application }: ApplicationCardProps) {
+export function ApplicationCard({ application, boardBadge }: ApplicationCardProps) {
   const { t } = useTranslation("participant")
   return (
     <Link
@@ -55,6 +60,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <PaymentStatusBadge status={application.paymentStatus} />
+            {boardBadge}
             <ChevronRight
               aria-hidden
               className="size-5 text-muted-foreground"

@@ -11,7 +11,7 @@ import { BoardRepository } from "@/modules/board/repositories/board.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
-import { HttpStatus, Injectable } from "@nestjs/common"
+import { ForbiddenException, HttpStatus, Injectable } from "@nestjs/common"
 
 @Injectable()
 export class BoardService {
@@ -38,8 +38,12 @@ export class BoardService {
     return input
   }
 
-  private notFound(): AppException {
-    return new AppException(HttpStatus.NOT_FOUND, "BOARD_POST_NOT_FOUND")
+  /**
+   * A post of another organization or account and a missing one end in the same 403 with no
+   * content, so the answer never reveals whether the id exists (rules of the repo).
+   */
+  private notFound(): ForbiddenException {
+    return new ForbiddenException()
   }
 
   // --- Organizer ---
@@ -97,10 +101,14 @@ export class BoardService {
   }
 
   async summary(user: Identity): Promise<BoardSummary> {
-    return summarize(await this.repository.listForUser(user.id))
+    const [posts, unreadByApplication] = await Promise.all([
+      this.repository.listForUser(user.id),
+      this.repository.unreadByApplication(user.id),
+    ])
+    return summarize(posts, unreadByApplication)
   }
 
-  /** A post of somebody else's term and a missing one look the same: 404 with no content. */
+  /** A post of somebody else's term and a missing one look the same: 403 with no content. */
   async getForParticipant(user: Identity, id: string): Promise<ParticipantPost> {
     const post = await this.repository.findForUser(user.id, id)
     if (!post) throw this.notFound()

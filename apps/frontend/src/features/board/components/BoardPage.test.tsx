@@ -32,6 +32,7 @@ const item = (id: string, isNew: boolean) => ({
   createdAt: "2027-06-14T09:05:00.000Z",
   eventName: "Letní kemp Lipno 2027",
   terms: [term],
+  eventTermCount: 2,
   isNew,
 })
 
@@ -55,18 +56,23 @@ function serve(posts: ReturnType<typeof item>[] | Error) {
   })
 }
 
-function renderPage(postId?: string) {
+function renderPage(postId?: string, applicationId?: string) {
   const root = createRootRoute()
   const list = createRoute({
     getParentRoute: () => root,
     path: "/participant/board",
-    component: () => <BoardPage />,
+    component: () => <BoardPage applicationId={applicationId} />,
   })
   const detail = createRoute({
     getParentRoute: () => root,
     path: "/participant/board/$postId",
     component: function Detail() {
-      return <BoardPage postId={useParams({ strict: false }).postId} />
+      return (
+        <BoardPage
+          postId={useParams({ strict: false }).postId}
+          applicationId={applicationId}
+        />
+      )
     },
   })
   const applications = createRoute({
@@ -74,8 +80,13 @@ function renderPage(postId?: string) {
     path: "/participant",
     component: () => <p>Applications</p>,
   })
+  const application = createRoute({
+    getParentRoute: () => root,
+    path: "/participant/applications/$applicationId",
+    component: () => <p>Application</p>,
+  })
   const router = createRouter({
-    routeTree: root.addChildren([list, detail, applications]),
+    routeTree: root.addChildren([list, detail, applications, application]),
     history: createMemoryHistory({
       initialEntries: [postId ? `/participant/board/${postId}` : "/participant/board"],
     }),
@@ -144,5 +155,29 @@ describe("BoardPage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Try again" }))
 
     expect(await screen.findByRole("link", { name: /Příspěvek p1/ })).toBeVisible()
+  })
+
+  it("leads back to the list of applications when the board was not opened from one", async () => {
+    serve([item("p1", false)])
+    renderPage()
+
+    expect(await screen.findByRole("link", { name: "Back to applications" })).toHaveAttribute(
+      "href",
+      "/participant",
+    )
+  })
+
+  it("leads back to the application the board was opened from", async () => {
+    serve([item("p1", false)])
+    renderPage(undefined, "a1")
+
+    expect(await screen.findByRole("link", { name: "Back to application" })).toHaveAttribute(
+      "href",
+      "/participant/applications/a1",
+    )
+    expect(await screen.findByRole("link", { name: /Příspěvek p1/ })).toHaveAttribute(
+      "href",
+      "/participant/board/p1?applicationId=a1",
+    )
   })
 })

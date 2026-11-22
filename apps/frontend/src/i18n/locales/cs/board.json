@@ -15,6 +15,7 @@
     "title": "Nástěnka"
   },
   "back": "Zpět na přihlášky",
+  "backToApplication": "Zpět na přihlášku",
   "backToList": "Zpět",
   "deleteDialog": {
     "cancel": "Zrušit",
@@ -48,6 +49,9 @@
   "newCount_few": "{{count}} nové",
   "newCount_one": "{{count}} nový",
   "newCount_other": "{{count}} nových",
+  "postsNewCount_few": "{{count}} nové příspěvky",
+  "postsNewCount_one": "{{count}} nový příspěvek",
+  "postsNewCount_other": "{{count}} nových příspěvků",
   "showAll": "Zobrazit vše ›",
   "terms": {
     "both": "Oba termíny"

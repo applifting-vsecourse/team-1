@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
   createMemoryHistory,
@@ -65,13 +66,13 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   ...overrides,
 })
 
-const renderList = () => {
+const renderList = (renderBoardBadge?: (applicationId: string) => ReactNode) => {
   const root = createRootRoute({
     component: () => (
       <QueryClientProvider
         client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
       >
-        <ApplicationList />
+        <ApplicationList renderBoardBadge={renderBoardBadge} />
       </QueryClientProvider>
     ),
   })
@@ -90,6 +91,14 @@ const respondWith = (value: unknown) => get.mockReturnValue({ json: () => Promis
 
 describe("ApplicationList", () => {
   beforeEach(() => get.mockReset())
+
+  it("puts the badge of the board next to each application", async () => {
+    respondWith([application({ id: "a1" }), application({ id: "a2", firstName: "Adam" })])
+    renderList((id) => <span>Nové příspěvky {id}</span>)
+
+    expect(await screen.findByText("Nové příspěvky a1")).toBeVisible()
+    expect(screen.getByText("Nové příspěvky a2")).toBeVisible()
+  })
 
   it("shows a loading state first", async () => {
     get.mockReturnValue({ json: () => new Promise(() => undefined) })

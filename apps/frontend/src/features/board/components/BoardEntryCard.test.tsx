@@ -26,7 +26,7 @@ function renderCard(summary: unknown) {
     path: "/",
     component: () => (
       <>
-        <BoardEntryCard />
+        <BoardEntryCard applicationId="a1" />
         <p>after</p>
       </>
     ),
@@ -55,26 +55,34 @@ describe("BoardEntryCard", () => {
   })
 
   it("shows the number of new posts, the newest title and the way to the board", async () => {
-    renderCard({ unreadCount: 3, latest: { id: "p1", title: "Změna programu" } })
+    renderCard({
+      unreadCount: 3,
+      latest: { id: "p1", title: "Změna programu" },
+      unreadByApplication: [],
+    })
 
     expect(await screen.findByRole("heading", { name: "Event information" })).toBeVisible()
     expect(screen.getByText("3 new")).toBeVisible()
     expect(screen.getByText("Změna programu")).toBeVisible()
     expect(screen.getByRole("link", { name: "Show all ›" })).toHaveAttribute(
       "href",
-      "/participant/board",
+      "/participant/board?applicationId=a1",
     )
   })
 
   it("shows no number when everything is read", async () => {
-    renderCard({ unreadCount: 0, latest: { id: "p1", title: "Změna programu" } })
+    renderCard({
+      unreadCount: 0,
+      latest: { id: "p1", title: "Změna programu" },
+      unreadByApplication: [],
+    })
 
     expect(await screen.findByText("Změna programu")).toBeVisible()
     expect(screen.queryByText(/ new$/)).not.toBeInTheDocument()
   })
 
   it("is not shown without a post", async () => {
-    renderCard({ unreadCount: 0, latest: null })
+    renderCard({ unreadCount: 0, latest: null, unreadByApplication: [] })
 
     expect(await screen.findByText("after")).toBeVisible()
     expect(screen.queryByRole("heading")).not.toBeInTheDocument()
@@ -86,7 +94,11 @@ describe("BoardEntryCard", () => {
     [5, "5 nových"],
   ])("declines the number %i in Czech", async (count, text) => {
     await i18n.changeLanguage("cs")
-    renderCard({ unreadCount: count, latest: { id: "p1", title: "Titul" } })
+    renderCard({
+      unreadCount: count,
+      latest: { id: "p1", title: "Titul" },
+      unreadByApplication: [],
+    })
 
     expect(await screen.findByText(text)).toBeVisible()
   })

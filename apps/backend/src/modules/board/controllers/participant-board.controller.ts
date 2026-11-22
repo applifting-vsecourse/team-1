@@ -38,7 +38,7 @@ export class ParticipantBoardController {
   @Get("posts/:postId")
   @ApiOperation({ summary: "One post with its whole text" })
   @ApiResponse({ status: 200, type: ParticipantPostDto })
-  @ApiResponse({ status: 404, description: "BOARD_POST_NOT_FOUND: missing or not the account's" })
+  @ApiResponse({ status: 403, description: "Missing or not the account's post" })
   async get(@User() user: Identity, @Param("postId") postId: string): Promise<ParticipantPostDto> {
     return ParticipantPostDto.fromDomain(await this.board.getForParticipant(user, postId))
   }
@@ -50,7 +50,7 @@ export class ParticipantBoardController {
     description: "Also marks the notification about the post as read.",
   })
   @ApiResponse({ status: 204 })
-  @ApiResponse({ status: 404, description: "BOARD_POST_NOT_FOUND" })
+  @ApiResponse({ status: 403, description: "A foreign or missing post" })
   async markRead(@User() user: Identity, @Param("postId") postId: string): Promise<void> {
     await this.board.markRead(user, postId)
   }

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { Seo } from "@/components/atoms/Seo"
 import { PageHeader } from "@/components/molecules/PageHeader"
 
+import { BoardNewBadge } from "@/features/board/components/BoardNewBadge"
 import { ApplicationList } from "@/features/participant/components/ApplicationList"
 
 export const Route = createFileRoute("/participant/_app/")({
@@ -24,7 +25,9 @@ function ParticipantApplicationsPage() {
         title={t("applications.title")}
         description={t("applications.description")}
       />
-      <ApplicationList />
+      <ApplicationList
+        renderBoardBadge={(applicationId) => <BoardNewBadge applicationId={applicationId} />}
+      />
     </div>
   )
 }

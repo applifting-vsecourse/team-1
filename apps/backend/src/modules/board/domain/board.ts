@@ -21,6 +21,8 @@ export type OrganizerPostItem = {
   createdAt: Date
   source: EventPostSource
   terms: BoardTerm[]
+  /** The active terms of the event: "both terms" is only said when it has exactly two. */
+  eventTermCount: number
 }
 
 export type OrganizerPost = OrganizerPostItem & { body: string }
@@ -33,10 +35,14 @@ export type ParticipantPost = {
   createdAt: Date
   eventName: string
   terms: BoardTerm[]
+  /** The active terms of the event: "both terms" is only said when it has exactly two. */
+  eventTermCount: number
   isNew: boolean
 }
 
 export type BoardSummary = {
   unreadCount: number
   latest: { id: string; title: string } | null
+  /** New posts per application of the account (only the ones with some), for the list of applications. */
+  unreadByApplication: { applicationId: string; unreadCount: number }[]
 }

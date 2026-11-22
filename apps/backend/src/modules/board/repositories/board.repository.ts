@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import {
+  BoardSummary,
   BoardTerm,
   EventPostSource,
   OrganizerPost,
@@ -8,6 +9,7 @@ import {
   ParticipantPost,
   PostInput,
 } from "@/modules/board/domain/board"
+import { newPostCounts } from "@/modules/board/domain/board-summary"
 import {
   pickRecipients,
   RecipientRow,
@@ -23,14 +25,14 @@ type Scope = { eventId: string; organizationId: string }
 const termSelect = { id: true, name: true, startsOn: true, endsOn: true } as const
 const postTermsInclude = {
   terms: { include: { term: { select: termSelect } }, orderBy: { term: { number: "asc" } } },
+  event: {
+    select: { name: true, _count: { select: { terms: { where: { cancelledAt: null } } } } },
+  },
 } satisfies Prisma.EventPostInclude
-const participantInclude = {
-  ...postTermsInclude,
-  event: { select: { name: true } },
-} satisfies Prisma.EventPostInclude
+const participantInclude = postTermsInclude
 
 type PostRow = Prisma.EventPostGetPayload<{ include: typeof postTermsInclude }>
-type ParticipantRow = Prisma.EventPostGetPayload<{ include: typeof participantInclude }>
+type ParticipantRow = PostRow
 
 const toTerm = (term: {
   id: string
@@ -50,6 +52,7 @@ const toOrganizerItem = (row: PostRow): OrganizerPostItem => ({
   createdAt: row.createdAt,
   source: row.source as EventPostSource,
   terms: row.terms.map((item) => toTerm(item.term)),
+  eventTermCount: row.event._count.terms,
 })
 
 /** The only place of the board (US-91) that touches the database. */
@@ -157,21 +160,25 @@ export class BoardRepository {
     })
   }
 
-  /** Changes the texts and the terms; nobody is notified again and nobody's "read" is lost. */
+  /**
+   * Changes the texts and the terms; nobody is notified again and nobody's "read" is lost.
+   * The post row is updated first: it locks the row, so two concurrent edits swap the terms one
+   * after another and the terms of the last saved edit are exactly the ones that stay.
+   */
   async update(id: string, input: PostInput): Promise<void> {
-    await this.prisma.$transaction([
-      this.prisma.eventPostTerm.deleteMany({
-        where: { postId: id, termId: { notIn: input.termIds } },
-      }),
-      this.prisma.eventPostTerm.createMany({
-        data: input.termIds.map((termId) => ({ postId: id, termId })),
-        skipDuplicates: true,
-      }),
-      this.prisma.eventPost.update({
+    await this.prisma.$transaction(async (tx) => {
+      await tx.eventPost.update({
         where: { id },
         data: { title: input.title, body: input.body },
-      }),
-    ])
+      })
+      await tx.eventPostTerm.deleteMany({
+        where: { postId: id, termId: { notIn: input.termIds } },
+      })
+      await tx.eventPostTerm.createMany({
+        data: input.termIds.map((termId) => ({ postId: id, termId })),
+        skipDuplicates: true,
+      })
+    })
   }
 
   /** The reads and the notifications of the post go with it. */
@@ -206,6 +213,7 @@ export class BoardRepository {
       createdAt: row.createdAt,
       eventName: row.event.name,
       terms: row.terms.filter((item) => visible.has(item.termId)).map((item) => toTerm(item.term)),
+      eventTermCount: row.event._count.terms,
       isNew: !read,
     }
   }
@@ -232,6 +240,42 @@ export class BoardRepository {
       rows.map((row) => row.id),
     )
     return rows.map((row) => this.toParticipantPost(row, visible, read.has(row.id)))
+  }
+
+  /** The new posts of each application of the account (the badge in the list of applications). */
+  async unreadByApplication(userId: string): Promise<BoardSummary["unreadByApplication"]> {
+    const rows = await this.prisma.applicationTerm.findMany({
+      where: { application: { userId } },
+      select: {
+        applicationId: true,
+        termId: true,
+        status: true,
+        term: { select: { cancelledAt: true } },
+      },
+    })
+    const applicationTerms = rows.map((row) => ({
+      applicationId: row.applicationId,
+      termId: row.termId,
+      status: row.status,
+      termCancelled: row.term.cancelledAt !== null,
+    }))
+    const visible = visibleTermIds(applicationTerms)
+    if (visible.size === 0) return []
+    const posts = await this.prisma.eventPost.findMany({
+      where: { terms: { some: { termId: { in: [...visible] } } } },
+      select: { id: true, terms: { select: { termId: true } } },
+    })
+    const read = await this.readIds(
+      userId,
+      posts.map((post) => post.id),
+    )
+    return newPostCounts(
+      applicationTerms,
+      posts.map((post) => ({
+        termIds: post.terms.map((item) => item.termId),
+        isNew: !read.has(post.id),
+      })),
+    )
   }
 
   /** Null when the post does not exist or the account does not see it: the same answer. */

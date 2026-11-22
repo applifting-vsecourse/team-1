@@ -52,7 +52,7 @@ export function BoardPostDetail({ postId }: { postId: string }) {
   return (
     <Card className="min-w-0 gap-3 p-6">
       <p className="text-sm text-muted-foreground">
-        {formatDate(post.createdAt)} · {termsLabel(post.terms, t)}
+        {formatDate(post.createdAt)} · {termsLabel(post.terms, post.eventTermCount, t)}
       </p>
       <h2 className="text-2xl font-bold break-words">{post.title}</h2>
       <p className="break-words whitespace-pre-line">{post.body}</p>
