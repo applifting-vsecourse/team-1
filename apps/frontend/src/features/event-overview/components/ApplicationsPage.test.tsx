@@ -590,6 +590,32 @@ describe("ApplicationsPage", () => {
       )
     })
 
+    it("clears mobile filters while keeping the evaluation view", async () => {
+      const change = setup([waiting], false, undefined, null, { status: "TO_EVALUATE", term: "t1" })
+      const user = userEvent.setup()
+      await user.click(await screen.findByRole("button", { name: "Filters · 1" }))
+      const sheet = within(screen.getByRole("dialog", { name: "Filters" }))
+      expect(sheet.getByText(/The status is set by the chosen view/)).toBeVisible()
+
+      await user.click(sheet.getByRole("button", { name: "Clear filters" }))
+      expect(change).toHaveBeenLastCalledWith({ status: "TO_EVALUATE" })
+      expect(sheet.getByRole("button", { name: "Clear filters" })).toBeDisabled()
+    })
+
+    it.each([
+      ["TO_EVALUATE", "Awaiting evaluation"],
+      ["WAITLISTED", "Waitlisted"],
+    ] as const)("keeps the %s view when clearing an empty result", async (status, view) => {
+      const change = setup([], false, undefined, null, { status, payment: "UNPAID" })
+      const reset = await screen.findByRole("button", { name: "Clear search and filters" })
+      await userEvent.setup().click(reset)
+
+      expect(change).toHaveBeenLastCalledWith({ status })
+      expect(screen.getByRole("radio", { name: view })).toBeChecked()
+      expect(screen.getByRole("searchbox")).toHaveFocus()
+      expect(screen.queryByRole("button", { name: "Clear search and filters" })).toBeNull()
+    })
+
     it("says so when nothing waits", async () => {
       setup([], false, undefined, null, { status: "TO_EVALUATE" })
       expect(await screen.findByText("All applications are evaluated.")).toBeInTheDocument()

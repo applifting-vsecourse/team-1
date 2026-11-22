@@ -41,10 +41,12 @@ export function ApplicationFilters({
   filters,
   terms,
   onChange,
+  onClear,
 }: {
   filters: ApplicationsSearch
   terms: { id: string; name: string }[]
   onChange: (filters: ApplicationsSearch) => void
+  onClear: () => void
 }) {
   const { t } = useTranslation("eventOverview")
   const [isOpen, setIsOpen] = useState(false)
@@ -57,13 +59,14 @@ export function ApplicationFilters({
     desktop.addEventListener("change", closeOnDesktop)
     return () => desktop.removeEventListener("change", closeOnDesktop)
   }, [])
+  const isStatusLocked = filters.status === "TO_EVALUATE" || filters.status === "WAITLISTED"
   const options: FilterOption[] = [
     { key: "term", label: t("applications.term"), all: t("applications.allTerms"), values: terms },
     {
       key: "status",
       label: t("applications.status"),
       all: t("applications.allStatuses"),
-      isLocked: filters.status === "TO_EVALUATE" || filters.status === "WAITLISTED",
+      isLocked: isStatusLocked,
       values: [
         { id: "TO_EVALUATE", name: t("applications.toEvaluate") },
         { id: "CONFIRMED", name: t("applications.confirmed") },
@@ -119,7 +122,7 @@ export function ApplicationFilters({
     ? t(filters.gender === "FEMALE" ? "applications.female" : "applications.male")
     : undefined
   const activeCount = active.length + (gender ? 1 : 0)
-  const hasFilters = Object.values(filters).some(Boolean)
+  const canClear = activeCount > 0 || Boolean(filters.q)
   const remove = (key: keyof ApplicationsSearch) => {
     const next = { ...filters }
     delete next[key]
@@ -195,8 +198,8 @@ export function ApplicationFilters({
           <Button
             variant="ghost"
             size="lg"
-            disabled={!hasFilters}
-            onClick={() => onChange({})}
+            disabled={!canClear}
+            onClick={onClear}
           >
             {t("applications.clear")}
           </Button>
@@ -216,14 +219,14 @@ export function ApplicationFilters({
         </div>
       )}
       {gender && chip("gender", gender, "hidden md:inline-flex")}
-      {hasFilters && (
+      {canClear && (
         <Button
           variant="ghost"
           size="icon-lg"
-          className="shrink-0"
+          className="hidden shrink-0 md:inline-flex"
           aria-label={t("applications.clear")}
           title={t("applications.clear")}
-          onClick={() => onChange({})}
+          onClick={onClear}
         >
           <X
             className="size-5"
@@ -295,15 +298,19 @@ function FilterFields({
         {option.isLocked ? (
           // A disabled control gets no pointer events, so the tooltip hangs on a wrapper.
           <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="block">{select}</span>
-              </TooltipTrigger>
-              <HelpTooltipContent isLong>{t("applications.statusLocked")}</HelpTooltipContent>
-            </Tooltip>
+            {idPrefix === "mobile" ? (
+              select
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="block">{select}</span>
+                </TooltipTrigger>
+                <HelpTooltipContent isLong>{t("applications.statusLocked")}</HelpTooltipContent>
+              </Tooltip>
+            )}
             <span
               id={`${idPrefix}-filter-${option.key}-locked`}
-              className="sr-only"
+              className={idPrefix === "mobile" ? "text-sm text-muted-foreground" : "sr-only"}
             >
               {t("applications.statusLocked")}
             </span>

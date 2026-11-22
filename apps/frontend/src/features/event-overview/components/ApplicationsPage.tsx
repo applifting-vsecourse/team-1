@@ -147,6 +147,19 @@ export function ApplicationsPage({
     filters.accommodation === "INDIVIDUAL" &&
     Object.entries(filters).every(([key, value]) => !value || key === "accommodation")
   const isWaitlist = filters.status === "WAITLISTED"
+  const isStatusLocked = isQueue || isWaitlist
+  const hasRemovableFilters = Object.entries(filters).some(
+    ([key, value]) => Boolean(value) && !(key === "status" && isStatusLocked),
+  )
+  const clearFilters = () => {
+    setPage(0)
+    if (filters.term) setSelectedIds(new Set())
+    onFiltersChange(isStatusLocked ? { status: filters.status } : {})
+  }
+  const clearEmptySearch = () => {
+    clearFilters()
+    searchInput.current?.focus()
+  }
   const substituteTerm = isWaitlist
     ? filters.term
       ? terms.find((term) => term.id === filters.term)
@@ -292,6 +305,7 @@ export function ApplicationsPage({
             />
           </form>
           <ApplicationFilters
+            onClear={clearFilters}
             filters={filters}
             terms={(occupancy.data?.terms ?? []).map((term) => ({
               id: term.id,
@@ -299,6 +313,7 @@ export function ApplicationsPage({
             }))}
             onChange={(next) => {
               setPage(0)
+              if (next.term !== filters.term) setSelectedIds(new Set())
               onFiltersChange(next)
             }}
           />
@@ -372,11 +387,7 @@ export function ApplicationsPage({
                   variant="secondary"
                   size="lg"
                   className="mt-2 border border-border"
-                  onClick={() => {
-                    setPage(0)
-                    onFiltersChange({})
-                    searchInput.current?.focus()
-                  }}
+                  onClick={clearEmptySearch}
                 >
                   <FilterX
                     className="size-4 shrink-0"
@@ -388,23 +399,19 @@ export function ApplicationsPage({
             ) : query.data.length === 0 ? (
               <div className="flex flex-col items-start gap-4 py-6">
                 <p className="text-sm text-muted-foreground">
-                  {isQueue && !filters.q && !filters.term
+                  {isQueue && !hasRemovableFilters
                     ? t("queue.empty")
                     : t(hasFilters ? "applications.empty" : "applications.noApplications")}
                 </p>
-                {isQueue && !filters.q && !filters.term && (
+                {isQueue && !hasRemovableFilters && (
                   <p className="text-sm text-muted-foreground">{t("queue.emptyHint")}</p>
                 )}
-                {hasFilters && !(isQueue && !filters.q && !filters.term) && (
+                {hasRemovableFilters && (
                   <Button
                     variant="secondary"
                     size="lg"
                     className="h-auto min-h-11 cursor-pointer border border-border whitespace-normal transition-colors hover:border-input hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent active:border-primary active:bg-accent/80"
-                    onClick={() => {
-                      setPage(0)
-                      onFiltersChange({})
-                      searchInput.current?.focus()
-                    }}
+                    onClick={clearEmptySearch}
                   >
                     <FilterX
                       className="size-4 shrink-0"
@@ -551,7 +558,7 @@ export function ApplicationsPage({
                       )}
                     >
                       {bulkTerm && (
-                        <div className="flex min-h-10 items-center">
+                        <div className="flex min-h-11 items-center">
                           <SelectRow
                             row={row}
                             selectedIds={selectedIds}
@@ -682,7 +689,7 @@ function SelectRow({
   const { t } = useTranslation("eventOverview")
   return (
     <Checkbox
-      className="size-6"
+      className="relative size-6 after:absolute after:-inset-2.5 md:after:hidden"
       checked={selectedIds.has(row.id)}
       aria-label={t("bulk.selectRow", { name: `${row.firstName} ${row.lastName}` })}
       onCheckedChange={(checked) => {
