@@ -5,6 +5,7 @@ import {
   KitchenTermSummary,
   MealOption,
   MealOptionInput,
+  OrganizerMeals,
   OwnMeals,
   SelectionInput,
 } from "@/modules/meals/domain/meals"
@@ -52,6 +53,30 @@ export class MealsService {
       this.meals.listOptions(eventId),
     ])
     return kitchenSummary(terms, options)
+  }
+
+  async organizerMeals(user: Identity, eventId: string, id: string): Promise<OrganizerMeals> {
+    const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    const record = await this.meals.organizerMeals(organizationId, eventId, id)
+    if (!record) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    return record
+  }
+
+  async termRoster(user: Identity, eventId: string, termId: string): Promise<OrganizerMeals[]> {
+    const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    const roster = await this.meals.termRoster(organizationId, eventId, termId)
+    if (!roster) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    return roster
+  }
+
+  async saveOrganizerMeals(
+    user: Identity,
+    eventId: string,
+    id: string,
+    input: SelectionInput,
+  ): Promise<OrganizerMeals> {
+    const { organizationId } = await this.organizationAccess.assertCanAccessEvent(user, eventId)
+    return this.meals.saveOrganizerSelection(organizationId, eventId, id, input)
   }
 
   /** Someone else's application and a missing one look the same: 403 with no content. */
