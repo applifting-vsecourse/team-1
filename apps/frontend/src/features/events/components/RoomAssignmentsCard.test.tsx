@@ -718,7 +718,8 @@ describe("room assignment", () => {
       )
     })
 
-    it("shows a confirmed warning muted with its note and does not count it", async () => {
+    it("shows a confirmed warning only as a quiet mark with its note in a tooltip and does not count it", async () => {
+      const user = userEvent.setup()
       overcrowded()
       data = {
         ...data,
@@ -734,9 +735,11 @@ describe("room assignment", () => {
       }
       renderCard()
       const table = await screen.findByRole("table")
-      expect(within(table).getByText("Overcrowding confirmed")).toBeInTheDocument()
-      expect(within(table).getByText("Note: Family with a child")).toBeInTheDocument()
-      expect(within(table).getByText(/^Eva Malá, /)).toBeInTheDocument()
+      // No strip with text: just a small mark; the note shows only on hover or focus.
+      expect(within(table).queryByText("Note: Family with a child")).not.toBeInTheDocument()
+      const mark = within(table).getByRole("button", { name: "Overcrowding confirmed" })
+      await user.hover(mark)
+      expect((await screen.findAllByText("Note: Family with a child")).length).toBeGreaterThan(0)
       expect(
         within(table).queryByRole("button", { name: "Confirm with a note" }),
       ).not.toBeInTheDocument()

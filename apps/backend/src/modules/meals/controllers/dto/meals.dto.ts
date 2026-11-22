@@ -94,6 +94,10 @@ export class OwnMealsResponseDto {
   }
 }
 
+export class OrganizerMealsResponseDto extends OwnMealsResponseDto {
+  @ApiProperty() editable!: boolean
+}
+
 class KitchenOptionCountDto extends MealOptionDto {
   @ApiProperty() count!: number
 }

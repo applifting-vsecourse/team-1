@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
@@ -22,13 +23,23 @@ const term = (overrides: Partial<MyApplicationTerm> = {}): MyApplicationTerm => 
   ...overrides,
 })
 
+function Wishes({ terms }: { terms: MyApplicationTerm[] }) {
+  const [editingTermId, setEditingTermId] = useState<string | null>(null)
+  return (
+    <RoomWishesSection
+      applicationId="a1"
+      terms={terms}
+      editingTermId={editingTermId}
+      onStartEditing={setEditingTermId}
+      onStopEditing={() => setEditingTermId(null)}
+    />
+  )
+}
+
 const renderSection = (terms: MyApplicationTerm[]) =>
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <RoomWishesSection
-        applicationId="a1"
-        terms={terms}
-      />
+      <Wishes terms={terms} />
     </QueryClientProvider>,
   )
 

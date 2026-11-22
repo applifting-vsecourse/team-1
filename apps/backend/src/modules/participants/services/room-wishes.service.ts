@@ -15,6 +15,7 @@ export class RoomWishesService {
     applicationId: string,
     termId: string,
     names: string[],
+    noRoomWishes = false,
   ): Promise<void> {
     const target = await this.wishes.findTarget(user.id, applicationId, termId)
     if (target.kind === "NOT_FOUND") {
@@ -26,6 +27,16 @@ export class RoomWishesService {
     if (target.kind === "NOT_AVAILABLE") {
       throw new AppException(HttpStatus.CONFLICT, "ROOM_WISHES_NOT_AVAILABLE")
     }
-    await this.wishes.save(target.id, cleanRoomWishes(names))
+    const cleanedNames = cleanRoomWishes(names)
+    if (noRoomWishes) {
+      if (cleanedNames.length > 0) {
+        throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")
+      }
+      if (!(await this.wishes.decline(target.id, user.id))) {
+        throw new AppException(HttpStatus.CONFLICT, "ROOM_WISHES_NOT_AVAILABLE")
+      }
+      return
+    }
+    await this.wishes.save(target.id, cleanedNames)
   }
 }

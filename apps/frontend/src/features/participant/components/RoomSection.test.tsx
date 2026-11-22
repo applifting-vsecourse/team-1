@@ -29,6 +29,55 @@ describe("RoomSection", () => {
     expect(screen.queryByText("You have no room assigned yet.")).not.toBeInTheDocument()
   })
 
+  it("shows the named occupants and vacant beds for a published room", () => {
+    render(
+      <RoomSection
+        terms={[
+          term({
+            room: {
+              name: "Bříza 204",
+              occupancy: {
+                beds: 3,
+                occupants: [
+                  { firstName: "Jana", initials: "JN", isSelf: true },
+                  { firstName: "Eva", initials: "EČ", isSelf: false },
+                ],
+              },
+            },
+          }),
+        ]}
+      />,
+    )
+    expect(screen.getByText("2 of 3 beds occupied")).toBeVisible()
+    expect(screen.getByRole("list", { name: "Beds" })).toBeVisible()
+    expect(screen.getByText("Jana")).toBeVisible()
+    expect(screen.getByText("(you)")).toBeInTheDocument()
+    expect(screen.getByText("Eva")).toBeVisible()
+    expect(screen.getByText("EČ")).toBeVisible()
+    expect(screen.getAllByRole("listitem")).toHaveLength(3)
+    expect(screen.getByText("Vacant")).toBeVisible()
+  })
+
+  it("keeps the number of vacant slots bounded for an unusually large room", () => {
+    render(
+      <RoomSection
+        terms={[
+          term({
+            room: {
+              name: "Hala",
+              occupancy: {
+                beds: 1000,
+                occupants: [{ firstName: "Jana", initials: "JN", isSelf: true }],
+              },
+            },
+          }),
+        ]}
+      />,
+    )
+    expect(screen.getByText("1 of 1000 beds occupied")).toBeVisible()
+    expect(screen.getAllByRole("listitem")).toHaveLength(21)
+  })
+
   it("says there is no room yet when the participant is not assigned", () => {
     render(<RoomSection terms={[term({ room: { name: null } })]} />)
     expect(screen.getByText("You have no room assigned yet.")).toBeInTheDocument()

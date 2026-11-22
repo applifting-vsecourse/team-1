@@ -1,7 +1,9 @@
 import {
   KitchenTermSummaryDto,
   MealOptionDto,
+  OrganizerMealsResponseDto,
   SaveMealOptionsRequestDto,
+  SaveMealsRequestDto,
 } from "@/modules/meals/controllers/dto/meals.dto"
 import { MealsService } from "@/modules/meals/services/meals.service"
 import { Auth } from "@/shared/auth/decorators/auth.decorator"
@@ -41,6 +43,40 @@ export class OrganizerMealsController {
   ): Promise<MealOptionDto[]> {
     const options = await this.meals.saveOptions(user, eventId, dto.options)
     return options.map((option) => MealOptionDto.fromDomain(option))
+  }
+
+  @Get("terms/:termId/participants")
+  @ApiOperation({ summary: "Confirmed participants and meal preferences for the organizer" })
+  @ApiResponse({ status: 200, type: [OrganizerMealsResponseDto] })
+  roster(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("termId") termId: string,
+  ): Promise<OrganizerMealsResponseDto[]> {
+    return this.meals.termRoster(user, eventId, termId)
+  }
+
+  @Get("applications/:applicationId")
+  @ApiOperation({ summary: "Meal preferences on an application in this event" })
+  @ApiResponse({ status: 200, type: OrganizerMealsResponseDto })
+  application(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("applicationId") id: string,
+  ): Promise<OrganizerMealsResponseDto> {
+    return this.meals.organizerMeals(user, eventId, id)
+  }
+
+  @Put("applications/:applicationId")
+  @ApiOperation({ summary: "Update an editable application's meal preferences" })
+  @ApiResponse({ status: 200, type: OrganizerMealsResponseDto })
+  saveApplication(
+    @User() user: Identity,
+    @Param("eventId") eventId: string,
+    @Param("applicationId") id: string,
+    @Body() body: SaveMealsRequestDto,
+  ): Promise<OrganizerMealsResponseDto> {
+    return this.meals.saveOrganizerMeals(user, eventId, id, body)
   }
 
   @Get("summary")

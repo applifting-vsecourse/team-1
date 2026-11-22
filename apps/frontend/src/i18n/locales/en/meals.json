@@ -1,4 +1,18 @@
 {
+  "edit": {
+    "all": "All",
+    "cancel": "Cancel",
+    "empty": "No participants match your selection.",
+    "forPerson": "Edit meals for {{name}}",
+    "missing": "Not provided",
+    "missingHint": "The participant has not provided meal preferences yet. The kitchen counts this as a regular meal.",
+    "none": "No restrictions",
+    "restricted": "With restrictions",
+    "roster": "Participants",
+    "search": "Search participants",
+    "title": "Edit meal preferences",
+    "view": "Edit meal preferences"
+  },
   "kitchen": {
     "allergiesColumn": "Allergies",
     "allergiesTitle": "Allergies",

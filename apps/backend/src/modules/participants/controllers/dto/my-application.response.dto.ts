@@ -44,11 +44,32 @@ export class MyApplicationTermDto {
 
   @ApiPropertyOptional({
     type: "object",
-    properties: { name: { type: "string", nullable: true } },
+    properties: {
+      name: { type: "string", nullable: true },
+      occupancy: {
+        type: "object",
+        required: ["beds", "occupants"],
+        properties: {
+          beds: { type: "integer" },
+          occupants: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["firstName", "initials", "isSelf"],
+              properties: {
+                firstName: { type: "string" },
+                initials: { type: "string" },
+                isSelf: { type: "boolean" },
+              },
+            },
+          },
+        },
+      },
+    },
     description:
       "Room of a confirmed term after the organizer published the assignment (US-144); name is null while not assigned. Absent otherwise.",
   })
-  room?: { name: string | null }
+  room?: MyApplicationTerm["room"]
 
   @ApiPropertyOptional({
     type: [String],
@@ -56,6 +77,11 @@ export class MyApplicationTermDto {
       "Names the participant wishes to room with (US-146). Present only for a confirmed, not cancelled term; empty while none are written.",
   })
   roomWishes?: string[]
+
+  @ApiPropertyOptional({
+    description: "The participant explicitly chose no roommate wishes for this term.",
+  })
+  noRoomWishes?: boolean
 
   @ApiPropertyOptional({
     type: "object",

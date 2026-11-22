@@ -602,6 +602,20 @@ describe("ApplicationsPage", () => {
       expect(sheet.getByRole("button", { name: "Clear filters" })).toBeDisabled()
     })
 
+    it.each([
+      ["TO_EVALUATE", "Awaiting evaluation"],
+      ["WAITLISTED", "Waitlisted"],
+    ] as const)("keeps the %s view when clearing an empty result", async (status, view) => {
+      const change = setup([], false, undefined, null, { status, payment: "UNPAID" })
+      const reset = await screen.findByRole("button", { name: "Clear search and filters" })
+      await userEvent.setup().click(reset)
+
+      expect(change).toHaveBeenLastCalledWith({ status })
+      expect(screen.getByRole("radio", { name: view })).toBeChecked()
+      expect(screen.getByRole("searchbox")).toHaveFocus()
+      expect(screen.queryByRole("button", { name: "Clear search and filters" })).toBeNull()
+    })
+
     it("says so when nothing waits", async () => {
       setup([], false, undefined, null, { status: "TO_EVALUATE" })
       expect(await screen.findByText("All applications are evaluated.")).toBeInTheDocument()

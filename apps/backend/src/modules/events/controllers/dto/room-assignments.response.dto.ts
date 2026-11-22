@@ -1,5 +1,6 @@
 import { TermAssignments } from "@/modules/events/domain/room-assignment"
 import { RoomProposal } from "@/modules/events/domain/room-proposal"
+import { ROOM_WISH_STATUSES } from "@/modules/events/domain/room-wish-status"
 import { Gender } from "@/shared/domain/gender"
 import { ApiProperty } from "@nestjs/swagger"
 
@@ -7,8 +8,18 @@ const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]
 
 class RoomWishDto {
   @ApiProperty({ description: "Name as the participant wrote it (free text)" }) name!: string
-  @ApiProperty({ description: "The named person is in the same room of the same term" })
-  fulfilled!: boolean
+  @ApiProperty({
+    enum: ROOM_WISH_STATUSES,
+    description:
+      "fulfilled: the named person is in the same room; unfulfilled: the name is in the term's applications but not in this room; impossible: the name is not in the term's applications",
+  })
+  status!: (typeof ROOM_WISH_STATUSES)[number]
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: "Room of the named person (the wisher's room when fulfilled); null when unknown",
+  })
+  roomName!: string | null
 }
 class ParticipantDto {
   @ApiProperty({ description: "Application in the term; the id the assignment endpoints take" })

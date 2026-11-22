@@ -41,10 +41,12 @@ export function ApplicationFilters({
   filters,
   terms,
   onChange,
+  onClear,
 }: {
   filters: ApplicationsSearch
   terms: { id: string; name: string }[]
   onChange: (filters: ApplicationsSearch) => void
+  onClear: () => void
 }) {
   const { t } = useTranslation("eventOverview")
   const [isOpen, setIsOpen] = useState(false)
@@ -120,7 +122,7 @@ export function ApplicationFilters({
     ? t(filters.gender === "FEMALE" ? "applications.female" : "applications.male")
     : undefined
   const activeCount = active.length + (gender ? 1 : 0)
-  const hasFilters = Object.values(filters).some(Boolean)
+  const canClear = activeCount > 0 || Boolean(filters.q)
   const remove = (key: keyof ApplicationsSearch) => {
     const next = { ...filters }
     delete next[key]
@@ -196,8 +198,8 @@ export function ApplicationFilters({
           <Button
             variant="ghost"
             size="lg"
-            disabled={activeCount === 0 && !filters.q}
-            onClick={() => onChange(isStatusLocked ? { status: filters.status } : {})}
+            disabled={!canClear}
+            onClick={onClear}
           >
             {t("applications.clear")}
           </Button>
@@ -217,14 +219,14 @@ export function ApplicationFilters({
         </div>
       )}
       {gender && chip("gender", gender, "hidden md:inline-flex")}
-      {hasFilters && (
+      {canClear && (
         <Button
           variant="ghost"
           size="icon-lg"
           className="hidden shrink-0 md:inline-flex"
           aria-label={t("applications.clear")}
           title={t("applications.clear")}
-          onClick={() => onChange({})}
+          onClick={onClear}
         >
           <X
             className="size-5"

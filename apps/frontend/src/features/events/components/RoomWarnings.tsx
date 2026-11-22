@@ -1,8 +1,10 @@
 import { AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { HelpTooltipContent } from "@/components/atoms/HelpTooltipContent"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { formatDate } from "@/lib/date"
 
 import type {
@@ -42,6 +44,49 @@ function useWarningText() {
   }
 }
 
+/**
+ * A confirmed warning is settled: in the header of the room it is only an icon (the size of the
+ * other icons there); the note and who confirmed it are in its tooltip.
+ */
+export function RoomWarningMark({ warning }: { warning: RoomWarning }) {
+  const { t } = useTranslation("events")
+  const label = t(
+    warning.kind === "MIXED_GENDER"
+      ? "roomWarnings.mixedGenderAcknowledged"
+      : "roomWarnings.overcrowdedAcknowledged",
+  )
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="rounded-sm p-1 text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring print:hidden"
+            aria-label={label}
+          >
+            <ShieldCheck
+              className="size-4"
+              aria-hidden
+            />
+          </button>
+        </TooltipTrigger>
+        <HelpTooltipContent isLong>
+          <p className="font-medium">{label}</p>
+          {warning.note ? (
+            <p className="break-words">{t("roomWarnings.note", { note: warning.note })}</p>
+          ) : null}
+          <p className="text-xs">
+            {t("roomWarnings.confirmedBy", {
+              name: warning.acknowledgedBy ?? "",
+              date: warning.acknowledgedAt ? formatDate(warning.acknowledgedAt) : "",
+            })}
+          </p>
+        </HelpTooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
+
 // Under the row of a room, one line per warning: what is wrong and a clear way to confirm it
 // knowingly (AC4). Warnings are information only, they block nothing.
 // Figma (Design system): Upozornění u pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23410-95117 (improved after review: icon tile, filled confirm button)
@@ -56,36 +101,8 @@ export function RoomWarningStrip({
 }) {
   const { t } = useTranslation("events")
   const warningText = useWarningText()
-  if (warning.acknowledged) {
-    return (
-      <div className="flex items-start gap-3 border-t border-border bg-secondary px-3 py-2.5">
-        <ShieldCheck
-          className="mt-0.5 size-4 shrink-0 text-muted-foreground"
-          aria-hidden
-        />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-sm">
-          <p className="font-medium text-muted-foreground">
-            {t(
-              warning.kind === "MIXED_GENDER"
-                ? "roomWarnings.mixedGenderAcknowledged"
-                : "roomWarnings.overcrowdedAcknowledged",
-            )}
-          </p>
-          {warning.note ? (
-            <p className="break-words text-muted-foreground">
-              {t("roomWarnings.note", { note: warning.note })}
-            </p>
-          ) : null}
-          <p className="text-xs text-muted-foreground">
-            {t("roomWarnings.confirmedBy", {
-              name: warning.acknowledgedBy ?? "",
-              date: warning.acknowledgedAt ? formatDate(warning.acknowledgedAt) : "",
-            })}
-          </p>
-        </div>
-      </div>
-    )
-  }
+  // A confirmed warning has no strip, only the mark in the header of the room (RoomWarningMark).
+  if (warning.acknowledged) return null
   return (
     <div className="flex flex-col gap-3 border-t border-status-warning/40 bg-status-warning-bg px-3 py-2.5 sm:flex-row sm:items-center">
       <div className="flex min-w-0 flex-1 items-center gap-3">

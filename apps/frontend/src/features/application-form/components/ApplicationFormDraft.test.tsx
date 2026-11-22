@@ -50,7 +50,7 @@ async function fillWholeForm() {
   await userEvent.type(first.getByLabelText("First name *"), "Anna")
   await userEvent.type(first.getByLabelText("Last name *"), "Nováková")
   await userEvent.type(first.getByLabelText("Date of birth *"), "17/05/2010")
-  await userEvent.click(first.getByRole("combobox", { name: "Gender for room allocation *" }))
+  await userEvent.click(first.getByRole("combobox", { name: "Gender *" }))
   await userEvent.click(await screen.findByRole("option", { name: "Woman" }))
   await userEvent.click(first.getByRole("checkbox", { name: /11–17 Jul/ }))
 
@@ -82,9 +82,7 @@ describe("ApplicationForm draft in sessionStorage", () => {
     expect(first.getByLabelText("First name *")).toHaveValue("Anna")
     expect(first.getByLabelText("Last name *")).toHaveValue("Nováková")
     expect(first.getByLabelText("Date of birth *")).toHaveValue("17/05/2010")
-    expect(first.getByRole("combobox", { name: "Gender for room allocation *" })).toHaveTextContent(
-      "Woman",
-    )
+    expect(first.getByRole("combobox", { name: "Gender *" })).toHaveTextContent("Woman")
     expect(first.getByRole("checkbox", { name: /11–17 Jul/ })).toBeChecked()
     expect(first.getByRole("checkbox", { name: /4–10 Jul/ })).not.toBeChecked()
     const second = within(participantCard(2))
