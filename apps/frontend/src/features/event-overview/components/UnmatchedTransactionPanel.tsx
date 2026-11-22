@@ -84,13 +84,14 @@ export function UnmatchedTransactionPanel({
       })
     : null
 
+  // The mutation carries the selection that was sent, so a change made while it runs does not matter.
   const assign = useMutation({
-    mutationFn: () =>
-      matchTransaction(eventId, transaction.id, selection!.candidate.id, selection!.term.termId),
-    onSuccess: async () => {
+    mutationFn: (sent: NonNullable<typeof selection>) =>
+      matchTransaction(eventId, transaction.id, sent.candidate.id, sent.term.termId),
+    onSuccess: async (_result, sent) => {
       notify.success(
         t("bankStatement.unmatchedList.assigned"),
-        `${selection!.candidate.firstName} ${selection!.candidate.lastName} · ${termTitle(selection!.term)}`,
+        `${sent.candidate.firstName} ${sent.candidate.lastName} · ${termTitle(sent.term)}`,
       )
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: unmatchedTransactionsKey(eventId) }),
@@ -106,7 +107,7 @@ export function UnmatchedTransactionPanel({
       className="flex max-w-lg flex-col gap-4 md:ml-[calc(25%)]"
       onSubmit={(event) => {
         event.preventDefault()
-        if (selection) assign.mutate()
+        if (selection) assign.mutate(selection)
         else setIsChoiceMissing(true)
       }}
     >
