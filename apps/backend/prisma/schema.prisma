@@ -614,6 +614,7 @@ model ApplicationTerm {
   // Names the participant wants to room with (US-146, D-131): free text, at most 3, written by the
   // participant once the term is confirmed. No effect on status, capacity or evaluation.
   roomWishes             String[]              @default([])
+  noRoomWishes           Boolean               @default(false)
   // Later arrival / earlier departure of the participant in this term (US-143, D-159): optional
   // instants (Europe/Prague wall time entered by the participant), shown only in the kitchen
   // summary. Nothing is computed from them: no price, capacity, status or count.

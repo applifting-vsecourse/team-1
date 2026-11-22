@@ -36,6 +36,7 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       roomName: null,
       termCancelled: false,
       roomWishes: [],
+      noRoomWishes: false,
       lateArrival: null,
       earlyDeparture: null,
     },
@@ -56,6 +57,7 @@ const record = (overrides: Partial<MyApplicationRecord> = {}): MyApplicationReco
       roomName: null,
       termCancelled: false,
       roomWishes: [],
+      noRoomWishes: false,
       lateArrival: null,
       earlyDeparture: null,
     },
@@ -292,12 +294,15 @@ describe("buildMyApplication", () => {
       expect(result.terms[0].room).toBeUndefined()
     })
 
-    it("never mentions a room to an individually accommodated participant", () => {
+    it("shows assigned individual accommodation like any other room, without a special field", () => {
       const result = withRoom(
         { roomsPublished: true, roomName: "Bříza 204" },
         { individualAccommodation: true },
       )
-      expect(result.terms[0].room).toBeUndefined()
+      expect(result.terms[0].room).toEqual({ name: "Bříza 204" })
+      expect(
+        withRoom({ roomsPublished: true }, { individualAccommodation: true }).terms[0].room,
+      ).toBeUndefined()
     })
   })
 

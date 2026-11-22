@@ -340,6 +340,9 @@ function EditForm({
                   className="min-h-32"
                 />
                 <div className="flex items-start gap-3">
+                  <p className="flex-1 text-sm text-muted-foreground">
+                    {t("edit.accommodationRequestHint")}
+                  </p>
                   {isNoteTooLong ? (
                     <p
                       id="edit-accommodation-error"
@@ -356,7 +359,14 @@ function EditForm({
               </div>
             ) : null}
             {/* #38: the hint sits under the last control — the checkbox, or the note when ticked. */}
-            <p className="text-sm text-muted-foreground">{t("edit.individualAccommodationHint")}</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-sm text-muted-foreground">
+                {t("edit.individualAccommodationHint")}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {t("edit.individualAccommodationFriends")}
+              </p>
+            </div>
           </Card>
         ) : null}
         <div className="grid gap-3 sm:grid-cols-2">

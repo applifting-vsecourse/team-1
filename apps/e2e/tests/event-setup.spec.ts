@@ -79,10 +79,10 @@ assignmentTest.describe("Room assignments on a touch phone", () => {
       const assign = page.getByRole("button", { name: "Assign " + person + " to a room" })
       const actions = page.getByRole("button", { name: "Actions for " + person })
       const dialog = page.getByRole("dialog")
-      await assign.tap()
       expect(await page.evaluate(() => [innerWidth, document.documentElement.scrollWidth])).toEqual(
         [360, 360],
       )
+      await assign.tap()
       expect(await dialog.evaluate((element) => element.scrollWidth)).toBeLessThanOrEqual(328)
       await roomChoice(page, LAST_FREE_ROOM).tap()
       await expect(dialog.getByRole("button", { name: "Assign", exact: true })).toBeInViewport()

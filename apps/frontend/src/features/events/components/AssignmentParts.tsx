@@ -13,6 +13,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { TableCell, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 
@@ -26,7 +34,7 @@ import {
   participantName,
   useAssignmentLabels,
 } from "@/features/events/components/room-assignment-labels"
-import { RoomWarningStrip } from "@/features/events/components/RoomWarnings"
+import { RoomWarningMark, RoomWarningStrip } from "@/features/events/components/RoomWarnings"
 
 /** What is being dragged: a participant of the unassigned list, or one taken out of a room. */
 export type DragData = { applicationTermId: string; name: string; fromRoomId: string | null }
@@ -50,27 +58,26 @@ export function ParticipantGhost({ name }: { name: string }) {
 /** A participant sitting in a room: click opens the actions (move, remove), the chip can be dragged. */
 export function ParticipantChip({
   participant,
-  roomId,
+  room,
   scope,
-  isBlock = false,
   onMove,
   onRemove,
 }: {
   participant: AssignmentParticipant
-  roomId: string
-  /** A full-width chip, as in the stacked list of a mobile room card. */
-  isBlock?: boolean
+  room: AssignmentRoom
   /** The table and the mobile cards are both in the DOM; their draggables need their own ids. */
   scope: "row" | "card"
   onMove: () => void
   onRemove: () => void
 }) {
   const { t } = useTranslation("events")
+  const { roomTitle } = useAssignmentLabels()
+  const isBlock = scope === "card"
   const name = participantName(participant)
   const data: DragData = {
     applicationTermId: participant.applicationTermId,
     name,
-    fromRoomId: roomId,
+    fromRoomId: room.id,
   }
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `chip:${scope}:${participant.applicationTermId}`,
@@ -88,48 +95,86 @@ export function ParticipantChip({
     },
     [setNodeRef],
   )
+  const trigger = (
+    <button
+      {...attributes}
+      {...listeners}
+      ref={setRefs}
+      type="button"
+      aria-haspopup={isBlock ? "dialog" : "menu"}
+      {...(!isBlock && { "aria-expanded": isOpen })}
+      aria-label={t("roomAssignments.participantMenu", { name })}
+      onClick={isBlock ? undefined : () => setIsOpen((isShown) => !isShown)}
+      className={cn(
+        chipClass,
+        isBlock && "min-h-11 w-full justify-start",
+        "cursor-grab touch-manipulation outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        isDragging && "opacity-40",
+      )}
+    >
+      <GripVertical
+        className="size-3 shrink-0 text-muted-foreground"
+        aria-hidden
+      />
+      <span className="min-w-0 break-words">{name}</span>
+      {participant.individualAccommodation ? (
+        <Badge
+          variant="secondary"
+          className="ml-1 bg-card"
+        >
+          {t("roomAssignments.individualShort")}
+        </Badge>
+      ) : null}
+      {isBlock ? (
+        <Ellipsis
+          className="ml-auto size-4 shrink-0 text-muted-foreground"
+          aria-hidden
+        />
+      ) : null}
+    </button>
+  )
+  if (isBlock) {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>{trigger}</SheetTrigger>
+        <SheetContent
+          side="bottom"
+          showCloseButton={false}
+          className="gap-0 rounded-t-xl bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+        >
+          <SheetTitle className="text-sm font-medium">{name}</SheetTitle>
+          <SheetDescription className="mt-1 mb-2">{roomTitle(room)}</SheetDescription>
+          <div className="divide-y divide-border border-t border-border">
+            <SheetClose asChild>
+              <Button
+                variant="ghost"
+                className="min-h-14 w-full justify-start rounded-none px-0 text-base font-normal"
+                onClick={onMove}
+              >
+                {t("roomAssignments.move")}
+              </Button>
+            </SheetClose>
+            <SheetClose asChild>
+              <Button
+                variant="ghost"
+                className="min-h-14 w-full justify-start rounded-none px-0 text-base font-normal"
+                onClick={onRemove}
+              >
+                {t("roomAssignments.remove")}
+              </Button>
+            </SheetClose>
+          </div>
+        </SheetContent>
+      </Sheet>
+    )
+  }
   return (
     <DropdownMenu
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      <span className={cn("relative inline-flex", isBlock && "flex w-full")}>
-        <button
-          {...attributes}
-          {...listeners}
-          ref={setRefs}
-          type="button"
-          aria-haspopup="menu"
-          aria-expanded={isOpen}
-          aria-label={t("roomAssignments.participantMenu", { name })}
-          onClick={() => setIsOpen((isShown) => !isShown)}
-          className={cn(
-            chipClass,
-            isBlock && "min-h-11 w-full justify-start",
-            "cursor-grab touch-manipulation outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
-            isDragging && "opacity-40",
-          )}
-        >
-          <GripVertical
-            className="size-3 shrink-0 text-muted-foreground"
-            aria-hidden
-          />
-          <span className="min-w-0 break-words">{name}</span>
-          {participant.individualAccommodation ? (
-            <Badge
-              variant="secondary"
-              className="ml-1 bg-card"
-            >
-              {t("roomAssignments.individualShort")}
-            </Badge>
-          ) : null}
-          {isBlock ? (
-            <Ellipsis
-              className="ml-auto size-4 shrink-0 text-muted-foreground"
-              aria-hidden
-            />
-          ) : null}
-        </button>
+      <span className="relative inline-flex">
+        {trigger}
         <DropdownMenuTrigger asChild>
           <span
             aria-hidden
@@ -147,18 +192,8 @@ export function ParticipantChip({
         <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
           {name}
         </DropdownMenuLabel>
-        <DropdownMenuItem
-          className="max-lg:min-h-11"
-          onSelect={onMove}
-        >
-          {t("roomAssignments.move")}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="max-lg:min-h-11"
-          onSelect={onRemove}
-        >
-          {t("roomAssignments.remove")}
-        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={onMove}>{t("roomAssignments.move")}</DropdownMenuItem>
+        <DropdownMenuItem onSelect={onRemove}>{t("roomAssignments.remove")}</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -267,9 +302,8 @@ function Chips({
         <ParticipantChip
           key={participant.applicationTermId}
           participant={participant}
-          roomId={room.id}
+          room={room}
           scope={scope}
-          isBlock={scope === "card"}
           onMove={() => onMoveParticipant(participant)}
           onRemove={() => onRemoveParticipant(participant)}
         />
@@ -281,7 +315,12 @@ function Chips({
 export function ExtraBeds({ room }: { room: AssignmentRoom }) {
   const { t } = useTranslation("events")
   return room.extraBeds > 0 ? (
-    <Badge variant="info">{t("roomAssignments.extraBeds", { count: room.extraBeds })}</Badge>
+    <Badge
+      variant="info"
+      className="print:hidden"
+    >
+      {t("roomAssignments.extraBeds", { count: room.extraBeds })}
+    </Badge>
   ) : null
 }
 
@@ -332,25 +371,38 @@ function Occupancy({
   )
 }
 
-function WarningLabels({ kinds }: { kinds: RoomWarning["kind"][] }) {
+export function WarningLabels({ warnings }: { warnings: RoomWarning[] }) {
   const { t } = useTranslation("events")
+  const kinds = openKinds(warnings)
   const chips = [
     kinds.includes("OVERCROWDED") ? t("roomWarnings.overcrowdedLabel") : null,
     kinds.includes("MIXED_GENDER") ? t("roomWarnings.mixedGenderLabel") : null,
   ].filter((label): label is string => label !== null)
-  return chips.map((label) => (
-    <Badge
-      key={label}
-      variant="warning"
-      className="gap-1"
-    >
-      <AlertTriangle
-        className="size-3"
-        aria-hidden
-      />
-      {label}
-    </Badge>
-  ))
+  return (
+    <>
+      {chips.map((label) => (
+        <Badge
+          key={label}
+          variant="warning"
+          className="gap-1"
+        >
+          <AlertTriangle
+            className="size-3"
+            aria-hidden
+          />
+          {label}
+        </Badge>
+      ))}
+      {warnings
+        .filter((warning) => warning.acknowledged)
+        .map((warning) => (
+          <RoomWarningMark
+            key={warning.kind}
+            warning={warning}
+          />
+        ))}
+    </>
+  )
 }
 
 /** Warning strips of a room; marked for the jump from the summary. */
@@ -438,7 +490,7 @@ export function RoomTableRow({
             : isEligible && isDragActive
               ? "bg-muted"
               : isWarned && "bg-status-warning-bg hover:bg-status-warning-bg",
-          warnings.length > 0 && "border-b-0",
+          openKinds(warnings).length > 0 && "border-b-0",
         )}
       >
         <TableCell
@@ -452,7 +504,7 @@ export function RoomTableRow({
             <span className="min-w-6 text-right font-bold tabular-nums">{room.name}</span>
             {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
             {room.individual ? <Badge variant="secondary">{t("rooms.individual")}</Badge> : null}
-            <WarningLabels kinds={openKinds(warnings)} />
+            <WarningLabels warnings={warnings} />
           </div>
         </TableCell>
         <TableCell className="min-w-40 whitespace-normal">
@@ -475,7 +527,7 @@ export function RoomTableRow({
           <div className="flex items-center justify-end gap-1">{actions}</div>
         </TableCell>
       </TableRow>
-      {warnings.length > 0 ? (
+      {openKinds(warnings).length > 0 ? (
         <TableRow className="hover:bg-transparent">
           <TableCell
             colSpan={4}
@@ -535,7 +587,7 @@ export function RoomCard({
           <span className="font-semibold break-words">{room.name}</span>
           {room.gender ? <Badge variant="secondary">{roomGenderLabel(room.gender)}</Badge> : null}
           {room.individual ? <Badge variant="secondary">{t("rooms.individual")}</Badge> : null}
-          <WarningLabels kinds={kinds} />
+          <WarningLabels warnings={warnings} />
         </div>
         <div className="flex items-center gap-3">
           <span className="relative px-2 py-1 text-sm font-semibold whitespace-nowrap tabular-nums">

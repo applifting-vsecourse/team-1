@@ -69,6 +69,7 @@
   "edit": "Upravit",
   "editTitle": "Upravit blok",
   "empty": "Program tohoto termínu je zatím prázdný. Přidejte první blok.",
+  "emptyDay": "Na tento den nejsou naplánované žádné bloky.",
   "endBeforeStart": "Konec musí být po začátku.",
   "endLabel": "Čas do",
   "hintAdd": "Blok se hned zobrazí účastníkům v Moje přihlášce.",

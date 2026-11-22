@@ -89,7 +89,7 @@ export function roomChoice(page: Page, room: string) {
 
 export async function openRoomAction(page: Page, participant: Locator, name: string) {
   await participant.tap()
-  await page.getByRole("menuitem", { name }).tap()
+  await page.getByRole("dialog").getByRole("button", { name }).tap()
 }
 
 function activeDrag(page: Page) {

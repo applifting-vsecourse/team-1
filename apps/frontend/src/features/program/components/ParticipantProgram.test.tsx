@@ -69,7 +69,17 @@ function renderPage(terms: unknown[]) {
   )
 }
 
-afterEach(() => vi.restoreAllMocks())
+let isCompact = false
+vi.stubGlobal("matchMedia", () => ({
+  matches: isCompact,
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+}))
+
+afterEach(() => {
+  isCompact = false
+  vi.restoreAllMocks()
+})
 
 describe("ParticipantProgram", () => {
   it("draws the calendar of the term and opens a block read-only", async () => {
@@ -84,6 +94,33 @@ describe("ParticipantProgram", () => {
     expect(within(dialog).getByText("Výroba suvenýrů a hudební dílna")).toBeInTheDocument()
     expect(within(dialog).queryByRole("button", { name: "Edit" })).not.toBeInTheDocument()
     expect(within(dialog).queryByRole("button", { name: "Delete block" })).not.toBeInTheDocument()
+  })
+
+  it("shows short and overlapping blocks as separate entries on the selected day", async () => {
+    isCompact = true
+    renderPage([
+      term("t1", "Letní týden", "2027-07-12", [
+        block,
+        { ...block, id: "short", startTime: "10:05", endTime: "10:10", name: "Briefing" },
+        { ...block, id: "next", date: "2027-07-14", name: "Oběd" },
+      ]),
+    ])
+    const day = await screen.findByRole("combobox", { name: "Day" })
+    expect(day).toHaveTextContent("Monday")
+    expect(screen.getByText("There are no blocks scheduled for this day.")).toBeInTheDocument()
+
+    await userEvent.click(day)
+    await userEvent.click(await screen.findByRole("option", { name: /Tuesday/ }))
+    expect(day).toHaveTextContent("Tuesday")
+    const workshop = screen.getByRole("button", { name: /Show details of Dílny/ })
+    const short = screen.getByRole("button", { name: /Show details of Briefing/ })
+    expect(workshop).toHaveTextContent("10:00–12:00")
+    expect(short).toHaveTextContent("10:05–10:10")
+    expect(screen.queryByRole("button", { name: /Show details of Oběd/ })).not.toBeInTheDocument()
+    await userEvent.click(short)
+    const dialog = await screen.findByRole("dialog", { name: "Briefing" })
+    expect(within(dialog).getByText("Výroba suvenýrů a hudební dílna")).toBeInTheDocument()
+    expect(within(dialog).queryByRole("button", { name: "Edit" })).not.toBeInTheDocument()
   })
 
   it("switches between several terms", async () => {

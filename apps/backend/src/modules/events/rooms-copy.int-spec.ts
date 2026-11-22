@@ -186,7 +186,7 @@ describe("copying rooms between terms (integration)", () => {
     expect(copied.capacity.total).toBe(3)
   })
 
-  it("does not copy extra beds: the beds the dialog announces match the term after an add and a replace (#533)", async () => {
+  it("copies the extra beds of each room: the beds the dialog announces match the term after an add and a replace (#623)", async () => {
     const makeTerm = async (name: string, startsOn: string) =>
       (
         await prisma.term.create({
@@ -225,11 +225,14 @@ describe("copying rooms between terms (integration)", () => {
         { organizationId, termId: own, name: "Own", capacity: 3, extraBeds: 2, gender: "MALE" },
       ],
     })
-    // What the dialog computes from the API data: Σ capacity of the source, `capacity.total` of the target.
+    // What the dialog computes from the API data: Σ capacity + extra beds of the source, `capacity.total` of the target.
     const src = await rooms(withExtras)
-    const dialogSourceBeds = src.rooms.reduce((sum, room) => sum + room.capacity, 0)
-    expect(dialogSourceBeds).toBe(10)
-    expect(src.capacity.total).toBe(13)
+    const dialogSourceBeds = src.rooms.reduce(
+      (sum, room) => sum + room.capacity + room.extraBeds,
+      0,
+    )
+    expect(dialogSourceBeds).toBe(13)
+    expect(src.capacity.total).toBe(dialogSourceBeds)
     const before = await rooms(own)
     expect(before.capacity.total).toBe(5)
     const dialogAdd = before.capacity.total + dialogSourceBeds
@@ -238,20 +241,24 @@ describe("copying rooms between terms (integration)", () => {
     const added = await rooms(own)
     expect(added.rooms.map((room) => room.name).sort()).toEqual(["Own", "X1", "X2"])
     expect(added.capacity.total).toBe(dialogAdd)
-    expect(added.capacity.total).toBe(15)
-    // The copies carry no extra beds, the existing room keeps its own.
+    expect(added.capacity.total).toBe(18)
+    // The copies carry the extra beds of their source rooms, the existing room keeps its own.
     expect(Object.fromEntries(added.rooms.map((room) => [room.name, room.extraBeds]))).toEqual({
       Own: 2,
-      X1: 0,
-      X2: 0,
+      X1: 2,
+      X2: 1,
     })
 
     expect((await copy(own, withExtras, "REPLACE")).status).toBe(204)
     const replaced = await rooms(own)
     expect(replaced.rooms.map((room) => room.name)).toEqual(["X1", "X2"])
-    expect(replaced.rooms.every((room) => room.extraBeds === 0)).toBe(true)
+    expect(replaced.rooms.map((room) => room.extraBeds)).toEqual([2, 1])
     expect(replaced.capacity.total).toBe(dialogSourceBeds)
-    // The source keeps its extra beds.
+    // The copies are independent: the source keeps its extra beds, and changing a copy leaves the source alone.
+    const [copied] = replaced.rooms
+    expect(
+      (await call(own, `/rooms/${copied.id}/extra-beds`, "PATCH", { extraBeds: 0 })).status,
+    ).toBe(204)
     expect((await rooms(withExtras)).capacity.total).toBe(13)
   })
 })

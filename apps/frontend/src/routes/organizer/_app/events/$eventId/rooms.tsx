@@ -44,12 +44,18 @@ function EventRoomsPage() {
       view={view === "overview" ? "overview" : "assignment"}
       terms={occupancy.data.terms}
       onSelectTerm={(next) => {
-        void navigate({ search: (prev) => ({ ...prev, termId: next }), replace: true })
+        void navigate({
+          search: (prev) => ({ ...prev, termId: next }),
+          replace: true,
+          // Stay where the organizer is instead of jumping to the top.
+          resetScroll: false,
+        })
       }}
       onSelectView={(next) => {
         void navigate({
           search: (prev) => ({ ...prev, view: next === "overview" ? "overview" : undefined }),
           replace: true,
+          resetScroll: false,
         })
       }}
     />
