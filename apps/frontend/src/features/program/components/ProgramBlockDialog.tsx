@@ -136,7 +136,7 @@ export function ProgramBlockDialog({
     } catch {
       return
     }
-    notify.success(t("saved"), t("savedDescription"))
+    notify.success(t("saved"), t("savedDescription"), `program-block-saved:${eventId}`)
     onClose()
   })
   const [date, startTime, endTime] = useWatch({

@@ -19,6 +19,15 @@ async function openEventSection(
   await page.setViewportSize({ width, height })
 }
 
+async function closeBlockSavedToast(page: Page) {
+  const toast = page
+    .getByRole("region", { name: /^Notifications/ })
+    .getByRole("listitem")
+    .filter({ hasText: "Block saved" })
+  await toast.getByRole("button", { name: "Close", exact: true }).click()
+  await expect(toast).toBeHidden()
+}
+
 async function addBlock(page: Page, description = "") {
   const name = `E2E block ${Date.now()}`
   await page.getByRole("button", { name: "Add block", exact: true }).click()
@@ -27,6 +36,7 @@ async function addBlock(page: Page, description = "") {
   await dialog.getByLabel("Description").fill(description)
   await dialog.getByRole("button", { name: "Add block" }).click()
   await expect(dialog).toBeHidden()
+  await closeBlockSavedToast(page)
   return name
 }
 
@@ -197,6 +207,7 @@ for (const [index, width] of [360, 1280].entries()) {
     await save.click()
     await expect(dialog).toBeHidden()
     await expect(page.getByRole("button", { name: `Show details of ${name} edited` })).toBeVisible()
+    await closeBlockSavedToast(page)
     await openBlock(page, `${name} edited`, "Edit")
     await page.keyboard.press("Escape")
     await expect(dialog).toBeHidden()
