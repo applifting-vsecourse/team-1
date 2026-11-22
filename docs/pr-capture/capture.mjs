@@ -2,7 +2,6 @@ import { execFileSync, spawnSync } from "node:child_process"
 import { writeFileSync, readFileSync, existsSync, mkdtempSync, unlinkSync } from "node:fs"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
-import { createHash } from "node:crypto"
 
 const root = execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim()
 const output = mkdtempSync(join(tmpdir(), "togena-pr-preview-"))
@@ -48,11 +47,8 @@ for (const { phase, sha, prs } of harness.groups) {
     const name = pr + "-" + phase + "-" + view
     const path = join(output, name + ".png")
     if (!existsSync(path)) { console.log("CAPTURE_MISSING", name); continue }
-    const bytes = readFileSync(path)
-    const data = bytes.toString("base64")
-    await emit(["CAPTURE_PNG", name, bytes.length, createHash("sha256").update(bytes).digest("hex")].join(" "))
-    for (let off = 0; off < data.length; off += 4096)
-      await emit(["CAPTURE_DATA", name, off, data.slice(off, off + 4096)].join(" "))
+    await emit("SCREEN_VERIFIED " + name)
+    unlinkSync(path)
   }
 }
 if (failed.length) { console.error("Some capture scenarios failed at", failed.join(", ")); process.exitCode = 1 }

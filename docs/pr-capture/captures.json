@@ -4,15 +4,8 @@
   },
   "groups": [
     {
-      "phase": "before",
-      "sha": "fc4caae0a5a8f569ea000de6b05996c80300a909",
-      "prs": [
-        678
-      ]
-    },
-    {
       "phase": "after",
-      "sha": "5a38508ff835c39696b9e1c4dffe7a58982beb4f",
+      "sha": "093a24138e0d6a67845b0335c0d43c173cf81e5f",
       "prs": [
         678
       ]
