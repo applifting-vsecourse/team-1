@@ -39,6 +39,7 @@ import {
 import { BulkRoomsDialog } from "@/features/events/components/BulkRoomsDialog"
 import { CopyRoomsDialog } from "@/features/events/components/CopyRoomsDialog"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
+import { IndividualRequestsCard } from "@/features/events/components/IndividualRequestsCard"
 import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignmentsCard"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
 import { RoomExtraBedsDialog } from "@/features/events/components/RoomExtraBedsDialog"
@@ -48,8 +49,15 @@ import { RoomsOverview } from "@/features/events/components/RoomsOverview"
 import { RoomsPublicationCard } from "@/features/events/components/RoomsPublicationCard"
 import { RoomWishesOverview } from "@/features/events/components/RoomWishesOverview"
 
-/** The two views of the accommodation: Rozřazování, from the people (US-35), and Pokoje, from the rooms (US-36, #542). */
-export type RoomsView = "assignment" | "overview"
+/** The views of the accommodation: Rozřazování, from the people (US-35), Pokoje, from the rooms (US-36, #542), and Individuální požadavky (#514). */
+export type RoomsView = "assignment" | "overview" | "requests"
+
+const VIEWS = ["assignment", "overview", "requests"] as const
+const VIEW_LABELS = {
+  assignment: "roomOverview.viewAssignment",
+  overview: "roomOverview.viewOverview",
+  requests: "roomOverview.viewRequests",
+} as const
 
 /** What the page needs to know about every active term; the route reads it from the occupancy. */
 export type AccommodationTerm = {
@@ -237,29 +245,32 @@ export function RoomsPage({
           value={view}
           onValueChange={(next) => {
             // Pressing the active view again must not leave the group empty.
-            if (next === "assignment" || next === "overview") onSelectView(next)
+            if (next === "assignment" || next === "overview" || next === "requests") {
+              onSelectView(next)
+            }
           }}
         >
-          {(["assignment", "overview"] as const).map((item) => (
+          {VIEWS.map((item) => (
             <ViewToggleGroupItem
               key={item}
               value={item}
             >
-              {t(
-                item === "assignment" ? "roomOverview.viewAssignment" : "roomOverview.viewOverview",
-              )}
+              {t(VIEW_LABELS[item])}
             </ViewToggleGroupItem>
           ))}
         </ViewToggleGroup>
-        <Button
-          variant="outline"
-          size="lg"
-          className="max-sm:w-full sm:ml-auto"
-          disabled={term.rooms.length === 0}
-          onClick={() => window.print()}
-        >
-          {t("roomOverview.print")}
-        </Button>
+        {/* Printing is for the room views; a printed list of requests is out of scope (#514). */}
+        {view === "requests" ? null : (
+          <Button
+            variant="outline"
+            size="lg"
+            className="max-sm:w-full sm:ml-auto"
+            disabled={term.rooms.length === 0}
+            onClick={() => window.print()}
+          >
+            {t("roomOverview.print")}
+          </Button>
+        )}
       </div>
       {termSelect}
     </div>
@@ -278,7 +289,13 @@ export function RoomsPage({
         />
       ) : null}
       {viewBar}
-      {view === "overview" ? (
+      {view === "requests" ? (
+        <IndividualRequestsCard
+          key={term.termId}
+          eventId={eventId}
+          termId={term.termId}
+        />
+      ) : view === "overview" ? (
         <RoomsOverview
           term={term}
           onShowAssignment={() => onSelectView("assignment")}

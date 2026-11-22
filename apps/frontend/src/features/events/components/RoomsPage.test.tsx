@@ -13,7 +13,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { roomCapacityIncreaseKey } from "@/lib/room-capacity-increase"
 
 import type { TermRooms } from "@/features/events/api/rooms"
-import { RoomsPage, type AccommodationTerm } from "@/features/events/components/RoomsPage"
+import {
+  RoomsPage,
+  type AccommodationTerm,
+  type RoomsView,
+} from "@/features/events/components/RoomsPage"
 
 // Radix's radio group measures things jsdom doesn't have.
 vi.stubGlobal(
@@ -108,11 +112,35 @@ const byTerm: Record<string, TermRooms> = {
   ),
 }
 
-function renderRooms(termId: string, view: "assignment" | "overview" = "assignment") {
+const requestsByTerm: Record<string, unknown[]> = {
+  t1: [
+    {
+      applicationTermId: "at1",
+      applicationId: "a1",
+      firstName: "Barbora",
+      lastName: "Šimková",
+      status: "CONFIRMED",
+      request: "Prosím o pokoj v přízemí.",
+    },
+    {
+      applicationTermId: "at2",
+      applicationId: "a2",
+      firstName: "Filip",
+      lastName: "Horák",
+      status: "WAITLISTED",
+      request: null,
+    },
+  ],
+  t2: [],
+}
+
+function renderRooms(termId: string, view: RoomsView = "assignment") {
   const onSelectTerm = vi.fn()
   const onSelectView = vi.fn()
   get.mockImplementation((path: string) => ({
     json: () => {
+      const requestsTerm = /terms\/([^/]+)\/individual-requests/.exec(path)?.[1]
+      if (requestsTerm) return Promise.resolve({ requests: requestsByTerm[requestsTerm] ?? [] })
       const roomTerm = byTerm[/terms\/([^/]+)\/rooms/.exec(path)?.[1] ?? ""]
       const assignmentTerm = byTerm[/terms\/([^/]+)\/room-assignments/.exec(path)?.[1] ?? ""]
       return Promise.resolve(
@@ -148,8 +176,12 @@ function renderRooms(termId: string, view: "assignment" | "overview" = "assignme
     getParentRoute: () => root,
     path: "/organizer/events/$eventId/terms",
   })
+  const applicationRoute = createRoute({
+    getParentRoute: () => root,
+    path: "/organizer/events/$eventId/applications/$applicationId",
+  })
   const router = createRouter({
-    routeTree: root.addChildren([termsRoute]),
+    routeTree: root.addChildren([termsRoute, applicationRoute]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(<RouterProvider router={router} />)
@@ -193,6 +225,47 @@ describe("accommodation by term", () => {
     await waitFor(() => expect(rooms).toHaveFocus())
     await user.keyboard(" ")
     expect(onSelectView).toHaveBeenCalledWith("overview")
+  })
+
+  it("offers Individual requests as the third view next to Assignment and Rooms (#514)", async () => {
+    const { user, onSelectView } = renderRooms("t1")
+    await screen.findByRole("table")
+    const views = screen.getByRole("radiogroup", { name: "Accommodation view" })
+    expect(
+      within(views)
+        .getAllByRole("radio")
+        .map((radio) => radio.textContent),
+    ).toEqual(["Assignment", "Rooms", "Individual requests"])
+    await user.click(within(views).getByRole("radio", { name: "Individual requests" }))
+    expect(onSelectView).toHaveBeenCalledWith("requests")
+  })
+
+  it("lists who asked for individual accommodation in the term with the full request and a link to the application (#514)", async () => {
+    renderRooms("t1", "requests")
+    expect(
+      await screen.findByRole("heading", { name: "Individual accommodation requests", level: 3 }),
+    ).toBeInTheDocument()
+    expect(get).toHaveBeenCalledWith("organizer/events/e1/terms/t1/individual-requests")
+    expect(screen.getByRole("radio", { name: "Individual requests" })).toBeChecked()
+    expect(screen.getByText("Barbora Šimková")).toBeInTheDocument()
+    expect(screen.getByText("Prosím o pokoj v přízemí.")).toBeInTheDocument()
+    expect(screen.getByText("Filip Horák")).toBeInTheDocument()
+    expect(
+      screen.getByRole("link", { name: "Open the application detail: Barbora Šimková" }),
+    ).toHaveAttribute("href", "/organizer/events/e1/applications/a1")
+    // The room views are not shown, and the print button belongs to them only.
+    expect(screen.queryByRole("table")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Print overview" })).not.toBeInTheDocument()
+  })
+
+  it("says that nobody asked for individual accommodation in a term without requests (#514)", async () => {
+    renderRooms("t2", "requests")
+    expect(
+      await screen.findByText(
+        "Nobody has asked for individual accommodation in the selected term.",
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /application detail/ })).not.toBeInTheDocument()
   })
 
   it("shows the rooms view of the selected term instead of the assignment", async () => {
