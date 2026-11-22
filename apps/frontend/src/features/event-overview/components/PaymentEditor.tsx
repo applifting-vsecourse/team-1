@@ -180,12 +180,8 @@ export function PaymentEditor({
     >
       <DialogContent
         className={cn(
-          "max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-[370px]",
-          (isRefund ? refundTerms.length === 0 : scope.owed === 0) && "sm:max-w-160",
-          initialRefundTerm && "sm:max-w-130",
+          "max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-130",
           isRefundUnavailable && "sm:gap-6",
-          !isRefund && scope.owed === 0 && !isUncertain && "max-sm:max-w-full",
-          isUncertain && "sm:max-w-[370px]",
         )}
       >
         <DialogHeader>
