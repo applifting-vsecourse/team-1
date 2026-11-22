@@ -1,27 +1,41 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { RoomAssignments } from "@/features/events/api/room-assignments"
+import type { AssignmentParticipant, RoomAssignments } from "@/features/events/api/room-assignments"
 import { RoomWishesOverview } from "@/features/events/components/RoomWishesOverview"
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get } }))
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({
+    to,
+    params,
+    children,
+    ...props
+  }: {
+    to: string
+    params: { eventId: string; applicationId: string }
+  } & React.ComponentProps<"a">) => (
+    <a
+      href={to.replace("$eventId", params.eventId).replace("$applicationId", params.applicationId)}
+      {...props}
+    >
+      {children}
+    </a>
+  ),
+}))
 
-const person = (
-  id: string,
-  firstName: string,
-  lastName: string,
-  wishes: { name: string; fulfilled: boolean }[],
-) => ({
+const person = (id: string, wishes: AssignmentParticipant["wishes"]): AssignmentParticipant => ({
   applicationTermId: id,
   applicationId: `a-${id}`,
-  firstName,
-  lastName,
+  firstName: "Jana",
+  lastName: "Nováková",
   birthYear: 2011,
-  gender: "FEMALE" as const,
+  gender: "FEMALE",
   individualAccommodation: false,
-  status: "CONFIRMED" as const,
+  status: "CONFIRMED",
   wishes,
 })
 
@@ -33,7 +47,7 @@ const response = (rooms: RoomAssignments["rooms"]): RoomAssignments => ({
   warnings: [],
   summary: { violations: 0, acknowledged: 0, confirmedWithoutBed: 0 },
 })
-const room = (participants: RoomAssignments["rooms"][number]["participants"]) => ({
+const room = (participants: AssignmentParticipant[]) => ({
   id: "r1",
   name: "Bříza 204",
   capacity: 4,
@@ -56,31 +70,54 @@ const renderOverview = () =>
 describe("RoomWishesOverview", () => {
   beforeEach(() => get.mockReset())
 
-  it("marks every wish fulfilled or not, and says when a participant has none", async () => {
+  it("orders the wishes by status, reports totals and shows only the chosen status", async () => {
     get.mockReturnValue({
       json: () =>
         response([
           room([
-            person("p1", "Jana", "Nováková", [
-              { name: "Eva Černá", fulfilled: true },
-              { name: "Tereza Malá", fulfilled: false },
+            person("p1", [
+              { name: "Eva Černá", status: "fulfilled", roomName: "Bříza 204" },
+              { name: "Tereza Malá", status: "unfulfilled", roomName: "Dub 101" },
+              { name: "Teresa Malá", status: "impossible", roomName: null },
             ]),
-            person("p2", "Eva", "Černá", []),
           ]),
         ]),
     })
     renderOverview()
-    expect(await screen.findByRole("heading", { name: "Bříza 204" })).toBeInTheDocument()
-    const wishes = screen.getByText("Tereza Malá").closest("li") as HTMLElement
-    expect(within(wishes).getByText("Not fulfilled")).toBeVisible()
-    expect(screen.getByText("Fulfilled")).toBeVisible()
-    expect(screen.getByText("No roommate wishes")).toBeVisible()
+    expect(await screen.findByRole("button", { name: "All · 3" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    )
+    const rows = screen.getAllByRole("listitem")
+    expect(within(rows[0]!).getByText("Cannot be fulfilled")).toBeVisible()
+    expect(within(rows[1]!).getByText("Not fulfilled")).toBeVisible()
+    expect(within(rows[1]!).getByText("Dub 101")).toBeVisible()
+    expect(within(rows[2]!).getByText("Fulfilled")).toBeVisible()
+
+    await userEvent.click(screen.getByRole("button", { name: "Cannot be fulfilled · 1" }))
+    const row = screen.getByRole("listitem")
+    expect(within(row).getByText("Teresa Malá")).toBeVisible()
+    expect(within(row).queryByText("Tereza Malá")).not.toBeInTheDocument()
+    expect(
+      within(row).getByRole("link", { name: "Open application: Jana Nováková" }),
+    ).toHaveAttribute("href", "/organizer/events/e1/applications/a-p1")
+    expect(screen.getByRole("button", { name: "Not fulfilled · 1" })).toBeVisible()
   })
 
-  it("shows nothing while nobody is in a room", async () => {
-    get.mockReturnValue({ json: () => response([room([])]) })
-    const { container } = renderOverview()
-    await new Promise((resolve) => setTimeout(resolve, 20))
-    expect(container).toBeEmptyDOMElement()
+  it("includes the wishes of a participant who has no room yet", async () => {
+    get.mockReturnValue({
+      json: () => ({
+        ...response([]),
+        unassigned: [
+          {
+            ...person("p1", [{ name: "Eva Černá", status: "unfulfilled", roomName: null }]),
+            alsoInTerms: [],
+          },
+        ],
+      }),
+    })
+    renderOverview()
+    expect(await screen.findByRole("button", { name: "All · 1" })).toBeVisible()
+    expect(screen.getByText("Not fulfilled")).toBeVisible()
   })
 })

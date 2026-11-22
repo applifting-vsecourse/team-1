@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**174 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**175 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -40,6 +40,7 @@ _Nic._
 | [D-166](#d-166) | Telefon účastníka v přihlášce je nepovinný, vyplněný se kontroluje | 2026-11-17 | mění [D-079](#d-079), mění [D-153](#d-153) |
 | [D-167](#d-167) | Úprava údajů přihlášky organizátorem nikomu neposílá upozornění | 2026-11-18 | mění [D-141](#d-141) |
 | [D-168](#d-168) | Jednokrokové vyhodnocení: o přihláškách, které se nevejdou, rozhoduje organizátor | 2026-11-18 | mění [D-142](#d-142) |
+| [D-179](#d-179) | Při kopírování pokojů mezi termíny se vždy kopírují přistýlky | 2026-11-22 | mění [D-115](#d-115), mění [D-139](#d-139) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -242,6 +243,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-179](#d-179) | Při kopírování pokojů mezi termíny se vždy kopírují přistýlky | 2026-11-22 | `pm` | produkt |
 | [D-174](#d-174) | Pohledy na ubytování: „Rozřazování“ × „Pokoje“ se stejným ovládáním | 2026-11-20 | `pm` | produkt |
 | [D-171](#d-171) | Pokoj s přiřazenými účastníky nejde smazat | 2026-11-20 | `pm` | produkt |
 | [D-165](#d-165) | Řazení nabídky pokojů při přiřazení | 2026-11-18 | `pm` | produkt |
@@ -1541,9 +1543,10 @@ _Nic._
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** nastavení akce
 - **Datum:** 2026-11-07 · **Rozhodl:** `pm` · **Navrhl:** `pm`
-- **Text:** Organizátor zkopíruje pokoje z jiného termínu téže akce; má-li cílový termín pokoje, zvolí „přidat ke stávajícím“, nebo „nahradit“. Kopie je jednorázová, pokoje jsou pak nezávislé; kopíruje se název, kapacita a pohlaví, přistýlky ne (D-139). Zdroj s jiným režimem pokojů nejde zvolit; při „přidat“ se kopie s kolizí názvů odmítne celá. Po kopii jen toast.
+- **Text:** Organizátor zkopíruje pokoje z jiného termínu téže akce; má-li cílový termín pokoje, zvolí „přidat ke stávajícím“, nebo „nahradit“. Kopie je jednorázová, pokoje jsou pak nezávislé; kopíruje se název, kapacita, pohlaví a počet přistýlek (D-179). Zdroj s jiným režimem pokojů nejde zvolit; při „přidat“ se kopie s kolizí názvů odmítne celá. Po kopii jen toast.
 - **Dotčené US:** [US-100](https://github.com/applifting-vsecourse/team-1/issues/193)
 - **Zdroj:** [PR #376 (US-100), tělo uvádí odpověď PO 7. 11. (v repu nedoložená)](https://github.com/applifting-vsecourse/team-1/pull/376); [PR #441](https://github.com/applifting-vsecourse/team-1/pull/441)
+- **Změněno v:** [D-179](#d-179)
 - **Z otázek:** `Q-NAS-07`
 - **Poznámka:** Doporučení: schválit s rozhodl: pm (souhlas PO v repu doložený není); kolize a jiný režim řeší Q-NAS-20.
 
@@ -1825,9 +1828,10 @@ _Nic._
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
 - **Datum:** 2026-11-12 · **Rozhodl:** `pm` · **Navrhl:** `tym`
-- **Text:** Organizátor nastaví u pokoje v termínu počet přistýlek; každá přidá jedno lůžko a platí jen pro ten termín. Přistýlky se při kopírování pokojů nekopírují. Přidání přistýlky ani pokoje nikoho automaticky nepotvrdí (D-108), jen přibude volné lůžko.
+- **Text:** Organizátor nastaví u pokoje v termínu počet přistýlek; každá přidá jedno lůžko a platí jen pro ten termín. Při kopírování pokoje se do nového pokoje zkopíruje i počet přistýlek (D-179). Přidání přistýlky ani pokoje nikoho automaticky nepotvrdí (D-108), jen přibude volné lůžko.
 - **Dotčené US:** [US-80](https://github.com/applifting-vsecourse/team-1/issues/80)
 - **Zdroj:** [PR #466 (US-80), Nejasnosti 1–2](https://github.com/applifting-vsecourse/team-1/pull/466)
+- **Změněno v:** [D-179](#d-179)
 - **Poznámka:** Doporučení: schválit podle #466 a odpovědět na dva dotazy v #80.
 
 <a id="d-140"></a>
@@ -2259,3 +2263,15 @@ _Nic._
 - **Datum:** 2026-11-20 · **Rozhodl:** `pm`
 - **Text:** Organizátor v detailu přihlášky vidí souhrnný variabilní symbol, účet a QR kód a smí zapsat platbu na celou přihlášku (souhrnný VS, D-085). Není priorita a nemá zdržet design, udělá se později.
 - **Zdroj:** [odpověď PM v PR #577, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/577#issuecomment-7042336712)
+
+<a id="d-179"></a>
+
+### D-179 – Při kopírování pokojů mezi termíny se vždy kopírují přistýlky
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-22 · **Rozhodl:** `pm`
+- **Text:** Při kopírování pokojů z jiného termínu se u každého pokoje vždy zkopíruje i počet přistýlek. Platí to pro prázdný cíl i volby „Přidat ke stávajícím“ a „Nahradit“. Dialog neumožňuje přistýlky z kopie vynechat a uvádí kapacitu včetně přistýlek, které se zkopírují.
+- **Dotčené US:** [#623](https://github.com/applifting-vsecourse/team-1/issues/623)
+- **Zdroj:** [rozhodnutí PM v chatu k dotazu v PR #656, 22. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/656#issuecomment-7051181535)
+- **Mění:** [D-115](#d-115), [D-139](#d-139)
+- **Poznámka:** Mění pravidlo z D-115 a D-139, podle kterého se přistýlky při kopírování pokojů nekopírovaly.

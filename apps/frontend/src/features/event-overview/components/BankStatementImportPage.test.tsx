@@ -49,6 +49,7 @@ const importResult = {
   overpaidCzk: 100,
   duplicateCount: 3,
   ignoredCount: 1,
+  annotatedCsv: "ID operace;Datum;Objem;VS;Výsledek párování\r\n1;05.05.2026;100;12001;Spárováno",
 }
 
 const json = (body: unknown, status = 200): Response =>
@@ -119,6 +120,43 @@ describe("BankStatementImportPage", () => {
       .find((input): input is Request => input instanceof Request && input.method === "POST")
     expect(post?.url).toContain("/organizer/events/e1/bank-statements")
     expect(post?.headers.get("Content-Type")).toBe("text/csv")
+  })
+
+  it("offers the uploaded CSV with the result column as a download, named after the upload", async () => {
+    renderPage()
+    await screen.findByText("Hana Novotná")
+    expect(screen.queryByRole("button", { name: /Download a copy/ })).toBeNull()
+    await userEvent.upload(screen.getByTestId("upload-input"), csv)
+    const download = await screen.findByRole("button", { name: "Download a copy with the result" })
+
+    let blob: Blob | undefined
+    // jsdom has no object URLs; the Blob is what would be saved.
+    Object.assign(URL, {
+      createObjectURL: (value: Blob) => {
+        blob = value
+        return "blob:statement"
+      },
+      revokeObjectURL: vi.fn(),
+    })
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      expect(this.download).toBe("vypis-result.csv")
+    })
+    await userEvent.click(download)
+    expect(click).toHaveBeenCalledTimes(1)
+    // UTF-8 BOM first so Excel reads the diacritics, then the CSV exactly as the server sent it.
+    const bytes = await new Promise<Uint8Array>((resolve) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(new Uint8Array(reader.result as ArrayBuffer))
+      reader.readAsArrayBuffer(blob!)
+    })
+    expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf])
+    expect(new TextDecoder("utf-8", { ignoreBOM: true }).decode(bytes)).toBe(
+      `\uFEFF${importResult.annotatedCsv}`,
+    )
+    Reflect.deleteProperty(URL, "createObjectURL")
+    Reflect.deleteProperty(URL, "revokeObjectURL")
   })
 
   it("shows the translated error when the file is not a statement", async () => {

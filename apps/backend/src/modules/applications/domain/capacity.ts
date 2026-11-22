@@ -60,6 +60,18 @@ export function computeFreeRoomBeds(
 }
 
 /**
+ * Beds shown to a participant after publication (#580, variant C).
+ * Hidden assignments are omitted from this count; the organizer's capacity is unchanged.
+ */
+export function computeVisibleRoomBeds(
+  room: Pick<RoomCapacity, "capacity" | "extraBeds">,
+  assignedCount: number,
+  visibleOccupants: number,
+): number {
+  return visibleOccupants + Math.max(0, computeFreeRoomBeds(room, assignedCount))
+}
+
+/**
  * Capacity of a term (US-26): women = beds in women's rooms, men = beds in
  * men's rooms, plus the confirmed people who sleep in individual rooms (US-145, by their gender). Rooms belong to one term (US-99), so every term has its own
  * capacity; the shared mode has one common pool instead (`computeRoomCapacity`).

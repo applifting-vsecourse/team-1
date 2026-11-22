@@ -42,9 +42,15 @@ const term = {
   ],
 }
 
-function renderPage(data: unknown, onPut?: (body: unknown) => void) {
+function renderPage(
+  data: unknown,
+  { onPost, onPut }: { onPost?: (body: unknown) => void; onPut?: (body: unknown) => void } = {},
+) {
   const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
     const method = input instanceof Request ? input.method : (init?.method ?? "GET")
+    if (method === "POST" && input instanceof Request && onPost) {
+      void input.clone().json().then(onPost)
+    }
     if (method === "PUT" && input instanceof Request && onPut) void input.clone().json().then(onPut)
     return Promise.resolve(
       method === "GET"
@@ -70,7 +76,17 @@ function renderPage(data: unknown, onPut?: (body: unknown) => void) {
   return fetchMock
 }
 
-afterEach(() => vi.restoreAllMocks())
+let isCompact = false
+vi.stubGlobal("matchMedia", () => ({
+  matches: isCompact,
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+}))
+
+afterEach(() => {
+  isCompact = false
+  vi.restoreAllMocks()
+})
 
 describe("ProgramPage", () => {
   it("draws a column per day of the term and the block over its time span", async () => {
@@ -102,7 +118,7 @@ describe("ProgramPage", () => {
           ],
         },
       ]),
-      onPut,
+      { onPut },
     )
     const handle = await screen.findByRole("button", { name: "Move block Dílny" })
     handle.focus()
@@ -141,6 +157,44 @@ describe("ProgramPage", () => {
     expect(within(dialog).getByRole("button", { name: "Delete block" })).toBeInTheDocument()
     await userEvent.click(within(dialog).getByRole("button", { name: "Edit" }))
     expect(await screen.findByRole("heading", { name: "Edit block" })).toBeInTheDocument()
+  })
+
+  it("adds and edits a block through the dialogs in the compact agenda", async () => {
+    isCompact = true
+    const onPut = vi.fn()
+    const onPost = vi.fn()
+    renderPage(program([term]), { onPost, onPut })
+    const day = await screen.findByRole("combobox", { name: "Day" })
+    await userEvent.click(day)
+    await userEvent.click(await screen.findByRole("option", { name: /Tuesday/ }))
+
+    expect(screen.queryByRole("button", { name: "Move block Dílny" })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole("button", { name: "Add block" }))
+    const add = await screen.findByRole("dialog")
+    expect(within(add).getByRole("combobox", { name: /^Day/ })).toHaveTextContent("Tuesday")
+    await userEvent.type(within(add).getByLabelText(/^Block name/), "Snídaně")
+    await userEvent.click(within(add).getByRole("button", { name: "Add block" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    await waitFor(() =>
+      expect(onPost).toHaveBeenCalledWith(
+        expect.objectContaining({ name: "Snídaně", date: "2027-07-13" }),
+      ),
+    )
+
+    await userEvent.click(screen.getByRole("button", { name: /Show details of Dílny/ }))
+    await userEvent.click(
+      within(await screen.findByRole("dialog")).getByRole("button", { name: "Edit" }),
+    )
+    const edit = await screen.findByRole("dialog", { name: "Edit block" })
+    await userEvent.click(within(edit).getByRole("combobox", { name: /^Day/ }))
+    await userEvent.click(await screen.findByRole("option", { name: /Wednesday/ }))
+    fireEvent.change(within(edit).getByLabelText(/^From/), { target: { value: "10:30" } })
+    await userEvent.click(within(edit).getByRole("button", { name: "Save changes" }))
+    await waitFor(() =>
+      expect(onPut).toHaveBeenCalledWith(
+        expect.objectContaining({ date: "2027-07-14", startTime: "10:30", endTime: "12:00" }),
+      ),
+    )
   })
 
   it("warns that a block already exists at the chosen time", async () => {

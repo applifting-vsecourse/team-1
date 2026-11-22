@@ -14,6 +14,11 @@ export class StatementImportResponseDto {
   @ApiProperty({ description: "Already imported by an earlier upload, not counted again" })
   duplicateCount!: number
   @ApiProperty({ description: "Outgoing transactions, not payments" }) ignoredCount!: number
+  @ApiProperty({
+    description:
+      "The uploaded CSV with one more column, the result of each row, in the request language (US-561)",
+  })
+  annotatedCsv!: string
 
   static fromDomain(result: StatementImportResult): StatementImportResponseDto {
     return { ...result }

@@ -6,8 +6,8 @@
 
 @theme inline {
   /* Height makes it clear which item reveals the details and which one gives up space. */
-  --animate-accordion-down: accordion-down 180ms ease-out;
-  --animate-accordion-up: accordion-up 120ms ease-in;
+  --animate-accordion-down: accordion-down var(--duration-accordion-open) ease-out;
+  --animate-accordion-up: accordion-up var(--duration-accordion-close) ease-in;
   @keyframes accordion-down {
     from {
       height: 0;
@@ -102,6 +102,8 @@
  * so white button text keeps 4.5:1.
  */
 :root {
+  --duration-accordion-open: 180ms;
+  --duration-accordion-close: 120ms;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --background: #f9fdff; /* color/bg/canvas */
   --foreground: #031a1e; /* color/text/primary */
@@ -302,6 +304,17 @@
     position: absolute;
     inset-inline: 0;
     top: 0;
+  }
+}
+
+/* The disclosure arrow reaches its new position together with the panel. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-slot="accordion-chevron"] {
+    transition: rotate var(--duration-accordion-close) ease-in;
+  }
+
+  [data-slot="accordion-trigger"][data-state="open"] > [data-slot="accordion-chevron"] {
+    transition: rotate var(--duration-accordion-open) ease-out;
   }
 }
 

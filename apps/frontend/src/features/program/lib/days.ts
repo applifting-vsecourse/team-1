@@ -47,6 +47,14 @@ export function calendarDays(term: {
   return [...days].sort((a, b) => a.localeCompare(b))
 }
 
+/** The day the agenda shows for a remembered selection: the selection while the term still has it, otherwise the first day. */
+export function resolveDay(
+  term: { startsOn: string; endsOn: string; blocks: { date: string }[] },
+  selected: string | null,
+): string {
+  return selected && calendarDays(term).includes(selected) ? selected : term.startsOn
+}
+
 /** Column header of a day: `Mon` and `12/07`. */
 export function formatDayHeader(isoDay: string): { weekday: string; date: string } {
   const locale = INTL_LOCALES[currentLanguage()]

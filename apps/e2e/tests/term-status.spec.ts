@@ -9,7 +9,7 @@ async function applyForFirstTerm(page: Page, activate: Activate, lastName: strin
   await page.getByLabel("First name").fill("Karel")
   await page.getByLabel("Last name").fill(lastName)
   await page.getByLabel("Date of birth").fill("2012-05-12")
-  await activate(page.getByLabel("Gender"))
+  await activate(page.getByRole("combobox", { name: "Gender" }))
   await activate(page.getByRole("option", { name: "Man", exact: true }))
   await activate(
     page
@@ -95,10 +95,13 @@ for (const device of ["desktop", "360 px phone"]) {
         await activate(dialog.getByRole("button", { name: "Withdraw participant" }))
         const confirmation = page.getByText("The participant was withdrawn", { exact: true })
         await expect(confirmation).toBeInViewport({ ratio: 1 })
-        await expect(page.getByRole("listitem").filter({ has: confirmation })).toHaveCSS(
-          "opacity",
-          "1",
-        )
+        const toast = page.getByRole("listitem").filter({ has: confirmation })
+        await expect(toast).toHaveCSS("opacity", "1")
+        if (reducedMotion === "reduce") {
+          await expect(toast).toHaveCSS("transition-property", "none")
+        } else {
+          await expect(toast).toHaveCSS("transition-duration", "0.18s")
+        }
         await expect(page.getByText(/Confirmed → Cancelled/).first()).toBeVisible()
         await expect(page.getByRole("button", { name: "Withdraw", exact: true })).not.toBeVisible()
       })

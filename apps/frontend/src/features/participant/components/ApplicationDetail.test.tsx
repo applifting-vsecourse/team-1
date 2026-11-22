@@ -315,10 +315,10 @@ describe("ApplicationDetail", () => {
     await user.click(await within(terms).findByRole("button", { name: "Change terms" }))
     const dialog = await screen.findByRole("dialog", { name: "Change term" })
     expect(within(dialog).getByRole("heading", { name: "Change impact" })).toBeInTheDocument()
-    expect(within(dialog).getByText(/overpayment CZK 2,000/)).toBeInTheDocument()
-    expect(within(dialog).getByText("Price CZK 4,900 · amount due CZK 4,900")).toBeInTheDocument()
+    expect(within(dialog).getByText(/You paid CZK 2,000/)).toBeInTheDocument()
+    expect(within(dialog).getByText("You will pay CZK 4,900 for the new term.")).toBeInTheDocument()
     expect(within(dialog).getByRole("combobox", { name: "New term" })).toBeInTheDocument()
-    expect(within(dialog).getByText(/Money is not refunded automatically/)).toBeInTheDocument()
+    expect(within(dialog).getByText(/Paid money is not refunded automatically/)).toBeInTheDocument()
     // The kit's close cross is hard-coded English; the translated "Cancel" button closes the dialog.
     expect(within(dialog).queryByRole("button", { name: "Close" })).not.toBeInTheDocument()
     // Cancel and confirm sit side by side, in the footer of the dialog.
@@ -351,9 +351,7 @@ describe("ApplicationDetail", () => {
           name: isImmediate ? "Cancellation impact" : "Impact after approval",
         })
         if (status === "TO_EVALUATE") {
-          expect(
-            within(dialog).getByText("Awaiting evaluation · no bed and no payment"),
-          ).toBeVisible()
+          expect(within(dialog).getByText("You don’t have a bed or a payment yet.")).toBeVisible()
         }
         const release = within(dialog).queryByText(/bed is released/)
         if (status === "CONFIRMED") expect(release).toBeVisible()
@@ -398,7 +396,7 @@ describe("ApplicationDetail", () => {
     renderDetail(application(), true, 0)
 
     await user.click(await screen.findByRole("button", { name: "Change terms" }))
-    expect(screen.getByText("Price CZK 4,900 · amount due CZK 0")).toBeInTheDocument()
+    expect(screen.getByText("You pay nothing for the new term.")).toBeInTheDocument()
   })
 
   it("closes the dialog without saving", async () => {
@@ -435,8 +433,8 @@ describe("ApplicationDetail", () => {
     renderDetail(application(), false)
     await user.click(await screen.findByRole("button", { name: "Change terms" }))
     expect(screen.getByText("The organizer approves the request")).toBeInTheDocument()
-    expect(screen.getByText(/stay unchanged until the decision/)).toBeInTheDocument()
-    expect(screen.getByText("Price CZK 4,900 · amount due CZK 4,900")).toBeInTheDocument()
+    expect(screen.getByText("The bed is released only after approval.")).toBeInTheDocument()
+    expect(screen.getByText("You will pay CZK 4,900 for the new term.")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Send request" }))
     expect(post).toHaveBeenCalledWith("participant/applications/a1/change-requests", {
       json: { termIds: ["t2"] },
@@ -505,13 +503,9 @@ describe("ApplicationDetail", () => {
     await user.click(await screen.findByRole("button", { name: "Cancel participation" }))
     await user.click(screen.getByRole("combobox", { name: "What do you want to cancel?" }))
     await user.click(screen.getByRole("option", { name: /Only 1. týden/ }))
-    expect(
-      screen.getByText("Paid CZK 4,500 · left to pay after cancellation CZK 0"),
-    ).toBeInTheDocument()
-    expect(screen.getByText(/An overpayment of CZK 4,500 will arise/)).toBeInTheDocument()
-    expect(
-      screen.getByText("The bed is released immediately. The other terms stay unchanged."),
-    ).toBeInTheDocument()
+    expect(screen.getByText("You paid CZK 4,500.")).toBeInTheDocument()
+    expect(screen.getByText(/Paid money is not refunded automatically/)).toBeInTheDocument()
+    expect(screen.getByText("Your bed is released immediately.")).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Confirm cancellation" }))
     expect(put).toHaveBeenCalledWith("participant/applications/a1/terms", {
       json: { termIds: ["t2"] },
@@ -520,8 +514,8 @@ describe("ApplicationDetail", () => {
   })
 
   it.each([
-    ["Cancel participation", /left to pay after cancellation CZK 0/],
-    ["Change terms", /Paid CZK 0 · overpayment CZK 0 · left to pay CZK 0/],
+    ["Cancel participation", "You haven’t paid anything yet, so there is nothing to settle."],
+    ["Change terms", "You haven’t paid anything yet."],
   ])("shows debt removed by %s for an unpaid confirmed term", async (open, impact) => {
     const user = userEvent.setup()
     renderDetail(withTerms([termPayment(1, 4500, 0, "UNPAID")], [confirmed]))
@@ -1034,20 +1028,53 @@ describe("ApplicationDetail", () => {
       )
     })
 
-    it("links to the wishes and published room of the matching term", async () => {
-      renderDetail(
-        withSteps({ terms: [{ ...confirmed, roomWishes: [], room: { name: "Bříza 204" } }] }),
-      )
+    it("opens the matching term's roommate-wishes editor from the step", async () => {
+      const user = userEvent.setup()
+      renderDetail(withSteps({ terms: [{ ...confirmed, roomWishes: [] }] }))
       const wishes = await stepRow(/^1\. týden$/, "Roommate wishes")
       expect(within(wishes).getByText("To do")).toBeVisible()
-      const room = await stepRow(/^1\. týden$/, "Room")
-      expect(within(room).getByText("Done")).toBeVisible()
-      for (const row of [wishes, room]) {
-        const link = within(row).getByRole("link")
-        const target = document.querySelector(link.getAttribute("href")!)
-        expect(target).toBeVisible()
-      }
+      await user.click(within(wishes).getByRole("link", { name: "Enter roommate wishes" }))
+      expect(screen.getByLabelText("Name 1")).toBeVisible()
     })
+
+    it("saves the no-wishes response only for the selected term and shows it as done", async () => {
+      const user = userEvent.setup()
+      const firstTerm = { ...confirmed, roomWishes: [], noRoomWishes: false }
+      const secondTerm = { ...waitlisted, status: "CONFIRMED" as const, roomWishes: ["Eva Černá"] }
+      put.mockImplementationOnce(() => {
+        firstTerm.noRoomWishes = true
+        return Promise.resolve()
+      })
+      renderDetail(withSteps({ terms: [firstTerm, secondTerm] }))
+
+      const second = await stepRow(/^2\. týden$/, "Roommate wishes")
+      expect(within(second).getByText("Eva Černá")).toBeVisible()
+      expect(within(second).getByText("Done")).toBeVisible()
+      const first = await stepRow(/^1\. týden$/, "Roommate wishes")
+      await user.click(within(first).getByRole("button", { name: "I have no wishes" }))
+      expect(put).toHaveBeenCalledWith("participant/applications/a1/terms/t1/room-wishes", {
+        json: { names: [], noRoomWishes: true },
+      })
+      expect(await within(first).findByText("No wishes")).toBeVisible()
+      expect(within(first).getByText("Done")).toBeVisible()
+      expect(within(first).getByRole("link", { name: "Change" })).toBeVisible()
+      expect(within(first).queryByRole("button", { name: "I have no wishes" })).toBeNull()
+    })
+
+    it.each([
+      ["Bříza 204", "Bříza 204"],
+      [null, "You have no room assigned yet."],
+    ])(
+      "keeps a published room (%s) outside the steps and removes the wishes step",
+      async (name, text) => {
+        renderDetail(withSteps({ terms: [{ ...confirmed, roomWishes: [], room: { name } }] }))
+        expect(await screen.findByText(text)).toBeVisible()
+        expect(screen.getByRole("heading", { name: "Room" })).toBeVisible()
+        const card = within(cardOf(/^1\. týden$/))
+        expect(card.queryByText("Roommate wishes")).not.toBeInTheDocument()
+        expect(card.queryByText("Room")).not.toBeInTheDocument()
+      },
+    )
 
     it("shows the payment step as to do while something is owed and links to the payment", async () => {
       renderDetail(withSteps())

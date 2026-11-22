@@ -574,7 +574,7 @@ export class TermStatusRepository {
       for (const row of removed) {
         await tx.applicationTerm.update({
           where: { id: row.id },
-          data: { status: "CANCELLED", roomWishes: [] },
+          data: { status: "CANCELLED", roomWishes: [], noRoomWishes: false },
         })
         await releaseAssignments(tx, { applicationTermId: row.id })
         await tx.applicationTermStatusChange.create({
@@ -992,7 +992,7 @@ export class TermStatusRepository {
         data:
           command.to === "CONFIRMED"
             ? { status: command.to }
-            : { status: command.to, roomWishes: [] },
+            : { status: command.to, roomWishes: [], noRoomWishes: false },
       })
       // US-35: leaving confirmed / to evaluate frees the bed the application had in a room.
       if (!isAssignable(command.to)) await releaseAssignments(tx, { applicationTermId: current.id })
@@ -1126,7 +1126,7 @@ export class TermStatusRepository {
       await tx.applicationTerm.updateMany({
         where: { id: { in: affected.map((row) => row.id) } },
         // US-146: room wishes lapse together with the confirmation.
-        data: { status: "CANCELLED", roomWishes: [] },
+        data: { status: "CANCELLED", roomWishes: [], noRoomWishes: false },
       })
       await tx.applicationTermStatusChange.createMany({
         data: affected.map((row) => ({

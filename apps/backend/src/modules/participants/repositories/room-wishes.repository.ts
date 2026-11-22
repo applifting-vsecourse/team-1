@@ -35,10 +35,25 @@ export class RoomWishesRepository {
     return { kind: "OK", id: row.id }
   }
 
+  /** A stale step cannot overwrite names or resolve the step after publication. */
+  async decline(applicationTermId: string, userId: string): Promise<boolean> {
+    const { count } = await this.prisma.applicationTerm.updateMany({
+      where: {
+        id: applicationTermId,
+        status: "CONFIRMED",
+        roomWishes: { isEmpty: true },
+        application: { userId, individualAccommodation: false },
+        term: { cancelledAt: null, roomsPublishedAt: null },
+      },
+      data: { noRoomWishes: true },
+    })
+    return count > 0
+  }
+
   async save(applicationTermId: string, names: string[]): Promise<void> {
     await this.prisma.applicationTerm.update({
       where: { id: applicationTermId },
-      data: { roomWishes: names },
+      data: { roomWishes: names, noRoomWishes: false },
     })
   }
 }
