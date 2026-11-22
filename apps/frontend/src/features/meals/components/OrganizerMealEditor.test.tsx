@@ -63,6 +63,21 @@ describe("organizer meal editor", () => {
     })
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
+  it("keeps the dialog open and shows the error when saving fails", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json(
+        { statusCode: 500, code: "INTERNAL_ERROR", message: "Save failed" },
+        { status: 500 },
+      ),
+    )
+    const user = userEvent.setup()
+    renderEditor()
+    await user.click(screen.getByRole("button", { name: /Edit meals for Adam/ }))
+    await user.click(screen.getByRole("checkbox", { name: "No restrictions" }))
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: /save/i }))
+    expect(await screen.findByRole("alert")).toBeInTheDocument()
+    expect(screen.getByRole("dialog")).toBeInTheDocument()
+  })
   it("hides the action when the application is read-only", () => {
     renderEditor(false)
     expect(screen.queryByRole("button")).not.toBeInTheDocument()

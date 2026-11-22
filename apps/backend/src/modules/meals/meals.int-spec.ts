@@ -270,6 +270,40 @@ describe("meals (integration)", () => {
     }
   })
 
+  it("refuses organizer meal access to an application of another event", async () => {
+    const created = await request("POST", "/organizer/events", organizer, { name: "Third camp" })
+    const otherEvent = (await created.json()) as { id: string }
+    const path = `/organizer/events/${otherEvent.id}/meals/applications/${applicationId}`
+    const empty = { optionIds: [], allergies: "", specialRequest: "", noRestrictions: true }
+    expect((await request("GET", path, organizer)).status).toBe(403)
+    expect((await request("PUT", path, organizer, empty)).status).toBe(403)
+  })
+
+  it("refuses organizer meal changes of an application that is no longer editable", async () => {
+    const path = `/organizer/events/${eventId}/meals/applications/${applicationId}`
+    const terms = await prisma.applicationTerm.findMany({ where: { applicationId } })
+    const empty = { optionIds: [], allergies: "", specialRequest: "", noRestrictions: true }
+    await prisma.applicationTerm.updateMany({
+      where: { applicationId },
+      data: { status: "CANCELLED" },
+    })
+    try {
+      expect(await (await request("GET", path, organizer)).json()).toMatchObject({
+        editable: false,
+      })
+      const response = await request("PUT", path, organizer, empty)
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "APPLICATION_NOT_EDITABLE" })
+    } finally {
+      for (const term of terms) {
+        await prisma.applicationTerm.update({
+          where: { id: term.id },
+          data: { status: term.status },
+        })
+      }
+    }
+  })
+
   it("drops the ticks of a removed option", async () => {
     await saveOptions([])
     const own = await (await request("GET", ownPath(), participant)).json()
