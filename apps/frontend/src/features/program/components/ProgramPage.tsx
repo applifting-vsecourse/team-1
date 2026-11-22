@@ -37,7 +37,7 @@ import { ProgramBlockDetailDialog } from "@/features/program/components/ProgramB
 import { ProgramBlockDialog } from "@/features/program/components/ProgramBlockDialog"
 import { ProgramCalendar } from "@/features/program/components/ProgramCalendar"
 import { trackedOverlaps } from "@/features/program/lib/calendar"
-import { formatDay, formatDayHeader, timeRange } from "@/features/program/lib/days"
+import { formatDay, formatDayHeader, resolveDay, timeRange } from "@/features/program/lib/days"
 
 type Editor = { block?: ProgramBlock; date: string }
 
@@ -171,10 +171,9 @@ export function ProgramPage({ eventId }: { eventId: string }) {
             className="max-sm:w-full"
             onClick={() => {
               dismissCopied()
-              const date =
-                agendaDay && agendaDay >= term.startsOn && agendaDay <= term.endsOn
-                  ? agendaDay
-                  : term.startsOn
+              // The day the agenda shows; a day outside the term (kept only for its blocks) can't take a new block.
+              const shown = resolveDay(term, agendaDay)
+              const date = shown >= term.startsOn && shown <= term.endsOn ? shown : term.startsOn
               setEditor({ date })
             }}
           >

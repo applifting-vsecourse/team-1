@@ -2,7 +2,6 @@ import { useId } from "react"
 import { MapPin } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -13,7 +12,7 @@ import {
 } from "@/components/ui/select"
 
 import type { ProgramBlock } from "@/features/program/api/program"
-import { calendarDays, formatDay, timeRange } from "@/features/program/lib/days"
+import { calendarDays, formatDay, resolveDay, timeRange } from "@/features/program/lib/days"
 
 // Figma v2: M14 (23266-93029) and M16 (23270-27504), adapted to a single-day agenda for #663.
 // https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=23266-93029
@@ -31,7 +30,7 @@ export function ProgramDayAgenda({
   const { t } = useTranslation("program")
   const dayField = useId()
   const days = calendarDays(term)
-  const day = days.includes(selectedDay) ? selectedDay : term.startsOn
+  const day = resolveDay(term, selectedDay)
   const blocks = term.blocks
     .filter((block) => block.date === day)
     .sort((a, b) => a.startTime.localeCompare(b.startTime) || a.endTime.localeCompare(b.endTime))
@@ -69,11 +68,10 @@ export function ProgramDayAgenda({
         <ul className="min-w-0 space-y-2">
           {blocks.map((block) => (
             <li key={block.id}>
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                aria-label={`${t("info", { name: block.name })} · ${timeRange(block)}`}
-                className="h-auto min-h-11 w-full flex-col items-start gap-1 rounded-checkbox border-l-4 border-l-primary bg-accent px-3 py-2 text-left whitespace-normal text-accent-foreground hover:bg-accent/80"
+                aria-label={`${t("info", { name: block.name })} · ${timeRange(block)}${block.place ? ` · ${block.place}` : ""}`}
+                className="flex min-h-11 w-full flex-col items-start gap-1 rounded-checkbox border-l-4 border-l-primary bg-accent px-3 py-2 text-left text-sm text-accent-foreground transition-colors outline-none hover:bg-accent/80 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring"
                 onClick={() => onSelect(block)}
               >
                 <span className="text-xs text-muted-foreground tabular-nums">
@@ -89,7 +87,7 @@ export function ProgramDayAgenda({
                     <span className="min-w-0 break-words">{block.place}</span>
                   </span>
                 )}
-              </Button>
+              </button>
             </li>
           ))}
         </ul>
