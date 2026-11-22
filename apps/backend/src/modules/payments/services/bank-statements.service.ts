@@ -1,3 +1,4 @@
+import { Locale } from "@/core/email/locale"
 import { parseVariableSymbol } from "@/modules/applications/domain/variable-symbol"
 import {
   decideMatch,
@@ -5,6 +6,7 @@ import {
   parseBankStatement,
   ParsedStatement,
 } from "@/modules/payments/domain/bank-statement"
+import { annotateStatement, RowOutcome } from "@/modules/payments/domain/statement-copy"
 import {
   BankTransactionsRepository,
   StoredBankTransaction,
@@ -27,6 +29,11 @@ export type StatementImportResult = {
   duplicateCount: number
   /** Outgoing transactions of the statement. */
   ignoredCount: number
+  /**
+   * The uploaded CSV with a column of what happened to each row (US-561). Only handed back in the
+   * response, never stored.
+   */
+  annotatedCsv: string
 }
 
 @Injectable()
@@ -37,7 +44,12 @@ export class BankStatementsService {
     private readonly access: OrganizationAccessService,
   ) {}
 
-  async import(user: Identity, eventId: string, text: string): Promise<StatementImportResult> {
+  async import(
+    user: Identity,
+    eventId: string,
+    text: string,
+    locale: Locale,
+  ): Promise<StatementImportResult> {
     const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
     let statement: ParsedStatement
     try {
@@ -56,12 +68,18 @@ export class BankStatementsService {
       overpaidCzk: 0,
       duplicateCount: 0,
       ignoredCount: statement.ignoredCount,
+      annotatedCsv: "",
     }
+    const outcomes = new Map<number, RowOutcome>(
+      statement.ignoredRecords.map((record) => [record, { kind: "ignored" }]),
+    )
     // One row after another: two payments of the same application must see each other's balance.
-    for (const row of statement.incoming) {
+    for (const [index, row] of statement.incoming.entries()) {
+      const record = statement.incomingRecords[index]
       const earlier = await this.repository.find(organizationId, row.externalId)
       if (earlier?.status === "MATCHED") {
         result.duplicateCount++
+        outcomes.set(record, { kind: "duplicate" })
         continue
       }
       const retryOf = earlier?.id
@@ -83,8 +101,10 @@ export class BankStatementsService {
           }))
         ) {
           result.duplicateCount++
+          outcomes.set(record, { kind: "duplicate" })
           continue
         }
+        outcomes.set(record, { kind: "unmatched", reason: decision.reason })
         result.unmatchedCount++
         // Another currency is not counted into the crowns of the summary.
         if (!row.currency || row.currency === "CZK") result.unmatchedCzk += row.amountCents / 100
@@ -112,8 +132,16 @@ export class BankStatementsService {
         }))
       ) {
         result.duplicateCount++
+        outcomes.set(record, { kind: "duplicate" })
         continue
       }
+      // A matched decision always comes with the application it was looked up for.
+      if (application)
+        outcomes.set(record, {
+          kind: "matched",
+          applicationNumber: application.number,
+          termNumber: application.terms.find((term) => term.termId === decision.termId)?.termNumber,
+        })
       result.matchedCount++
       result.matchedCzk += decision.amountCzk
       if (decision.overpaidCzk > 0) {
@@ -121,6 +149,7 @@ export class BankStatementsService {
         result.overpaidCzk += decision.overpaidCzk
       }
     }
+    result.annotatedCsv = annotateStatement(text, statement.headerRecord, outcomes, locale)
     return result
   }
 

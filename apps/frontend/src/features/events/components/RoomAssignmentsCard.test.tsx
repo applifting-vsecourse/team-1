@@ -1,6 +1,14 @@
-import type * as Dnd from "@dnd-kit/core"
+import * as Dnd from "@dnd-kit/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { act, render, screen, waitFor, within } from "@testing-library/react"
+import {
+  act,
+  createEvent,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -10,11 +18,15 @@ import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignment
 // jsdom has no layout, so a drag is driven through the handlers the card gives to the context.
 const { dnd } = vi.hoisted(() => ({
   dnd: {
-    props: null as null | { onDragStart: (e: unknown) => void; onDragEnd: (e: unknown) => void },
+    props: null as null | {
+      onDragStart: (e: unknown) => void
+      onDragEnd: (e: unknown) => void
+      sensors: { sensor: unknown; options: unknown }[]
+    },
   },
 }))
 vi.mock("@dnd-kit/core", async (importOriginal) => {
-  const actual = await importOriginal<Record<string, never> & typeof Dnd>()
+  const actual = await importOriginal<typeof Dnd>()
   return {
     ...actual,
     DndContext: (props: React.ComponentProps<typeof actual.DndContext>) => {
@@ -171,13 +183,16 @@ describe("room assignment", () => {
   })
 
   it("lists the unassigned with their status, the rooms with people and free beds, and the count", async () => {
-    renderCard()
+    const user = renderCard()
     expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
     expect(screen.getByText("Woman · Confirmed")).toBeInTheDocument()
     expect(screen.getByText("Woman · Awaiting evaluation")).toBeInTheDocument()
     expect(screen.getByLabelText("Unassigned participants: 2")).toHaveTextContent("2")
     const table = screen.getByRole("table")
-    expect(within(table).getByText("Jana Nováková")).toBeInTheDocument()
+    const roomA = within(table).getByRole("row", { name: /Room A/ })
+    expect(within(roomA).queryByText("Jana Nováková")).not.toBeInTheDocument()
+    await user.click(within(roomA).getByRole("button", { name: "Participants" }))
+    expect(within(roomA).getByText("Jana Nováková")).toBeVisible()
     expect(within(table).getAllByText("3 free beds")).toHaveLength(2)
     expect(within(table).getByText("Full")).toBeInTheDocument()
   })
@@ -518,9 +533,16 @@ describe("room assignment", () => {
 
   it("moves a person through the menu of their chip, the current room is not a choice", async () => {
     const user = renderCard()
-    const table = await screen.findByRole("table")
-    await user.click(within(table).getByRole("button", { name: "Actions for Jana Nováková" }))
-    await user.click(await screen.findByRole("menuitem", { name: "Move to another room…" }))
+    await screen.findByRole("table")
+    const cards = screen.getAllByRole("list").find((list) => list.classList.contains("lg:hidden"))
+    const card = within(cards!)
+      .getAllByRole("listitem")
+      .find((item) => within(item).queryByRole("button", { name: "Actions r1" }))!
+    await user.click(within(card).getByRole("button", { name: "Participants" }))
+    await user.click(within(card).getByRole("button", { name: "Actions for Jana Nováková" }))
+    const sheet = await screen.findByRole("dialog", { name: "Jana Nováková" })
+    expect(sheet).toHaveAccessibleDescription(/Room A/)
+    await user.click(within(sheet).getByRole("button", { name: "Move to another room…" }))
     const dialog = await screen.findByRole("dialog")
     expect(within(dialog).getByRole("radio", { name: /Room A.*Current room/ })).toBeDisabled()
     await user.click(within(dialog).getByRole("radio", { name: /Room C/ }))
@@ -533,15 +555,62 @@ describe("room assignment", () => {
 
   it("removes a person from the room through the menu", async () => {
     const user = renderCard()
-    const table = await screen.findByRole("table")
-    await user.click(within(table).getByRole("button", { name: "Actions for Eva Horká" }))
-    await user.click(await screen.findByRole("menuitem", { name: "Remove from room" }))
+    await screen.findByRole("table")
+    const cards = screen.getAllByRole("list").find((list) => list.classList.contains("lg:hidden"))
+    const card = within(cards!)
+      .getAllByRole("listitem")
+      .find((item) => within(item).queryByRole("button", { name: "Actions r2" }))!
+    await user.click(within(card).getByRole("button", { name: "Participants" }))
+    await user.click(within(card).getByRole("button", { name: "Actions for Eva Horká" }))
+    const sheet = await screen.findByRole("dialog", { name: "Eva Horká" })
+    await user.click(within(sheet).getByRole("button", { name: "Remove from room" }))
     await waitFor(() =>
       expect(del).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments/p2"),
     )
     await waitFor(() =>
       expect(success).toHaveBeenCalledWith("Participant has no room again", "Eva Horká"),
     )
+  })
+
+  it("lets a touch swipe scroll and cancels a long press drag without changing assignment", async () => {
+    renderCard()
+    const participant = await screen.findByText("Barbora Šimková")
+    const roomRow = screen.getByRole("cell", { name: "Room C" }).closest("tr")
+    expect(dnd.props?.sensors).toEqual([
+      { sensor: Dnd.MouseSensor, options: { activationConstraint: { distance: 6 } } },
+      { sensor: Dnd.TouchSensor, options: { activationConstraint: { delay: 250, tolerance: 8 } } },
+    ])
+
+    vi.useFakeTimers()
+    try {
+      const start = { touches: [{ clientX: 30, clientY: 40 }] }
+      fireEvent.touchStart(participant, start)
+      const scroll = createEvent.touchMove(participant, {
+        touches: [{ clientX: 30, clientY: 80 }],
+      })
+      fireEvent(participant, scroll)
+      act(() => {
+        vi.advanceTimersByTime(250)
+      })
+      expect(scroll.defaultPrevented).toBe(false)
+      expect(roomRow).not.toHaveClass("bg-muted")
+
+      fireEvent.touchStart(participant, start)
+      act(() => {
+        vi.advanceTimersByTime(250)
+      })
+      expect(roomRow).toHaveClass("bg-muted")
+
+      fireEvent.touchCancel(participant)
+      act(() => {
+        vi.advanceTimersByTime(50)
+      })
+      expect(roomRow).not.toHaveClass("bg-muted")
+      expect(put).not.toHaveBeenCalled()
+      expect(del).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it("assigns by dragging an unassigned person onto a room with a free bed", async () => {
@@ -625,16 +694,17 @@ describe("room assignment", () => {
           { ...person("p4", "Nikola", "Králová"), alsoInTerms: [] },
         ],
       }
-      renderCard()
+      const user = renderCard()
       expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
       expect(screen.getByText("Woman · Awaiting evaluation")).toBeInTheDocument()
-      // The unassigned one has the full badge; in the room, in the table and in the card of the
-      // phone layout, the chip carries a short one. Nobody else has any.
       expect(screen.getAllByText("Individual accommodation")).toHaveLength(1)
-      expect(screen.getAllByText("Individual")).toHaveLength(2)
       const table = screen.getByRole("table")
-      expect(within(table).getByText("Individual")).toBeInTheDocument()
-      expect(within(table).getByText("Eva Horká")).toBeInTheDocument()
+      const roomA = within(table).getByRole("row", { name: /Room A/ })
+      const roomB = within(table).getByRole("row", { name: /Room B/ })
+      await user.click(within(roomA).getByRole("button", { name: "Participants" }))
+      await user.click(within(roomB).getByRole("button", { name: "Participants" }))
+      expect(within(roomA).getByText("Individual")).toBeVisible()
+      expect(within(roomB).getByText("Eva Horká")).toBeVisible()
       expect(screen.getByRole("button", { name: "Assign Barbora Šimková to a room" })).toBeEnabled()
     })
 
@@ -718,7 +788,8 @@ describe("room assignment", () => {
       )
     })
 
-    it("shows a confirmed warning muted with its note and does not count it", async () => {
+    it("shows a confirmed warning only as a quiet mark with its note in a tooltip and does not count it", async () => {
+      const user = userEvent.setup()
       overcrowded()
       data = {
         ...data,
@@ -734,9 +805,11 @@ describe("room assignment", () => {
       }
       renderCard()
       const table = await screen.findByRole("table")
-      expect(within(table).getByText("Overcrowding confirmed")).toBeInTheDocument()
-      expect(within(table).getByText("Note: Family with a child")).toBeInTheDocument()
-      expect(within(table).getByText(/^Eva Malá, /)).toBeInTheDocument()
+      // No strip with text: just a small mark; the note shows only on hover or focus.
+      expect(within(table).queryByText("Note: Family with a child")).not.toBeInTheDocument()
+      const mark = within(table).getByRole("button", { name: "Overcrowding confirmed" })
+      await user.hover(mark)
+      expect((await screen.findAllByText("Note: Family with a child")).length).toBeGreaterThan(0)
       expect(
         within(table).queryByRole("button", { name: "Confirm with a note" }),
       ).not.toBeInTheDocument()

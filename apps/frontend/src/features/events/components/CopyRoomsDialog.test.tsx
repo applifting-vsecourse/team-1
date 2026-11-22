@@ -182,7 +182,7 @@ describe("copying rooms into a term", () => {
     expect(screen.queryByText("Some room names already exist")).not.toBeInTheDocument()
   })
 
-  describe("extra beds (přistýlky) are not copied", () => {
+  describe("extra beds (přistýlky) are copied", () => {
     // Source: 10 own beds + 2 extra beds (capacity.total 12). Target: one room with 3 own beds + 2 extra beds.
     const withExtras = [
       { id: "a", name: "A", capacity: 4, extraBeds: 2, beds: 6, gender: "FEMALE" as const },
@@ -192,58 +192,65 @@ describe("copying rooms into a term", () => {
       { id: "o", name: "Own", capacity: 3, extraBeds: 2, beds: 5, gender: "MALE" as const },
     ]
 
-    it("counts only the own beds of a source with extra beds and says what is not copied", async () => {
+    it("counts the beds of a source with extra beds including them and says they are copied", async () => {
       const { user } = renderDialog(termRooms("t1", []), withExtras)
       await pickSource(user)
-      expect(screen.getByText(/2 rooms of its own and a capacity of 10 beds/)).toBeInTheDocument()
-      expect(screen.getByText(/2 rooms, 10 beds/)).toBeInTheDocument()
-      expect(screen.getByText("without 2 extra beds")).toBeInTheDocument()
+      expect(screen.getByText(/2 rooms of its own and a capacity of 12 beds/)).toBeInTheDocument()
+      expect(screen.getByText(/2 rooms, 12 beds/)).toBeInTheDocument()
+      expect(screen.getByText("including 2 extra beds")).toBeInTheDocument()
       expect(screen.getByText("Will be copied")).toBeInTheDocument()
-      expect(screen.getByText("Room name, capacity and gender")).toBeInTheDocument()
-      expect(screen.getByText("Won't be copied")).toBeInTheDocument()
-      expect(screen.getByText("Extra beds – they belong to a specific term")).toBeInTheDocument()
-      expect(screen.queryByText(/12 beds/)).not.toBeInTheDocument()
+      expect(screen.getByText("Room name, capacity, extra beds and gender")).toBeInTheDocument()
+      expect(screen.queryByText("Won't be copied")).not.toBeInTheDocument()
+      expect(screen.queryByText(/without/)).not.toBeInTheDocument()
     })
 
-    it("shows no note for a source without extra beds", async () => {
+    it("shows no extra bed note for a source without extra beds", async () => {
       const { user } = renderDialog(termRooms("t1", []))
       await pickSource(user)
-      expect(screen.queryByText(/extra bed/)).not.toBeInTheDocument()
-      expect(screen.getByText("Won't be copied")).toBeInTheDocument()
+      expect(screen.queryByText(/including .* extra bed/)).not.toBeInTheDocument()
+      expect(screen.getByText(/capacity of 10 beds/)).toBeInTheDocument()
     })
 
-    it("adds: target beds with its extra beds plus the own beds of the source", async () => {
+    it("adds: target beds with its extra beds plus the beds of the source with theirs", async () => {
       const { user } = renderDialog(termRooms("t1", ownWithExtras), withExtras)
       await pickSource(user)
-      expect(screen.getByText("without 2 extra beds")).toBeInTheDocument()
-      expect(screen.getByText("including 2 extra beds")).toBeInTheDocument()
-      // 5 (target with extra beds) + 10 (source without extra beds) = 15, not 17.
+      // Both the source and the target summary carry the note.
+      expect(screen.getAllByText("including 2 extra beds")).toHaveLength(2)
+      // 5 (target with extra beds) + 12 (source with extra beds) = 17; extra beds 2 + 2 = 4.
       expect(
         screen.getByText(
-          "After the copy the target will have 3 rooms and 15 beds, including 2 extra beds of the existing rooms. The current room is kept.",
+          "After the copy the target will have 3 rooms and 17 beds, including 4 extra beds. The current room is kept.",
         ),
       ).toBeInTheDocument()
-      expect(screen.getByText("Won't be copied")).toBeInTheDocument()
     })
 
-    it("adds without a sentence about extra beds when the target has none", async () => {
+    it("adds a source with extra beds into a target without any", async () => {
       const { user } = renderDialog(termRooms("t1", ownRoom), withExtras)
+      await pickSource(user)
+      expect(
+        screen.getByText(
+          "After the copy the target will have 3 rooms and 15 beds, including 2 extra beds. The current room is kept.",
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it("adds without a sentence about extra beds when neither side has any", async () => {
+      const { user } = renderDialog(termRooms("t1", ownRoom))
       await pickSource(user)
       expect(
         screen.getByText(
           /After the copy the target will have 3 rooms and 13 beds\. The current room is kept\./,
         ),
       ).toBeInTheDocument()
-      expect(screen.queryByText(/including .* extra bed/)).not.toBeInTheDocument()
     })
 
-    it("replaces: only the own beds of the source and a warning that extra beds and assignments go too", async () => {
+    it("replaces: the beds of the source with extra beds and a warning that the extra beds and assignments of the target go", async () => {
       const { user } = renderDialog(termRooms("t1", ownWithExtras), withExtras)
       await pickSource(user)
       await user.click(screen.getByRole("radio", { name: "Replace the existing rooms" }))
       expect(
         screen.getByText(
-          "The 1 existing room will be removed, including its extra beds, the assignment of participants to rooms and confirmed warnings. After the copy the target will have 2 rooms and 10 beds.",
+          "The 1 existing room will be removed, including its extra beds, the assignment of participants to rooms and confirmed warnings. After the copy the target will have 2 rooms and 12 beds.",
         ),
       ).toBeInTheDocument()
     })
@@ -253,8 +260,8 @@ describe("copying rooms into a term", () => {
       await user.click(screen.getByRole("combobox", { name: "Source term" }))
       await user.click(screen.getByRole("option", { name: /Week 3 · shared rooms/ }))
       await user.click(screen.getByRole("button", { name: "Show preview" }))
-      expect(await screen.findByText("Room name and capacity")).toBeInTheDocument()
-      expect(screen.queryByText("Room name, capacity and gender")).not.toBeInTheDocument()
+      expect(await screen.findByText("Room name, capacity and extra beds")).toBeInTheDocument()
+      expect(screen.queryByText(/gender/)).not.toBeInTheDocument()
     })
 
     it("keeps the name collision warning for an add and the 360 px layout stacks the summary", async () => {

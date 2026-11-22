@@ -15,6 +15,11 @@ import {
 } from "@/modules/applications/domain/pricing"
 import { variableSymbol as toVariableSymbol } from "@/modules/applications/domain/variable-symbol"
 
+export type RoomOccupancy = {
+  beds: number
+  occupants: { firstName: string; initials: string; isSelf: boolean }[]
+}
+
 /** One application of the signed-in participant as stored — what the overview is built from (US-54). */
 export type MyApplicationRecord = {
   id: string
@@ -70,10 +75,13 @@ export type MyApplicationRecord = {
     roomsPublished: boolean
     /** Name of the assigned room, `null` while not assigned. */
     roomName: string | null
+    /** Visible beds and occupants, loaded only for the detail. */
+    roomOccupancy?: RoomOccupancy
     /** The term is cancelled by the organizer; nothing is arranged for it. */
     termCancelled: boolean
     /** Names the participant wishes to room with (US-146). */
     roomWishes: string[]
+    noRoomWishes: boolean
     /** Later arrival / earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` (US-143). */
     lateArrival: string | null
     earlyDeparture: string | null
@@ -94,15 +102,17 @@ export type MyApplicationTerm = {
   /** The participant has told how they get there. */
   transportDecided: boolean
   /**
-   * Present only for a confirmed term whose room assignment is published, and never for a
-   * participant with individual accommodation. `name` is `null` while no room is assigned (US-144).
+   * Present for a confirmed term after publication. An individually accommodated participant
+   * only gets the card if the organizer has assigned them to a room.
    */
-  room?: { name: string | null }
+  room?: { name: string | null; occupancy?: RoomOccupancy }
   /**
    * Present only for a confirmed term that is not cancelled, and never for a participant with
    * individual accommodation — the only case they can write wishes (US-146); empty = none yet.
    */
   roomWishes?: string[]
+  /** Whether the participant explicitly chose to skip roommate preferences for this term. */
+  noRoomWishes?: boolean
   /**
    * Present while the application in the term is not cancelled or archived — the only case the
    * participant can set them (US-143). Both `null` when nothing is given.
@@ -227,11 +237,19 @@ export function buildMyApplication(
           : {}),
         transportOffered: term.transportOffered,
         transportDecided: term.transportDecided,
-        ...(term.status === "CONFIRMED" && term.roomsPublished && !record.individualAccommodation
-          ? { room: { name: term.roomName } }
+        ...(term.status === "CONFIRMED" &&
+        term.roomsPublished &&
+        !term.termCancelled &&
+        (term.roomName !== null || !record.individualAccommodation)
+          ? {
+              room: {
+                name: term.roomName,
+                ...(term.roomOccupancy ? { occupancy: term.roomOccupancy } : {}),
+              },
+            }
           : {}),
         ...(term.status === "CONFIRMED" && !term.termCancelled && !record.individualAccommodation
-          ? { roomWishes: term.roomWishes }
+          ? { roomWishes: term.roomWishes, noRoomWishes: term.noRoomWishes }
           : {}),
         ...(term.status !== "CANCELLED" && term.status !== "ARCHIVED" && !term.termCancelled
           ? { stay: { lateArrival: term.lateArrival, earlyDeparture: term.earlyDeparture } }

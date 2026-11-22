@@ -10,9 +10,15 @@ import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { ListSkeleton } from "@/components/molecules/ListSkeleton"
 import { Pagination } from "@/components/molecules/Pagination"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -147,6 +153,19 @@ export function ApplicationsPage({
     filters.accommodation === "INDIVIDUAL" &&
     Object.entries(filters).every(([key, value]) => !value || key === "accommodation")
   const isWaitlist = filters.status === "WAITLISTED"
+  const isStatusLocked = isQueue || isWaitlist
+  const hasRemovableFilters = Object.entries(filters).some(
+    ([key, value]) => Boolean(value) && !(key === "status" && isStatusLocked),
+  )
+  const clearFilters = () => {
+    setPage(0)
+    if (filters.term) setSelectedIds(new Set())
+    onFiltersChange(isStatusLocked ? { status: filters.status } : {})
+  }
+  const clearEmptySearch = () => {
+    clearFilters()
+    searchInput.current?.focus()
+  }
   const substituteTerm = isWaitlist
     ? filters.term
       ? terms.find((term) => term.id === filters.term)
@@ -292,6 +311,7 @@ export function ApplicationsPage({
             />
           </form>
           <ApplicationFilters
+            onClear={clearFilters}
             filters={filters}
             terms={(occupancy.data?.terms ?? []).map((term) => ({
               id: term.id,
@@ -299,6 +319,7 @@ export function ApplicationsPage({
             }))}
             onChange={(next) => {
               setPage(0)
+              if (next.term !== filters.term) setSelectedIds(new Set())
               onFiltersChange(next)
             }}
           />
@@ -372,11 +393,7 @@ export function ApplicationsPage({
                   variant="secondary"
                   size="lg"
                   className="mt-2 border border-border"
-                  onClick={() => {
-                    setPage(0)
-                    onFiltersChange({})
-                    searchInput.current?.focus()
-                  }}
+                  onClick={clearEmptySearch}
                 >
                   <FilterX
                     className="size-4 shrink-0"
@@ -388,23 +405,19 @@ export function ApplicationsPage({
             ) : query.data.length === 0 ? (
               <div className="flex flex-col items-start gap-4 py-6">
                 <p className="text-sm text-muted-foreground">
-                  {isQueue && !filters.q && !filters.term
+                  {isQueue && !hasRemovableFilters
                     ? t("queue.empty")
                     : t(hasFilters ? "applications.empty" : "applications.noApplications")}
                 </p>
-                {isQueue && !filters.q && !filters.term && (
+                {isQueue && !hasRemovableFilters && (
                   <p className="text-sm text-muted-foreground">{t("queue.emptyHint")}</p>
                 )}
-                {hasFilters && !(isQueue && !filters.q && !filters.term) && (
+                {hasRemovableFilters && (
                   <Button
                     variant="secondary"
                     size="lg"
                     className="h-auto min-h-11 cursor-pointer border border-border whitespace-normal transition-colors hover:border-input hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent active:border-primary active:bg-accent/80"
-                    onClick={() => {
-                      setPage(0)
-                      onFiltersChange({})
-                      searchInput.current?.focus()
-                    }}
+                    onClick={clearEmptySearch}
                   >
                     <FilterX
                       className="size-4 shrink-0"
@@ -418,25 +431,18 @@ export function ApplicationsPage({
               <>
                 <div className="hidden md:-mx-6 md:block">
                   <Table>
-                    <TableHeader className="bg-action-subtle [&_th]:h-14 [&_th]:px-4">
+                    <TableHeader className="bg-action-subtle [&_th]:h-10 [&_th]:px-4">
                       <TableRow>
                         {bulkTerm && (
                           <TableHead className="w-10">
                             <span className="sr-only">{t("bulk.selected")}</span>
                           </TableHead>
                         )}
-                        {(
-                          [
-                            "participant",
-                            "terms",
-                            "payment",
-                            "dueAndOwed",
-                            "submitted",
-                            "detail",
-                          ] as const
-                        ).map((key) => (
-                          <TableHead key={key}>{t(`applications.${key}`)}</TableHead>
-                        ))}
+                        {(["participant", "terms", "payment", "dueAndOwed", "detail"] as const).map(
+                          (key) => (
+                            <TableHead key={key}>{t(`applications.${key}`)}</TableHead>
+                          ),
+                        )}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -444,10 +450,10 @@ export function ApplicationsPage({
                         <TableRow
                           key={row.id}
                           data-state={selectedIds.has(row.id) ? "selected" : undefined}
-                          className="h-[84px] cursor-pointer data-[state=selected]:bg-accent [&>td]:px-4 [&>td]:py-4"
+                          className="cursor-pointer data-[state=selected]:bg-accent [&>td]:px-4 [&>td]:py-2"
                           onClick={(event) => {
                             // The detail link in the row stays the keyboard and new-tab path; the row only
-                            // widens the mouse target. Controls inside the row keep their own behaviour.
+                            // widens the mouse target. Controls and disclosed details keep their own behaviour.
                             if (
                               event.defaultPrevented ||
                               event.button !== 0 ||
@@ -456,7 +462,7 @@ export function ApplicationsPage({
                               event.shiftKey ||
                               event.altKey ||
                               (event.target as HTMLElement).closest(
-                                "a, button, input, label, [role=checkbox]",
+                                "a, button, input, label, [role=checkbox], [data-slot=accordion-content]",
                               )
                             ) {
                               return
@@ -477,32 +483,7 @@ export function ApplicationsPage({
                             </TableCell>
                           )}
                           <TableCell>
-                            <p
-                              className={cn(
-                                "flex flex-wrap items-center gap-x-2 gap-y-1 font-medium",
-                                row.individualAccommodation && "mb-2",
-                              )}
-                            >
-                              <span>
-                                {row.firstName} {row.lastName}
-                              </span>
-                              {row.individualAccommodation && (
-                                <Badge variant="secondary">
-                                  {t("applications.individualAccommodation")}
-                                </Badge>
-                              )}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {formatDate(row.birthDate)} ·{" "}
-                              {t(
-                                row.gender === "FEMALE"
-                                  ? "applications.female"
-                                  : "applications.male",
-                              )}
-                              <span className="block wrap-anywhere whitespace-normal">
-                                {row.email}
-                              </span>
-                            </p>
+                            <ApplicationIdentity application={row} />
                           </TableCell>
                           <TableCell>
                             <Terms application={row} />
@@ -518,8 +499,7 @@ export function ApplicationsPage({
                               {t("applications.owed")} <MoneyAmount amountCzk={row.amountOwedCzk} />
                             </p>
                           </TableCell>
-                          <TableCell>{formatDateTime(row.submittedAt)}</TableCell>
-                          <TableCell className="text-right">
+                          <TableCell>
                             <Button
                               asChild
                               variant="outline"
@@ -542,74 +522,59 @@ export function ApplicationsPage({
                     </TableBody>
                   </Table>
                 </div>
-                <div className="flex flex-col gap-4 md:hidden">
+                <ul className="flex flex-col gap-2 md:hidden">
                   {visibleRows.map((row) => (
-                    <div
+                    <li
                       key={row.id}
                       className={cn(
-                        "flex flex-col items-start gap-2 rounded-lg border bg-card p-4",
+                        "flex flex-col gap-1 rounded-lg border bg-card px-3",
                         selectedIds.has(row.id) && "bg-accent",
                       )}
                     >
-                      {bulkTerm && (
-                        <div className="flex min-h-10 items-center">
-                          <SelectRow
-                            row={row}
-                            selectedIds={selectedIds}
-                            onChange={setSelectedIds}
-                          />
-                        </div>
-                      )}
-                      <Link
-                        to={ROUTES.organizer.application}
-                        params={{ eventId, applicationId: row.id }}
-                        className="flex w-full min-w-0 flex-1 flex-col gap-2 rounded-control focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring"
-                      >
-                        <span
-                          className={cn(
-                            "flex flex-wrap items-center gap-x-2 gap-y-1 font-medium",
-                            row.individualAccommodation && "mb-1",
-                          )}
-                        >
-                          <span>
-                            {row.firstName} {row.lastName}
-                          </span>
-                          {row.individualAccommodation && (
-                            <Badge variant="secondary">
-                              {t("applications.individualAccommodation")}
-                            </Badge>
-                          )}
-                        </span>
-                        <span className="text-sm wrap-anywhere text-muted-foreground">
-                          {formatDate(row.birthDate)} ·{" "}
-                          {t(row.gender === "FEMALE" ? "applications.female" : "applications.male")}
-                          {" · "}
-                          {row.email}
-                        </span>
-                        <Terms application={row} />
+                      <div className="flex items-start gap-3">
+                        {bulkTerm && (
+                          <div className="flex min-h-11 items-center">
+                            <SelectRow
+                              row={row}
+                              selectedIds={selectedIds}
+                              onChange={setSelectedIds}
+                            />
+                          </div>
+                        )}
+                        <ApplicationIdentity application={row} />
+                      </div>
+                      <Terms application={row} />
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t py-1 text-sm">
                         <PaymentStatus application={row} />
-                        <span className="text-sm">
+                        <span className="font-medium">
                           {t("applications.owed")}: <MoneyAmount amountCzk={row.amountOwedCzk} />
                         </span>
-                        <span className="text-sm text-muted-foreground">
-                          {t("applications.submitted")} · {formatDateTime(row.submittedAt)}
-                        </span>
-                        <span
-                          className={cn(
-                            buttonVariants({ variant: "outline", size: "lg" }),
-                            "mt-2 max-w-full self-start whitespace-normal",
-                          )}
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="lg"
+                          className="ms-auto h-auto min-h-11 max-w-full whitespace-normal"
                         >
-                          {t(
-                            row.amountOwedCzk > 0
-                              ? "payment.record"
-                              : "applications.applicationDetail",
-                          )}
-                        </span>
-                      </Link>
-                    </div>
+                          <Link
+                            to={ROUTES.organizer.application}
+                            params={{ eventId, applicationId: row.id }}
+                            aria-label={`${t(
+                              row.amountOwedCzk > 0
+                                ? "payment.record"
+                                : "applications.applicationDetail",
+                            )} · ${row.firstName} ${row.lastName}`}
+                          >
+                            {t(
+                              row.amountOwedCzk > 0
+                                ? "payment.record"
+                                : "applications.applicationDetail",
+                            )}
+                          </Link>
+                        </Button>
+                      </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
                 <Pagination
                   page={currentPage}
                   pageCount={pageCount}
@@ -676,6 +641,40 @@ export function ApplicationsPage({
 
 type BulkDone = { changed: number; unchanged: number }
 
+function ApplicationIdentity({ application }: { application: ListedApplication }) {
+  const { t } = useTranslation("eventOverview")
+  return (
+    <Accordion
+      type="single"
+      collapsible
+      className="min-w-0 flex-1"
+    >
+      <AccordionItem value={application.id}>
+        <AccordionTrigger className="min-h-11 items-center gap-2 py-2 text-base font-semibold">
+          <span className="flex min-w-0 flex-wrap items-center gap-2 wrap-anywhere">
+            <span>
+              {application.firstName} {application.lastName}
+            </span>
+            {application.individualAccommodation && (
+              <Badge variant="secondary">{t("applications.individualAccommodation")}</Badge>
+            )}
+          </span>
+        </AccordionTrigger>
+        <AccordionContent className="cursor-text pb-2 wrap-anywhere whitespace-normal text-muted-foreground">
+          <p>
+            {formatDate(application.birthDate)} ·{" "}
+            {t(application.gender === "FEMALE" ? "applications.female" : "applications.male")}
+          </p>
+          <p>{application.email}</p>
+          <p>
+            {t("applications.submitted")} · {formatDateTime(application.submittedAt)}
+          </p>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  )
+}
+
 function SelectRow({
   row,
   selectedIds,
@@ -688,7 +687,7 @@ function SelectRow({
   const { t } = useTranslation("eventOverview")
   return (
     <Checkbox
-      className="size-6"
+      className="relative size-6 after:absolute after:-inset-2.5 md:after:hidden"
       checked={selectedIds.has(row.id)}
       aria-label={t("bulk.selectRow", { name: `${row.firstName} ${row.lastName}` })}
       onCheckedChange={(checked) => {

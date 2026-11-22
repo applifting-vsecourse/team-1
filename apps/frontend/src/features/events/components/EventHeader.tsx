@@ -59,24 +59,22 @@ export function EventHeader({ eventId }: { eventId: string }) {
   const { data: event } = useQuery(eventQueryOptions(eventId))
 
   const heading = (
-    <div className="flex flex-col items-start gap-3">
+    <div className="flex flex-col items-start gap-2">
       <BackLink to={ROUTES.organizer.events}>{t("header.allEvents")}</BackLink>
       {event ? (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <span className="text-sm text-muted-foreground md:text-base">
             {event.organizationName}
           </span>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <h1 className="min-w-0 text-2xl font-bold break-words md:text-[32px]/10">
+            <h1 className="min-w-0 text-2xl font-bold tracking-tight wrap-anywhere md:text-3xl">
               {event.name}
             </h1>
             <Badge variant={event.applicationsOpen ? "success" : "warning"}>
               {event.applicationsOpen ? t("header.applicationsOpen") : t("list.statusClosed")}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground md:text-base">
-            {termsSummary(event, t, "header")}
-          </p>
+          <p className="text-sm font-medium">{termsSummary(event, t, "header")}</p>
         </div>
       ) : (
         // Keeps the tabs from jumping while the event loads.
@@ -162,13 +160,13 @@ function EventTabs({ eventId }: { eventId: string }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="start"
-            className="w-(--radix-dropdown-menu-trigger-width)"
+            className="w-(--radix-dropdown-menu-trigger-width) overscroll-contain"
           >
             {SECTIONS.map(({ key, to, icon: Icon }, index) => (
               <DropdownMenuItem
                 key={key}
                 asChild
-                className={cn("h-10 gap-3", index === activeIndex && "bg-accent font-medium")}
+                className={cn("min-h-11 gap-3", index === activeIndex && "bg-accent font-medium")}
               >
                 <Link
                   to={to}
@@ -177,7 +175,12 @@ function EventTabs({ eventId }: { eventId: string }) {
                 >
                   <Icon aria-hidden />
                   {t(`eventTabs.${key}`)}
-                  {index === activeIndex ? <Check className="ml-auto" /> : null}
+                  {index === activeIndex ? (
+                    <Check
+                      className="ml-auto"
+                      aria-hidden="true"
+                    />
+                  ) : null}
                 </Link>
               </DropdownMenuItem>
             ))}

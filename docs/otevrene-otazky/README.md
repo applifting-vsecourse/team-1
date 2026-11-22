@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**44 neuzavřených** otázek, **90 uzavřených**.
+**45 neuzavřených** otázek, **90 uzavřených**.
 
 ## Role
 
@@ -46,10 +46,11 @@
 
 _Nic._
 
-### `po` (Tomáš): 28
+### `po` (Tomáš): 29
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
+| [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | P0 | Blokuje dokončení PR #683; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení). |
 | [Q-KOM-04](#q-kom-04) | Mají účastníci dostat upozornění, když se na nástěnce objeví něco nového? Je to MVP, nebo Nice to have? | [US-91](https://github.com/applifting-vsecourse/team-1/issues/91) | P2 | PO 11. 11. chce komunitu potvrzených účastníků (§4); ověřit na refinementu 17. 11. |
 | [Q-UCT-11](#q-uct-11) | Jaké údaje o sobě navzájem uvidí potvrzení účastníci téže akce a jak se k tomu dává souhlas? | [US-92](https://github.com/applifting-vsecourse/team-1/issues/92) | P2 | PO 11. 11. chce viditelnost v uzavřené skupině; rozsah údajů a souhlas chybí. |
 | [Q-EKO-01](#q-eko-01) | Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech? | [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
@@ -185,6 +186,7 @@ _Nic._
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
+| [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | otevřeno | P0 | `po` |
 | [Q-UBY-07](#q-uby-07) | Ukazovat spolubydlícům v Moje přihláška celá jména, nebo jen křestní (GDPR)? | [US-144](https://github.com/applifting-vsecourse/team-1/issues/504) | rozhodnuto, nezapsáno | P2 | `pm` |
 | [Q-UBY-08](#q-uby-08) | V jakém pořadí nabízet pokoje při přiřazení účastníka (pohlaví, volná lůžka)? | [#534](https://github.com/applifting-vsecourse/team-1/issues/534) | rozhodnuto, nezapsáno | P2 | `pm` |
 | [Q-UBY-03](#q-uby-03) | Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat. | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | rozhodnuto, nezapsáno | P3 | `pm` |
@@ -214,7 +216,7 @@ _Nic._
 | [Q-NAS-04](#q-nas-04) | Co všechno má přihlašovatel o akci vidět, než podá přihlášku? Má být stránka dostupná komukoliv, nebo jen přes odkaz od organizátora? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | Každá akce s funkčním odkazem na přihlášku má stálou veřejnou stránku /events/<publicToken> bez přihlášení, i když není v katalogu; katalog na ni jen odkazuje. Akce bez funkčního odkazu a neznámý token vrací 404. Stránka ukazuje název, organizaci, místo, popis, termíny s cenami, kontakt a jednu fotku (do 2 MB, JPG nebo PNG podle obsahu, uložená v databázi); kapacitu ani obsazenost ne (D-094). Název akce se mění jen ve formuláři Veřejné údaje. |
 | [Q-NAS-05](#q-nas-05) | Jaká pole veřejných údajů o akci (fotografie atd.) se mají zobrazovat na veřejné stránce? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | Každá akce s funkčním odkazem na přihlášku má stálou veřejnou stránku /events/<publicToken> bez přihlášení, i když není v katalogu; katalog na ni jen odkazuje. Akce bez funkčního odkazu a neznámý token vrací 404. Stránka ukazuje název, organizaci, místo, popis, termíny s cenami, kontakt a jednu fotku (do 2 MB, JPG nebo PNG podle obsahu, uložená v databázi); kapacitu ani obsazenost ne (D-094). Název akce se mění jen ve formuláři Veřejné údaje. |
 | [Q-NAS-06](#q-nas-06) | Stačí kopie celé akce, nebo chceš areál a formulář spravovat zvlášť a vybírat je při zakládání akce? **Duplicita s [Q-NAS-03](#q-nas-03).** | [US-81](https://github.com/applifting-vsecourse/team-1/issues/81) | Duplikát Q-NAS-03. |
-| [Q-NAS-07](#q-nas-07) | Přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí? | [US-100](https://github.com/applifting-vsecourse/team-1/issues/193), [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) | Organizátor zkopíruje pokoje z jiného termínu téže akce; má-li cílový termín pokoje, zvolí „přidat ke stávajícím“, nebo „nahradit“. Kopie je jednorázová, pokoje jsou pak nezávislé; kopíruje se název, kapacita a pohlaví, přistýlky ne (D-139). Zdroj s jiným režimem pokojů nejde zvolit; při „přidat“ se kopie s kolizí názvů odmítne celá. Po kopii jen toast. |
+| [Q-NAS-07](#q-nas-07) | Přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí? | [US-100](https://github.com/applifting-vsecourse/team-1/issues/193), [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) | Organizátor zkopíruje pokoje z jiného termínu téže akce; má-li cílový termín pokoje, zvolí „přidat ke stávajícím“, nebo „nahradit“. Kopie je jednorázová, pokoje jsou pak nezávislé; kopíruje se název, kapacita, pohlaví a počet přistýlek (D-179). Zdroj s jiným režimem pokojů nejde zvolit; při „přidat“ se kopie s kolizí názvů odmítne celá. Po kopii jen toast. |
 | [Q-UCT-01](#q-uct-01) | Mají e-maily chodit i samotnému účastníkovi, nebo jen přihlašovateli? Navrhujeme oběma. | [US-05](https://github.com/applifting-vsecourse/team-1/issues/5) | Všechny e-maily jdou přihlašovateli (KATALOG, D-034); PO 4. 11.: „E-maily: OK.“ |
 | [Q-UCT-03](#q-uct-03) | Má si nová organizace založit svůj profil v systému sám, nebo mu ho připravíme my? | [US-08](https://github.com/applifting-vsecourse/team-1/issues/8) | Nepřímá odpověď: status s PO 28. 10. řadí „založení organizace formou self-onboardingu“ do odsouhlaseného rozsahu sprintu. |
 | [Q-UCT-04](#q-uct-04) | Organizace: musí ji mít každý organizátor, nebo může pořádat akce sám? | [US-08](https://github.com/applifting-vsecourse/team-1/issues/8) | Organizátor se zaregistruje e-mailem a heslem, ověří e-mail odkazem (D-109) a založí organizaci bez schvalování správcem platformy; dokud nedoplní profil (kontaktní e-mail, telefon, bankovní účet), nezaloží akci. Každý organizátor patří do organizace. Účet přihlašovatele dál vzniká jen odesláním přihlášky. |
@@ -633,7 +635,7 @@ _Nic._
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/193): „přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí?“
 - **Priorita:** P1 – US-100 je ve sprintu 3 a bez odpovědi nejde implementovat kopírování pokojů.
-- **Rozhodnutí:** [D-115](../rozhodnuti/README.md#d-115): Organizátor zkopíruje pokoje z jiného termínu téže akce; má-li cílový termín pokoje, zvolí „přidat ke stávajícím“, nebo „nahradit“. Kopie je jednorázová, pokoje jsou pak nezávislé; kopíruje se název, kapacita a pohlaví, přistýlky ne (D-139). Zdroj s jiným režimem pokojů nejde zvolit; při „přidat“ se kopie s kolizí názvů odmítne celá. Po kopii jen toast.
+- **Rozhodnutí:** [D-115](../rozhodnuti/README.md#d-115): Organizátor zkopíruje pokoje z jiného termínu téže akce; má-li cílový termín pokoje, zvolí „přidat ke stávajícím“, nebo „nahradit“. Kopie je jednorázová, pokoje jsou pak nezávislé; kopíruje se název, kapacita, pohlaví a počet přistýlek (D-179). Zdroj s jiným režimem pokojů nejde zvolit; při „přidat“ se kopie s kolizí názvů odmítne celá. Po kopii jen toast.
 
 <a id="q-nas-08"></a>
 
@@ -1586,6 +1588,16 @@ _Nic._
   - [PR #569 (issue #534)](https://github.com/applifting-vsecourse/team-1/pull/569)
 - **Priorita:** P2 – Blokovalo dokončení PR #569.
 - **Rozhodnutí:** [D-165](../rozhodnuti/README.md#d-165): Nabídka pokojů se řadí do skupin: pokoje shodného pohlaví s účastníkem, pokoje bez pohlaví nebo smíšené, pokoje opačného pohlaví. Uvnitř skupiny nejvíc volných lůžek nahoře, plné na konci, při shodě podle názvu.
+
+<a id="q-uby-09"></a>
+
+### Q-UBY-09 – Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“?
+
+- **Epic:** ubytování · **Dotčené US:** [#631](https://github.com/applifting-vsecourse/team-1/issues/631) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Poznámka:** Pravidlo je izolované ve funkci isWishableStatus (room-wish-status.ts), změna odpovědi je jednořádková. Navazují body „individuální ubytování“ a „stejná jména“ z návrhu #631.
+- **Zdroje:**
+  - [PR #683, komentář s otázkou na PM (issue #631)](https://github.com/applifting-vsecourse/team-1/pull/683)
+- **Priorita:** P0 – Blokuje dokončení PR #683; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení).
 
 <a id="q-uct-01"></a>
 

@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent } from "react"
+import { useRef, useState, useSyncExternalStore, type KeyboardEvent } from "react"
 import {
   DndContext,
   PointerSensor,
@@ -17,26 +17,54 @@ import type { ProgramBlock } from "@/features/program/api/program"
 import { HOUR_HEIGHT, hourRange, placeBlocks, toMinutes } from "@/features/program/lib/calendar"
 import { calendarDays, formatDayHeader, timeRange } from "@/features/program/lib/days"
 
+import { ProgramDayAgenda } from "./ProgramDayAgenda"
 import { ProgramDayColumn, useProgramDrag } from "./ProgramDrag"
 
 const DAY_MIN_WIDTH = 150
+const AGENDA_QUERY = "(width < 48rem)"
+
+function subscribeToAgendaViewport(onChange: () => void) {
+  const query = window.matchMedia?.(AGENDA_QUERY)
+  query?.addEventListener("change", onChange)
+  return () => query?.removeEventListener("change", onChange)
+}
+
+const showAgenda = () => window.matchMedia?.(AGENDA_QUERY).matches ?? false
+
+type CalendarProps = {
+  term: { startsOn: string; endsOn: string; blocks: ProgramBlock[] }
+  onSelect: (block: ProgramBlock) => void
+  onMove?: (block: ProgramBlock) => void
+  isSaving?: boolean
+}
+
+export function ProgramCalendar({
+  onDayChange,
+  ...props
+}: CalendarProps & { onDayChange?: (day: string) => void }) {
+  const [selectedDay, setSelectedDay] = useState(props.term.startsOn)
+  const isCompact = useSyncExternalStore(subscribeToAgendaViewport, showAgenda, () => false)
+  return isCompact ? (
+    <ProgramDayAgenda
+      term={props.term}
+      onSelect={props.onSelect}
+      selectedDay={selectedDay}
+      onDayChange={(day) => {
+        setSelectedDay(day)
+        onDayChange?.(day)
+      }}
+    />
+  ) : (
+    <ProgramTimeline {...props} />
+  )
+}
 
 // Design: Figma (Design system) US-66 · O35 Program termínu (calendar) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=23263-91745
 /**
  * The program of a term as a calendar: a column per day of the term, hours down the side and every
  * block drawn over its time span with its full name. A click on a block opens its details (`onSelect`).
  */
-export function ProgramCalendar({
-  term,
-  onSelect,
-  onMove,
-  isSaving = false,
-}: {
-  onMove?: (block: ProgramBlock) => void
-  isSaving?: boolean
-  term: { startsOn: string; endsOn: string; blocks: ProgramBlock[] }
-  onSelect: (block: ProgramBlock) => void
-}) {
+function ProgramTimeline({ term, onSelect, onMove, isSaving = false }: CalendarProps) {
   const { t } = useTranslation("program")
   const days = calendarDays(term)
   const { from, to } = hourRange(term.blocks)

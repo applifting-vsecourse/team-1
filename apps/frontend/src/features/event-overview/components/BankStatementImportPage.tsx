@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { Download } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -30,6 +31,7 @@ import {
   uploadBankStatement,
   type StatementImportResult,
 } from "@/features/event-overview/api/bankStatements"
+import { downloadCsv, resultFileName } from "@/features/event-overview/lib/download-csv"
 
 const MAX_STATEMENT_BYTES = 2 * 1024 * 1024
 
@@ -45,14 +47,17 @@ export function BankStatementImportPage({
 }) {
   const { t } = useTranslation("eventOverview")
   const queryClient = useQueryClient()
-  const [result, setResult] = useState<StatementImportResult | null>(null)
+  const [result, setResult] = useState<{
+    data: StatementImportResult
+    fileName: string
+  } | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
   const upload = useMutation({
     mutationFn: (file: File) => uploadBankStatement(eventId, file),
-    onSuccess: async (data) => {
+    onSuccess: async (data, file) => {
       setUploadError(null)
-      setResult(data)
+      setResult({ data, fileName: resultFileName(file.name) })
       notify.success(t("bankStatement.done"))
       await queryClient.invalidateQueries({ queryKey: unmatchedTransactionsKey(eventId) })
       await queryClient.invalidateQueries({ queryKey: ["eventOverview", "payments"] })
@@ -99,13 +104,18 @@ export function BankStatementImportPage({
           upload.mutate(file)
         }}
       />
-      {result ? <ImportSummary result={result} /> : null}
+      {result ? (
+        <ImportSummary
+          result={result.data}
+          fileName={result.fileName}
+        />
+      ) : null}
       <UnmatchedTransactions eventId={eventId} />
     </section>
   )
 }
 
-function ImportSummary({ result }: { result: StatementImportResult }) {
+function ImportSummary({ result, fileName }: { result: StatementImportResult; fileName: string }) {
   const { t } = useTranslation("eventOverview")
   const cards = [
     {
@@ -155,6 +165,15 @@ function ImportSummary({ result }: { result: StatementImportResult }) {
           {t("bankStatement.result.ignored", { count: result.ignoredCount })}
         </p>
       ) : null}
+      <Button
+        variant="outline"
+        size="lg"
+        className="self-start"
+        onClick={() => downloadCsv(fileName, result.annotatedCsv)}
+      >
+        <Download aria-hidden />
+        {t("bankStatement.result.download")}
+      </Button>
     </div>
   )
 }

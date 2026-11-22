@@ -2,7 +2,7 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeTermOwed } from "@/modules/applications/domain/pricing"
 import {
-  MatchableApplication,
+  FoundApplication,
   StatementRow,
   UnmatchedReason,
 } from "@/modules/payments/domain/bank-statement"
@@ -25,7 +25,7 @@ export class BankTransactionsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   /** The application of the event with this number and what each of its terms still owes. */
-  async findApplication(eventId: string, number: number): Promise<MatchableApplication | null> {
+  async findApplication(eventId: string, number: number): Promise<FoundApplication | null> {
     const application = await this.prisma.application.findFirst({
       where: { eventId, number },
       include: {
@@ -40,6 +40,7 @@ export class BankTransactionsRepository {
     if (!application) return null
     return {
       id: application.id,
+      number: application.number,
       terms: application.terms.map((applicationTerm) => ({
         termId: applicationTerm.termId,
         termNumber: applicationTerm.term.number,

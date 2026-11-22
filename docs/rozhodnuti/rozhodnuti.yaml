@@ -2346,7 +2346,7 @@ rozhodnuti:
   poznamka: 'Doporučení: schválit; mění obsah dashboardu z D-050 a D-042, kód je hotový (#388, #410).'
 - id: D-115
   nazev: 'Kopírování pokojů mezi termíny: přidat, nebo nahradit'
-  text: 'Organizátor zkopíruje pokoje z jiného termínu téže akce; má-li cílový termín pokoje, zvolí „přidat ke stávajícím“, nebo „nahradit“. Kopie je jednorázová, pokoje jsou pak nezávislé; kopíruje se název, kapacita a pohlaví, přistýlky ne (D-139). Zdroj s jiným režimem pokojů nejde zvolit; při „přidat“ se kopie s kolizí názvů odmítne celá. Po kopii jen toast.'
+  text: 'Organizátor zkopíruje pokoje z jiného termínu téže akce; má-li cílový termín pokoje, zvolí „přidat ke stávajícím“, nebo „nahradit“. Kopie je jednorázová, pokoje jsou pak nezávislé; kopíruje se název, kapacita, pohlaví a počet přistýlek (D-179). Zdroj s jiným režimem pokojů nejde zvolit; při „přidat“ se kopie s kolizí názvů odmítne celá. Po kopii jen toast.'
   typ: produkt
   oblast: nastavení akce
   datum: '2026-11-07'
@@ -2362,6 +2362,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-179
   z_otazek:
   - Q-NAS-07
   dokumentace: []
@@ -2896,7 +2898,7 @@ rozhodnuti:
   poznamka: 'Doporučení: schválit; odpovídá D-014 a přání PO z 11. 11.'
 - id: D-139
   nazev: 'Přistýlka je počet lůžek navíc v pokoji a termínu'
-  text: 'Organizátor nastaví u pokoje v termínu počet přistýlek; každá přidá jedno lůžko a platí jen pro ten termín. Přistýlky se při kopírování pokojů nekopírují. Přidání přistýlky ani pokoje nikoho automaticky nepotvrdí (D-108), jen přibude volné lůžko.'
+  text: 'Organizátor nastaví u pokoje v termínu počet přistýlek; každá přidá jedno lůžko a platí jen pro ten termín. Při kopírování pokoje se do nového pokoje zkopíruje i počet přistýlek (D-179). Přidání přistýlky ani pokoje nikoho automaticky nepotvrdí (D-108), jen přibude volné lůžko.'
   typ: produkt
   oblast: ubytování
   datum: '2026-11-12'
@@ -2910,6 +2912,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-179
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit podle #466 a odpovědět na dva dotazy v #80.'
@@ -3712,3 +3716,24 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace: []
+- id: D-179
+  nazev: 'Při kopírování pokojů mezi termíny se vždy kopírují přistýlky'
+  text: 'Při kopírování pokojů z jiného termínu se u každého pokoje vždy zkopíruje i počet přistýlek. Platí to pro prázdný cíl i volby „Přidat ke stávajícím“ a „Nahradit“. Dialog neumožňuje přistýlky z kopie vynechat a uvádí kapacitu včetně přistýlek, které se zkopírují.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-22'
+  zdroj:
+  - popis: 'rozhodnutí PM v chatu k dotazu v PR #656, 22. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/656#issuecomment-7051181535
+  us:
+  - label: '#623'
+    url: https://github.com/applifting-vsecourse/team-1/issues/623
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-115
+  - D-139
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Mění pravidlo z D-115 a D-139, podle kterého se přistýlky při kopírování pokojů nekopírovaly.'

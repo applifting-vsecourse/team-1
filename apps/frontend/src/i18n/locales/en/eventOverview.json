@@ -114,6 +114,7 @@
     "description": "Upload a CSV statement from Fio. Payments are matched to applications by variable symbol.",
     "done": "The statement was processed",
     "result": {
+      "download": "Download a copy with the result",
       "duplicates_few": "{{count}} transactions were already imported and were not counted again.",
       "duplicates_one": "{{count}} transaction was already imported and was not counted again.",
       "duplicates_other": "{{count}} transactions were already imported and were not counted again.",

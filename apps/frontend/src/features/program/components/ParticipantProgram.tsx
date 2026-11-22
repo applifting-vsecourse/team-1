@@ -90,6 +90,7 @@ export function ParticipantProgram({ applicationId }: { applicationId: string })
       ) : null}
       {term?.blocks.length ? (
         <ProgramCalendar
+          key={term.termId}
           term={term}
           onSelect={setViewing}
         />

@@ -78,8 +78,13 @@ describe("TransportList", () => {
   it("lists the transport of a term, own transport only where it was added", async () => {
     renderList()
 
-    expect((await screen.findAllByText("Autobus z Prahy")).length).toBeGreaterThan(0)
-    expect(screen.getAllByText("Praha, Černý Most").length).toBeGreaterThan(0)
+    const user = userEvent.setup()
+    const busDetails = await screen.findByRole("button", { name: /^Autobus z Prahy/ })
+    expect(busDetails).toHaveAttribute("aria-expanded", "false")
+    expect(screen.queryByText("Praha, Černý Most")).not.toBeInTheDocument()
+    await user.click(busDetails)
+    expect(screen.getByText("Praha, Černý Most")).toBeVisible()
+    expect(screen.getByRole("link", { name: /Autobus z Prahy/ })).toBeVisible()
     expect(screen.getAllByText("Own transport").length).toBeGreaterThan(0)
     expect(screen.getAllByRole("button", { name: "Add transport" })).toHaveLength(1)
     expect(screen.queryByRole("button", { name: "Add own transport" })).not.toBeInTheDocument()
@@ -88,7 +93,10 @@ describe("TransportList", () => {
   it("shows outlined participant links that can be focused and activated with the keyboard", async () => {
     renderList()
     const user = userEvent.setup()
-    const link = await screen.findByRole("link", {
+    const details = await screen.findByRole("button", { name: /^Own transport/ })
+    details.focus()
+    await user.keyboard("{Enter}")
+    const link = screen.getByRole("link", {
       name: "Show participants of transport Own transport",
     })
     expect(link).toHaveAttribute("data-variant", "outline")
@@ -101,7 +109,6 @@ describe("TransportList", () => {
       "focus-visible:outline-2",
     )
     expect(link).toHaveAttribute("href", "/organizer/events/e1/transport/own1/participants")
-    screen.getByRole("button", { name: "Delete transport Own transport" }).focus()
     await user.tab()
     expect(link).toHaveFocus()
     const activated = vi.fn((event: MouseEvent) => event.preventDefault())

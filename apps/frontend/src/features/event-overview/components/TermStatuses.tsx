@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
-import { termDatesLine } from "@/lib/term-label"
+import { termDates, termName, termTitle } from "@/lib/term-label"
 
 import {
   termStatusesQueryOptions,
@@ -43,7 +43,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
   const active = data.filter((term) => term.status !== "CANCELLED" && term.status !== "ARCHIVED")
   return (
     <section
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-3"
       aria-labelledby="term-statuses-title"
     >
       <div className="flex flex-col gap-1">
@@ -67,7 +67,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
         </div>
       ) : null}
       {data.length === 0 ? (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
           <p>{t("termStatus.emptyDescription")}</p>
           <OrganizerTermChange
             applicationId={applicationId}
@@ -75,23 +75,28 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
           />
         </div>
       ) : null}
-      <ul className="flex flex-col gap-6">
+      <ul className="flex flex-col gap-3">
         {data.map((term) => (
           <li
             key={term.termId}
             className="list-none"
           >
-            <Card className="gap-4 p-4">
-              <h3 className="text-2xl font-semibold tracking-tight">
-                {term.name ?? termDatesLine(term)} ·{" "}
-                {t(
-                  term.status === "CONFIRMED"
-                    ? term.owedCzk > 0
-                      ? "termStatus.confirmedWithDebt"
-                      : "termStatus.confirmedPaid"
-                    : `termStatus.state.${term.status}`,
-                )}
-              </h3>
+            <Card className="gap-2 p-3 sm:p-4">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h3 className="text-lg font-semibold tracking-tight">
+                  {termTitle(term)} ·{" "}
+                  {t(
+                    term.status === "CONFIRMED"
+                      ? term.owedCzk > 0
+                        ? "termStatus.confirmedWithDebt"
+                        : "termStatus.confirmedPaid"
+                      : `termStatus.state.${term.status}`,
+                  )}
+                </h3>
+                {termName(term) ? (
+                  <span className="text-sm font-medium tabular-nums">{termDates(term)}</span>
+                ) : null}
+              </div>
               {term.status === "WAITLISTED" && term.waitlistPosition !== null ? (
                 <p className="text-sm font-bold">
                   {t("termStatus.waitlistPosition", { position: term.waitlistPosition })}

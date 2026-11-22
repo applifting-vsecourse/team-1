@@ -71,7 +71,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
   }
   if (savedCorrection) {
     return (
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         <Seo title={t("payment.correctionResult")} />
         <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
           {data.firstName} {data.lastName}
@@ -90,7 +90,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
   const hasConfirmedTerm = data.terms.some((term) => term.status === "CONFIRMED")
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <Seo title={t("payment.title")} />
       <div className="flex flex-col gap-2">
         <BackLink
@@ -99,7 +99,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         >
           {t("payment.back")}
         </BackLink>
-        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
               {data.firstName} {data.lastName}
@@ -133,7 +133,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         <Card
           role="group"
           aria-label={t("payment.individualAccommodation")}
-          className="gap-4 p-4 md:p-6"
+          className="gap-3 p-4"
         >
           <h3 className="text-lg font-semibold">{t("payment.individualAccommodation")}</h3>
           <DetailItem
@@ -155,7 +155,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         <Card
           role="group"
           aria-label={t("payment.wholeApplicationTitle")}
-          className="gap-4 p-4 md:p-6"
+          className="gap-3 p-4"
         >
           <h3 className="text-xl font-bold tracking-tight md:text-2xl">
             {t("payment.wholeApplicationTitle")}
@@ -249,7 +249,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
           </div>
         </div>
       ) : null}
-      <Card className="gap-4 p-4 md:p-6">
+      <Card className="gap-3 p-4">
         <h2 className="text-xl font-bold tracking-tight md:text-2xl">{t("payment.history")}</h2>
         {data.payments.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("payment.empty")}</p>

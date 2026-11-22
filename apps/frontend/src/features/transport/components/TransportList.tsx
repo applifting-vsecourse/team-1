@@ -10,6 +10,12 @@ import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -136,47 +142,50 @@ export function TransportList({ eventId }: { eventId: string }) {
           <ul className="grid gap-4 md:grid-cols-2">
             {term.transports.map((item) => (
               <li key={item.id}>
-                <Card className="h-full min-w-0 gap-4 p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="min-w-0 text-xl font-bold tracking-tight break-words">
-                      {nameOf(item)}
-                    </h3>
-                    {actions(item)}
-                  </div>
-                  {item.departureAt || item.departurePlace ? (
-                    <dl className="grid gap-3">
-                      {item.departureAt && (
-                        <div className="flex flex-col gap-1">
-                          <dt className="text-sm text-muted-foreground">{t("departureColumn")}</dt>
-                          <dd>{whenOf(item)}</dd>
-                        </div>
-                      )}
-                      {item.departurePlace && (
-                        <div className="flex flex-col gap-1">
-                          <dt className="text-sm text-muted-foreground">{t("placeColumn")}</dt>
-                          <dd className="break-words">{item.departurePlace}</dd>
-                        </div>
-                      )}
-                    </dl>
-                  ) : null}
-                  <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
-                    <p className="tabular-nums">
-                      {t("chosenBy", { count: item.participantsCount })}
-                    </p>
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="lg"
-                      className="ml-auto max-w-full whitespace-normal"
+                <Card className="min-w-0 gap-2 p-3">
+                  <div className="flex items-start gap-2">
+                    <Accordion
+                      type="single"
+                      collapsible
+                      className="min-w-0 flex-1"
                     >
-                      <Link
-                        to={ROUTES.organizer.eventTransportParticipants}
-                        params={{ eventId, transportId: item.id }}
-                        aria-label={t("showParticipantsOf", { name: nameOf(item) })}
-                      >
-                        {t("showParticipants")}
-                      </Link>
-                    </Button>
+                      <AccordionItem value={item.id}>
+                        <AccordionTrigger className="min-h-11 items-center gap-2 py-2">
+                          <span className="grid min-w-0 gap-1">
+                            <span className="text-base font-semibold wrap-anywhere">
+                              {nameOf(item)}
+                            </span>
+                            <span className="flex flex-wrap gap-x-3 gap-y-1 text-sm tabular-nums">
+                              {item.departureAt ? <span>{whenOf(item)}</span> : null}
+                              <span>{t("chosenBy", { count: item.participantsCount })}</span>
+                            </span>
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-2">
+                          {item.departurePlace ? (
+                            <dl className="mb-2">
+                              <dt className="text-muted-foreground">{t("placeColumn")}</dt>
+                              <dd className="wrap-anywhere">{item.departurePlace}</dd>
+                            </dl>
+                          ) : null}
+                          <Button
+                            asChild
+                            variant="outline"
+                            size="lg"
+                            className="h-auto min-h-11 max-w-full whitespace-normal"
+                          >
+                            <Link
+                              to={ROUTES.organizer.eventTransportParticipants}
+                              params={{ eventId, transportId: item.id }}
+                              aria-label={t("showParticipantsOf", { name: nameOf(item) })}
+                            >
+                              {t("showParticipants")}
+                            </Link>
+                          </Button>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                    {actions(item)}
                   </div>
                 </Card>
               </li>

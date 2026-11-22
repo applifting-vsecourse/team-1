@@ -1,16 +1,23 @@
 import type { ReactNode } from "react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import type { TFunction } from "i18next"
 import { ChevronRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { PendingButton } from "@/components/atoms/PendingButton"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { formatCzk } from "@/lib/money"
+import { notify } from "@/lib/notify"
 import { termDates, termName } from "@/lib/term-label"
 
-import type { MyApplication, MyApplicationTerm } from "@/features/participant/api/applications"
+import {
+  saveRoomWishes,
+  type MyApplication,
+  type MyApplicationTerm,
+} from "@/features/participant/api/applications"
 import { TermStatusBadge } from "@/features/participant/components/TermSummary"
 
 /** The anchor of the payment cards, which the payment step links to. */
@@ -28,10 +35,11 @@ type Step = { key: string; title: string; isDone: boolean; link: ReactNode }
  * (US-149, US-584). Meals and
  * health are entered once for the whole application, so they read the same in every term.
  */
-export function termSteps(
+function termSteps(
   application: MyApplication,
   term: MyApplicationTerm,
   t: TFunction<"participant">,
+  onEditRoomWishes: (termId: string) => void,
 ): Step[] {
   if (term.status !== "CONFIRMED") return []
   const applicationId = application.id
@@ -121,46 +129,65 @@ export function termSteps(
       ),
     },
   )
-  if (term.roomWishes !== undefined) {
-    const hasWishes = term.roomWishes.length > 0
+  if (term.roomWishes !== undefined && term.room === undefined) {
+    const isDone = term.roomWishes.length > 0 || term.noRoomWishes === true
     steps.push({
       key: "roomWishes",
       title: t("roomWishes.title"),
-      isDone: hasWishes,
+      isDone,
       link: (
-        <a
-          href={`#room-wishes-${term.termId}`}
-          className={stepLinkClass}
-        >
-          {t(hasWishes ? "detail.steps.wishesView" : "roomWishes.add")}
-          <ChevronRight
-            aria-hidden
-            className="size-3.5"
-          />
-        </a>
-      ),
-    })
-  }
-  if (term.room !== undefined) {
-    steps.push({
-      key: "room",
-      title: t("detail.sections.room"),
-      isDone: Boolean(term.room.name),
-      link: (
-        <a
-          href={`#room-${term.termId}`}
-          className={stepLinkClass}
-        >
-          {t("detail.steps.roomView")}
-          <ChevronRight
-            aria-hidden
-            className="size-3.5"
-          />
-        </a>
+        <>
+          {isDone ? (
+            <p className="text-sm break-words text-muted-foreground">
+              {term.roomWishes.length > 0 ? term.roomWishes.join(", ") : t("detail.steps.noWishes")}
+            </p>
+          ) : null}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <a
+              href={`#room-wishes-${term.termId}`}
+              className={stepLinkClass}
+              onClick={() => onEditRoomWishes(term.termId)}
+            >
+              {t(isDone ? "detail.steps.wishesChange" : "detail.steps.wishesAdd")}
+              <ChevronRight
+                aria-hidden
+                className="size-3.5"
+              />
+            </a>
+            {isDone ? null : (
+              <DeclineRoomWishes
+                applicationId={applicationId}
+                termId={term.termId}
+              />
+            )}
+          </div>
+        </>
       ),
     })
   }
   return steps
+}
+
+function DeclineRoomWishes({ applicationId, termId }: { applicationId: string; termId: string }) {
+  const { t } = useTranslation("participant")
+  const client = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: () => saveRoomWishes(applicationId, termId, [], true),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["participant", "applications"] }),
+    onError: () => notify.error(t("detail.steps.wishesSaveFailed")),
+  })
+
+  return (
+    <PendingButton
+      type="button"
+      variant="ghost"
+      size="sm"
+      isPending={mutation.isPending}
+      onClick={() => mutation.mutate()}
+    >
+      {t("detail.steps.wishesDecline")}
+    </PendingButton>
+  )
 }
 
 /** An application whose every term is archived: over, so nothing is left to arrange. */
@@ -175,7 +202,7 @@ export function isFullyArchived(application: MyApplication): boolean {
 export function ArchivedApplicationCard() {
   const { t } = useTranslation("participant")
   return (
-    <Card className="gap-2 p-6">
+    <Card className="gap-2 p-4">
       <h3 className="text-lg font-semibold tracking-tight">{t("detail.archivedTitle")}</h3>
       <p className="text-sm text-muted-foreground">{t("detail.archivedText")}</p>
     </Card>
@@ -184,19 +211,26 @@ export function ArchivedApplicationCard() {
 
 /** One card per confirmed term with what the participant has to arrange before the event. */
 // Figma (Design system): US-149 Dva termíny a kroky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-14581 (360 px: node-id=24910-14762)
-export function TermSteps({ application }: { application: MyApplication }) {
+// Figma (Design system v2): #620 Varianta A · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27171-3647 (360 px: 27171-3838)
+export function TermSteps({
+  application,
+  onEditRoomWishes,
+}: {
+  application: MyApplication
+  onEditRoomWishes: (termId: string) => void
+}) {
   const { t } = useTranslation("participant")
   const cards = application.terms
-    .map((term) => ({ term, steps: termSteps(application, term, t) }))
+    .map((term) => ({ term, steps: termSteps(application, term, t, onEditRoomWishes) }))
     .filter(({ steps }) => steps.length > 0)
   if (cards.length === 0) return null
 
   return (
-    <ul className="flex flex-col gap-4">
+    <ul className="flex flex-col gap-3">
       {cards.map(({ term, steps }) => (
         <li key={term.termId}>
           <Card
-            className="gap-3 rounded-lg p-4"
+            className="gap-2 rounded-lg p-3 sm:p-4"
             aria-labelledby={`steps-${term.termId}`}
           >
             <div className="flex items-start justify-between gap-3">
@@ -208,12 +242,12 @@ export function TermSteps({ application }: { application: MyApplication }) {
                   {termName(term) ?? termDates(term)}
                 </h3>
                 {termName(term) ? (
-                  <p className="text-sm text-muted-foreground tabular-nums">{termDates(term)}</p>
+                  <p className="text-sm font-medium tabular-nums">{termDates(term)}</p>
                 ) : null}
               </div>
               <TermStatusBadge term={term} />
             </div>
-            <h4 className="border-t pt-3 text-base font-medium">{t("detail.steps.title")}</h4>
+            <h4 className="border-t pt-2 text-base font-medium">{t("detail.steps.title")}</h4>
             <ul className="flex flex-col gap-2">
               {steps.map((step) => (
                 <li
