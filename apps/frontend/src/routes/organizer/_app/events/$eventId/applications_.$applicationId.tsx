@@ -4,6 +4,7 @@ import { ApplicationHistory } from "@/features/event-overview/components/Applica
 import { ApplicationSubstituteRecords } from "@/features/event-overview/components/ApplicationSubstituteRecords"
 import { PaymentDetail } from "@/features/event-overview/components/PaymentDetail"
 import { TermStatuses } from "@/features/event-overview/components/TermStatuses"
+import { OrganizerMealCard } from "@/features/meals/components/OrganizerMealDetails"
 
 // Under the event (not nested in its applications list), so the page gets the event header
 // and the Applications tab stays active.
@@ -14,10 +15,14 @@ export const Route = createFileRoute(
 })
 
 function PaymentPage() {
-  const { applicationId } = Route.useParams()
+  const { eventId, applicationId } = Route.useParams()
   return (
     <div className="flex flex-col gap-6">
       <PaymentDetail applicationId={applicationId} />
+      <OrganizerMealCard
+        eventId={eventId}
+        applicationId={applicationId}
+      />
       <TermStatuses applicationId={applicationId} />
       <ApplicationSubstituteRecords applicationId={applicationId} />
       <ApplicationHistory applicationId={applicationId} />

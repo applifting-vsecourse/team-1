@@ -38,6 +38,8 @@ import { cn } from "@/lib/utils"
 
 import { kitchenSummaryQueryOptions, type KitchenTerm } from "@/features/meals/api/meals"
 
+import { OrganizerMealRoster } from "./OrganizerMealDetails"
+
 /** Keep all the kitchen's notes for the same application together, also for namesakes. */
 function participantNotes(term: KitchenTerm) {
   const people = new Map<
@@ -255,6 +257,7 @@ export function KitchenSummary({ eventId }: { eventId: string }) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="edit">{t("edit.view")}</SelectItem>
                     <SelectItem value="category">{t("kitchen.bySection")}</SelectItem>
                     <SelectItem value="participant">{t("kitchen.byParticipant")}</SelectItem>
                   </SelectContent>
@@ -275,6 +278,7 @@ export function KitchenSummary({ eventId }: { eventId: string }) {
           </Card>
           {/* Left: counts, requests. Right: allergies (long list), arrivals and departures. One column below lg: counts, allergies, requests, stays. */}
           <CardColumns
+            className={view === "edit" ? "lg:flex-col lg:items-stretch" : undefined}
             left={
               <>
                 <KitchenSection
@@ -304,7 +308,7 @@ export function KitchenSummary({ eventId }: { eventId: string }) {
                   </KitchenTable>
                   <p className="text-muted-foreground">{t("kitchen.overlapNote")}</p>
                 </KitchenSection>
-                {!isByParticipant && term.specialRequests.length > 0 ? (
+                {view === "category" && term.specialRequests.length > 0 ? (
                   <KitchenSection
                     title={t("kitchen.specialRequestsTitle")}
                     count={term.specialRequests.length}
@@ -327,7 +331,18 @@ export function KitchenSummary({ eventId }: { eventId: string }) {
               </>
             }
             right={
-              isByParticipant ? (
+              view === "edit" ? (
+                <>
+                  <OrganizerMealRoster
+                    key={term.termId}
+                    eventId={eventId}
+                    termId={term.termId}
+                  />
+                  <div className="hidden print:block">
+                    <ParticipantNotes term={term} />
+                  </div>
+                </>
+              ) : isByParticipant ? (
                 <ParticipantNotes term={term} />
               ) : (
                 <>

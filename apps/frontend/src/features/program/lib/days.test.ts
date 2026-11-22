@@ -6,6 +6,7 @@ import {
   formatDay,
   formatDayHeader,
   formatDuration,
+  resolveDay,
   timeRange,
 } from "@/features/program/lib/days"
 
@@ -32,5 +33,13 @@ describe("program days", () => {
     expect(formatDuration({ startTime: "09:00", endTime: "09:45" })).toBe("45 min")
     expect(formatDuration({ startTime: "09:00", endTime: "12:00" })).toBe("3 h")
     expect(formatDayHeader("2027-07-12").weekday).toBe("Mon")
+  })
+
+  it("falls back to the first day when the remembered day left the term", () => {
+    const blocks = [{ date: "2027-07-20" }]
+    expect(resolveDay({ ...term, blocks: [] }, "2027-07-13")).toBe("2027-07-13")
+    expect(resolveDay({ ...term, blocks: [] }, "2027-07-20")).toBe("2027-07-12")
+    expect(resolveDay({ ...term, blocks }, "2027-07-20")).toBe("2027-07-20")
+    expect(resolveDay({ ...term, blocks: [] }, null)).toBe("2027-07-12")
   })
 })

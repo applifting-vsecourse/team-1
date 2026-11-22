@@ -31,6 +31,6 @@ export class RoomWishesController {
     @Param("termId") termId: string,
     @Body() body: RoomWishesRequestDto,
   ): Promise<void> {
-    await this.wishes.save(user, applicationId, termId, body.names)
+    await this.wishes.save(user, applicationId, termId, body.names, body.noRoomWishes)
   }
 }

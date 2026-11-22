@@ -207,7 +207,7 @@ export class RoomsRepository {
   }
 
   /**
-   * One-off copy of name, capacity and gender (not the extra beds, they belong to the term) from another term of the same event; the copies are
+   * One-off copy of name, capacity, extra beds and gender from another term of the same event; the copies are
    * independent rows. Terms with different room modes cannot be copied: a gendered room needs a gender.
    */
   async copy(scope: TermScope, sourceTermId: string, strategy: RoomCopyStrategy): Promise<void> {
@@ -239,9 +239,10 @@ export class RoomsRepository {
         }
       }
       await tx.room.createMany({
-        data: source.rooms.map(({ name, capacity, gender, individual }) => ({
+        data: source.rooms.map(({ name, capacity, extraBeds, gender, individual }) => ({
           name,
           capacity,
+          extraBeds,
           gender,
           individual,
           termId,

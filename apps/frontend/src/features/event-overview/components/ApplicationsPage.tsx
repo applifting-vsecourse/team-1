@@ -431,18 +431,11 @@ export function ApplicationsPage({
                             <span className="sr-only">{t("bulk.selected")}</span>
                           </TableHead>
                         )}
-                        {(
-                          [
-                            "participant",
-                            "terms",
-                            "payment",
-                            "dueAndOwed",
-                            "submitted",
-                            "detail",
-                          ] as const
-                        ).map((key) => (
-                          <TableHead key={key}>{t(`applications.${key}`)}</TableHead>
-                        ))}
+                        {(["participant", "terms", "payment", "dueAndOwed", "detail"] as const).map(
+                          (key) => (
+                            <TableHead key={key}>{t(`applications.${key}`)}</TableHead>
+                          ),
+                        )}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -499,11 +492,11 @@ export function ApplicationsPage({
                               {t("applications.owed")} <MoneyAmount amountCzk={row.amountOwedCzk} />
                             </p>
                           </TableCell>
-                          <TableCell>{formatDateTime(row.submittedAt)}</TableCell>
                           <TableCell>
                             <Button
                               asChild
-                              variant="ghost"
+                              variant="outline"
+                              size="lg"
                             >
                               <Link
                                 to={ROUTES.organizer.application}
@@ -527,7 +520,7 @@ export function ApplicationsPage({
                     <li
                       key={row.id}
                       className={cn(
-                        "flex flex-col gap-2 rounded-lg border bg-card px-3 pb-2",
+                        "flex flex-col gap-1 rounded-lg border bg-card px-3",
                         selectedIds.has(row.id) && "bg-accent",
                       )}
                     >
@@ -544,33 +537,34 @@ export function ApplicationsPage({
                         <ApplicationIdentity application={row} />
                       </div>
                       <Terms application={row} />
-                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t py-1 text-sm">
                         <PaymentStatus application={row} />
                         <span className="font-medium">
                           {t("applications.owed")}: <MoneyAmount amountCzk={row.amountOwedCzk} />
                         </span>
-                      </div>
-                      <Button
-                        asChild
-                        variant="ghost"
-                        className="min-h-11 self-start"
-                      >
-                        <Link
-                          to={ROUTES.organizer.application}
-                          params={{ eventId, applicationId: row.id }}
-                          aria-label={`${t(
-                            row.amountOwedCzk > 0
-                              ? "payment.record"
-                              : "applications.applicationDetail",
-                          )} · ${row.firstName} ${row.lastName}`}
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="lg"
+                          className="ms-auto"
                         >
-                          {t(
-                            row.amountOwedCzk > 0
-                              ? "payment.record"
-                              : "applications.applicationDetail",
-                          )}
-                        </Link>
-                      </Button>
+                          <Link
+                            to={ROUTES.organizer.application}
+                            params={{ eventId, applicationId: row.id }}
+                            aria-label={`${t(
+                              row.amountOwedCzk > 0
+                                ? "payment.record"
+                                : "applications.applicationDetail",
+                            )} · ${row.firstName} ${row.lastName}`}
+                          >
+                            {t(
+                              row.amountOwedCzk > 0
+                                ? "payment.record"
+                                : "applications.applicationDetail",
+                            )}
+                          </Link>
+                        </Button>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -665,7 +659,7 @@ function ApplicationIdentity({ application }: { application: ListedApplication }
             {t(application.gender === "FEMALE" ? "applications.female" : "applications.male")}
           </p>
           <p>{application.email}</p>
-          <p className="md:hidden">
+          <p>
             {t("applications.submitted")} · {formatDateTime(application.submittedAt)}
           </p>
         </AccordionContent>

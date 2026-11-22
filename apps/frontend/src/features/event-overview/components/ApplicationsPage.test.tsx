@@ -12,7 +12,7 @@ import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { formatDate } from "@/lib/date"
+import { formatDate, formatDateTime } from "@/lib/date"
 
 import { ApplicationsPage } from "@/features/event-overview/components/ApplicationsPage"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
@@ -439,12 +439,16 @@ describe("ApplicationsPage", () => {
     const firstTrigger = within(first!).getByRole("button", { name: "Jana Test" })
     const secondTrigger = within(second!).getByRole("button", { name: "Jana Test" })
 
+    const received = formatDateTime(application.submittedAt)
+    expect(within(table).queryByRole("columnheader", { name: "Received" })).toBeNull()
+    expect(within(first!).queryByText(received, { exact: false })).toBeNull()
     expect(firstTrigger).toHaveAttribute("aria-expanded", "false")
     expect(within(first!).queryByText("jana@example.com")).not.toBeInTheDocument()
 
     firstTrigger.focus()
     await user.keyboard("{Enter}")
     expect(firstTrigger).toHaveAttribute("aria-expanded", "true")
+    expect(within(first!).getByText(received, { exact: false })).toBeVisible()
     expect(within(first!).getByText("jana@example.com")).toBeVisible()
     expect(within(first!).getByText(formatDate("2000-01-01"), { exact: false })).toBeVisible()
     expect(within(first!).getByRole("link", { name: "Record payment" })).toHaveAttribute(

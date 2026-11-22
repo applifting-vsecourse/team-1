@@ -3,7 +3,8 @@ import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
-type Wish = { name: string; fulfilled: boolean }
+type WishTerm = { termId: string; roomWishes?: string[]; noRoomWishes?: boolean }
+type Wish = { name: string; status: string; roomName: string | null }
 type Overview = {
   rooms: { participants: { firstName: string; lastName: string; wishes: Wish[] }[] }[]
 }
@@ -48,21 +49,24 @@ describe("room wishes (integration)", () => {
     names: unknown,
     cookie = participantCookie,
     term = termId,
+    noRoomWishes?: unknown,
   ): Promise<Response> =>
     fetch(api(`/participant/applications/${applicationId}/terms/${term}/room-wishes`), {
       method: "PUT",
       headers: { Cookie: cookie, "Content-Type": "application/json" },
-      body: JSON.stringify({ names }),
+      body: JSON.stringify({ names, noRoomWishes }),
     })
-  const wishesOf = async (applicationId: string): Promise<string[] | undefined> => {
+  const wishTermsOf = async (applicationId: string): Promise<WishTerm[]> => {
     const response = await fetch(api(`/participant/applications/${applicationId}`), {
       headers: { Cookie: participantCookie },
     })
     const body = (await response.json()) as {
-      terms: { termId: string; roomWishes?: string[] }[]
+      terms: WishTerm[]
     }
-    return body.terms.find((term) => term.termId === termId)?.roomWishes
+    return body.terms
   }
+  const wishesOf = async (applicationId: string): Promise<string[] | undefined> =>
+    (await wishTermsOf(applicationId)).find((term) => term.termId === termId)?.roomWishes
   const overview = async (): Promise<Overview> =>
     (
       await fetch(api(`/organizer/events/${eventId}/terms/${termId}/room-assignments`), {
@@ -123,11 +127,70 @@ describe("room wishes (integration)", () => {
     expect(await wishesOf(applicationId)).toEqual([])
   })
 
+  it("remembers a no-wishes response per term and replaces it when real wishes are saved", async () => {
+    const { applicationId } = await makeApplication("CONFIRMED")
+    const otherTerm = await prisma.term.create({
+      data: {
+        organizationId,
+        eventId,
+        number: 3,
+        startsOn: new Date("2027-08-08"),
+        endsOn: new Date("2027-08-14"),
+        priceCzk: 1000,
+      },
+    })
+    await prisma.applicationTerm.create({
+      data: {
+        organizationId,
+        applicationId,
+        termId: otherTerm.id,
+        status: "CONFIRMED",
+        priceCzk: 1000,
+      },
+    })
+    const decline = (): Promise<Response> =>
+      save(applicationId, [], participantCookie, termId, true)
+    expect((await decline()).status).toBe(204)
+    expect((await decline()).status).toBe(204)
+    expect(await wishTermsOf(applicationId)).toEqual([
+      expect.objectContaining({ termId, noRoomWishes: true, roomWishes: [] }),
+      expect.objectContaining({ termId: otherTerm.id, noRoomWishes: false, roomWishes: [] }),
+    ])
+
+    expect((await save(applicationId, ["Eva Černá"])).status).toBe(204)
+    expect((await decline()).status).toBe(409)
+    expect((await wishTermsOf(applicationId))[0]).toMatchObject({
+      roomWishes: ["Eva Černá"],
+      noRoomWishes: false,
+    })
+    expect((await save(applicationId, [])).status).toBe(204)
+    expect((await wishTermsOf(applicationId))[0]).toMatchObject({
+      roomWishes: [],
+      noRoomWishes: false,
+    })
+  })
+
+  it("rejects the no-wishes action after the organizer publishes rooms", async () => {
+    const { applicationId } = await makeApplication("CONFIRMED")
+    await prisma.term.update({
+      where: { id: termId },
+      data: { roomsPublishedAt: new Date() },
+    })
+    try {
+      expect((await save(applicationId, [], participantCookie, termId, true)).status).toBe(409)
+      expect((await wishTermsOf(applicationId))[0]).toMatchObject({ noRoomWishes: false })
+    } finally {
+      await prisma.term.update({ where: { id: termId }, data: { roomsPublishedAt: null } })
+    }
+  })
+
   it("rejects more than three names and malformed input", async () => {
     const { applicationId } = await makeApplication("CONFIRMED")
     expect((await save(applicationId, ["a", "b", "c", "d"])).status).toBe(400)
     expect((await save(applicationId, "Eva")).status).toBe(400)
     expect((await save(applicationId, [1])).status).toBe(400)
+    expect((await save(applicationId, [], participantCookie, termId, null)).status).toBe(400)
+    expect((await save(applicationId, ["Eva"], participantCookie, termId, true)).status).toBe(400)
   })
 
   it("is not offered without a confirmed term", async () => {
@@ -172,8 +235,8 @@ describe("room wishes (integration)", () => {
 
     const participants = (await overview()).rooms.flatMap((room) => room.participants)
     expect(participants.find((p) => p.lastName === "Nováková")?.wishes).toEqual([
-      { name: "eva cerna", fulfilled: true },
-      { name: "Tereza Malá", fulfilled: false },
+      { name: "eva cerna", status: "fulfilled", roomName: expect.any(String) },
+      { name: "Tereza Malá", status: "impossible", roomName: null },
     ])
     expect(participants.find((p) => p.lastName === "Černá")?.wishes).toEqual([])
   })
@@ -209,6 +272,18 @@ describe("room wishes (integration)", () => {
       expect(await stored(row.applicationTermId)).toEqual(["Eva Černá"])
       expect((await setStatus(row.applicationId, status)).status).toBeLessThan(300)
       expect(await stored(row.applicationTermId)).toEqual([])
+    })
+
+    it("clears the no-wishes response when confirmation lapses", async () => {
+      const row = await makeApplication("CONFIRMED")
+      expect((await save(row.applicationId, [], participantCookie, termId, true)).status).toBe(204)
+      expect((await setStatus(row.applicationId, "WAITLISTED")).status).toBeLessThan(300)
+      expect(
+        await prisma.applicationTerm.findUniqueOrThrow({
+          where: { id: row.applicationTermId },
+          select: { noRoomWishes: true },
+        }),
+      ).toEqual({ noRoomWishes: false })
     })
 
     it("when the organizer cancels the term", async () => {

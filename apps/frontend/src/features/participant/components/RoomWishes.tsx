@@ -15,15 +15,19 @@ import { saveRoomWishes, type MyApplicationTerm } from "@/features/participant/a
 const MAX_WISHES = 3
 const MAX_NAME_LENGTH = 100
 
-type Mode = "view" | "edit" | "confirmDelete"
-
 /** The roommate wishes of every confirmed term — the only terms the API sends them for (US-146). */
 export function RoomWishesSection({
   applicationId,
   terms,
+  editingTermId,
+  onStartEditing,
+  onStopEditing,
 }: {
   applicationId: string
   terms: MyApplicationTerm[]
+  editingTermId: string | null
+  onStartEditing: (termId: string) => void
+  onStopEditing: (termId: string) => void
 }) {
   const withWishes = terms.filter((term) => term.roomWishes !== undefined)
   if (withWishes.length === 0) return null
@@ -31,9 +35,12 @@ export function RoomWishesSection({
     <>
       {withWishes.map((term) => (
         <RoomWishesCard
-          key={`${term.termId}:${(term.roomWishes ?? []).join("|")}`}
+          key={JSON.stringify([term.termId, term.roomWishes, editingTermId === term.termId])}
           applicationId={applicationId}
           term={term}
+          isEditing={editingTermId === term.termId}
+          onStartEditing={() => onStartEditing(term.termId)}
+          onStopEditing={() => onStopEditing(term.termId)}
         />
       ))}
     </>
@@ -47,14 +54,20 @@ export function RoomWishesSection({
 function RoomWishesCard({
   applicationId,
   term,
+  isEditing,
+  onStartEditing,
+  onStopEditing,
 }: {
   applicationId: string
   term: MyApplicationTerm
+  isEditing: boolean
+  onStartEditing: () => void
+  onStopEditing: () => void
 }) {
   const { t } = useTranslation("participant")
   const client = useQueryClient()
   const saved = term.roomWishes ?? []
-  const [mode, setMode] = useState<Mode>("view")
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
   const [names, setNames] = useState<string[]>(() =>
     Array.from({ length: MAX_WISHES }, (_, index) => saved[index] ?? ""),
   )
@@ -63,14 +76,11 @@ function RoomWishesCard({
     mutationFn: (next: string[]) => saveRoomWishes(applicationId, term.termId, next),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ["participant", "applications"] })
-      setMode("view")
+      setIsConfirmingDelete(false)
+      onStopEditing()
     },
   })
 
-  const startEdit = () => {
-    setNames(Array.from({ length: MAX_WISHES }, (_, index) => saved[index] ?? ""))
-    setMode("edit")
-  }
   const headingId = `room-wishes-${term.termId}`
 
   return (
@@ -81,13 +91,14 @@ function RoomWishesCard({
       <Card className="gap-4 p-4">
         <h2
           id={headingId}
+          tabIndex={-1}
           className="text-xl font-bold tracking-tight"
         >
           {t("roomWishes.title")}
         </h2>
         <p className="text-sm text-muted-foreground">{termLine(term)}</p>
         <Separator />
-        {mode === "edit" ? (
+        {isEditing ? (
           <form
             className="flex flex-col gap-4"
             onSubmit={(event) => {
@@ -128,13 +139,13 @@ function RoomWishesCard({
                 type="button"
                 variant="outline"
                 size="lg"
-                onClick={() => setMode("view")}
+                onClick={onStopEditing}
               >
                 {t("roomWishes.cancel")}
               </Button>
             </div>
           </form>
-        ) : mode === "confirmDelete" ? (
+        ) : isConfirmingDelete ? (
           <div className="flex flex-col gap-4">
             <h3 className="text-lg font-semibold">{t("roomWishes.deleteTitle")}</h3>
             <p className="text-sm text-muted-foreground">{t("roomWishes.deleteBody")}</p>
@@ -152,7 +163,7 @@ function RoomWishesCard({
                 type="button"
                 variant="outline"
                 size="lg"
-                onClick={() => setMode("view")}
+                onClick={() => setIsConfirmingDelete(false)}
               >
                 {t("roomWishes.cancel")}
               </Button>
@@ -164,7 +175,7 @@ function RoomWishesCard({
             <Button
               type="button"
               size="lg"
-              onClick={startEdit}
+              onClick={onStartEditing}
             >
               {t("roomWishes.add")}
             </Button>
@@ -177,7 +188,7 @@ function RoomWishesCard({
                 type="button"
                 variant="outline"
                 size="lg"
-                onClick={startEdit}
+                onClick={onStartEditing}
               >
                 {t("roomWishes.edit")}
               </Button>
@@ -185,7 +196,7 @@ function RoomWishesCard({
                 type="button"
                 variant="destructive"
                 size="lg"
-                onClick={() => setMode("confirmDelete")}
+                onClick={() => setIsConfirmingDelete(true)}
               >
                 {t("roomWishes.delete")}
               </Button>
