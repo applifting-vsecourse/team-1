@@ -94,6 +94,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           }
         />
       </div>
+      <PaymentSummary application={data} />
       <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
         <section
           aria-labelledby="application-terms"
@@ -115,27 +116,6 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           <TermStaySection
             applicationId={applicationId}
             terms={data.terms}
-          />
-          <ParticipantTermActions
-            application={data}
-            onStart={setChangeMode}
-          />
-          {isArchived ? <ArchivedApplicationCard /> : null}
-          <ChangeRequestNotice
-            applicationId={applicationId}
-            terms={data.terms}
-          />
-        </section>
-        <aside className="grid min-w-0 gap-4">
-          <RoomSection terms={data.terms} />
-          <RoomWishesSection
-            applicationId={applicationId}
-            terms={data.terms}
-            editingTermId={editRoomWishesTerm}
-            onStartEditing={setEditRoomWishesTerm}
-            onStopEditing={(termId) =>
-              setEditRoomWishesTerm((current) => (current === termId ? null : current))
-            }
           />
           {hasSteps ? (
             <div>
@@ -181,6 +161,27 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
               </Button>
             </div>
           )}
+          <ParticipantTermActions
+            application={data}
+            onStart={setChangeMode}
+          />
+          {isArchived ? <ArchivedApplicationCard /> : null}
+          <ChangeRequestNotice
+            applicationId={applicationId}
+            terms={data.terms}
+          />
+          <RoomSection terms={data.terms} />
+          <RoomWishesSection
+            applicationId={applicationId}
+            terms={data.terms}
+            editingTermId={editRoomWishesTerm}
+            onStartEditing={setEditRoomWishesTerm}
+            onStopEditing={(termId) =>
+              setEditRoomWishesTerm((current) => (current === termId ? null : current))
+            }
+          />
+        </section>
+        <aside className="grid min-w-0 gap-4">
           {(Boolean(edit.data?.phone) ||
             data.applicantEmail !== undefined ||
             (data.birthDate !== undefined && data.gender !== undefined)) && (
@@ -209,9 +210,6 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           )}
           <OrganizationContact contact={data.organizationContact} />
         </aside>
-      </div>
-      <div className="mx-auto w-full max-w-[944px]">
-        <PaymentSummary application={data} />
       </div>
       {edit.error ? (
         <ErrorState

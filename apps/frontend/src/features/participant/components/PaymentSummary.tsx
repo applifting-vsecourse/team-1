@@ -49,8 +49,9 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
   return (
     <div
       id={PAYMENT_SECTION_ID}
-      className="flex scroll-mt-6 flex-col gap-6"
+      className="flex scroll-mt-6 flex-col gap-4"
     >
+      <h2 className="text-2xl font-semibold tracking-tight">{t("payment.heading")}</h2>
       {paymentDetails && paymentDetails.summary.payableCzk > 0 ? (
         <SummaryPaymentDetails application={application} />
       ) : null}
