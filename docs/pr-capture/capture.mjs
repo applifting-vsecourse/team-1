@@ -44,7 +44,7 @@ for (const { phase, sha, prs } of harness.groups) {
     cwd: e2e, stdio: "inherit", env: {...process.env, SHOT_PHASE: phase},
   })
   if (run.status !== 0) failed.push(sha)
-  for (const pr of prs) for (const view of ["desktop","mobile"].flatMap(v=>["events","event","application","my-application","transport","passengers","rooms"].map(k=>v+"-"+k))) {
+  for (const pr of prs) for (const view of ["desktop","mobile"].flatMap(v=>[...["events","event","application","my-application","transport","passengers","rooms","applications","room-overview"],...(phase==="after"?["room-open"]:[])].map(k=>v+"-"+k))) {
     const name = pr + "-" + phase + "-" + view
     const path = join(output, name + ".png")
     if (!existsSync(path)) { console.log("CAPTURE_MISSING", name); continue }
