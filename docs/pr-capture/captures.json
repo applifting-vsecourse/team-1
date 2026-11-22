@@ -1,0 +1,21 @@
+{
+  "scenarios": {
+    "678": "import { expect, test } from \"@playwright/test\"\nimport { ORGANIZER } from \"./support/accounts\"\nimport { openEventList, signIn } from \"./support/auth\"\n\ntest(\"seeded application row before and after the compact layout\", async ({ page }) => {\n  const participant = \"Jana Nováková\"\n  await signIn(page, \"organizer\", ORGANIZER)\n  await openEventList(page)\n  const event = page.getByRole(\"link\", { name: /Letní kemp 2027(?! – demo)/ })\n  const eventPath = await event.getAttribute(\"href\")\n  expect(eventPath).toMatch(/^\\/organizer\\/events\\/[^/]+$/)\n  await page.goto(`${eventPath}/applications?q=${encodeURIComponent(participant)}`)\n\n  await expect(page.getByRole(\"heading\", { name: \"Applications\", exact: true })).toBeVisible()\n  await expect(page.getByText(participant, { exact: true }).filter({ visible: true })).toBeVisible()\n  await expect(page.getByText(\"Confirmed\", { exact: true }).filter({ visible: true }).first()).toBeVisible()\n  if (process.env.SHOT_PHASE === \"after\") {\n    await expect(page.getByRole(\"button\", { name: participant, exact: true })).toHaveAttribute(\n      \"aria-expanded\",\n      \"false\",\n    )\n  } else {\n    await expect(page.getByText(\"ucastnik@example.com\", { exact: false }).filter({ visible: true })).toBeVisible()\n  }\n  const mobile = page.viewportSize()!.width === 360\n  const row = page.getByRole(mobile ? \"listitem\" : \"row\").filter({ hasText: participant }).filter({ visible: true })\n  await expect(row).toHaveCount(1)\n  await page.waitForLoadState(\"networkidle\")\n  await page.evaluate(() => document.fonts.ready)\n  const rect = await row.boundingBox()\n  console.log(\"ROW_METRICS\", process.env.SHOT_PHASE, mobile ? 360 : 1280, rect!.height)\n  await row.screenshot({path:process.env.SHOT_PATH!.replace(\".png\",\"-row.png\"), animations:\"disabled\"})\n  await page.screenshot({ path: process.env.SHOT_PATH!, fullPage: true })\n  if (process.env.SHOT_PHASE === \"after\") {\n    const trigger = row.getByRole(\"button\", { name: participant, exact: true })\n    if (mobile) await trigger.tap()\n    else await trigger.press(\"Enter\")\n    await expect(row.getByText(/^Received ·/)).toBeVisible()\n    await row.screenshot({path:process.env.SHOT_PATH!.replace(\".png\",\"-open.png\"),animations:\"disabled\"})\n  }\n})"
+  },
+  "groups": [
+    {
+      "phase": "before",
+      "sha": "fc4caae0a5a8f569ea000de6b05996c80300a909",
+      "prs": [
+        678
+      ]
+    },
+    {
+      "phase": "after",
+      "sha": "f1851b4d38558f384ab8124457b3847104ad474f",
+      "prs": [
+        678
+      ]
+    }
+  ]
+}
