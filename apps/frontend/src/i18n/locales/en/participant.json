@@ -75,7 +75,12 @@
     "meals": "Meals",
     "participantCard": "Participant details",
     "program": "Program",
+    "roomBeds": "Beds",
     "roomNotAssigned": "You have no room assigned yet.",
+    "roomOccupancy_one": "{{occupied}} of {{count}} bed occupied",
+    "roomOccupancy_other": "{{occupied}} of {{count}} beds occupied",
+    "roomSelf": "(you)",
+    "roomVacant": "Vacant",
     "sections": {
       "room": "Room",
       "terms": "Terms"

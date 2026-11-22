@@ -75,7 +75,12 @@
     "meals": "Stravování",
     "participantCard": "Údaje účastníka",
     "program": "Program",
+    "roomBeds": "Lůžka",
     "roomNotAssigned": "Zatím nemáte přiřazený pokoj.",
+    "roomOccupancy_one": "{{occupied}} z {{count}} lůžka obsazeno",
+    "roomOccupancy_other": "{{occupied}} z {{count}} lůžek obsazeno",
+    "roomSelf": "(vy)",
+    "roomVacant": "Volné",
     "sections": {
       "room": "Pokoj",
       "terms": "Termíny"
