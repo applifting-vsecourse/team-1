@@ -44,11 +44,32 @@ export class MyApplicationTermDto {
 
   @ApiPropertyOptional({
     type: "object",
-    properties: { name: { type: "string", nullable: true } },
+    properties: {
+      name: { type: "string", nullable: true },
+      occupancy: {
+        type: "object",
+        required: ["beds", "occupants"],
+        properties: {
+          beds: { type: "integer" },
+          occupants: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["firstName", "initials", "isSelf"],
+              properties: {
+                firstName: { type: "string" },
+                initials: { type: "string" },
+                isSelf: { type: "boolean" },
+              },
+            },
+          },
+        },
+      },
+    },
     description:
       "Room of a confirmed term after the organizer published the assignment (US-144); name is null while not assigned. Absent otherwise.",
   })
-  room?: { name: string | null }
+  room?: MyApplicationTerm["room"]
 
   @ApiPropertyOptional({
     type: [String],

@@ -3,7 +3,17 @@ import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
-type TermDto = { termId: string; status: string; room?: { name: string | null } }
+type TermDto = {
+  termId: string
+  status: string
+  room?: {
+    name: string | null
+    occupancy?: {
+      beds: number
+      occupants: { firstName: string; initials: string; isSelf: boolean }[]
+    }
+  }
+}
 type ApplicationDto = { id: string; terms: TermDto[] }
 
 describe("room publication (integration)", () => {
@@ -39,9 +49,10 @@ describe("room publication (integration)", () => {
   }
 
   const makeApplication = async (
-    status: "CONFIRMED" | "WAITLISTED",
+    status: "CONFIRMED" | "WAITLISTED" | "TO_EVALUATE",
     individualAccommodation = false,
     room = true,
+    scenario?: { roomId: string; firstName: string; lastName: string },
   ): Promise<string> => {
     counter += 1
     const user = await prisma.user.findUniqueOrThrow({ where: { email: "ucastnik@example.com" } })
@@ -51,8 +62,8 @@ describe("room publication (integration)", () => {
         eventId,
         userId: user.id,
         accessToken: randomUUID(),
-        firstName: "Test",
-        lastName: `Pokoj ${counter}`,
+        firstName: scenario?.firstName ?? "Test",
+        lastName: scenario?.lastName ?? `Pokoj ${counter}`,
         birthDate: new Date("2010-01-01"),
         gender: "FEMALE",
         email: `us144-${counter}@example.com`,
@@ -64,7 +75,11 @@ describe("room publication (integration)", () => {
     })
     if (room) {
       await prisma.roomAssignment.create({
-        data: { organizationId, applicationTermId: application.terms[0].id, roomId },
+        data: {
+          organizationId,
+          applicationTermId: application.terms[0].id,
+          roomId: scenario?.roomId ?? roomId,
+        },
       })
     }
     return application.id
@@ -123,7 +138,7 @@ describe("room publication (integration)", () => {
     const id = await makeApplication("CONFIRMED")
     expect((await publish(true)).status).toBe(204)
     expect((await roomsOf()).roomsPublished).toBe(true)
-    expect((await termOf(id)).room).toEqual({ name: "Bříza 204" })
+    expect((await termOf(id)).room).toMatchObject({ name: "Bříza 204" })
     expect((await publish(true)).status).toBe(204)
     expect((await publish(false)).status).toBe(204)
     expect((await roomsOf()).roomsPublished).toBe(false)
@@ -140,18 +155,70 @@ describe("room publication (integration)", () => {
     await prisma.roomAssignment.create({
       data: { organizationId, applicationTermId: row.id, roomId },
     })
-    expect((await termOf(id)).room).toEqual({ name: "Bříza 204" })
+    expect((await termOf(id)).room).toMatchObject({ name: "Bříza 204" })
     await prisma.roomAssignment.delete({ where: { applicationTermId: row.id } })
     expect((await termOf(id)).room).toEqual({ name: null })
   })
 
-  it("shows nothing about a room to a waitlisted or individually accommodated participant", async () => {
-    const waitlisted = await makeApplication("WAITLISTED", false, false)
-    const individual = await makeApplication("CONFIRMED", true)
+  it("returns only published, visible beds and never passes another participant's surname or ID", async () => {
+    const room = await prisma.room.create({
+      data: { organizationId, termId, name: "Lípa", capacity: 4, extraBeds: 1, gender: "FEMALE" },
+    })
+    await makeApplication("CONFIRMED", false, true, {
+      roomId: room.id,
+      firstName: "Eva",
+      lastName: "Černá",
+    })
+    const self = await makeApplication("CONFIRMED", false, true, {
+      roomId: room.id,
+      firstName: "Jana",
+      lastName: "Nováková",
+    })
+    await makeApplication("TO_EVALUATE", false, true, {
+      roomId: room.id,
+      firstName: "Nezveřejněná",
+      lastName: "Osoba",
+    })
+    const individual = await makeApplication("CONFIRMED", true, true, {
+      roomId: room.id,
+      firstName: "Individuální",
+      lastName: "Osoba",
+    })
+
+    expect((await publish(false)).status).toBe(204)
+    expect((await termOf(self)).room).toBeUndefined()
+    expect((await publish(true)).status).toBe(204)
+    expect((await termOf(self)).room).toEqual({
+      name: "Lípa",
+      occupancy: {
+        beds: 3,
+        occupants: [
+          { firstName: "Jana", initials: "JN", isSelf: true },
+          { firstName: "Eva", initials: "EČ", isSelf: false },
+        ],
+      },
+    })
+    expect((await termOf(individual)).room?.occupancy).toEqual({
+      beds: 4,
+      occupants: [
+        { firstName: "Individuální", initials: "IO", isSelf: true },
+        { firstName: "Eva", initials: "EČ", isSelf: false },
+        { firstName: "Jana", initials: "JN", isSelf: false },
+      ],
+    })
+
+    const listResponse = await fetch(api("/participant/applications"), {
+      headers: { Cookie: participantCookie },
+    })
+    expect(listResponse.status).toBe(200)
+    expect(await listResponse.text()).not.toContain('"occupancy"')
+  })
+
+  it("shows no room to a waitlisted or individually accommodated participant without an assignment", async () => {
+    const waitlisted = await makeApplication("WAITLISTED")
+    const individual = await makeApplication("CONFIRMED", true, false)
     expect((await publish(true)).status).toBe(204)
     expect((await termOf(waitlisted)).room).toBeUndefined()
-    const term = await termOf(individual)
-    expect(term.room).toBeUndefined()
-    expect(JSON.stringify(term)).not.toMatch(/room|individual/i)
+    expect((await termOf(individual)).room).toBeUndefined()
   })
 })

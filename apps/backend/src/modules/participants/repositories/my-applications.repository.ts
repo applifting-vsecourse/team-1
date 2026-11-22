@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { MyApplicationRecord } from "@/modules/participants/domain/my-application"
+import { computeRoomBeds } from "@/modules/applications/domain/capacity"
+import { MyApplicationRecord, RoomOccupancy } from "@/modules/participants/domain/my-application"
 import { toPragueWallTime } from "@/shared/domain/prague-wall-time"
 import { Injectable } from "@nestjs/common"
 
@@ -29,7 +30,64 @@ const include = {
   },
 } as const
 
+const roomDetailSelect = (applicationId: string) =>
+  ({
+    name: true,
+    capacity: true,
+    extraBeds: true,
+    _count: { select: { assignments: true } },
+    assignments: {
+      where: {
+        room: { term: { roomsPublishedAt: { not: null }, cancelledAt: null } },
+        applicationTerm: {
+          status: "CONFIRMED",
+          OR: [{ applicationId }, { application: { individualAccommodation: false } }],
+        },
+      },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      select: {
+        applicationTermId: true,
+        applicationTerm: {
+          select: { application: { select: { firstName: true, lastName: true } } },
+        },
+      },
+    },
+  }) satisfies Prisma.RoomSelect
+
+const detailInclude = (applicationId: string) =>
+  ({
+    ...include,
+    terms: {
+      include: {
+        ...include.terms.include,
+        roomAssignment: { select: { room: { select: roomDetailSelect(applicationId) } } },
+      },
+    },
+  }) satisfies Prisma.ApplicationInclude
+
 type Row = Prisma.ApplicationGetPayload<{ include: typeof include }>
+type DetailRow = Prisma.ApplicationGetPayload<{ include: ReturnType<typeof detailInclude> }>
+type DetailRoom = Prisma.RoomGetPayload<{ select: ReturnType<typeof roomDetailSelect> }>
+
+function roomOccupancy(room: DetailRoom, ownApplicationTermId: string): RoomOccupancy {
+  const occupants = room.assignments
+    .map(
+      ({
+        applicationTermId,
+        applicationTerm: {
+          application: { firstName, lastName },
+        },
+      }) => ({
+        firstName,
+        initials: `${Array.from(firstName)[0] ?? ""}${Array.from(lastName)[0] ?? ""}`.toUpperCase(),
+        isSelf: applicationTermId === ownApplicationTermId,
+      }),
+    )
+    .sort((a, b) => Number(b.isSelf) - Number(a.isSelf))
+  const hiddenBeds = room._count.assignments - occupants.length
+  // Only the participant's visible capacity; organizer calculations continue to use all beds.
+  return { beds: Math.max(occupants.length, computeRoomBeds(room) - hiddenBeds), occupants }
+}
 
 /** The only place of the participant's application overview that touches the database. */
 @Injectable()
@@ -52,12 +110,15 @@ export class MyApplicationsRepository {
     return row ? toRecord(row) : null
   }
 
-  private findRow(userId: string, applicationId: string): Promise<Row | null> {
-    return this.prisma.application.findFirst({ where: { id: applicationId, userId }, include })
+  private findRow(userId: string, applicationId: string): Promise<DetailRow | null> {
+    return this.prisma.application.findFirst({
+      where: { id: applicationId, userId },
+      include: detailInclude(applicationId),
+    })
   }
 }
 
-function toRecord(row: Row): MyApplicationRecord {
+function toRecord(row: Row | DetailRow): MyApplicationRecord {
   return {
     id: row.id,
     number: row.number,
@@ -83,6 +144,7 @@ function toRecord(row: Row): MyApplicationRecord {
     healthFilled: row.health !== null || row.noHealthRestriction,
     terms: row.terms.map(
       ({
+        id,
         term,
         status,
         priceCzk,
@@ -112,6 +174,13 @@ function toRecord(row: Row): MyApplicationRecord {
         transportDecided: transportId !== null,
         roomsPublished: term.roomsPublishedAt !== null,
         roomName: roomAssignment?.room.name ?? null,
+        ...(status === "CONFIRMED" &&
+        term.roomsPublishedAt !== null &&
+        term.cancelledAt === null &&
+        roomAssignment &&
+        "assignments" in roomAssignment.room
+          ? { roomOccupancy: roomOccupancy(roomAssignment.room, id) }
+          : {}),
         termCancelled: term.cancelledAt !== null,
         roomWishes,
         lateArrival: lateArrivalAt && toPragueWallTime(lateArrivalAt),
