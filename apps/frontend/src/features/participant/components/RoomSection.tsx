@@ -75,7 +75,7 @@ function RoomBeds({ occupancy }: { occupancy: Occupancy }) {
         {occupancy.occupants.map((occupant, index) => (
           <li
             key={index}
-            className="flex w-13 flex-col items-center gap-1 text-center"
+            className="flex w-12.5 flex-col items-center gap-1 text-center"
           >
             <Avatar
               aria-hidden
@@ -94,7 +94,7 @@ function RoomBeds({ occupancy }: { occupancy: Occupancy }) {
         {Array.from({ length: visibleVacancies }, (_, index) => (
           <li
             key={`vacant-${index}`}
-            className="flex w-13 flex-col items-center gap-1 text-center"
+            className="flex w-12.5 flex-col items-center gap-1 text-center"
           >
             <span
               aria-hidden
