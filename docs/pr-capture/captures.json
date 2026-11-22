@@ -1,0 +1,21 @@
+{
+  "scenarios": {
+    "674": "\n"
+  },
+  "groups": [
+    {
+      "phase": "before",
+      "sha": "fc4caae0a5a8f569ea000de6b05996c80300a909",
+      "prs": [
+        674
+      ]
+    },
+    {
+      "phase": "after",
+      "sha": "8cffa03c10cc19af034940810989d71cf258addc",
+      "prs": [
+        674
+      ]
+    }
+  ]
+}
