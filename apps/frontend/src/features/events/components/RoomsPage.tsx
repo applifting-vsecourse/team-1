@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import { ROUTES } from "@/app/routes"
 import { HelpTooltipContent } from "@/components/atoms/HelpTooltipContent"
 import { Seo } from "@/components/atoms/Seo"
-import { CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
@@ -203,7 +202,7 @@ export function RoomsPage({
           },
         ]
   const termSelect = (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 sm:w-72 print:hidden">
       <Label htmlFor="accommodation-term">{t("rooms.termLabel")}</Label>
       <Select
         value={selected.id}
@@ -228,42 +227,46 @@ export function RoomsPage({
       </Select>
     </div>
   )
-  // One bar for every view of the accommodation: the view switcher, the term and the print button.
-  // A new view only has to be added to the switcher; it gets the print button without more work.
+  // The top of every view of the accommodation, in this order: the tabs with the print button, then the term.
+  // A new view only has to be added to the tabs; it gets the print button without more work.
   const viewBar = (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end print:hidden">
-      <ToggleGroup
-        type="single"
-        variant="default"
-        spacing={2}
-        aria-label={t("roomOverview.views")}
-        className="max-w-full justify-start rounded-none border-b max-sm:w-full"
-        value={view}
-        onValueChange={(next) => {
-          // Pressing the active view again must not leave the group empty.
-          if (next === "assignment" || next === "overview") onSelectView(next)
-        }}
-      >
-        {(["assignment", "overview"] as const).map((item) => (
-          <ToggleGroupItem
-            key={item}
-            value={item}
-            className="h-auto rounded-none border-0 border-b border-border px-3 py-2 text-sm leading-5 font-medium shadow-none hover:bg-wash hover:text-foreground focus-visible:border-2 focus-visible:border-ring focus-visible:ring-0 data-[state=on]:border-b-2 data-[state=on]:border-primary data-[state=on]:bg-transparent data-[state=on]:text-link max-sm:flex-1"
-          >
-            {t(item === "assignment" ? "roomOverview.viewAssignment" : "roomOverview.viewOverview")}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-      <div className="sm:w-60">{termSelect}</div>
-      <Button
-        variant="outline"
-        size="lg"
-        className="max-sm:w-full sm:ml-auto"
-        disabled={term.rooms.length === 0}
-        onClick={() => window.print()}
-      >
-        {t("roomOverview.print")}
-      </Button>
+    <div className="flex flex-col gap-6 print:hidden">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end print:hidden">
+        <ToggleGroup
+          type="single"
+          variant="default"
+          spacing={2}
+          aria-label={t("roomOverview.views")}
+          className="max-w-full justify-start rounded-none border-b max-sm:w-full sm:flex-1"
+          value={view}
+          onValueChange={(next) => {
+            // Pressing the active view again must not leave the group empty.
+            if (next === "assignment" || next === "overview") onSelectView(next)
+          }}
+        >
+          {(["assignment", "overview"] as const).map((item) => (
+            <ToggleGroupItem
+              key={item}
+              value={item}
+              className="h-auto rounded-none border-0 border-b border-border px-3 py-2 text-sm leading-5 font-medium shadow-none hover:bg-wash hover:text-foreground focus-visible:border-2 focus-visible:border-ring focus-visible:ring-0 data-[state=on]:border-b-2 data-[state=on]:border-primary data-[state=on]:bg-transparent data-[state=on]:text-link max-sm:flex-1"
+            >
+              {t(
+                item === "assignment" ? "roomOverview.viewAssignment" : "roomOverview.viewOverview",
+              )}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        <Button
+          variant="outline"
+          size="lg"
+          className="max-sm:w-full"
+          disabled={term.rooms.length === 0}
+          onClick={() => window.print()}
+        >
+          {t("roomOverview.print")}
+        </Button>
+      </div>
+      {termSelect}
     </div>
   )
   return (
@@ -295,9 +298,9 @@ export function RoomsPage({
             onShowAssignment={() => onSelectView("assignment")}
             onEditExtraBeds={openExtraBeds}
           />
-          {/* Controls left, the publication switch in the otherwise empty right half. */}
-          <CardGrid className="lg:grid-cols-1 xl:grid-cols-2">
-            <div className="flex flex-col gap-6">
+          {/* Room mode, then the publication switch: each on its own row, below the term. */}
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 sm:max-w-md">
               <div className="flex flex-col gap-2">
                 <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
                 <Select
@@ -327,11 +330,13 @@ export function RoomsPage({
                 </Alert>
               ) : null}
             </div>
-            <RoomsPublicationCard
-              term={term}
-              onChanged={refresh}
-            />
-          </CardGrid>
+            <div className="sm:max-w-md">
+              <RoomsPublicationCard
+                term={term}
+                onChanged={refresh}
+              />
+            </div>
+          </div>
           <div className={cn("grid grid-cols-2 gap-2 md:gap-4", isGendered && "md:grid-cols-3")}>
             {metrics.map((metric) => (
               <Card

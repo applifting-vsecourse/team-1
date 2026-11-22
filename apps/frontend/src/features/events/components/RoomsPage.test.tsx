@@ -178,7 +178,7 @@ describe("accommodation by term", () => {
     expect(within(table).getByText("Extra bed +2")).toBeInTheDocument()
   })
 
-  it("switches between Assignment and Rooms with a switcher left of the term (#542)", async () => {
+  it("switches between Assignment and Rooms with a switcher above the term (#542)", async () => {
     const { user, onSelectView } = renderRooms("t1")
     await screen.findByRole("table")
     const views = screen.getByRole("radiogroup", { name: "Accommodation view" })
