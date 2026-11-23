@@ -149,6 +149,84 @@ export async function seedPresentationData(
     }
   }
 
+  // Program of the week: a daily frame plus one winter highlight in the morning, afternoon and evening.
+  const winterTerm = await prisma.term.findFirstOrThrow({
+    where: { event: { publicToken: "jarni-prazdniny-2028" }, number: 1 },
+  })
+  const winterDays: [name: string, place: string][][] = [
+    [
+      ["Seznamovací hry na sněhu", "Louka u chaty"],
+      ["Sáňkování z Obřího dolu", "Sjezdovka Obří důl"],
+      ["Večerní hry v jídelně", "Jídelna"],
+    ],
+    [
+      ["Lyžařská škola: začátečníci a pokročilí", "Svah u chaty"],
+      ["Lyžování ve skupinách", "Sjezdovka"],
+      ["Promítání filmu", "Společenská místnost"],
+    ],
+    [
+      ["Stavba sněhového města", "Louka u chaty"],
+      ["Bitva sněhuláků", "Louka u chaty"],
+      ["Táborák a opékání", "Ohniště"],
+    ],
+    [
+      ["Výlet na Sněžku", "Sněžka"],
+      ["Výlet na Sněžku: cesta zpět", "Sněžka"],
+      ["Horká čokoláda a deskovky", "Jídelna"],
+    ],
+    [
+      ["Běžky v okolí chaty", "Běžecké tratě"],
+      ["Bruslení na zamrzlém rybníku", "Rybník"],
+      ["Karneval masek", "Společenská místnost"],
+    ],
+    [
+      ["Závody ve sjezdu", "Sjezdovka"],
+      ["Štafeta na sněžnicích", "Les nad chatou"],
+      ["Talentová show", "Společenská místnost"],
+    ],
+    [
+      ["Balení a úklid pokojů", "Chata"],
+      ["Vyhlášení a zakončení", "Společenská místnost"],
+      ["", ""],
+    ],
+  ]
+  const winterBlocks = winterDays.flatMap(([morning, afternoon, evening], index) => {
+    const day = new Date(winterTerm.startsOn)
+    day.setUTCDate(day.getUTCDate() + index)
+    const last = index === winterDays.length - 1
+    const frame: [string, string, string, string][] = [
+      ["08:00", "08:30", "Budíček a rozcvička", "Chata"],
+      ["08:30", "09:15", "Snídaně", "Jídelna"],
+      ["12:15", "13:00", "Oběd", "Jídelna"],
+      ["13:00", "14:30", "Polední klid", "Pokoje"],
+      ["18:00", "18:45", "Večeře", "Jídelna"],
+    ]
+    const highlights: [string, string, string, string][] = [
+      ["09:30", "12:00", morning[0], morning[1]],
+      ["14:30", "17:30", afternoon[0], afternoon[1]],
+      ...(last
+        ? []
+        : [["19:30", "21:30", evening[0], evening[1]] as [string, string, string, string]]),
+    ]
+    const night: [string, string, string, string][] = last
+      ? [["13:30", "14:00", "Odjezd", "Parkoviště"]]
+      : [["22:00", "22:15", "Večerka", "Pokoje"]]
+    return [
+      ...frame.filter(([, , name]) => !last || name !== "Večeře"),
+      ...highlights,
+      ...night,
+    ].map(([startTime, endTime, name, place]) => ({
+      organizationId,
+      termId: winterTerm.id,
+      date: day,
+      startTime,
+      endTime,
+      name,
+      place,
+    }))
+  })
+  await prisma.programBlock.createMany({ data: winterBlocks })
+
   await prisma.event.update({
     where: { publicToken: "jarni-prazdniny-2028" },
     data: {
