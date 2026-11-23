@@ -14,6 +14,7 @@ import { generateToken } from "@/shared/utils/token"
 import { createUser } from "./create-user"
 import { seedParticipantNotifications } from "./notifications-data"
 import { seedPresentationData } from "./presentation-data"
+import { seedProgramEvent } from "./program-data"
 import { SEED_PHOTOS } from "./seed-photos"
 import { seedSprintDemo } from "./sprint-demo-data"
 
@@ -397,6 +398,12 @@ export const seedDatabase = async (
     organizationId: summerCamp.id,
     recordedById: organizerA.id,
     participantId: participant.id,
+    createEvent,
+  })
+
+  await seedProgramEvent(prisma, {
+    organizationId: summerCamp.id,
+    recordedById: organizerA.id,
     createEvent,
   })
 
