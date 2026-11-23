@@ -50,7 +50,7 @@ export function EditProposalDialog({
         if (!isOpen) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-160">
+      <DialogContent className="bg-card shadow-md sm:max-w-160">
         <DialogTitle>{t("roomProposal.editTitle")}</DialogTitle>
         <DialogDescription className="text-base">
           {t("roomProposal.editDescription", { name })}
