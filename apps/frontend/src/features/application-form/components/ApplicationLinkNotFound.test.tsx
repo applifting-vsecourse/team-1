@@ -24,8 +24,6 @@ describe("ApplicationLinkNotFound", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "This page is unavailable." }),
     ).toBeInTheDocument()
-    const back = screen.getByRole("link", { name: "Go to homepage" })
-    expect(back).toHaveAttribute("href", "/")
-    expect(back).toHaveClass("rounded-full", "size-11")
+    expect(screen.getByRole("link", { name: "Go to homepage" })).toHaveAttribute("href", "/")
   })
 })

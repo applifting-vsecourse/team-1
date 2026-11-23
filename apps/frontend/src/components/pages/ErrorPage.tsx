@@ -2,7 +2,6 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
 import { SystemStatusLayout } from "@/components/templates/SystemStatusLayout"
 import { Button } from "@/components/ui/button"
 
@@ -26,7 +25,13 @@ export function ErrorPage({ error }: { error: unknown }) {
       >
         {t("pages.error.action")}
       </Button>
-      <BackLink href={ROUTES.home}>{t("pages.error.homeAction")}</BackLink>
+      <Button
+        asChild
+        variant="ghost"
+        className="h-9 w-full"
+      >
+        <a href={ROUTES.home}>{t("pages.error.homeAction")}</a>
+      </Button>
     </SystemStatusLayout>
   )
 }

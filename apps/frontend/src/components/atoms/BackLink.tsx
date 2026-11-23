@@ -42,11 +42,12 @@ function BackArrow({ label }: { label: string }) {
 export function BackLink({
   children,
   ...props
-}: (Omit<LinkProps, "children"> | { href: string }) & { children: string }) {
-  const arrow = <BackArrow label={children} />
+}: Omit<LinkProps, "children"> & { children: string }) {
   return (
     <BackControl label={children}>
-      {"href" in props ? <a href={props.href}>{arrow}</a> : <Link {...props}>{arrow}</Link>}
+      <Link {...props}>
+        <BackArrow label={children} />
+      </Link>
     </BackControl>
   )
 }
