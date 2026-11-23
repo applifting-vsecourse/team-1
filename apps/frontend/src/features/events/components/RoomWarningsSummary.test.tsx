@@ -12,6 +12,7 @@ const person = {
   gender: "FEMALE",
   status: "CONFIRMED",
   individualAccommodation: false,
+  accommodationRequest: null,
 } as never
 const room = {
   id: "r1",

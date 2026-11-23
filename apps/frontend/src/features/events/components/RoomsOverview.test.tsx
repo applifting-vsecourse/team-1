@@ -46,6 +46,7 @@ const person = (
   birthYear: over.year ?? 2011,
   gender: "FEMALE" as const,
   individualAccommodation: over.individual ?? false,
+  accommodationRequest: null,
   status: over.status ?? ("CONFIRMED" as const),
   wishes: [],
 })

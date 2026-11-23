@@ -16,6 +16,7 @@ const person = (id: string) => ({
   birthYear: 2011,
   gender: "FEMALE" as const,
   individualAccommodation: false,
+  accommodationRequest: null,
   status: "CONFIRMED" as const,
   wishes: [],
 })

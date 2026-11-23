@@ -35,6 +35,7 @@ const person = (id: string, wishes: AssignmentParticipant["wishes"]): Assignment
   birthYear: 2011,
   gender: "FEMALE",
   individualAccommodation: false,
+  accommodationRequest: null,
   status: "CONFIRMED",
   wishes,
 })

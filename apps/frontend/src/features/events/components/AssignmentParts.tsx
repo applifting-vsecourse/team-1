@@ -4,6 +4,7 @@ import { useDraggable, useDroppable } from "@dnd-kit/core"
 import { AlertTriangle, Ellipsis, GripVertical } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { HelpTooltipContent } from "@/components/atoms/HelpTooltipContent"
 import {
   Accordion,
   AccordionContent,
@@ -28,6 +29,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { TableCell, TableRow } from "@/components/ui/table"
+import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 import type {
@@ -124,12 +126,12 @@ export function ParticipantChip({
       />
       <span className="min-w-0 break-words">{name}</span>
       {participant.individualAccommodation ? (
-        <Badge
-          variant="secondary"
+        <IndividualBadge
+          note={participant.accommodationRequest}
           className="ml-1 bg-card"
         >
           {t("roomAssignments.individualShort")}
-        </Badge>
+        </IndividualBadge>
       ) : null}
       {isBlock ? (
         <Ellipsis
@@ -252,12 +254,12 @@ export function UnassignedRow({
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="text-sm font-medium break-words">{name}</span>
             {participant.individualAccommodation ? (
-              <Badge
-                variant="secondary"
+              <IndividualBadge
+                note={participant.accommodationRequest}
                 className="max-w-full shrink whitespace-normal"
               >
                 {t("roomAssignments.individual")}
-              </Badge>
+              </IndividualBadge>
             ) : null}
           </span>
           <span className="text-sm text-muted-foreground">
@@ -277,6 +279,47 @@ export function UnassignedRow({
         {t("roomAssignments.assign")}
       </Button>
     </li>
+  )
+}
+
+/** Badge of an individual accommodation request; a tooltip shows the applicant's note on hover. */
+function IndividualBadge({
+  note,
+  className,
+  children,
+}: {
+  note: string | null
+  className?: string
+  children: ReactNode
+}) {
+  const text = note?.trim()
+  if (!text) {
+    return (
+      <Badge
+        variant="secondary"
+        className={className}
+      >
+        {children}
+      </Badge>
+    )
+  }
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Badge
+            variant="secondary"
+            className={className}
+            tabIndex={0}
+          >
+            {children}
+          </Badge>
+        </TooltipTrigger>
+        <HelpTooltipContent isLong>
+          <p className="break-words whitespace-pre-line">{text}</p>
+        </HelpTooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
 

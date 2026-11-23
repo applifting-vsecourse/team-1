@@ -31,6 +31,12 @@ class ParticipantDto {
   birthYear!: number
   @ApiProperty({ enum: ["FEMALE", "MALE"] }) gender!: Gender
   @ApiProperty() individualAccommodation!: boolean
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: "Note to the individual accommodation request",
+  })
+  accommodationRequest!: string | null
   @ApiProperty({ enum: STATUSES }) status!: string
   @ApiProperty({ type: [RoomWishDto], description: "Roommate wishes, at most 3 (US-146)" })
   wishes!: RoomWishDto[]

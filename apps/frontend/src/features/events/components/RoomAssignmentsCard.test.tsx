@@ -76,6 +76,7 @@ const person = (
   birthYear: 2011,
   gender: "FEMALE" as const,
   individualAccommodation: isIndividual,
+  accommodationRequest: null,
   status: status as "CONFIRMED" | "TO_EVALUATE",
   wishes: [],
 })
@@ -706,6 +707,24 @@ describe("room assignment", () => {
       expect(within(roomA).getByText("Individual")).toBeVisible()
       expect(within(roomB).getByText("Eva Horká")).toBeVisible()
       expect(screen.getByRole("button", { name: "Assign Barbora Šimková to a room" })).toBeEnabled()
+    })
+
+    it("shows the note of the request in a tooltip on the badge", async () => {
+      data = {
+        ...base(),
+        unassigned: [
+          {
+            ...person("p3", "Barbora", "Šimková", "CONFIRMED", true),
+            accommodationRequest: "Needs a quiet room near the nurse",
+            alsoInTerms: [],
+          },
+        ],
+      }
+      const user = renderCard()
+      await user.hover(await screen.findByText("Individual accommodation"))
+      expect(
+        (await screen.findAllByText("Needs a quiet room near the nurse")).length,
+      ).toBeGreaterThan(0)
     })
 
     it("does not count them in the people of the mixed gender warning", async () => {
