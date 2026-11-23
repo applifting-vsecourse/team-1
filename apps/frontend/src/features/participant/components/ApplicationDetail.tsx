@@ -118,8 +118,9 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
             applicationId={applicationId}
             terms={data.terms}
           />
-          {hasSteps ? (
-            <div>
+          {/* One row of actions: Program (or Meals and Health) first, then change / cancel the terms. */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {hasSteps ? (
               <Button
                 asChild
                 size="lg"
@@ -132,40 +133,41 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
                   {t("detail.program")}
                 </Link>
               </Button>
-            </div>
-          ) : null}
-          {hasSteps || isArchived ? null : (
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button
-                asChild
-                variant="secondary"
-                size="lg"
-              >
-                <Link
-                  to={ROUTES.participant.applicationMeals}
-                  params={{ applicationId }}
+            ) : null}
+            {hasSteps || isArchived ? null : (
+              <>
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
                 >
-                  {t("detail.meals")}
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="secondary"
-                size="lg"
-              >
-                <Link
-                  to={ROUTES.participant.applicationHealth}
-                  params={{ applicationId }}
+                  <Link
+                    to={ROUTES.participant.applicationMeals}
+                    params={{ applicationId }}
+                  >
+                    {t("detail.meals")}
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
                 >
-                  {t("detail.health")}
-                </Link>
-              </Button>
-            </div>
-          )}
-          <ParticipantTermActions
-            application={data}
-            onStart={setChangeMode}
-          />
+                  <Link
+                    to={ROUTES.participant.applicationHealth}
+                    params={{ applicationId }}
+                  >
+                    {t("detail.health")}
+                  </Link>
+                </Button>
+              </>
+            )}
+            <ParticipantTermActions
+              application={data}
+              onStart={setChangeMode}
+              className="contents sm:contents"
+            />
+          </div>
           {isArchived ? <ArchivedApplicationCard /> : null}
           <ChangeRequestNotice
             applicationId={applicationId}
