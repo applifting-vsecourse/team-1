@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react"
-import { useQuery } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
@@ -18,11 +18,12 @@ import { formatDateTime } from "@/lib/date"
 import { termLine } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
-import {
-  paymentQueryOptions,
-  type Payment,
-  type PaymentTerm,
+import type {
+  Payment,
+  PaymentApplication,
+  PaymentTerm,
 } from "@/features/event-overview/api/payments"
+import type { TermStatusDetail } from "@/features/event-overview/api/termStatus"
 import { AutoConfirmedNotice } from "@/features/event-overview/components/AutoConfirmedNotice"
 import { ParticipantDetails } from "@/features/event-overview/components/ParticipantDetails"
 import { PaymentCancellation } from "@/features/event-overview/components/PaymentCancellation"
@@ -51,9 +52,16 @@ const isShown = (term: PaymentTerm): boolean =>
 // Figma v2: US-111 Detail plateb · dluh po termínech · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21524-70991 (360 px: node-id=21524-71302)
 // Figma v2: US-112 Historie plateb · akce Upravit · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21569-72401 (360 px: node-id=21569-72747)
 // Figma (Design system): US-38 card "Individuální ubytování" · with request desktop https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=25587-110703 (mobile: 25587-110821); without 25587-110890 (mobile: 25587-111008)
-export function PaymentDetail({ applicationId }: { applicationId: string }) {
+export function PaymentDetail({
+  applicationId,
+  query: { data, isPending, error, refetch },
+  termStatuses,
+}: {
+  applicationId: string
+  query: UseQueryResult<PaymentApplication>
+  termStatuses: TermStatusDetail[] | undefined
+}) {
   const { t } = useTranslation("eventOverview")
-  const { data, isPending, error, refetch } = useQuery(paymentQueryOptions(applicationId))
   // The record dialog: for one term or the whole application, opened on a payment or a refund.
   const [editor, setEditor] = useState<{ term?: PaymentTerm; type: RecordType } | null>(null)
   const [paymentToCancel, setPaymentToCancel] = useState<Payment | null>(null)
@@ -126,6 +134,7 @@ export function PaymentDetail({ applicationId }: { applicationId: string }) {
         applicationId={applicationId}
         firstName={data.firstName}
         gender={data.gender}
+        terms={termStatuses}
       />
       <ParticipantDetails application={data} />
       {/* US-38: who asked to settle the accommodation individually, with the note; only for organizers. Hidden when nobody asked (#544). */}

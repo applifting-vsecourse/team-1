@@ -26,7 +26,7 @@ import {
 import { notify } from "@/lib/notify"
 import { termDates, termTitle } from "@/lib/term-label"
 
-import { paymentQueryOptions } from "@/features/event-overview/api/payments"
+import type { PaymentApplication } from "@/features/event-overview/api/payments"
 import { type TermStatusDetail } from "@/features/event-overview/api/termStatus"
 import {
   withdrawalPreviewQueryOptions,
@@ -46,11 +46,13 @@ const ALL = "all"
 // Figma (Design system): #32 Odhlásit celou přihlášku · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-35279 (mobile: 19786-35421)
 export function OrganizerWithdrawal({
   applicationId,
+  application,
   terms,
   initialTermId,
   onClose,
 }: {
   applicationId: string
+  application: Pick<PaymentApplication, "firstName" | "lastName" | "eventName"> | undefined
   /** Active terms only (neither cancelled nor archived). */
   terms: TermStatusDetail[]
   /** The term the dialog opens on; null withdraws from the whole application. */
@@ -59,7 +61,6 @@ export function OrganizerWithdrawal({
 }) {
   const { t } = useTranslation("eventOverview")
   const client = useQueryClient()
-  const application = useQuery(paymentQueryOptions(applicationId))
   const isWhole = initialTermId === null
   const [scope, setScope] = useState(initialTermId ?? ALL)
   const termIds = isWhole ? terms.map((term) => term.termId) : [scope]
@@ -86,8 +87,8 @@ export function OrganizerWithdrawal({
     },
   })
 
-  const subject = application.data
-    ? `${application.data.firstName} ${application.data.lastName} · ${application.data.eventName}`
+  const subject = application
+    ? `${application.firstName} ${application.lastName} · ${application.eventName}`
     : null
   const title = t(isWhole ? "withdrawal.wholeTitle" : "withdrawal.title")
   const impactRows = preview.data?.terms.filter((row) => row.isWithdrawn) ?? []
@@ -125,12 +126,12 @@ export function OrganizerWithdrawal({
             <DialogTitle className="text-2xl">{title}</DialogTitle>
             <DialogDescription className="sr-only">{subject ?? title}</DialogDescription>
           </DialogHeader>
-          {application.data ? (
+          {application ? (
             <div className="flex flex-col gap-1">
               <span className="text-lg font-semibold text-foreground">
-                {application.data.firstName} {application.data.lastName}
+                {application.firstName} {application.lastName}
               </span>
-              <span className="text-sm text-muted-foreground">{application.data.eventName}</span>
+              <span className="text-sm text-muted-foreground">{application.eventName}</span>
             </div>
           ) : null}
           {!isWhole ? (

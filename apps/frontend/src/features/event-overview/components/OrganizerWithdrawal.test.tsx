@@ -81,6 +81,7 @@ function setup(initialTermId: string | null, onClose = vi.fn()) {
     >
       <OrganizerWithdrawal
         applicationId="a1"
+        application={application}
         terms={terms}
         initialTermId={initialTermId}
         onClose={onClose}

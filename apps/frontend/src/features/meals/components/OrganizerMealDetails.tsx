@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, type UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -10,11 +10,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 
-import {
-  mealRosterQueryOptions,
-  organizerMealsQueryOptions,
-  type OrganizerMeals,
-} from "@/features/meals/api/meals"
+import { mealRosterQueryOptions, type OrganizerMeals } from "@/features/meals/api/meals"
 
 import { OrganizerMealEditor } from "./OrganizerMealEditor"
 
@@ -35,15 +31,12 @@ function restrictions(meals: OrganizerMeals) {
 // Figma: Karta Stravování · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27229-7474
 export function OrganizerMealCard({
   eventId,
-  applicationId,
+  query: { data, isPending, error, refetch },
 }: {
   eventId: string
-  applicationId: string
+  query: UseQueryResult<OrganizerMeals>
 }) {
   const { t } = useTranslation("meals")
-  const { data, isPending, error, refetch } = useQuery(
-    organizerMealsQueryOptions(eventId, applicationId),
-  )
   if (isPending) return <LoadingState />
   if (error) {
     return (

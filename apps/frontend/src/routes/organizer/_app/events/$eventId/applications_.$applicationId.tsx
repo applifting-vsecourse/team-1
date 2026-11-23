@@ -23,25 +23,37 @@ export const Route = createFileRoute(
 
 function PaymentPage() {
   const { eventId, applicationId } = Route.useParams()
-  // The cards below load the same queries; waiting for all of them here shows one loading state
-  // instead of one per card. A failed query ends its loading, its card shows the error.
   const payment = useQuery(paymentQueryOptions(applicationId))
   const meals = useQuery(organizerMealsQueryOptions(eventId, applicationId))
   const termStatuses = useQuery(termStatusesQueryOptions(applicationId))
   const history = useQuery(applicationHistoryQueryOptions(applicationId))
-  if ([payment, meals, termStatuses, history].some((query) => query.isPending)) {
+  // Wait for the first result of each section. Later retries belong to the individual cards.
+  if (
+    [payment, meals, termStatuses, history].some((query) => query.isPending && !query.isFetched)
+  ) {
     return <LoadingState />
   }
   return (
     <div className="flex flex-col gap-6">
-      <PaymentDetail applicationId={applicationId} />
+      <PaymentDetail
+        applicationId={applicationId}
+        query={payment}
+        termStatuses={termStatuses.data}
+      />
       <OrganizerMealCard
         eventId={eventId}
-        applicationId={applicationId}
+        query={meals}
       />
-      <TermStatuses applicationId={applicationId} />
-      <ApplicationSubstituteRecords applicationId={applicationId} />
-      <ApplicationHistory applicationId={applicationId} />
+      <TermStatuses
+        applicationId={applicationId}
+        query={termStatuses}
+        application={payment.data}
+      />
+      <ApplicationSubstituteRecords
+        applicationId={applicationId}
+        terms={termStatuses.data}
+      />
+      <ApplicationHistory query={history} />
     </div>
   )
 }
