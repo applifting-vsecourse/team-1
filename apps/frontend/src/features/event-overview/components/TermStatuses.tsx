@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { LogOut } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -11,10 +11,8 @@ import { formatDateTime } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { termDates, termName, termTitle } from "@/lib/term-label"
 
-import {
-  termStatusesQueryOptions,
-  type TermStatusDetail,
-} from "@/features/event-overview/api/termStatus"
+import type { PaymentApplication } from "@/features/event-overview/api/payments"
+import type { TermStatusDetail } from "@/features/event-overview/api/termStatus"
 import { OrganizerTermChange } from "@/features/event-overview/components/OrganizerTermChange"
 import { OrganizerWithdrawal } from "@/features/event-overview/components/OrganizerWithdrawal"
 import { TermStatusChange } from "@/features/event-overview/components/TermStatusChange"
@@ -24,9 +22,16 @@ const NEGATIVE = "transition-colors hover:bg-destructive/75"
 // Figma (Design system): #244 Stav v termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67758 (mobile: 19799-67905)
 // Figma (Design system): #364 Detail přihlášky · pořadí u termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-89925 (360 px: 22642-90090)
 // Empty: 19799-67980 / 19799-68116. Existing withdrawal, term change and audit history remain available.
-export function TermStatuses({ applicationId }: { applicationId: string }) {
+export function TermStatuses({
+  applicationId,
+  query: { data, isPending, error, refetch },
+  application,
+}: {
+  applicationId: string
+  query: UseQueryResult<TermStatusDetail[]>
+  application: PaymentApplication | undefined
+}) {
   const { t } = useTranslation("eventOverview")
-  const { data, isPending, error, refetch } = useQuery(termStatusesQueryOptions(applicationId))
   const [change, setChange] = useState<TermStatusDetail | null>(null)
   // US-32: the term the withdrawal dialog opens on; `null` there means the whole application.
   const [withdrawal, setWithdrawal] = useState<{ termId: string | null } | null>(null)
@@ -71,6 +76,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
           <p>{t("termStatus.emptyDescription")}</p>
           <OrganizerTermChange
             applicationId={applicationId}
+            application={application}
             term={null}
           />
         </div>
@@ -132,6 +138,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
                 <div className="flex w-full flex-col gap-2 *:w-full sm:w-auto sm:flex-row sm:flex-wrap sm:*:w-auto">
                   <OrganizerTermChange
                     applicationId={applicationId}
+                    application={application}
                     term={term}
                   />
                   {term.status === "CONFIRMED" ? (
@@ -171,6 +178,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
       {withdrawal ? (
         <OrganizerWithdrawal
           applicationId={applicationId}
+          application={application}
           terms={active}
           initialTermId={withdrawal.termId}
           onClose={() => setWithdrawal(null)}

@@ -1,7 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { termStatusesQueryOptions } from "@/features/event-overview/api/termStatus"
 import { AutoConfirmedNotice } from "@/features/event-overview/components/AutoConfirmedNotice"
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
@@ -38,17 +39,25 @@ const term = (records: object[]) => ({
   substituteRecords: records,
 })
 
+function AutoConfirmedNoticeUnderTest({ gender }: { gender: "FEMALE" | "MALE" }) {
+  const { data } = useQuery(termStatusesQueryOptions("a1"))
+  return (
+    <AutoConfirmedNotice
+      applicationId="a1"
+      firstName="Petr"
+      gender={gender}
+      terms={data}
+    />
+  )
+}
+
 function setup(records: object[], gender: "FEMALE" | "MALE" = "MALE") {
   get.mockReturnValue({ json: () => Promise.resolve([term(records)]) })
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <AutoConfirmedNotice
-        applicationId="a1"
-        firstName="Petr"
-        gender={gender}
-      />
+      <AutoConfirmedNoticeUnderTest gender={gender} />
     </QueryClientProvider>,
   )
 }

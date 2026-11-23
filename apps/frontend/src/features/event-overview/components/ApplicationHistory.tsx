@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -8,10 +8,7 @@ import { formatDate, formatDateTime } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { termTitle } from "@/lib/term-label"
 
-import {
-  applicationHistoryQueryOptions,
-  type HistoryEntry,
-} from "@/features/event-overview/api/applicationHistory"
+import type { HistoryEntry } from "@/features/event-overview/api/applicationHistory"
 
 /**
  * US-53: every change of the application with its time, author and what changed — the creation,
@@ -19,11 +16,12 @@ import {
  * the change, the system for an automatic one. The server decides what the history holds.
  */
 // Figma v2: US-53 Detail účastníka · Historie změn · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22475-86190 (mobile 22475-86352)
-export function ApplicationHistory({ applicationId }: { applicationId: string }) {
+export function ApplicationHistory({
+  query: { data, isPending, error, refetch },
+}: {
+  query: UseQueryResult<HistoryEntry[]>
+}) {
   const { t } = useTranslation("eventOverview")
-  const { data, isPending, error, refetch } = useQuery(
-    applicationHistoryQueryOptions(applicationId),
-  )
   if (isPending) return <LoadingState />
   if (error) {
     return (
