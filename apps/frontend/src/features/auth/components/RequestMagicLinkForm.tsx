@@ -79,9 +79,8 @@ export function RequestMagicLinkForm() {
         <PendingButton
           isPending={request.isPending}
           type="submit"
-          variant="outline"
           size="lg"
-          className="self-start"
+          className="w-full"
         >
           {t("requestLink.submit")}
         </PendingButton>

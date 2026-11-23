@@ -55,4 +55,12 @@ describe("RequestMagicLinkForm", () => {
     expect(await screen.findByText("Couldn't send the link")).toBeInTheDocument()
     expect(screen.getByLabelText("E-mail")).toBeInTheDocument()
   })
+
+  it("sends with a primary, full-width button", () => {
+    renderForm()
+
+    const button = screen.getByRole("button", { name: "Send me a link" })
+    expect(button).toHaveClass("w-full")
+    expect(button).not.toHaveClass("border")
+  })
 })
