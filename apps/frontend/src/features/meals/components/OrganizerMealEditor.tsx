@@ -129,13 +129,7 @@ function EditorForm({
           <AlertDescription>{mutation.error.message}</AlertDescription>
         </Alert>
       )}
-      <DialogFooter className="flex-col sm:flex-row">
-        <PendingButton
-          isPending={mutation.isPending}
-          type="submit"
-        >
-          {t("own.save")}
-        </PendingButton>
+      <DialogFooter>
         <Button
           type="button"
           variant="ghost"
@@ -144,6 +138,12 @@ function EditorForm({
         >
           {t("edit.cancel")}
         </Button>
+        <PendingButton
+          isPending={mutation.isPending}
+          type="submit"
+        >
+          {t("own.save")}
+        </PendingButton>
       </DialogFooter>
     </form>
   )

@@ -140,9 +140,7 @@ export function DeleteTransportDialog({
           <PendingButton
             isPending={mutation.isPending}
             variant="destructive"
-            className={
-              hasParticipants ? undefined : "order-first h-12 flex-1 sm:min-w-53 sm:flex-none"
-            }
+            className={hasParticipants ? undefined : "h-12 flex-1 sm:min-w-53 sm:flex-none"}
             size="lg"
             disabled={mutation.isPending || (hasParticipants && !isAcknowledged)}
             onClick={() => {

@@ -56,9 +56,12 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
         <SummaryPaymentDetails application={application} />
       ) : null}
       {application.canSimulatePayment && hasDebt ? (
-        <h2 className="text-lg font-semibold">{t("payment.simulation.heading")}</h2>
+        <h3 className="text-lg font-semibold">{t("payment.simulation.heading")}</h3>
       ) : null}
-      <TermPaymentCards isSingleColumn>
+      <TermPaymentCards
+        isSingleColumn
+        headingLevel="h3"
+      >
         {confirmed.map(({ payment, term }, index) => (
           <div
             key={payment.termId}
@@ -133,7 +136,7 @@ export function PaymentSummary({ application }: PaymentSummaryProps) {
       </TermPaymentCards>
       {simulatedPayments.length > 0 ? (
         <Card className="gap-2 p-6">
-          <h2 className="text-lg font-semibold">{t("payment.simulation.logTitle")}</h2>
+          <h3 className="text-lg font-semibold">{t("payment.simulation.logTitle")}</h3>
           <p className="text-sm text-muted-foreground">{t("payment.simulation.logDescription")}</p>
           <ul>
             {simulatedPayments.map((payment) => {
