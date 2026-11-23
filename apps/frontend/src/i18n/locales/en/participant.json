@@ -78,6 +78,7 @@
     "roomBeds": "Beds",
     "roomNotAssigned": "You have no room assigned yet.",
     "roomOccupancy_few": "{{occupied}} of {{count}} beds occupied",
+    "roomOccupancy_many": "{{occupied}} of {{count}} beds occupied",
     "roomOccupancy_one": "{{occupied}} of {{count}} bed occupied",
     "roomOccupancy_other": "{{occupied}} of {{count}} beds occupied",
     "roomSelf": "(you)",
