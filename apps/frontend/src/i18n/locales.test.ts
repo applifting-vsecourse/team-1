@@ -16,4 +16,20 @@ describe("translations", () => {
     const cs = resources.cs[namespace as keyof typeof resources.cs] as Tree
     expect(keysOf(cs).sort()).toEqual(keysOf(en).sort())
   })
+
+  // Czech has four plural forms (one, few, many for fractions, other); a missing one
+  // makes i18next fall back to English. The forms come from the runtime, not a hand list.
+  const forms = new Intl.PluralRules("cs").resolvedOptions().pluralCategories
+  const suffix = new RegExp(`_(${forms.join("|")})$`)
+
+  it.each(Object.keys(resources.cs))("cs plural keys in %s cover every form", (namespace) => {
+    const keys = keysOf(resources.cs[namespace as keyof typeof resources.cs])
+    const bases = new Set(
+      keys.filter((key) => suffix.test(key)).map((key) => key.replace(suffix, "")),
+    )
+    const missing = [...bases].flatMap((base) =>
+      forms.filter((form) => !keys.includes(`${base}_${form}`)).map((form) => `${base}_${form}`),
+    )
+    expect(missing).toEqual([])
+  })
 })

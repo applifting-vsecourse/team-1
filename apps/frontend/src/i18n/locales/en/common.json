@@ -106,6 +106,7 @@
     "page": "Page {{page}}",
     "previous": "Previous page",
     "range_few": "{{from}}–{{to}} of {{count}} results",
+    "range_many": "{{from}}–{{to}} of {{count}} results",
     "range_one": "{{from}}–{{to}} of {{count}} result",
     "range_other": "{{from}}–{{to}} of {{count}} results"
   },

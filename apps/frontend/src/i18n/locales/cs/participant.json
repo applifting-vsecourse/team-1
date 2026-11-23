@@ -77,6 +77,8 @@
     "program": "Program",
     "roomBeds": "Lůžka",
     "roomNotAssigned": "Zatím nemáte přiřazený pokoj.",
+    "roomOccupancy_few": "{{occupied}} z {{count}} lůžek obsazeno",
+    "roomOccupancy_many": "{{occupied}} z {{count}} lůžek obsazeno",
     "roomOccupancy_one": "{{occupied}} z {{count}} lůžka obsazeno",
     "roomOccupancy_other": "{{occupied}} z {{count}} lůžek obsazeno",
     "roomSelf": "(vy)",

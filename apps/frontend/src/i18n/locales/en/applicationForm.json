@@ -64,6 +64,7 @@
       "description": "Correct the marked fields. Details are shown next to each field.",
       "goToFirst": "Go to the first error",
       "title_few": "Correct {{count}} errors in the form",
+      "title_many": "Correct {{count}} errors in the form",
       "title_one": "Correct {{count}} error in the form",
       "title_other": "Correct {{count}} errors in the form"
     },
@@ -113,9 +114,11 @@
     "noTerms": "No term",
     "note": "Only terms with confirmed participation will be payable.",
     "participants_few": "{{count}} participants",
+    "participants_many": "{{count}} participants",
     "participants_one": "{{count}} participant",
     "participants_other": "{{count}} participants",
     "terms_few": "{{count}} terms",
+    "terms_many": "{{count}} terms",
     "terms_one": "{{count}} term",
     "terms_other": "{{count}} terms",
     "total": "Total"

@@ -64,6 +64,7 @@
       "description": "Opravte označená pole. Podrobnosti jsou u jednotlivých polí.",
       "goToFirst": "Přejít k první chybě",
       "title_few": "Opravte {{count}} chyby ve formuláři",
+      "title_many": "Opravte {{count}} chyb ve formuláři",
       "title_one": "Opravte {{count}} chybu ve formuláři",
       "title_other": "Opravte {{count}} chyb ve formuláři"
     },
@@ -113,9 +114,11 @@
     "noTerms": "Bez termínu",
     "note": "K úhradě budou jen termíny, ve kterých bude účast potvrzená.",
     "participants_few": "{{count}} účastníci",
+    "participants_many": "{{count}} účastníků",
     "participants_one": "{{count}} účastník",
     "participants_other": "{{count}} účastníků",
     "terms_few": "{{count}} termíny",
+    "terms_many": "{{count}} termínů",
     "terms_one": "{{count}} termín",
     "terms_other": "{{count}} termínů",
     "total": "Celkem"
