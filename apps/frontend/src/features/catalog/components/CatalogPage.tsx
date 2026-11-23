@@ -100,12 +100,14 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
         )}
       >
         <HeadingBand>
-          <BackLink to={selectedOrganization ? ROUTES.catalog : ROUTES.home}>
-            {t(selectedOrganization ? "event.back" : "list.backHome")}
-          </BackLink>
-          <h1 className="mt-6 text-2xl/8 font-bold tracking-tight md:text-4xl">
-            {selectedOrganization?.name ?? t("list.title")}
-          </h1>
+          <div className="flex items-start gap-3 md:gap-4">
+            <BackLink to={selectedOrganization ? ROUTES.catalog : ROUTES.home}>
+              {t(selectedOrganization ? "event.back" : "list.backHome")}
+            </BackLink>
+            <h1 className="min-w-0 self-center text-2xl/8 font-bold tracking-tight wrap-anywhere md:text-4xl">
+              {selectedOrganization?.name ?? t("list.title")}
+            </h1>
+          </div>
           {selectedOrganization ? null : (
             <p className="mt-3 text-muted-foreground">{t("list.description")}</p>
           )}

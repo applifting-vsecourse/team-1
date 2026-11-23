@@ -45,7 +45,11 @@ function renderHeader(path: string) {
     new Response(JSON.stringify(event), { headers: { "Content-Type": "application/json" } }),
   )
   const root = createRootRoute({ component: () => <EventHeader eventId="e1" /> })
-  const paths = ["/organizer/events/$eventId", "/organizer/events/$eventId/capacity"]
+  const paths = [
+    "/organizer/events",
+    "/organizer/events/$eventId",
+    "/organizer/events/$eventId/capacity",
+  ]
   const routes = paths.map((routePath) =>
     createRoute({ getParentRoute: () => root, path: routePath }),
   )
@@ -58,11 +62,24 @@ function renderHeader(path: string) {
       <RouterProvider router={router} />
     </QueryClientProvider>,
   )
+  return router
 }
 
 afterEach(() => vi.restoreAllMocks())
 
 describe("EventHeader sections", () => {
+  it("labels the icon on focus and returns to the event list with Enter", async () => {
+    const user = userEvent.setup()
+    const router = renderHeader("/organizer/events/e1/capacity")
+    const back = await screen.findByRole("link", { name: "All events" })
+
+    await user.tab()
+    expect(back).toHaveFocus()
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("All events")
+    await user.keyboard("{Enter}")
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe("/organizer/events"))
+  })
+
   it("shows only the current section on a phone", async () => {
     renderHeader("/organizer/events/e1/capacity")
 

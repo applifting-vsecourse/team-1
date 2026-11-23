@@ -728,20 +728,13 @@ describe("PaymentDetail refund of an overpayment (#399)", () => {
   })
 })
 
-it("renders the return to applications as an outlined, keyboard-accessible link", async () => {
+it("renders the return to applications as a round, keyboard-accessible link", async () => {
   respondWith(() => application([first]))
   setup()
   const link = await screen.findByRole("link", { name: "Back to applications" })
   expect(link).toHaveAttribute("href", "/organizer/events/e1/applications")
-  expect(link).toHaveAttribute("data-variant", "outline")
-  expect(link).toHaveAttribute("data-size", "lg")
-  expect(link).toHaveClass(
-    "border",
-    "rounded-control",
-    "max-w-full",
-    "whitespace-normal",
-    "focus-visible:outline-2",
-  )
+  expect(link).toHaveAttribute("data-size", "icon-lg")
+  expect(link).toHaveClass("rounded-full", "focus-visible:outline-2")
   await userEvent.tab()
   expect(link).toHaveFocus()
 })

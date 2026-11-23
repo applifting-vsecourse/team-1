@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { ArrowLeft } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BackButton } from "@/components/atoms/BackLink"
 import { DetailItem } from "@/components/molecules/DetailItem"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -53,14 +53,7 @@ export function ChangeRequestResult({
     })
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      <Button
-        variant="ghost"
-        className="self-start px-0"
-        onClick={onBack}
-      >
-        <ArrowLeft />
-        {t("changeRequests.back")}
-      </Button>
+      <BackButton onClick={onBack}>{t("changeRequests.back")}</BackButton>
       {request.isError ? (
         <ErrorState
           title={t("changeRequests.loadError")}

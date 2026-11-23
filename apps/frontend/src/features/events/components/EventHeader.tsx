@@ -61,15 +61,16 @@ export function EventHeader({ eventId }: { eventId: string }) {
   const isProgram = matches(ROUTES.organizer.eventProgram)
   const { data: event } = useQuery(eventQueryOptions(eventId))
 
+  // Figma v2: event header back arrow · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27316-3519
   const heading = (
-    <div className="flex flex-col items-start gap-2">
+    <div className="flex items-start gap-3 md:gap-4">
       <BackLink to={ROUTES.organizer.events}>{t("header.allEvents")}</BackLink>
       {event ? (
-        <div className="flex flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-1 wrap-anywhere">
           <span className="text-sm text-muted-foreground md:text-base">
             {event.organizationName}
           </span>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="flex flex-col items-start gap-x-3 gap-y-2 md:flex-row md:flex-wrap md:items-center">
             <h1 className="min-w-0 text-2xl font-bold tracking-tight wrap-anywhere md:text-3xl">
               {event.name}
             </h1>

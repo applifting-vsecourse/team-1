@@ -100,14 +100,14 @@ export function PaymentDetail({
   return (
     <div className="flex flex-col gap-4">
       <Seo title={t("payment.title")} />
-      <div className="flex flex-col gap-2">
+      <div className="flex items-start gap-3 md:gap-4">
         <BackLink
           to={ROUTES.organizer.eventApplications}
           params={{ eventId: data.eventId }}
         >
           {t("payment.back")}
         </BackLink>
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="flex min-w-0 flex-1 flex-col gap-3 wrap-anywhere md:flex-row md:items-center">
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
               {data.firstName} {data.lastName}

@@ -22,8 +22,12 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
   return (
     <article className="flex flex-col gap-6">
       <header className="flex flex-col items-start gap-2">
-        <BackLink to={ROUTES.catalog}>{t("event.back")}</BackLink>
-        <h1 className="text-2xl font-bold tracking-tight md:text-[32px]/10">{event.name}</h1>
+        <div className="flex items-start gap-3 md:gap-4">
+          <BackLink to={ROUTES.catalog}>{t("event.back")}</BackLink>
+          <h1 className="min-w-0 self-center text-2xl font-bold tracking-tight wrap-anywhere md:text-[32px]/10">
+            {event.name}
+          </h1>
+        </div>
         <div className="mt-4 w-full md:mt-6">
           <BrandDivider className="md:[&>span]:w-20" />
         </div>
