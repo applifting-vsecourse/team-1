@@ -10,6 +10,7 @@ import { Seo } from "@/components/atoms/Seo"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
+import { ViewToggleGroup, ViewToggleGroupItem } from "@/components/molecules/ViewToggleGroup"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -22,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { notify } from "@/lib/notify"
 import { roomCapacityIncreaseKey, type RoomCapacityIncrease } from "@/lib/room-capacity-increase"
@@ -232,12 +232,8 @@ export function RoomsPage({
   const viewBar = (
     <div className="flex flex-col gap-6 print:hidden">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end print:hidden">
-        <ToggleGroup
-          type="single"
-          variant="default"
-          spacing={2}
+        <ViewToggleGroup
           aria-label={t("roomOverview.views")}
-          className="max-w-full justify-start rounded-none border-b max-sm:w-full sm:flex-1"
           value={view}
           onValueChange={(next) => {
             // Pressing the active view again must not leave the group empty.
@@ -245,21 +241,20 @@ export function RoomsPage({
           }}
         >
           {(["assignment", "overview"] as const).map((item) => (
-            <ToggleGroupItem
+            <ViewToggleGroupItem
               key={item}
               value={item}
-              className="h-auto rounded-none border-0 border-b border-border px-3 py-2 text-sm leading-5 font-medium shadow-none hover:bg-wash hover:text-foreground focus-visible:border-2 focus-visible:border-ring focus-visible:ring-0 data-[state=on]:border-b-2 data-[state=on]:border-primary data-[state=on]:bg-transparent data-[state=on]:text-link max-sm:flex-1"
             >
               {t(
                 item === "assignment" ? "roomOverview.viewAssignment" : "roomOverview.viewOverview",
               )}
-            </ToggleGroupItem>
+            </ViewToggleGroupItem>
           ))}
-        </ToggleGroup>
+        </ViewToggleGroup>
         <Button
           variant="outline"
           size="lg"
-          className="max-sm:w-full"
+          className="max-sm:w-full sm:ml-auto"
           disabled={term.rooms.length === 0}
           onClick={() => window.print()}
         >

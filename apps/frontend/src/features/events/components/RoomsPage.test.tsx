@@ -187,7 +187,11 @@ describe("accommodation by term", () => {
     expect(assignment).toBeChecked()
     const term = screen.getByRole("combobox", { name: "Term" })
     expect(views.compareDocumentPosition(term) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    await user.click(rooms)
+    await user.tab()
+    expect(assignment).toHaveFocus()
+    await user.keyboard("{ArrowRight}")
+    await waitFor(() => expect(rooms).toHaveFocus())
+    await user.keyboard(" ")
     expect(onSelectView).toHaveBeenCalledWith("overview")
   })
 
@@ -232,7 +236,7 @@ describe("accommodation by term", () => {
     expect(await screen.findByRole("button", { name: "Print overview" })).toHaveClass(
       "max-sm:w-full",
     )
-    expect(screen.getByRole("radiogroup")).toHaveClass("max-sm:w-full")
+    expect(screen.getByRole("radiogroup")).toHaveClass("w-fit")
   })
 
   it("shows the extra beds in the title only when a room has some, without a +0", async () => {

@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { ViewToggleGroup, ViewToggleGroupItem } from "@/components/molecules/ViewToggleGroup"
 import { Badge } from "@/components/ui/badge"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 import { substituteProposalsQueryOptions } from "@/features/event-overview/api/substitutes"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
@@ -33,12 +33,8 @@ export function ApplicationViews({
   // US-31: the substitutes view carries the number of free beds waiting for the organizer.
   const proposalCount = useQuery(substituteProposalsQueryOptions(eventId)).data?.length ?? 0
   return (
-    <ToggleGroup
-      type="single"
-      variant="default"
-      spacing={0}
+    <ViewToggleGroup
       aria-label={t("queue.views")}
-      className="max-w-full flex-wrap justify-start rounded-none border-b"
       // The queue and the waitlist are views of their own; any other status is still "All".
       value={
         filters.view === "CHANGE_REQUESTS"
@@ -48,7 +44,6 @@ export function ApplicationViews({
             : "all"
       }
       onValueChange={(value) => {
-        // Pressing the active chip again must not leave the group empty.
         // Pressing the active chip again must not leave the group empty; on "All" it clears a
         // status picked in the filter (confirmed, cancelled).
         const chosen = value || "all"
@@ -67,7 +62,7 @@ export function ApplicationViews({
       }}
     >
       {VIEWS.map((view) => (
-        <ToggleGroupItem
+        <ViewToggleGroupItem
           key={view.key}
           value={view.value}
           aria-label={
@@ -75,7 +70,6 @@ export function ApplicationViews({
               ? t("queue.proposalCount", { view: t(`queue.${view.key}`), count: proposalCount })
               : undefined
           }
-          className="-mb-px h-auto rounded-none border-0 border-b-2 border-transparent px-3 py-2 text-sm leading-5 font-medium shadow-none hover:bg-wash hover:text-foreground focus-visible:border-2 focus-visible:border-ring focus-visible:ring-0 data-[state=on]:border-primary data-[state=on]:bg-transparent data-[state=on]:text-link"
         >
           {t(`queue.${view.key}`)}
           {view.value === "WAITLISTED" && proposalCount > 0 ? (
@@ -86,8 +80,8 @@ export function ApplicationViews({
               {proposalCount}
             </Badge>
           ) : null}
-        </ToggleGroupItem>
+        </ViewToggleGroupItem>
       ))}
-    </ToggleGroup>
+    </ViewToggleGroup>
   )
 }

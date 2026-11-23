@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ApplicationViews } from "@/features/event-overview/components/ApplicationViews"
@@ -18,6 +19,8 @@ const proposal = (id: string) => ({
 })
 
 function setup(proposals: object[]) {
+  const onChange = vi.fn()
+  const user = userEvent.setup()
   get.mockReturnValue({ json: () => Promise.resolve(proposals) })
   render(
     <QueryClientProvider
@@ -26,10 +29,11 @@ function setup(proposals: object[]) {
       <ApplicationViews
         eventId="e1"
         filters={{}}
-        onChange={() => undefined}
+        onChange={onChange}
       />
     </QueryClientProvider>,
   )
+  return { user, onChange }
 }
 
 beforeEach(() => vi.clearAllMocks())
@@ -48,5 +52,19 @@ describe("views of the applications (US-31)", () => {
     setup([])
     expect(await screen.findByRole("radio", { name: "Waitlisted" })).toBeVisible()
     expect(screen.getByRole("radio", { name: "Waitlisted" })).not.toHaveTextContent(/\d/)
+  })
+
+  it("moves focus between views and selects the focused view with the keyboard", async () => {
+    const { user, onChange } = setup([])
+    const all = await screen.findByRole("radio", { name: "All applications" })
+    const waiting = screen.getByRole("radio", { name: "Awaiting evaluation" })
+
+    await user.tab()
+    expect(all).toHaveFocus()
+    await user.keyboard("{ArrowRight}")
+    await waitFor(() => expect(waiting).toHaveFocus())
+    expect(onChange).not.toHaveBeenCalled()
+    await user.keyboard(" ")
+    expect(onChange).toHaveBeenCalledWith({ status: "TO_EVALUATE" })
   })
 })
