@@ -47,8 +47,7 @@ const SPRING_PEOPLE: [Person, number[], string[]?][] = [
   [
     ["Karel", "Kamarádský", "MALE", "2010-07-07"],
     [0, 1],
-    ["Tonda Tichý", "Lojza Loajální"],
-  ], // the demo participant, set below
+  ], // the demo participant: a clean application, no wishes, nothing paid, set below
   [["Tonda", "Tichý", "MALE", "2011-01-19"], [0, 1], ["Karel Kamarádský"]],
   [["Lojza", "Loajální", "MALE", "2010-09-25"], [0], ["Karel Kamarádský", "Tonda Tichý"]],
   [["Romeo", "Romantický", "MALE", "2011-04-04"], [0], ["Julie Juliánová"]],
@@ -105,8 +104,8 @@ export async function seedPresentationData(
       ...rooms("MALE", ["Modřín"], 2),
     ],
     applicants: springApplicants,
-    // Dáša Dlužná pays nothing, two people paid half, the others the whole first week.
-    payments: { 1: "full", 2: "half", 3: "full", 6: "full", 7: "half", 9: "full" },
+    // Dáša Dlužná and Karel Kamarádský (the clean application of the demo) pay nothing, two people paid half, the others the whole first week.
+    payments: { 1: "full", 2: "half", 3: "full", 7: "half", 9: "full" },
     arrival: { first: new Date("2026-10-25T19:00:00+02:00"), intervalMs: 7 * 60 * 60_000 },
   })
 

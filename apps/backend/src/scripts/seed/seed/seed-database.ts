@@ -400,7 +400,8 @@ export const seedDatabase = async (
     createEvent,
   })
 
-  await seedParticipantNotifications(prisma, participant.id)
+  // Made-up notifications of the test participant; the demo participant starts with a clean application.
+  if (isTest) await seedParticipantNotifications(prisma, participant.id)
 }
 
 export type CreateEventParams = {
