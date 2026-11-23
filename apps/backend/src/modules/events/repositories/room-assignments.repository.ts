@@ -105,6 +105,9 @@ export class RoomAssignmentsRepository {
       birthYear: row.application.birthDate.getUTCFullYear(),
       gender: row.application.gender,
       individualAccommodation: row.application.individualAccommodation,
+      accommodationRequest: row.application.individualAccommodation
+        ? row.application.accommodationRequest
+        : null,
       status: row.status,
       // Individual accommodation has no wishes, even when some were saved before the switch.
       wishes: row.application.individualAccommodation

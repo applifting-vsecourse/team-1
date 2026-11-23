@@ -21,6 +21,8 @@ const participantSchema = z.object({
   gender: genderSchema,
   /** Asked to settle the accommodation individually (US-38). */
   individualAccommodation: z.boolean(),
+  /** The applicant's note to that request; shown in a tooltip of the badge. */
+  accommodationRequest: z.string().nullable(),
   status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
   wishes: z.array(roomWishSchema),
 })
