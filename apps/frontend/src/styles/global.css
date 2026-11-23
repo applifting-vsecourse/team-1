@@ -293,17 +293,32 @@
     size: A4;
     margin: 15mm;
   }
-  body:has([data-print-area]) * {
-    visibility: hidden;
+  /* Everything outside the block is removed from the layout (`display: none`), not just hidden:
+     hidden content still takes its height and pushed the block onto blank pages. The block's
+     ancestors stay, flattened to plain blocks so no fixed height, overflow or offset cuts the
+     printout into pages. */
+  body:has([data-print-area])
+    *:not(:has([data-print-area])):not([data-print-area]):not([data-print-area] *) {
+    display: none !important;
   }
-  body:has([data-print-area]) [data-print-area],
-  body:has([data-print-area]) [data-print-area] * {
-    visibility: visible;
+  body:has([data-print-area]) *:has([data-print-area]) {
+    display: block !important;
+    position: static !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
   }
+  /* A flex container does not break between pages reliably (a blank last page, a split room), so
+     the block prints as plain blocks; the gap of its screen layout becomes a margin. */
   body:has([data-print-area]) [data-print-area] {
-    position: absolute;
-    inset-inline: 0;
-    top: 0;
+    display: block !important;
+  }
+  body:has([data-print-area]) [data-print-area] > * + * {
+    margin-top: 1.5rem;
   }
 }
 
