@@ -32,7 +32,7 @@ export function SummaryPaymentDetails({ application }: Props) {
 
   return (
     <Card className="gap-4 p-6">
-      <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
+      <h3 className="text-lg font-semibold">{t("payment.totalOwed")}</h3>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <dl className="flex flex-col gap-3 sm:min-w-0 sm:flex-1">
           <QrDetail label={t("payment.amount")}>
@@ -79,7 +79,7 @@ export function SummaryPaymentDetails({ application }: Props) {
             </dd>
           </div>
         </dl>
-        <div className="shrink-0">
+        <div className="shrink-0 sm:max-w-48">
           <PaymentQrDownload
             spayd={spayd}
             variableSymbol={details.summary.variableSymbol}

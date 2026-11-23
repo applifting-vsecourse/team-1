@@ -3,6 +3,10 @@
 export type Account = { email: string; password: string }
 
 export const ORGANIZER: Account = { email: "organizator@example.com", password: "password1" }
+export const MOUNTAIN_ORGANIZER: Account = {
+  email: "organizator2@example.com",
+  password: "password2",
+}
 export const PARTICIPANT: Account = { email: "ucastnik@example.com", password: "password4" }
 
 /** Public application link of the seeded „Letní kemp 2027“ (terms 4 500 + 4 900 CZK). */
