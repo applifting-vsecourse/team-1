@@ -180,7 +180,7 @@ export function PaymentEditor({
     >
       <DialogContent
         className={cn(
-          "max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto p-6 sm:max-w-130",
+          "max-h-[calc(100dvh-2rem)] grid-cols-1 gap-4 overflow-y-auto p-6 sm:max-w-160",
           isRefundUnavailable && "sm:gap-6",
         )}
       >
