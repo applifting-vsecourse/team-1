@@ -58,13 +58,13 @@ function ParticipantLoginPage() {
             <Link to={ROUTES.participant.magicLink}>{t("participantLogin.requestLink")}</Link>
           </Button>
         </div>
-        <div className="flex flex-col items-start gap-1 border-t pt-4">
+        <div className="flex flex-col gap-3 border-t pt-4">
           <p className="text-muted-foreground">{t("participantLogin.otherAccount")}</p>
           <Button
             asChild
-            variant="ghost"
+            variant="secondary"
             size="lg"
-            className="-ml-3"
+            className="w-full border border-primary/30 text-primary"
           >
             <Link to={ROUTES.organizer.login}>
               {t("organizerLogin.title")}

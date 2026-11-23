@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { ChevronRight } from "lucide-react"
+import { CalendarDays, ChevronRight, UserRound, Wallet } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -27,12 +27,20 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
       <Card className="gap-0 rounded-xl p-0 shadow-none transition-colors hover:border-ring hover:bg-accent/40">
         <div className="flex items-start justify-between gap-4 p-4 md:px-6">
           <div className="flex min-w-0 flex-col gap-1">
-            <h3>
-              {application.firstName} {application.lastName}
-              {" · "}
-              <span className="text-sm text-muted-foreground">{application.code}</span>
+            <h3 className="flex items-center gap-2 text-lg font-semibold">
+              <UserRound
+                aria-hidden
+                className="size-5 shrink-0 text-primary"
+              />
+              <span>
+                {application.firstName} {application.lastName}
+                {" · "}
+                <span className="text-sm font-normal text-muted-foreground">
+                  {application.code}
+                </span>
+              </span>
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="pl-7 text-sm text-muted-foreground">
               {[
                 application.birthDate && formatDate(application.birthDate),
                 application.gender &&
@@ -56,14 +64,26 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               key={term.termId}
               className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
             >
-              <TermLabel term={term} />
+              <span className="flex items-center gap-2">
+                <CalendarDays
+                  aria-hidden
+                  className="size-4 shrink-0 text-muted-foreground"
+                />
+                <TermLabel term={term} />
+              </span>
               <TermStatusBadge term={term} />
             </li>
           ))}
         </ul>
         <dl className="grid grid-cols-2 gap-4 border-t p-4 md:px-6">
           <div>
-            <dt className="text-sm text-muted-foreground">{t("list.termPrice")}</dt>
+            <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Wallet
+                aria-hidden
+                className="size-4"
+              />
+              {t("list.termPrice")}
+            </dt>
             <dd>
               <MoneyAmount amountCzk={application.amountDueCzk} />
             </dd>

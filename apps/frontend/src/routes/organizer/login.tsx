@@ -39,6 +39,7 @@ function OrganizerLoginPage() {
         title={t("organizerLogin.title")}
         description={t("organizerLogin.description")}
         isSingleCard
+        showDivider={false}
         footer={
           <div className="flex flex-col gap-4 border-t pt-4">
             <Button
@@ -51,9 +52,9 @@ function OrganizerLoginPage() {
             </Button>
             <Button
               asChild
-              variant="ghost"
+              variant="secondary"
               size="lg"
-              className="self-center"
+              className="w-full border border-primary/30 text-primary"
             >
               <Link to={ROUTES.participant.login}>
                 {t("organizerLogin.participantLink")}
