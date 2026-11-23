@@ -6,9 +6,17 @@ export function downloadCsv(fileName: string, text: string): void {
   const url = URL.createObjectURL(new Blob(["﻿", text], { type: "text/csv;charset=utf-8" }))
   const link = document.createElement("a")
   link.href = url
-  link.download = fileName
+  link.download = ensureCsvExtension(fileName)
+  // Attached to the DOM and revoked later: otherwise some browsers ignore `download` and save the
+  // blob under its generated name without an extension.
+  document.body.append(link)
   link.click()
-  URL.revokeObjectURL(url)
+  link.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+function ensureCsvExtension(fileName: string): string {
+  return /\.csv$/i.test(fileName) ? fileName : `${fileName}.csv`
 }
 
 /** `vypis.csv` → `vypis-result.csv` */
