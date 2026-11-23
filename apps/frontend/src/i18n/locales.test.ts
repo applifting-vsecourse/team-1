@@ -16,4 +16,23 @@ describe("translations", () => {
     const cs = resources.cs[namespace as keyof typeof resources.cs] as Tree
     expect(keysOf(cs).sort()).toEqual(keysOf(en).sort())
   })
+
+  // Czech needs the "few" form (2–4); without it i18next falls back to English.
+  it.each(Object.keys(resources.cs))(
+    "cs plural keys in %s cover one, few and other",
+    (namespace) => {
+      const keys = keysOf(resources.cs[namespace as keyof typeof resources.cs])
+      const bases = new Set(
+        keys
+          .filter((key) => /_(one|few|other)$/.test(key))
+          .map((key) => key.replace(/_(one|few|other)$/, "")),
+      )
+      const missing = [...bases].flatMap((base) =>
+        ["one", "few", "other"]
+          .filter((form) => !keys.includes(`${base}_${form}`))
+          .map((form) => `${base}_${form}`),
+      )
+      expect(missing).toEqual([])
+    },
+  )
 })
