@@ -224,10 +224,19 @@ const roomsOfFive = (gender: Gender, firstNumber: number): SeedRoom[] =>
 
 export async function seedSprintDemo(
   prisma: PrismaService,
-  context: { organizationId: string; recordedById: string; createEvent: CreateEvent },
+  context: {
+    organizationId: string
+    recordedById: string
+    createEvent: CreateEvent
+    /** Rodinný víkend and Zimní výjezd exist for the tests (catalog, shared rooms); off in dev and staging. */
+    includeTestFixtures: boolean
+  },
 ): Promise<void> {
-  const { organizationId, recordedById, createEvent } = context
+  const { organizationId, recordedById, createEvent, includeTestFixtures } = context
   const common = { organizationId, recordedById }
+
+  // The tests stand on all of these (full camp, shared rooms, draft); dev and staging show other data.
+  if (!includeTestFixtures) return
 
   console.log("Creating sprint demo events")
 
