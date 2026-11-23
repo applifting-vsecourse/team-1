@@ -55,6 +55,9 @@ export function EventHeader({ eventId }: { eventId: string }) {
     matches(ROUTES.organizer.eventTransport) ||
     matches(ROUTES.organizer.eventCancellationTerms) ||
     matches(ROUTES.organizer.newApplication)
+  // Transport and settings look like the other event sections: no brand divider under the heading.
+  const hasTabsOnly =
+    matches(ROUTES.organizer.eventTransport) || matches(ROUTES.organizer.eventSettings)
   const isProgram = matches(ROUTES.organizer.eventProgram)
   const { data: event } = useQuery(eventQueryOptions(eventId))
 
@@ -100,7 +103,7 @@ export function EventHeader({ eventId }: { eventId: string }) {
             {heading}
           </HeadingBand>
         )}
-        {isCompact && <BrandDivider />}
+        {isCompact && !hasTabsOnly && <BrandDivider />}
       </header>
       <EventTabs eventId={eventId} />
     </>
