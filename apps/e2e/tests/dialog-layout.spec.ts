@@ -97,14 +97,14 @@ async function expectActionOrder(
   primary: Locator,
   direction: "column" | "row",
 ) {
-  await primary.scrollIntoViewIfNeeded()
+  await (direction === "column" ? secondary : primary).scrollIntoViewIfNeeded()
   await expect(secondary).toBeInViewport()
   await expect(primary).toBeInViewport()
   const first = await secondary.boundingBox()
   const second = await primary.boundingBox()
   if (!first || !second) throw new Error("Both dialog actions must have a visible box")
   if (direction === "column") {
-    expect(first.y + first.height).toBeLessThanOrEqual(second.y)
+    expect(second.y + second.height).toBeLessThanOrEqual(first.y)
     expect(Math.abs(first.x - second.x)).toBeLessThanOrEqual(1)
   } else {
     expect(first.x + first.width).toBeLessThanOrEqual(second.x)
@@ -276,9 +276,7 @@ for (const [index, width] of [360, 1280].entries()) {
     await expect(page.getByText("Distribution saved", { exact: true })).toBeVisible()
   })
 
-  test(`payment cancellation and meal editing put the safe action first at ${width} px`, async ({
-    page,
-  }) => {
+  test(`payment cancellation and meal editing order actions for ${width} px`, async ({ page }) => {
     await openEventSection(page, "Applications", width, 800)
     await page.getByRole("searchbox", { name: "Search applications" }).fill("Tomáš Dvořák")
     await expect(page.getByRole("heading", { name: "1 application", exact: true })).toBeVisible()

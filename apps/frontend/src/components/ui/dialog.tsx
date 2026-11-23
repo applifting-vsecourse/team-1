@@ -152,7 +152,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-// Put the secondary action first so DOM order also works for both footer layouts.
+// Keep the secondary action first in the DOM for desktop layout and initial focus.
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -166,7 +166,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end sm:*:flex-1 [&>button]:h-auto [&>button]:text-center [&>button]:whitespace-normal [&>button[data-size=default]]:min-h-10 [&>button[data-size=lg]]:min-h-11 [&>button[data-size=lg]]:py-2",
+        "flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:justify-end sm:*:flex-1 [&>button]:h-auto [&>button]:text-center [&>button]:whitespace-normal [&>button[data-size=default]]:min-h-10 [&>button[data-size=lg]]:min-h-11 [&>button[data-size=lg]]:py-2",
         className,
       )}
       {...props}
