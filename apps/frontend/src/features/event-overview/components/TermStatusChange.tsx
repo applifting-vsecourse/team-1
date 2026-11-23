@@ -194,7 +194,7 @@ export function TermStatusChange({
         {!mutation.isPending ? (
           <p className="text-sm text-muted-foreground">{t("termStatus.changeNotice")}</p>
         ) : null}
-        <DialogFooter className="flex-col gap-4 sm:flex-row">
+        <DialogFooter className="gap-4">
           {!mutation.isPending ? (
             <Button
               variant="ghost"

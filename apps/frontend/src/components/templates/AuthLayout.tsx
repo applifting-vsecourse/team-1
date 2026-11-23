@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
+import { BandBackdrop } from "@/components/atoms/BandBackdrop"
 import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { useIsEmbeddedPage } from "@/components/atoms/EmbeddedPage"
 import { HeadingBand } from "@/components/atoms/HeadingBand"
@@ -98,7 +99,8 @@ export function AuthLayout({
   return (
     <div className="flex min-h-svh flex-col">
       <Header />
-      <main className="relative flex-1">
+      <main className="relative flex-1 overflow-hidden">
+        {isSingleCard ? <BandBackdrop className="h-40 lg:h-56" /> : null}
         <div className="relative">{content}</div>
       </main>
       {isSingleCard ? (

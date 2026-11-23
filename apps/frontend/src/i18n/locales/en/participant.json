@@ -187,6 +187,7 @@
     "account": "Bank account",
     "amount": "Amount",
     "copyAmount": "Copy amount",
+    "heading": "Payments",
     "overpaymentNotTransferred": "An overpayment is not carried over between terms.",
     "overpaymentRefund": "Arrange the refund of the overpayment with the organizer.",
     "qrAlt": "QR code for the combined payment",

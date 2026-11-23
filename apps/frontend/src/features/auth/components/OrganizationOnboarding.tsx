@@ -42,14 +42,14 @@ export function OrganizationOnboarding() {
 
   if (memberships.isPending || (organizationId && profileQuery.isPending && !created)) {
     return (
-      <RegistrationLayout>
+      <RegistrationLayout isSignedIn>
         <p>{t("registration.loading")}</p>
       </RegistrationLayout>
     )
   }
   if (memberships.error || profileQuery.error) {
     return (
-      <RegistrationLayout>
+      <RegistrationLayout isSignedIn>
         <Alert variant="destructive">
           <AlertDescription>{t("registration.loadFailed")}</AlertDescription>
         </Alert>
@@ -112,7 +112,10 @@ function CreateOrganizationForm({
   }
 
   return (
-    <RegistrationLayout step="organizationStep">
+    <RegistrationLayout
+      isSignedIn
+      step="organizationStep"
+    >
       <Seo title={t("registration.createOrganizationTitle")} />
       <h1 className="text-2xl font-bold tracking-tight">
         {t("registration.createOrganizationTitle")}
@@ -208,7 +211,10 @@ function OrganizationProfileForm({
   }
 
   return (
-    <RegistrationLayout step="profileStep">
+    <RegistrationLayout
+      isSignedIn
+      step="profileStep"
+    >
       <Seo title={t("registration.profileTitle")} />
       <h1 className="text-2xl font-bold tracking-tight">{t("registration.profileTitle")}</h1>
       <BrandDivider />
@@ -304,7 +310,10 @@ function OrganizationProfileForm({
 function OrganizationReady({ profile }: { profile: OrganizationProfile }) {
   const { t } = useTranslation("auth")
   return (
-    <RegistrationLayout step="profileStep">
+    <RegistrationLayout
+      isSignedIn
+      step="profileStep"
+    >
       <Seo title={t("registration.readyTitle")} />
       <h1 className="text-2xl font-bold tracking-tight">{t("registration.readyTitle")}</h1>
       <BrandDivider />

@@ -220,9 +220,11 @@ export function TermSteps({
   onEditRoomWishes: (termId: string) => void
 }) {
   const { t } = useTranslation("participant")
+  const { t: tCommon } = useTranslation("common")
+  // A cancelled term has no steps but still gets its status and a line of text, so the section is not empty.
   const cards = application.terms
     .map((term) => ({ term, steps: termSteps(application, term, t, onEditRoomWishes) }))
-    .filter(({ steps }) => steps.length > 0)
+    .filter(({ term, steps }) => steps.length > 0 || term.status === "CANCELLED")
   if (cards.length === 0) return null
 
   return (
@@ -247,8 +249,17 @@ export function TermSteps({
               </div>
               <TermStatusBadge term={term} />
             </div>
-            <h4 className="border-t pt-2 text-base font-medium">{t("detail.steps.title")}</h4>
-            <ul className="flex flex-col gap-2">
+            {steps.length === 0 ? (
+              <p className="border-t pt-2 text-sm text-muted-foreground">
+                {tCommon("termPayment.note.CANCELLED")}
+              </p>
+            ) : (
+              <h4 className="border-t pt-2 text-base font-medium">{t("detail.steps.title")}</h4>
+            )}
+            <ul
+              hidden={steps.length === 0}
+              className="flex flex-col gap-2"
+            >
               {steps.map((step) => (
                 <li
                   key={step.key}

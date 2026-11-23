@@ -28,6 +28,7 @@ import {
 import { formatCzk } from "@/lib/money"
 import { notify } from "@/lib/notify"
 import { termLine } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import {
   changeParticipantTerms,
@@ -47,9 +48,12 @@ export type { ChangeMode }
 export function ParticipantTermActions({
   application,
   onStart,
+  className,
 }: {
   application: MyApplication
   onStart: (mode: ChangeMode) => void
+  /** `contents` lets the buttons join a button row of the parent. */
+  className?: string
 }) {
   const { t } = useTranslation("participant")
   const requests = useQuery(participantChangeRequestsQueryOptions(application.id))
@@ -60,7 +64,7 @@ export function ParticipantTermActions({
   }
   const isPendingRequest = requests.data?.some((request) => request.status === "PENDING") ?? false
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+    <div className={cn("flex flex-col gap-3 sm:flex-row sm:flex-wrap", className)}>
       <Button
         variant="outline"
         size="lg"

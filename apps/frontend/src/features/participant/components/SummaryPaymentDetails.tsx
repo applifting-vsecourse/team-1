@@ -32,7 +32,7 @@ export function SummaryPaymentDetails({ application }: Props) {
 
   return (
     <Card className="gap-4 p-6">
-      <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
+      <h3 className="text-lg font-semibold">{t("payment.totalOwed")}</h3>
       <dl className="flex flex-col gap-3">
         <QrDetail label={t("payment.amount")}>
           <MoneyAmount amountCzk={amountCzk} />
