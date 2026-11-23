@@ -25,6 +25,8 @@ describe("NotFoundPage", () => {
         "The link may be incorrect or no longer valid. You can continue from the homepage.",
       ),
     ).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Go to homepage" })).toHaveAttribute("href", "/")
+    const back = screen.getByRole("link", { name: "Go to homepage" })
+    expect(back).toHaveAttribute("href", "/")
+    expect(back).toHaveClass("rounded-full", "size-11")
   })
 })

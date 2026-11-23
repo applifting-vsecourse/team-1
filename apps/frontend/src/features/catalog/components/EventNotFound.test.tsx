@@ -23,6 +23,8 @@ describe("EventNotFound", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "This event page is unavailable." }),
     ).toBeVisible()
-    expect(screen.getByRole("link", { name: "Go to homepage" })).toHaveAttribute("href", "/")
+    const back = screen.getByRole("link", { name: "Go to homepage" })
+    expect(back).toHaveAttribute("href", "/")
+    expect(back).toHaveClass("rounded-full", "size-11")
   })
 })
