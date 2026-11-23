@@ -72,6 +72,12 @@ export const seedDatabase = async (
     console.error("Error truncating tables:", error)
   }
 
+  // Fixtures the integration and E2E tests stand on (NODE_ENV "test"): kept exactly as they are,
+  // but left out of dev and staging, where only the demo data is seeded.
+  const isTest = process.env.NODE_ENV === "test"
+  const createTestEvent = (params: CreateEventParams): Promise<void> =>
+    isTest ? createEvent(prisma, params) : Promise.resolve()
+
   console.log("Creating accounts")
 
   // Create a superadmin user. This should be delete in prod app.
@@ -112,12 +118,14 @@ export const seedDatabase = async (
   })
 
   // A second participant with several terms to pay (US-41): one paid, one part-paid, one unpaid.
-  const payingParticipant = await createUser(betterAuth, {
-    email: "ucastnik2@example.com",
-    password: "password5",
-    name: "Adam Dvořák",
-    accountType: "PARTICIPANT",
-  })
+  const payingParticipant = isTest
+    ? await createUser(betterAuth, {
+        email: "ucastnik2@example.com",
+        password: "password5",
+        name: "Adam Dvořák",
+        accountType: "PARTICIPANT",
+      })
+    : undefined
 
   console.log("Creating organizations and events")
 
@@ -136,7 +144,7 @@ export const seedDatabase = async (
     ],
   })
 
-  await createEvent(prisma, {
+  await createTestEvent({
     organizationId: summerCamp.id,
     recordedById: organizerA.id,
     name: "Letní kemp 2027",
@@ -211,7 +219,7 @@ export const seedDatabase = async (
     payments: { 0: "full", 1: 2000 },
   })
 
-  await createEvent(prisma, {
+  await createTestEvent({
     organizationId: mountainClub.id,
     recordedById: organizerB.id,
     name: "Horský víkend 2027",
@@ -290,7 +298,7 @@ export const seedDatabase = async (
 
   // Third event for the participant account (US-54): confirmed, but only part
   // of it paid — something is still left to pay.
-  await createEvent(prisma, {
+  await createTestEvent({
     organizationId: mountainClub.id,
     recordedById: organizerB.id,
     name: "Podzimní soustředění 2027",
@@ -316,7 +324,7 @@ export const seedDatabase = async (
 
   // Payment details of several terms (US-41): 6 900 CZK paid goes to the earliest terms first —
   // the first term is paid, the second part-paid, the third unpaid, so two terms carry a QR.
-  await createEvent(prisma, {
+  await createTestEvent({
     organizationId: mountainClub.id,
     recordedById: organizerB.id,
     name: "Zimní kurz 2027",
@@ -338,14 +346,14 @@ export const seedDatabase = async (
         gender: "MALE",
         email: "ucastnik2@example.com",
         termIndexes: [0, 1, 2],
-        userId: payingParticipant.id,
+        userId: payingParticipant?.id,
       },
     ],
     payments: { 0: 6900 },
   })
 
   // A term known by its dates only (US-119, D-053): the unnamed state is visible on staging.
-  await createEvent(prisma, {
+  await createTestEvent({
     organizationId: mountainClub.id,
     recordedById: organizerB.id,
     name: "Jarní brigáda 2028",
@@ -362,11 +370,12 @@ export const seedDatabase = async (
     organizationId: summerCamp.id,
     recordedById: organizerA.id,
     createEvent,
+    includeTestFixtures: isTest,
   })
 
   // The only event in the manual evaluation mode (US-103): no applicants, so every application
   // that the E2E journey submits lands in the queue "To evaluate".
-  await createEvent(prisma, {
+  await createTestEvent({
     organizationId: summerCamp.id,
     recordedById: organizerA.id,
     name: "Ruční vyhodnocení 2028",

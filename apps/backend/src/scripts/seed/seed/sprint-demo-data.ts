@@ -224,9 +224,15 @@ const roomsOfFive = (gender: Gender, firstNumber: number): SeedRoom[] =>
 
 export async function seedSprintDemo(
   prisma: PrismaService,
-  context: { organizationId: string; recordedById: string; createEvent: CreateEvent },
+  context: {
+    organizationId: string
+    recordedById: string
+    createEvent: CreateEvent
+    /** Rodinný víkend and Zimní výjezd exist for the tests (catalog, shared rooms); off in dev and staging. */
+    includeTestFixtures: boolean
+  },
 ): Promise<void> {
-  const { organizationId, recordedById, createEvent } = context
+  const { organizationId, recordedById, createEvent, includeTestFixtures } = context
   const common = { organizationId, recordedById }
 
   console.log("Creating sprint demo events")
@@ -253,6 +259,8 @@ export async function seedSprintDemo(
     // First application on 7 Feb 2027 at 20:00 Prague time, then one every 47 minutes.
     arrival: { first: new Date("2027-02-07T20:00:00+01:00"), intervalMs: 47 * 60_000 },
   })
+
+  if (!includeTestFixtures) return
 
   // Rooms without gender: one shared pool of 7 beds, the eighth applicant waits.
   const sharedPeople: [string, string, Gender][] = [
