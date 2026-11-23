@@ -235,6 +235,9 @@ export async function seedSprintDemo(
   const { organizationId, recordedById, createEvent, includeTestFixtures } = context
   const common = { organizationId, recordedById }
 
+  // The tests stand on all of these (full camp, shared rooms, draft); dev and staging show other data.
+  if (!includeTestFixtures) return
+
   console.log("Creating sprint demo events")
 
   const full = fullEventApplicants()
@@ -259,8 +262,6 @@ export async function seedSprintDemo(
     // First application on 7 Feb 2027 at 20:00 Prague time, then one every 47 minutes.
     arrival: { first: new Date("2027-02-07T20:00:00+01:00"), intervalMs: 47 * 60_000 },
   })
-
-  if (!includeTestFixtures) return
 
   // Rooms without gender: one shared pool of 7 beds, the eighth applicant waits.
   const sharedPeople: [string, string, Gender][] = [

@@ -123,7 +123,7 @@ pnpm format                         # Prettier na celý repozitář
 
 ### Účty ze seedu
 
-> Seed má dvě sady dat. S `NODE_ENV=test` (integrační a E2E testy) se vytvoří všechny fixtures, na kterých testy stojí („Letní kemp 2027“, „Horský víkend 2027“, „Rodinný víkend 2027“, „Zimní výjezd 2028“, `ucastnik2@example.com` apod.). V dev a na stagingu se seedují jen data pro demo: „Letní kemp 2027 – demo“, „Podzimní tábor 2028“ a „Jarní prázdniny 2028“. Tabulky níže popisují sadu pro testy; v demo sadě přibývají data podle potřeb prezentace.
+> Seed má dvě sady dat. S `NODE_ENV=test` (integrační a E2E testy) se vytvoří všechny fixtures, na kterých testy stojí („Letní kemp 2027“, „Horský víkend 2027“, „Rodinný víkend 2027“, „Zimní výjezd 2028“, `ucastnik2@example.com` apod.). V dev a na stagingu se seedují jen data pro demo: akce „Jarní prázdniny 2028“ (`apps/backend/src/scripts/seed/seed/presentation-data.ts`). „Letní kemp 2027 – demo“ a další akce ze Sprint Demo níže se tam nevytvářejí. Tabulky níže popisují sadu pro testy; v demo sadě přibývají data podle potřeb prezentace.
 
 Registrace je vypnutá (ve sprintu 1 se nikdo neregistruje), takže se přihlašuj účty ze seedu:
 

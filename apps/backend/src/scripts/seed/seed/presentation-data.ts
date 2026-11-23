@@ -2,9 +2,9 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { Gender } from "@/generated/prisma/client"
 import { date, type CreateEventParams, type SeedApplicant, type SeedRoom } from "./seed-database"
 
-// Tidy data for presenting the app (sprint 3 demo): two public events with believable people,
-// one in the manual evaluation mode with a full queue, one automatic with a waitlist, payments and
-// a cancellation date. Added on top of the base seed and the sprint demo, never instead of them.
+// Data for presenting the app: one public event with named people, each standing for a feature
+// (automatic evaluation, waitlist, payments, room wishes, cancellation date). Added on top of the
+// base seed; more cases are added to it step by step.
 // Skipped when NODE_ENV is "test" (E2E and integration tests), so the tests keep their exact data.
 
 /** Mailbox that receives the e-mails of the demo. */
@@ -24,46 +24,6 @@ const toApplicant = (
   termIndexes: number[],
   email = `${fold(firstName)}.${fold(lastName)}@example.com`,
 ): SeedApplicant => ({ firstName, lastName, gender, birthDate, email, termIndexes })
-
-// Event 1: manual evaluation, everyone waits in the queue "To evaluate".
-const AUTUMN_PEOPLE: [Person, number[]][] = [
-  [["Eliška", "Svobodová", "FEMALE", "2013-03-14"], [0]],
-  [["Matěj", "Dvořák", "MALE", "2012-09-02"], [0]],
-  [
-    ["Tereza", "Novotná", "FEMALE", "2014-01-21"],
-    [0, 1],
-  ],
-  [
-    ["Jakub", "Černý", "MALE", "2013-06-30"],
-    [0, 1],
-  ],
-  [["Anna", "Procházková", "FEMALE", "2012-11-11"], [0]],
-  [["Filip", "Kučera", "MALE", "2014-04-05"], [1]],
-  [
-    ["Klára", "Veselá", "FEMALE", "2013-08-19"],
-    [0, 1],
-  ],
-  [["Ondřej", "Horák", "MALE", "2012-12-08"], [0]],
-  [["Lucie", "Němcová", "FEMALE", "2014-07-27"], [1]],
-  [
-    ["Vojtěch", "Marek", "MALE", "2013-02-16"],
-    [0, 1],
-  ],
-  [["Barbora", "Pospíšilová", "FEMALE", "2012-05-23"], [0]],
-  [["Tomáš", "Král", "MALE", "2014-10-03"], [0]],
-  [
-    ["Adéla", "Jelínková", "FEMALE", "2013-12-29"],
-    [0, 1],
-  ],
-  [["David", "Růžička", "MALE", "2012-04-17"], [1]],
-  [["Natálie", "Benešová", "FEMALE", "2014-02-09"], [0]],
-  [
-    ["Šimon", "Fiala", "MALE", "2013-09-25"],
-    [0, 1],
-  ],
-  [["Kristýna", "Sedláčková", "FEMALE", "2012-07-13"], [0]],
-  [["Daniel", "Doležal", "MALE", "2014-05-31"], [0]],
-]
 
 // Event 2: automatic evaluation, the showcase of the room proposal (US-147). Eleven beds
 // (girls 3 + 3, boys 3 + 2), twelve applications in the first week, so the proposal has to solve:
@@ -112,39 +72,6 @@ export async function seedPresentationData(
   const common = { organizationId, recordedById }
   console.log("Creating presentation events")
 
-  // --- Podzimní tábor: the manual queue -------------------------------------------------------
-  const autumnApplicants = AUTUMN_PEOPLE.map(([person, terms]) => toApplicant(person, terms))
-  // Two siblings in one submission under one e-mail.
-  autumnApplicants[6].email = autumnApplicants[7].email = "rodina.horakova@example.com"
-  autumnApplicants[7].groupWithPrevious = true
-
-  await createEvent(prisma, {
-    ...common,
-    name: "Podzimní tábor 2028",
-    description:
-      "Týden plný her, sportu a večerních programů u rybníka. Přihlášky vyhodnocuje organizátor ručně.",
-    location: "Rekreační středisko Rybník, Sázava",
-    publicToken: "podzimni-tabor-2028",
-    evaluationMode: "MANUAL",
-    publicPage: {
-      contactEmail: "tabor@example.com",
-      contactPhone: "+420 777 000 101",
-      photoFileName: "podzimni-tabor-2028.jpg",
-      photo: "campfire",
-    },
-    terms: [
-      { name: "Hlavní turnus", startsOn: "2028-10-02", endsOn: "2028-10-08", priceCzk: 4200 },
-      { name: null, startsOn: "2028-10-09", endsOn: "2028-10-13", priceCzk: 3400 },
-    ],
-    rooms: [
-      ...rooms("FEMALE", ["Dívky 1", "Dívky 2", "Dívky 3"], 4),
-      ...rooms("MALE", ["Kluci 1", "Kluci 2", "Kluci 3"], 4),
-    ],
-    applicants: autumnApplicants,
-    payments: {},
-    arrival: { first: new Date("2026-10-20T18:00:00+02:00"), intervalMs: 5 * 60 * 60_000 },
-  })
-
   // --- Jarní prázdniny: automatic evaluation, waitlist, payments, cancellation ----------------
   const springApplicants = SPRING_PEOPLE.map(([person, terms, roomWishes]) => ({
     ...toApplicant(person, terms),
@@ -185,7 +112,7 @@ export async function seedPresentationData(
 
   // Extras around the two events that createEvent does not cover: meals, allergies, transport and
   // the date from which the cancellation conditions run.
-  for (const token of ["podzimni-tabor-2028", "jarni-prazdniny-2028"]) {
+  for (const token of ["jarni-prazdniny-2028"]) {
     const event = await prisma.event.findUniqueOrThrow({
       where: { publicToken: token },
       include: {
