@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
 import {
   createMemoryHistory,
   createRootRoute,
@@ -11,7 +11,10 @@ import userEvent from "@testing-library/user-event"
 import { NetworkError } from "ky"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { PaymentApplication } from "@/features/event-overview/api/payments"
+import {
+  paymentQueryOptions,
+  type PaymentApplication,
+} from "@/features/event-overview/api/payments"
 import { PaymentDetail } from "@/features/event-overview/components/PaymentDetail"
 
 const { get, remove, post, patch } = vi.hoisted(() => ({
@@ -132,8 +135,19 @@ const historyItems = () =>
   within(screen.getByRole("list", { name: "Payment history" })).getAllByRole("listitem")
 const historyItem = (text: RegExp) => historyItems().find((item) => text.test(item.textContent))!
 
+function PaymentDetailUnderTest() {
+  const query = useQuery(paymentQueryOptions("a1"))
+  return (
+    <PaymentDetail
+      applicationId="a1"
+      query={query}
+      termStatuses={undefined}
+    />
+  )
+}
+
 function setup() {
-  const root = createRootRoute({ component: () => <PaymentDetail applicationId="a1" /> })
+  const root = createRootRoute({ component: PaymentDetailUnderTest })
   const route = createRoute({ getParentRoute: () => root, path: "/" })
   const router = createRouter({
     routeTree: root.addChildren([route]),

@@ -60,6 +60,7 @@ function setup(isEmpty = false) {
     >
       <OrganizerTermChange
         applicationId="a1"
+        application={application}
         term={
           isEmpty
             ? null

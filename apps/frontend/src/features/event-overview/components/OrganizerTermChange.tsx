@@ -29,7 +29,7 @@ import { notify } from "@/lib/notify"
 import { termLine, termTitle } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
-import { paymentQueryOptions } from "@/features/event-overview/api/payments"
+import type { PaymentApplication, PaymentTerm } from "@/features/event-overview/api/payments"
 import {
   changeTerms,
   termChangeOptionsQueryOptions,
@@ -50,10 +50,16 @@ import { ImpactFigure } from "@/features/event-overview/components/ImpactFigure"
 // Figma (Design system): #33 Termín byl změněn · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-36200 (mobile: 19786-36336)
 export function OrganizerTermChange({
   applicationId,
+  application,
   term,
   triggerClassName,
 }: {
   applicationId: string
+  application:
+    | (Pick<PaymentApplication, "firstName" | "lastName" | "eventName"> & {
+        terms: Pick<PaymentTerm, "termId" | "priceCzk">[]
+      })
+    | undefined
   /** The term of the application that is swapped for another one. */
   term: TermStatusDetail | null
   triggerClassName?: string
@@ -61,7 +67,6 @@ export function OrganizerTermChange({
   const { t } = useTranslation("eventOverview")
   const client = useQueryClient()
   const options = useQuery(termChangeOptionsQueryOptions(applicationId))
-  const application = useQuery(paymentQueryOptions(applicationId))
   const [isOpen, setIsOpen] = useState(false)
   const [nextId, setNextId] = useState("")
   const [isFullStep, setIsFullStep] = useState(false)
@@ -80,8 +85,7 @@ export function OrganizerTermChange({
   })
   const added = preview.data?.added[0]
   const removed = preview.data?.removed[0]
-  const originalPrice =
-    application.data?.terms.find((row) => row.termId === term?.termId)?.priceCzk ?? 0
+  const originalPrice = application?.terms.find((row) => row.termId === term?.termId)?.priceCzk ?? 0
 
   const close = () => {
     setIsOpen(false)
@@ -104,12 +108,12 @@ export function OrganizerTermChange({
 
   if (candidates.length === 0) return null
   const hasError = mutation.error && apiErrorCode(mutation.error) !== "CAPACITY_EXCEEDED"
-  const subject = application.data ? (
+  const subject = application ? (
     <div className="flex flex-col gap-1">
       <span className="text-lg font-semibold text-foreground">
-        {application.data.firstName} {application.data.lastName}
+        {application.firstName} {application.lastName}
       </span>
-      <span className="text-sm text-muted-foreground">{application.data.eventName}</span>
+      <span className="text-sm text-muted-foreground">{application.eventName}</span>
     </div>
   ) : null
   const errorMessage = hasError ? (
@@ -202,8 +206,8 @@ export function OrganizerTermChange({
                 <DialogHeader>
                   <DialogTitle className="text-2xl">{t("termChange.title")}</DialogTitle>
                   <DialogDescription className="sr-only">
-                    {application.data
-                      ? `${application.data.firstName} ${application.data.lastName} · ${application.data.eventName}`
+                    {application
+                      ? `${application.firstName} ${application.lastName} · ${application.eventName}`
                       : t("termChange.title")}
                   </DialogDescription>
                 </DialogHeader>
