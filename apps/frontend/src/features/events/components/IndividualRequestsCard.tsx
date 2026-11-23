@@ -17,7 +17,8 @@ import { participantName } from "@/features/events/components/room-assignment-la
 export function IndividualRequestsCard({ eventId, termId }: { eventId: string; termId: string }) {
   const { t } = useTranslation("events")
   const query = useQuery(individualRequestsQueryOptions(eventId, termId))
-  if (!query.data) {
+  // A failed refetch keeps the last data in the cache, but a list that may be stale must not look current.
+  if (query.isError || !query.data) {
     return query.isError ? (
       <ErrorState
         title={t("rooms.loadFailed")}
@@ -47,7 +48,7 @@ export function IndividualRequestsCard({ eventId, termId }: { eventId: string; t
               >
                 <div className="min-w-0 break-words">
                   <p className="text-sm text-muted-foreground">{name}</p>
-                  {item.request ? <p>{item.request}</p> : null}
+                  {item.request ? <p className="whitespace-pre-wrap">{item.request}</p> : null}
                 </div>
                 <Button
                   asChild

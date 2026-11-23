@@ -134,13 +134,18 @@ const requestsByTerm: Record<string, unknown[]> = {
   t2: [],
 }
 
-function renderRooms(termId: string, view: RoomsView = "assignment") {
+function renderRooms(
+  termId: string,
+  view: RoomsView = "assignment",
+  options: { failRooms?: boolean } = {},
+) {
   const onSelectTerm = vi.fn()
   const onSelectView = vi.fn()
   get.mockImplementation((path: string) => ({
     json: () => {
       const requestsTerm = /terms\/([^/]+)\/individual-requests/.exec(path)?.[1]
       if (requestsTerm) return Promise.resolve({ requests: requestsByTerm[requestsTerm] ?? [] })
+      if (options.failRooms && path.includes('/rooms')) return Promise.reject(new Error("rooms down"))
       const roomTerm = byTerm[/terms\/([^/]+)\/rooms/.exec(path)?.[1] ?? ""]
       const assignmentTerm = byTerm[/terms\/([^/]+)\/room-assignments/.exec(path)?.[1] ?? ""]
       return Promise.resolve(
@@ -248,7 +253,8 @@ describe("accommodation by term", () => {
     expect(get).toHaveBeenCalledWith("organizer/events/e1/terms/t1/individual-requests")
     expect(screen.getByRole("radio", { name: "Individual requests" })).toBeChecked()
     expect(screen.getByText("Barbora Šimková")).toBeInTheDocument()
-    expect(screen.getByText("Prosím o pokoj v přízemí.")).toBeInTheDocument()
+    // Line breaks the participant typed stay visible.
+    expect(screen.getByText("Prosím o pokoj v přízemí.")).toHaveClass("whitespace-pre-wrap")
     expect(screen.getByText("Filip Horák")).toBeInTheDocument()
     expect(
       screen.getByRole("link", { name: "Open the application detail: Barbora Šimková" }),
@@ -256,6 +262,12 @@ describe("accommodation by term", () => {
     // The room views are not shown, and the print button belongs to them only.
     expect(screen.queryByRole("table")).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Print overview" })).not.toBeInTheDocument()
+  })
+
+  it("shows the requests and the term switcher even when the rooms of the term fail to load (#514)", async () => {
+    renderRooms("t1", "requests", { failRooms: true })
+    expect(await screen.findByText("Prosím o pokoj v přízemí.")).toBeInTheDocument()
+    expect(screen.getByRole("combobox", { name: "Term" })).toBeInTheDocument()
   })
 
   it("says that nobody asked for individual accommodation in a term without requests (#514)", async () => {
