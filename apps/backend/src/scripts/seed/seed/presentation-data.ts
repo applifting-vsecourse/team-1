@@ -65,31 +65,37 @@ const AUTUMN_PEOPLE: [Person, number[]][] = [
   [["Daniel", "Doležal", "MALE", "2014-05-31"], [0]],
 ]
 
-// Event 2: automatic evaluation, beds run out so a waitlist forms.
-const SPRING_PEOPLE: [Person, number[]][] = [
-  [["Zuzana", "Kovářová", "FEMALE", "2011-01-12"], [1]],
+// Event 2: automatic evaluation, the showcase of the room proposal (US-147). Eleven beds
+// (girls 3 + 3, boys 3 + 2), twelve applications in the first week, so the proposal has to solve:
+// mutual trios, a wish for the other gender, a wish for a name nobody has, a wish for a waitlisted
+// woman, a man who asks for an individual room, and one woman who waits for a bed. The names say
+// which case a person stands for.
+const SPRING_PEOPLE: [Person, number[], string[]?][] = [
   [
-    ["Petr", "Urban", "MALE", "2010-08-04"],
+    ["Dáša", "Dlužná", "FEMALE", "2011-03-02"],
     [0, 1],
+  ], // owes both weeks
+  [["Věra", "Věrná", "FEMALE", "2011-05-17"], [0], ["Soňa Spolehlivá", "Hanka Hodná"]],
+  [["Soňa", "Spolehlivá", "FEMALE", "2011-08-23"], [0], ["Věra Věrná"]],
+  [["Hanka", "Hodná", "FEMALE", "2010-12-09"], [0], ["Věra Věrná", "Soňa Spolehlivá"]],
+  [["Julie", "Juliánová", "FEMALE", "2011-02-14"], [0], ["Romeo Romantický"]], // other gender
+  [
+    ["Kamila", "Kamarádská", "FEMALE", "2010-10-30"],
+    [0],
+    ["Dáša Dlužná", "Brad Pitt", "Běla Bohužel"], // a friend, nobody, a waitlisted woman
   ],
-  [["Hana", "Blažková", "FEMALE", "2011-10-26"], [1]],
   [
-    ["Martin", "Pavlík", "MALE", "2010-03-18"],
+    ["Karel", "Kamarádský", "MALE", "2010-07-07"],
     [0, 1],
-  ],
-  [["Monika", "Šimková", "FEMALE", "2011-06-07"], [1]],
-  [
-    ["Jana", "Nováková", "FEMALE", "2011-04-15"],
-    [0, 1],
+    ["Tonda Tichý", "Lojza Loajální"],
   ], // the demo participant, set below
-  [
-    ["Lukáš", "Havlík", "MALE", "2010-12-01"],
-    [0, 1],
-  ],
-  [["Veronika", "Kratochvílová", "FEMALE", "2011-09-09"], [1]],
-  [["Michal", "Zeman", "MALE", "2010-05-22"], [0]],
-  [["Karolína", "Vaňková", "FEMALE", "2011-02-28"], [1]],
+  [["Tonda", "Tichý", "MALE", "2011-01-19"], [0, 1], ["Karel Kamarádský"]],
+  [["Lojza", "Loajální", "MALE", "2010-09-25"], [0], ["Karel Kamarádský", "Tonda Tichý"]],
+  [["Romeo", "Romantický", "MALE", "2011-04-04"], [0], ["Julie Juliánová"]],
+  [["Ivo", "Individuál", "MALE", "2010-06-12"], [0]], // asks for an individual room, below
+  [["Běla", "Bohužel", "FEMALE", "2011-11-11"], [0]], // the seventh woman for six beds: waits
 ]
+const SPRING_DEMO_PARTICIPANT_INDEX = 6
 
 export async function seedPresentationData(
   prisma: PrismaService,
@@ -140,8 +146,14 @@ export async function seedPresentationData(
   })
 
   // --- Jarní prázdniny: automatic evaluation, waitlist, payments, cancellation ----------------
-  const springApplicants = SPRING_PEOPLE.map(([person, terms]) => toApplicant(person, terms))
-  springApplicants[5].userId = participantId
+  const springApplicants = SPRING_PEOPLE.map(([person, terms, roomWishes]) => ({
+    ...toApplicant(person, terms),
+    ...(roomWishes && { roomWishes }),
+  }))
+  springApplicants[SPRING_DEMO_PARTICIPANT_INDEX].userId = participantId
+  springApplicants[10].individualAccommodation = {
+    note: "Chrápu jako traktor, prosím o pokoj jen pro sebe.",
+  }
 
   await createEvent(prisma, {
     ...common,
@@ -161,14 +173,13 @@ export async function seedPresentationData(
       { name: "2. týden", startsOn: "2028-02-19", endsOn: "2028-02-25", priceCzk: 4800 },
     ],
     rooms: [
-      ...rooms("FEMALE", ["Smrk"], 2),
-      ...rooms("FEMALE", ["Borovice"], 1),
-      ...rooms("MALE", ["Jedle"], 2),
-      ...rooms("MALE", ["Modřín"], 1),
+      ...rooms("FEMALE", ["Smrk", "Borovice"], 3),
+      ...rooms("MALE", ["Jedle"], 3),
+      ...rooms("MALE", ["Modřín"], 2),
     ],
     applicants: springApplicants,
-    // Everyone confirmed in the first week paid; two paid only half; Jana paid the confirmed week.
-    payments: { 0: "full", 1: "full", 2: "full", 3: "half", 5: "full", 6: "half" },
+    // Dáša Dlužná pays nothing, two people paid half, the others the whole first week.
+    payments: { 1: "full", 2: "half", 3: "full", 6: "full", 7: "half", 9: "full" },
     arrival: { first: new Date("2026-10-25T19:00:00+02:00"), intervalMs: 7 * 60 * 60_000 },
   })
 
@@ -234,7 +245,7 @@ export async function seedPresentationData(
   // its applications, notifications and password (see CONTRIBUTING.md).
   await prisma.user.update({
     where: { id: participantId },
-    data: { email: DEMO_PARTICIPANT_EMAIL },
+    data: { email: DEMO_PARTICIPANT_EMAIL, name: "Karel Kamarádský" },
   })
   await prisma.application.updateMany({
     where: { userId: participantId },

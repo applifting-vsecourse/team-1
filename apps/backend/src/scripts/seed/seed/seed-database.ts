@@ -35,6 +35,10 @@ export type SeedApplicant = {
   userId?: string
   /** Same submission as the previous applicant: same arrival time and consent (siblings under one e-mail). */
   groupWithPrevious?: boolean
+  /** Names to room with (US-146); kept only in the terms where the applicant is confirmed. */
+  roomWishes?: string[]
+  /** The applicant asks for individual accommodation (US-38), with an optional note. */
+  individualAccommodation?: { note?: string }
 }
 
 /** Payment recorded for an applicant: the whole amount due, half of it, a CZK amount, or 500 CZK over. */
@@ -523,6 +527,10 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
         birthDate: date(applicant.birthDate),
         gender: applicant.gender,
         email: applicant.email,
+        ...(applicant.individualAccommodation && {
+          individualAccommodation: true,
+          accommodationRequest: applicant.individualAccommodation.note,
+        }),
         consentAt: submittedAt,
         locale: "cs",
         submittedAt,
@@ -533,6 +541,7 @@ export async function createEvent(prisma: PrismaService, params: CreateEventPara
             status: term.status,
             priceCzk: term.priceCzk,
             evaluatedAt: submittedAt,
+            roomWishes: term.status === "CONFIRMED" ? (applicant.roomWishes ?? []) : [],
           })),
         },
       },
