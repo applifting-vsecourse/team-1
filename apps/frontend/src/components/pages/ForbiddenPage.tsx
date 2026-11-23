@@ -1,16 +1,15 @@
 import type { ReactNode } from "react"
-import { Link } from "@tanstack/react-router"
+import type { LinkProps } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import arrow from "@/assets/status/arrow-left.svg"
+import { BackLink } from "@/components/atoms/BackLink"
 import { SystemStatusLayout } from "@/components/templates/SystemStatusLayout"
-import { Button } from "@/components/ui/button"
 
 type Props = {
   title?: string
   description?: string
-  back?: { to: string; label: string }
+  back?: { to: NonNullable<LinkProps["to"]>; label: string }
   accountAction?: ReactNode
 }
 
@@ -24,19 +23,7 @@ export function ForbiddenPage({ title, description, back, accountAction }: Props
       title={title ?? t("pages.forbidden.title")}
       description={description ?? t("pages.forbidden.description")}
     >
-      <Button
-        asChild
-        variant="ghost"
-        className="h-9 self-start rounded-full bg-accent px-4 text-link hover:bg-accent/80"
-      >
-        <Link to={back?.to ?? ROUTES.home}>
-          <img
-            src={arrow}
-            alt=""
-          />
-          {back?.label ?? t("pages.forbidden.action")}
-        </Link>
-      </Button>
+      <BackLink to={back?.to ?? ROUTES.home}>{back?.label ?? t("pages.forbidden.action")}</BackLink>
       {accountAction}
     </SystemStatusLayout>
   )

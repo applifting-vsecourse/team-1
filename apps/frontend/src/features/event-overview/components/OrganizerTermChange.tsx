@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { ArrowRightLeft } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { BackButton } from "@/components/atoms/BackLink"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -176,9 +177,7 @@ export function OrganizerTermChange({
                 </div>
                 {errorMessage}
                 <DialogFooter>
-                  <Button
-                    variant="outline"
-                    size="lg"
+                  <BackButton
                     disabled={mutation.isPending}
                     onClick={() => {
                       setIsFullStep(false)
@@ -186,7 +185,7 @@ export function OrganizerTermChange({
                     }}
                   >
                     {t("termChange.full.back")}
-                  </Button>
+                  </BackButton>
                   <PendingButton
                     isPending={mutation.isPending}
                     size="lg"

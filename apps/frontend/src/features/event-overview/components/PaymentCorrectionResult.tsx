@@ -1,8 +1,8 @@
-import { ArrowLeft, TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { BackButton } from "@/components/atoms/BackLink"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
@@ -87,14 +87,7 @@ export function PaymentCorrectionResult({
           </div>
         ) : null}
       </dl>
-      <Button
-        variant="outline"
-        size="lg"
-        className="max-w-full self-start whitespace-normal"
-        onClick={onBack}
-      >
-        <ArrowLeft aria-hidden="true" /> {t("payment.backToPayments")}
-      </Button>
+      <BackButton onClick={onBack}>{t("payment.backToPayments")}</BackButton>
     </Card>
   )
 }

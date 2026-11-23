@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { BackButton } from "@/components/atoms/BackLink"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Button } from "@/components/ui/button"
@@ -149,15 +150,12 @@ export function ConfirmProposalDialog({
           />
         ) : null}
         <DialogFooter className="gap-4">
-          <Button
-            type="button"
-            variant="ghost"
-            size="lg"
+          <BackButton
             disabled={isPending}
             onClick={onClose}
           >
             {t("roomProposal.back")}
-          </Button>
+          </BackButton>
           <PendingButton
             isPending={isPending}
             type="button"

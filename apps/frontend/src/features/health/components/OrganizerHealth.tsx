@@ -40,16 +40,20 @@ export function OrganizerHealth({
 
   return (
     <div className="flex flex-col gap-6">
-      <BackLink
-        to={ROUTES.organizer.application}
-        params={{ eventId, applicationId }}
-      >
-        {t("backToApplication")}
-      </BackLink>
-      <SectionHeader
-        title={t("title")}
-        description={`${data.firstName} ${data.lastName} · ${data.eventName}`}
-      />
+      <div className="flex items-start gap-3 md:gap-4">
+        <BackLink
+          to={ROUTES.organizer.application}
+          params={{ eventId, applicationId }}
+        >
+          {t("backToApplication")}
+        </BackLink>
+        <div className="min-w-0 flex-1 wrap-anywhere">
+          <SectionHeader
+            title={t("title")}
+            description={`${data.firstName} ${data.lastName} · ${data.eventName}`}
+          />
+        </div>
+      </div>
       <Card className="gap-4 p-4 md:p-6">
         <h3 className="text-xl font-bold tracking-tight md:text-2xl">{t("organizerCardTitle")}</h3>
         {data.note !== null && data.consentAt !== null ? (

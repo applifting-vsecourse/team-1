@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { BackButton } from "@/components/atoms/BackLink"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
@@ -314,14 +315,12 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                   {t("changeRequests.refresh")}
                 </Button>
               )}
-              <Button
-                variant="ghost"
-                className="self-start"
+              <BackButton
                 disabled={mutation.isPending}
                 onClick={() => setSelectedId(null)}
               >
                 {t("changeRequests.back")}
-              </Button>
+              </BackButton>
             </div>
             {request.kind !== "HEALTH" && (
               <Dialog
@@ -356,13 +355,12 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                   >
                     {t("changeRequests.reject")}
                   </PendingButton>
-                  <Button
-                    variant="outline"
+                  <BackButton
                     disabled={mutation.isPending}
                     onClick={() => setDeclining(false)}
                   >
                     {t("changeRequests.backToRequest")}
-                  </Button>
+                  </BackButton>
                 </DialogContent>
               </Dialog>
             )}

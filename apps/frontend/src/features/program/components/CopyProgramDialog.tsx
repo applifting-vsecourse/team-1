@@ -2,10 +2,10 @@ import { useRef, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { BackButton } from "@/components/atoms/BackLink"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogClose,
@@ -237,14 +237,12 @@ export function CopyProgramDialog({
         ) : null}
         <DialogFooter className="gap-4">
           <DialogClose asChild>
-            <Button
+            <BackButton
               ref={cancelRef}
-              variant="ghost"
-              size="lg"
               disabled={mutation.isPending}
             >
               {t("copy.cancel")}
-            </Button>
+            </BackButton>
           </DialogClose>
           <PendingButton
             isPending={mutation.isPending}

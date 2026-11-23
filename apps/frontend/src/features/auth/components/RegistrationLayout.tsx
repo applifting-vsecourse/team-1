@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
-import { ArrowLeft } from "lucide-react"
+import { LogOut } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -34,7 +34,7 @@ function SignOutBack() {
       disabled={signOut.isPending}
       onClick={() => signOut.mutate()}
     >
-      <ArrowLeft aria-hidden="true" />
+      <LogOut aria-hidden="true" />
       {t("menu.signOut")}
     </Button>
   )

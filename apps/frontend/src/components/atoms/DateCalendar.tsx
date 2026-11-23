@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next"
 import chevron from "@/assets/calendar/chevron.svg"
 import endCorner from "@/assets/calendar/end.svg"
 import startCorner from "@/assets/calendar/start.svg"
+import { BackButton } from "@/components/atoms/BackLink"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { currentLanguage, INTL_LOCALES } from "@/i18n"
@@ -331,14 +332,7 @@ export function DateCalendar({
           <p className="text-sm text-muted-foreground">
             {t(view === "months" ? "calendar.monthHint" : "calendar.yearHint")}
           </p>
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-11"
-            onClick={() => setView("days")}
-          >
-            {t("calendar.back")}
-          </Button>
+          <BackButton onClick={() => setView("days")}>{t("calendar.back")}</BackButton>
         </>
       )}
     </fieldset>

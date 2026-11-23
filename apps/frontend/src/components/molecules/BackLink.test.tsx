@@ -13,7 +13,7 @@ import { BackLink as OrganizerBackLink } from "@/components/atoms/BackLink"
 import { BackLink as PublicBackLink } from "@/components/molecules/BackLink"
 
 describe.each([OrganizerBackLink, PublicBackLink])("BackLink", (BackLink) => {
-  it.each(["keyboard", "touch"])("keeps outlined navigation accessible by %s", async (input) => {
+  it.each(["keyboard", "touch"])("keeps round back navigation accessible by %s", async (input) => {
     const root = createRootRoute()
     const source = createRoute({
       getParentRoute: () => root,
@@ -32,19 +32,12 @@ describe.each([OrganizerBackLink, PublicBackLink])("BackLink", (BackLink) => {
     render(<RouterProvider router={router} />)
     const user = userEvent.setup()
     const link = await screen.findByRole("link", { name: "Back home" })
-    expect(link).toHaveAttribute("data-variant", "outline")
-    expect(link).toHaveAttribute("data-size", "lg")
-    expect(link).toHaveClass(
-      "border",
-      "rounded-control",
-      "max-w-full",
-      "whitespace-normal",
-      "focus-visible:outline-2",
-    )
-    expect(link).not.toHaveClass("rounded-full")
+    expect(link).toHaveAttribute("data-size", "icon-lg")
+    expect(link).toHaveClass("rounded-full", "focus-visible:outline-2")
     if (input === "keyboard") {
       await user.tab()
       expect(link).toHaveFocus()
+      expect(await screen.findByRole("tooltip")).toHaveTextContent("Back home")
       await user.keyboard("{Enter}")
     } else {
       await user.pointer([

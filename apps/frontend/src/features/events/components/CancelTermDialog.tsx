@@ -3,10 +3,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { CircleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { BackButton } from "@/components/atoms/BackLink"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
@@ -177,14 +177,7 @@ export function CancelTermDialog({
         )}
 
         <DialogFooter>
-          <Button
-            type="button"
-            variant="ghost"
-            size="lg"
-            onClick={onClose}
-          >
-            {t("terms.cancelDialog.back")}
-          </Button>
+          <BackButton onClick={onClose}>{t("terms.cancelDialog.back")}</BackButton>
           {isUnverified ? (
             <PendingButton
               isPending={isVerifying}

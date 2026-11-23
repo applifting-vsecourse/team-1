@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowLeft, Plus, TriangleAlert } from "lucide-react"
+import { Plus, TriangleAlert } from "lucide-react"
 import { useFieldArray, useForm, useWatch, type FieldErrors, type Resolver } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { BackButton } from "@/components/atoms/BackLink"
 import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -415,16 +416,12 @@ export function ApplicationForm({
               {t(isSubmitting ? "form.submitting" : review ? "form.submit" : "review.continue")}
             </PendingButton>
             {review ? (
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-fit rounded-full bg-accent px-4 text-link hover:bg-accent/80 has-[>svg]:px-4"
+              <BackButton
                 disabled={isSubmitting}
                 onClick={backToEditing}
               >
-                <ArrowLeft aria-hidden />
                 {t("review.backToEditing")}
-              </Button>
+              </BackButton>
             ) : null}
             {isSubmitting ? (
               <p

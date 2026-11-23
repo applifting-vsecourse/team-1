@@ -65,16 +65,20 @@ export function TransportParticipants({
   return (
     <div className="flex flex-col gap-6">
       <Seo title={title} />
-      <BackLink
-        to={ROUTES.organizer.eventTransport}
-        params={{ eventId }}
-      >
-        {t("back")}
-      </BackLink>
-      <SectionHeader
-        title={title}
-        description={termLine(termValue)}
-      />
+      <div className="flex items-start gap-3 md:gap-4">
+        <BackLink
+          to={ROUTES.organizer.eventTransport}
+          params={{ eventId }}
+        >
+          {t("back")}
+        </BackLink>
+        <div className="min-w-0 flex-1 wrap-anywhere">
+          <SectionHeader
+            title={title}
+            description={termLine(termValue)}
+          />
+        </div>
+      </div>
       {participants.length === 0 ? (
         <EmptyState message={t("noParticipants")} />
       ) : (
