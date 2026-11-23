@@ -26,15 +26,12 @@ const toApplicant = (
 ): SeedApplicant => ({ firstName, lastName, gender, birthDate, email, termIndexes })
 
 // Event 2: automatic evaluation, the showcase of the room proposal (US-147). Eleven beds
-// (girls 3 + 3, boys 3 + 2), twelve applications in the first week, so the proposal has to solve:
+// (girls 3 + 3, boys 3 + 2), twelve applications in the one term, so the proposal has to solve:
 // mutual trios, a wish for the other gender, a wish for a name nobody has, a wish for a waitlisted
 // woman, a man who asks for an individual room, and one woman who waits for a bed. The names say
 // which case a person stands for.
 const SPRING_PEOPLE: [Person, number[], string[]?][] = [
-  [
-    ["Dáša", "Dlužná", "FEMALE", "2011-03-02"],
-    [0, 1],
-  ], // owes both weeks
+  [["Dáša", "Dlužná", "FEMALE", "2011-03-02"], [0]], // owes the whole price
   [["Věra", "Věrná", "FEMALE", "2011-05-17"], [0], ["Soňa Spolehlivá", "Hanka Hodná"]],
   [["Soňa", "Spolehlivá", "FEMALE", "2011-08-23"], [0], ["Věra Věrná"]],
   [["Hanka", "Hodná", "FEMALE", "2010-12-09"], [0], ["Věra Věrná", "Soňa Spolehlivá"]],
@@ -44,11 +41,8 @@ const SPRING_PEOPLE: [Person, number[], string[]?][] = [
     [0],
     ["Dáša Dlužná", "Brad Pitt", "Běla Bohužel"], // a friend, nobody, a waitlisted woman
   ],
-  [
-    ["Karel", "Kamarádský", "MALE", "2010-07-07"],
-    [0, 1],
-  ], // the demo participant: a clean application, no wishes, nothing paid, set below
-  [["Tonda", "Tichý", "MALE", "2011-01-19"], [0, 1], ["Karel Kamarádský"]],
+  [["Karel", "Kamarádský", "MALE", "2010-07-07"], [0]], // the demo participant: a clean application, no wishes, nothing paid, set below
+  [["Tonda", "Tichý", "MALE", "2011-01-19"], [0], ["Karel Kamarádský"]],
   [["Lojza", "Loajální", "MALE", "2010-09-25"], [0], ["Karel Kamarádský", "Tonda Tichý"]],
   [["Romeo", "Romantický", "MALE", "2011-04-04"], [0], ["Julie Juliánová"]],
   [["Ivo", "Individuál", "MALE", "2010-06-12"], [0]], // asks for an individual room, below
@@ -85,7 +79,7 @@ export async function seedPresentationData(
     ...common,
     name: "Jarní prázdniny 2028",
     description:
-      "Dva jarní týdny na horách: lyže, sáňkování a večerní hry. Kapacita je malá, hlásí se rychle.",
+      "Jarní týden na horách: lyže, sáňkování a večerní hry. Kapacita je malá, hlásí se rychle.",
     location: "Horská chata Sněžka, Špindlerův Mlýn",
     publicToken: "jarni-prazdniny-2028",
     publicPage: {
@@ -94,17 +88,14 @@ export async function seedPresentationData(
       photoFileName: "jarni-prazdniny-2028.jpg",
       photo: "mountains",
     },
-    terms: [
-      { name: "1. týden", startsOn: "2028-02-12", endsOn: "2028-02-18", priceCzk: 4800 },
-      { name: "2. týden", startsOn: "2028-02-19", endsOn: "2028-02-25", priceCzk: 4800 },
-    ],
+    terms: [{ name: "Jarní týden", startsOn: "2028-02-12", endsOn: "2028-02-18", priceCzk: 4800 }],
     rooms: [
       ...rooms("FEMALE", ["Smrk", "Borovice"], 3),
       ...rooms("MALE", ["Jedle"], 3),
       ...rooms("MALE", ["Modřín"], 2),
     ],
     applicants: springApplicants,
-    // Dáša Dlužná and Karel Kamarádský (the clean application of the demo) pay nothing, two people paid half, the others the whole first week.
+    // Dáša Dlužná and Karel Kamarádský (the clean application of the demo) pay nothing, two people paid half, the others the whole price.
     payments: { 1: "full", 2: "half", 3: "full", 7: "half", 9: "full" },
     arrival: { first: new Date("2026-10-25T19:00:00+02:00"), intervalMs: 7 * 60 * 60_000 },
   })
