@@ -17,6 +17,16 @@ vi.mock("@/components/templates/AuthLayout", () => ({
   ),
 }))
 vi.mock("@/components/organisms/Header", () => ({ Header: () => <header /> }))
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ to, children, ...rest }: { to: string; children: React.ReactNode }) => (
+    <a
+      href={to}
+      {...rest}
+    >
+      {children}
+    </a>
+  ),
+}))
 vi.mock("@/components/atoms/Seo", () => ({ Seo: () => null }))
 
 const renderLanding = (props: { token?: string; error?: string }) =>
@@ -104,5 +114,18 @@ describe("MagicLinkLanding", () => {
 
     expect(screen.queryByText("The link no longer works")).not.toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Send me a link" })).toBeInTheDocument()
+  })
+
+  it("after an interrupted check offers a new link as a button-styled link", async () => {
+    const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false)
+    try {
+      renderLanding({ token: "abc" })
+      await userEvent.click(screen.getByRole("button", { name: "Continue" }))
+      const link = await screen.findByRole("link", { name: "Request a new link" })
+      expect(link).toHaveAttribute("href", "/participant/magic-link")
+      expect(link).toHaveAttribute("data-slot", "button")
+    } finally {
+      online.mockRestore()
+    }
   })
 })

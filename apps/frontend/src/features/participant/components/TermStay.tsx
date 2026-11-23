@@ -115,7 +115,8 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
             type="button"
             variant="outline"
             size="lg"
-            className="h-auto min-h-12 w-full whitespace-normal sm:w-auto"
+            className="w-full sm:w-auto"
+            aria-label={t(hasSaved ? "stay.editLabel" : "stay.addLabel", { term: termLine(term) })}
             ref={actionRef}
             onClick={() => setMode("edit")}
           >

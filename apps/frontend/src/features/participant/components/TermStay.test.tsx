@@ -32,8 +32,8 @@ const renderSection = (terms: MyApplicationTerm[]) =>
     </QueryClientProvider>,
   )
 
-const open = async () =>
-  userEvent.click(screen.getByRole("button", { name: "Add late arrival or early departure" }))
+const ADD = /^Add late arrival or early departure – /
+const open = async () => userEvent.click(screen.getByRole("button", { name: ADD }))
 describe("TermStaySection", () => {
   beforeEach(() => {
     put.mockReset().mockResolvedValue(undefined)
@@ -44,6 +44,13 @@ describe("TermStaySection", () => {
     expect(container).toBeEmptyDOMElement()
   })
 
+  it("shows a short visible label with the full action and the term as its accessible name", () => {
+    renderSection([term()])
+    const button = screen.getByRole("button", { name: ADD })
+    expect(button).toHaveTextContent(/^Add$/)
+    expect(button).not.toHaveClass("whitespace-normal")
+  })
+
   it("shows no arrival or departure while none is given", () => {
     renderSection([term()])
     expect(screen.queryByText(/^Arrival /)).not.toBeInTheDocument()
@@ -52,9 +59,7 @@ describe("TermStaySection", () => {
 
   it("returns keyboard focus to the selected term after closing its dialog", async () => {
     renderSection([term(), term({ termId: "t2" })])
-    const action = screen.getAllByRole("button", {
-      name: "Add late arrival or early departure",
-    })[1]!
+    const action = screen.getAllByRole("button", { name: ADD })[1]!
     await userEvent.click(action)
     await userEvent.keyboard("{Escape}")
     await waitFor(() => expect(action).toHaveFocus())
@@ -92,7 +97,7 @@ describe("TermStaySection", () => {
     renderSection([
       term({ stay: { lateArrival: "2027-07-13T10:30", earlyDeparture: "2027-07-13T09:45" } }),
     ])
-    await userEvent.click(screen.getByRole("button", { name: "Edit arrival or departure" }))
+    await userEvent.click(screen.getByRole("button", { name: /^Edit arrival or departure – / }))
     await userEvent.click(screen.getByRole("button", { name: "Save" }))
     expect(await screen.findByText("The departure must be later than the arrival.")).toBeVisible()
     expect(put).not.toHaveBeenCalled()
@@ -104,7 +109,7 @@ describe("TermStaySection", () => {
     ])
     expect(screen.getByText("Arrival 13 Jul 2027 at 10:30")).toBeVisible()
     expect(screen.getByText("Departure 18 Jul 2027 at 16:00")).toBeVisible()
-    await userEvent.click(screen.getByRole("button", { name: "Edit arrival or departure" }))
+    await userEvent.click(screen.getByRole("button", { name: /^Edit arrival or departure – / }))
     const [, departureTime] = screen.getAllByLabelText("Time", { selector: "input" })
     await userEvent.clear(departureTime!)
     await userEvent.type(departureTime!, "17:30")
@@ -118,7 +123,7 @@ describe("TermStaySection", () => {
 
   it("deletes both after a confirmation", async () => {
     renderSection([term({ stay: { lateArrival: "2027-07-13T10:30", earlyDeparture: null } })])
-    await userEvent.click(screen.getByRole("button", { name: "Edit arrival or departure" }))
+    await userEvent.click(screen.getByRole("button", { name: /^Edit arrival or departure – / }))
     await userEvent.click(screen.getByRole("button", { name: "Delete all details" }))
     expect(screen.getByRole("heading", { name: "Delete arrival and departure?" })).toBeVisible()
     expect(put).not.toHaveBeenCalled()
@@ -134,7 +139,7 @@ describe("TermStaySection", () => {
     renderSection([
       term({ stay: { lateArrival: "2027-07-13T10:30", earlyDeparture: "2027-07-18T16:00" } }),
     ])
-    await userEvent.click(screen.getByRole("button", { name: "Edit arrival or departure" }))
+    await userEvent.click(screen.getByRole("button", { name: /^Edit arrival or departure – / }))
     await userEvent.click(screen.getByRole("button", { name: "Remove arrival" }))
     await userEvent.click(screen.getByRole("button", { name: "Save" }))
     await waitFor(() =>

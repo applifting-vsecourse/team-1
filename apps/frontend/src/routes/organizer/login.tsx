@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
+import { ArrowRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -51,9 +52,13 @@ function OrganizerLoginPage() {
             <Button
               asChild
               variant="ghost"
+              size="lg"
               className="self-center"
             >
-              <Link to={ROUTES.participant.login}>{t("organizerLogin.participantLink")}</Link>
+              <Link to={ROUTES.participant.login}>
+                {t("organizerLogin.participantLink")}
+                <ArrowRight aria-hidden />
+              </Link>
             </Button>
           </div>
         }

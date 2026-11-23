@@ -266,7 +266,8 @@
     "waitlisted": "Waitlisted"
   },
   "stay": {
-    "add": "Add late arrival or early departure",
+    "add": "Add",
+    "addLabel": "Add late arrival or early departure – {{term}}",
     "and": "and",
     "arrival": "Arrival",
     "arrivalLabel": "Late arrival",
@@ -283,6 +284,7 @@
     "departureLabel": "Early departure",
     "departureOutside": "The departure date must be between {{range}}.",
     "edit": "Edit arrival or departure",
+    "editLabel": "Edit arrival or departure – {{term}}",
     "hint": "Fill in only if the participant won't be at the event for the whole term.",
     "invalid": "Enter a valid date and time.",
     "pickTime": "Choose time",

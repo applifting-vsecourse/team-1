@@ -266,7 +266,8 @@
     "waitlisted": "Náhradník"
   },
   "stay": {
-    "add": "Zadat pozdější příjezd nebo dřívější odjezd",
+    "add": "Zadat",
+    "addLabel": "Zadat pozdější příjezd nebo dřívější odjezd – {{term}}",
     "and": "a",
     "arrival": "Příjezd",
     "arrivalLabel": "Pozdější příjezd",
@@ -283,6 +284,7 @@
     "departureLabel": "Dřívější odjezd",
     "departureOutside": "Datum odjezdu musí být mezi {{range}}.",
     "edit": "Upravit příjezd nebo odjezd",
+    "editLabel": "Upravit příjezd nebo odjezd – {{term}}",
     "hint": "Vyplňte jen tehdy, když účastník nebude na akci celou dobu termínu.",
     "invalid": "Zadejte platné datum a čas.",
     "pickTime": "Vybrat čas",
