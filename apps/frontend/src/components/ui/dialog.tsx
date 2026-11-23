@@ -152,6 +152,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+// Put the secondary action first so DOM order also works for both footer layouts.
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -170,12 +171,12 @@ function DialogFooter({
       )}
       {...props}
     >
-      {children}
       {showCloseButton && (
         <DialogPrimitive.Close asChild>
           <Button variant="outline">{t("close")}</Button>
         </DialogPrimitive.Close>
       )}
+      {children}
     </div>
   )
 }

@@ -1,9 +1,36 @@
-import { act, render, screen } from "@testing-library/react"
+import { act, render, screen, waitFor } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { afterEach, expect, it, vi } from "vitest"
 
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 afterEach(() => vi.unstubAllGlobals())
+
+it("focuses the footer close action before the primary action", async () => {
+  const user = userEvent.setup()
+  render(
+    <Dialog open>
+      <DialogContent showCloseButton={false}>
+        <DialogTitle>Edit program block</DialogTitle>
+        <DialogDescription>Enter the program details.</DialogDescription>
+        <DialogFooter showCloseButton>
+          <Button>Save changes</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>,
+  )
+
+  await waitFor(() => expect(screen.getByRole("button", { name: "Close" })).toHaveFocus())
+  await user.tab()
+  expect(screen.getByRole("button", { name: "Save changes" })).toHaveFocus()
+})
 
 it("repositions the dialog when the keyboard resizes and pans the visual viewport", () => {
   const viewport = Object.assign(new EventTarget(), { height: 800, offsetTop: 0, scale: 1 })

@@ -92,14 +92,18 @@ async function simulateVisualViewport(page: Page, height: number, offsetTop = 0)
   )
 }
 
-async function expectActionOrder(secondary: Locator, primary: Locator, width: number) {
+async function expectActionOrder(
+  secondary: Locator,
+  primary: Locator,
+  direction: "column" | "row",
+) {
   await primary.scrollIntoViewIfNeeded()
   await expect(secondary).toBeInViewport()
   await expect(primary).toBeInViewport()
   const first = await secondary.boundingBox()
   const second = await primary.boundingBox()
   if (!first || !second) throw new Error("Both dialog actions must have a visible box")
-  if (width === 360) {
+  if (direction === "column") {
     expect(first.y + first.height).toBeLessThanOrEqual(second.y)
     expect(Math.abs(first.x - second.x)).toBeLessThanOrEqual(1)
   } else {
@@ -128,7 +132,7 @@ async function confirmRoomProposal(page: Page, width: number, title: string, act
   const back = dialog.getByRole("button", { name: "Back to the proposal" })
   const confirm = dialog.getByRole("button", { name: action, exact: true })
   await expectDialogToFit(dialog, width, 480)
-  await expectActionOrder(back, confirm, width)
+  await expectActionOrder(back, confirm, width === 360 ? "column" : "row")
   await back.click()
   await expect(dialog).toBeHidden()
   await launch.click()
@@ -137,6 +141,7 @@ async function confirmRoomProposal(page: Page, width: number, title: string, act
 }
 
 for (const [index, width] of [360, 1280].entries()) {
+  const direction = width === 360 ? "column" : "row"
   test(`short confirmation fits and can be closed or completed at ${width} px`, async ({
     page,
   }) => {
@@ -145,7 +150,7 @@ for (const [index, width] of [360, 1280].entries()) {
     await page.getByRole("button", { name: `Show details of ${name}` }).click()
     const detail = page.getByRole("dialog", { name })
     const deleteBlock = detail.getByRole("button", { name: "Delete block" })
-    await expectActionOrder(deleteBlock, detail.getByRole("button", { name: "Edit" }), width)
+    await expectActionOrder(deleteBlock, detail.getByRole("button", { name: "Edit" }), direction)
     await deleteBlock.click()
     const dialog = page.getByRole("dialog", { name: "Delete block?" })
     const primary = dialog.getByRole("button", { name: "Delete block" })
@@ -153,7 +158,7 @@ for (const [index, width] of [360, 1280].entries()) {
     await expectActionOrder(
       dialog.getByRole("button", { name: "Close", exact: true }).first(),
       primary,
-      width,
+      direction,
     )
     await page.keyboard.press("Escape")
     await expect(dialog).toBeHidden()
@@ -172,7 +177,7 @@ for (const [index, width] of [360, 1280].entries()) {
     const copy = dialog.getByRole("button", { name: /^Copy \d+ blocks?$/ })
     await expectDialogToFit(dialog, width, 480)
     await expectScrollable(dialog)
-    await expectActionOrder(dialog.getByRole("button", { name: "Back" }), copy, width)
+    await expectActionOrder(dialog.getByRole("button", { name: "Back" }), copy, direction)
     await dialog.getByRole("button", { name: "Back" }).click()
     await expect(dialog).toBeHidden()
     await openCopyPreview(page)
@@ -202,7 +207,7 @@ for (const [index, width] of [360, 1280].entries()) {
     await expectActionOrder(
       dialog.getByRole("button", { name: "Close", exact: true }).first(),
       save,
-      width,
+      direction,
     )
     await save.click()
     await expect(dialog).toBeHidden()
@@ -226,7 +231,7 @@ for (const [index, width] of [360, 1280].entries()) {
     const preview = dialog.getByRole("button", { name: "Show preview" })
     const cancel = dialog.getByRole("button", { name: "Cancel" })
     await expectDialogToFit(dialog, width, 480)
-    await expectActionOrder(cancel, preview, width)
+    await expectActionOrder(cancel, preview, direction)
     await cancel.click()
     await expect(dialog).toBeHidden()
     await launch.click()
@@ -236,7 +241,7 @@ for (const [index, width] of [360, 1280].entries()) {
     await expectDialogToFit(dialog, width, 480)
     if (width === 360) await expectScrollable(dialog)
     const back = dialog.getByRole("button", { name: "Back", exact: true })
-    await expectActionOrder(back, dialog.getByRole("button", { name: "Add 2 rooms" }), width)
+    await expectActionOrder(back, dialog.getByRole("button", { name: "Add 2 rooms" }), direction)
     await back.click()
     await preview.click()
     await dialog.getByRole("radio", { name: "Replace the existing rooms" }).click()
@@ -256,7 +261,7 @@ for (const [index, width] of [360, 1280].entries()) {
     const cancel = dialog.getByRole("button", { name: "Cancel" })
     const apply = dialog.getByRole("button", { name: "Use in proposal" })
     await expectDialogToFit(dialog, width, 480)
-    await expectActionOrder(cancel, apply, width)
+    await expectActionOrder(cancel, apply, direction)
     await cancel.click()
     await expect(dialog).toBeHidden()
     await edit.click()
@@ -266,9 +271,65 @@ for (const [index, width] of [360, 1280].entries()) {
     await expect(dialog).toBeHidden()
 
     await confirmRoomProposal(page, width, "Discard the proposal?", "Discard proposal")
-    await launch.click()
+    await launch.press("Enter")
     await confirmRoomProposal(page, width, "Save the distribution?", "Save distribution")
     await expect(page.getByText("Distribution saved", { exact: true })).toBeVisible()
+  })
+
+  test(`payment cancellation and meal editing put the safe action first at ${width} px`, async ({
+    page,
+  }) => {
+    await openEventSection(page, "Applications", width, 800)
+    await page.getByRole("searchbox", { name: "Search applications" }).fill("Tomáš Dvořák")
+    await expect(page.getByRole("heading", { name: "1 application", exact: true })).toBeVisible()
+    await page.getByRole("link", { name: /^Record payment/ }).click()
+    const cancelRecord = page
+      .getByRole("list", { name: "Payment history" })
+      .getByRole("button", { name: "Cancel record", exact: true })
+    await cancelRecord.click()
+    const payment = page.getByRole("dialog", { name: "Cancel this payment record?" })
+    const back = payment.getByRole("button", { name: "Back", exact: true })
+    await expect(back).toBeFocused()
+    await expectActionOrder(back, payment.getByRole("button", { name: "Cancel record" }), direction)
+    await back.click()
+    await expect(payment).toBeHidden()
+    await expect(cancelRecord).toBeEnabled()
+
+    await page.getByRole("button", { name: "Edit meals for Tomáš Dvořák" }).click()
+    const meals = page.getByRole("dialog", { name: "Edit meal preferences" })
+    const cancel = meals.getByRole("button", { name: "Cancel", exact: true })
+    const save = meals.getByRole("button", { name: "Save meals" })
+    await expectActionOrder(cancel, save, direction)
+    await cancel.focus()
+    await page.keyboard.press("Tab")
+    await expect(save).toBeFocused()
+    await cancel.click()
+    await expect(meals).toBeHidden()
+  })
+
+  test(`unused transport confirmation puts Cancel before Delete option at ${width} px`, async ({
+    page,
+  }) => {
+    await openEventSection(page, "Transport", width, 800)
+    await selectTerm(page, new RegExp(`${index + 1}\\. týden`))
+    await page.getByRole("button", { name: "Add transport", exact: true }).click()
+    const editor = page.getByRole("dialog", { name: "Add transport" })
+    await editor.getByRole("radio", { name: "Own transport" }).click()
+    await editor.getByRole("button", { name: "Add transport" }).click()
+    await expect(editor).toBeHidden()
+
+    const open = page.getByRole("button", { name: "Delete transport Own transport" })
+    await open.click()
+    const dialog = page.getByRole("dialog", { name: "Delete transport option?" })
+    const cancel = dialog.getByRole("button", { name: "Cancel", exact: true })
+    const remove = dialog.getByRole("button", { name: "Delete option" })
+    await expectActionOrder(cancel, remove, "row")
+    await cancel.click()
+    await expect(dialog).toBeHidden()
+    await open.click()
+    await remove.click()
+    await expect(dialog).toBeHidden()
+    await expect(open).toHaveCount(0)
   })
 }
 
