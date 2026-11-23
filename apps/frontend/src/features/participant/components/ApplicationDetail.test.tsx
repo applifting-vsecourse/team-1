@@ -1137,5 +1137,18 @@ describe("ApplicationDetail", () => {
         ).not.toBeInTheDocument()
       },
     )
+
+    it("shows a cancelled term in the terms section with its status and a line of text", async () => {
+      renderDetail(
+        application({
+          terms: [{ ...confirmed, status: "CANCELLED" }],
+          paymentDetails: null,
+        }),
+      )
+
+      const card = (await screen.findByRole("heading", { name: "1. týden" })).closest("li")!
+      expect(within(card).getByText("Cancelled")).toBeVisible()
+      expect(within(card).getByText("You are not attending this term.")).toBeVisible()
+    })
   })
 })

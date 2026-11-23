@@ -222,15 +222,18 @@ export function TermPaymentCard({
 export function TermPaymentCards({
   children,
   isSingleColumn = false,
+  headingLevel: Heading = "h2",
 }: {
   children: ReactNode
   isSingleColumn?: boolean
+  /** Level of the hidden list heading; `h3` when the cards sit under a section heading. */
+  headingLevel?: "h2" | "h3"
 }) {
   const { t } = useTranslation("common")
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="sr-only">{t("termPayment.listTitle")}</h2>
+      <Heading className="sr-only">{t("termPayment.listTitle")}</Heading>
       <div className={cn("grid items-start gap-3", !isSingleColumn && "md:grid-cols-2")}>
         {children}
       </div>

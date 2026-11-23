@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { CalendarDays } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -94,6 +95,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           }
         />
       </div>
+      <PaymentSummary application={data} />
       <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
         <section
           aria-labelledby="application-terms"
@@ -116,17 +118,61 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
             applicationId={applicationId}
             terms={data.terms}
           />
-          <ParticipantTermActions
-            application={data}
-            onStart={setChangeMode}
-          />
+          {/* One row of actions: Program (or Meals and Health) first, then change / cancel the terms. */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {hasSteps ? (
+              <Button
+                asChild
+                size="lg"
+              >
+                <Link
+                  to={ROUTES.participant.applicationProgram}
+                  params={{ applicationId }}
+                >
+                  <CalendarDays aria-hidden />
+                  {t("detail.program")}
+                </Link>
+              </Button>
+            ) : null}
+            {hasSteps || isArchived ? null : (
+              <>
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
+                >
+                  <Link
+                    to={ROUTES.participant.applicationMeals}
+                    params={{ applicationId }}
+                  >
+                    {t("detail.meals")}
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
+                >
+                  <Link
+                    to={ROUTES.participant.applicationHealth}
+                    params={{ applicationId }}
+                  >
+                    {t("detail.health")}
+                  </Link>
+                </Button>
+              </>
+            )}
+            <ParticipantTermActions
+              application={data}
+              onStart={setChangeMode}
+              className="contents sm:contents"
+            />
+          </div>
           {isArchived ? <ArchivedApplicationCard /> : null}
           <ChangeRequestNotice
             applicationId={applicationId}
             terms={data.terms}
           />
-        </section>
-        <aside className="grid min-w-0 gap-4">
           <RoomSection terms={data.terms} />
           <RoomWishesSection
             applicationId={applicationId}
@@ -137,50 +183,8 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
               setEditRoomWishesTerm((current) => (current === termId ? null : current))
             }
           />
-          {hasSteps ? (
-            <div>
-              <Button
-                asChild
-                variant="secondary"
-                size="lg"
-              >
-                <Link
-                  to={ROUTES.participant.applicationProgram}
-                  params={{ applicationId }}
-                >
-                  {t("detail.program")}
-                </Link>
-              </Button>
-            </div>
-          ) : null}
-          {hasSteps || isArchived ? null : (
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button
-                asChild
-                variant="secondary"
-                size="lg"
-              >
-                <Link
-                  to={ROUTES.participant.applicationMeals}
-                  params={{ applicationId }}
-                >
-                  {t("detail.meals")}
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="secondary"
-                size="lg"
-              >
-                <Link
-                  to={ROUTES.participant.applicationHealth}
-                  params={{ applicationId }}
-                >
-                  {t("detail.health")}
-                </Link>
-              </Button>
-            </div>
-          )}
+        </section>
+        <aside className="grid min-w-0 gap-4">
           {(Boolean(edit.data?.phone) ||
             data.applicantEmail !== undefined ||
             (data.birthDate !== undefined && data.gender !== undefined)) && (
@@ -209,9 +213,6 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           )}
           <OrganizationContact contact={data.organizationContact} />
         </aside>
-      </div>
-      <div className="mx-auto w-full max-w-[944px]">
-        <PaymentSummary application={data} />
       </div>
       {edit.error ? (
         <ErrorState

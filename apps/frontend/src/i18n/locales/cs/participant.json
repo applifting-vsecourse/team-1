@@ -187,6 +187,7 @@
     "account": "Bankovní účet",
     "amount": "Částka",
     "copyAmount": "Kopírovat částku",
+    "heading": "Platby",
     "overpaymentNotTransferred": "Přeplatek se mezi termíny nepřevádí.",
     "overpaymentRefund": "Na vrácení přeplatku se domluvte s organizátorem.",
     "qrAlt": "QR kód pro souhrnnou platbu",
