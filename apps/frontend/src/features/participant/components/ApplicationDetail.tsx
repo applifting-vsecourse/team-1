@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { CalendarDays } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -121,13 +122,13 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
             <div>
               <Button
                 asChild
-                variant="secondary"
                 size="lg"
               >
                 <Link
                   to={ROUTES.participant.applicationProgram}
                   params={{ applicationId }}
                 >
+                  <CalendarDays aria-hidden />
                   {t("detail.program")}
                 </Link>
               </Button>
