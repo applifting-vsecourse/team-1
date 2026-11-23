@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useId, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Search } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -11,15 +11,14 @@ import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Pagination } from "@/components/molecules/Pagination"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
-import { Input } from "@/components/ui/input"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { usePagination } from "@/hooks/usePagination"
 import { termLine, termTitle } from "@/lib/term-label"
 
@@ -94,18 +93,13 @@ export function TransportParticipants({
               onChange={(event) => setSearch(event.target.value)}
             />
           </div>
-          <p aria-live="polite">
-            {t("termParticipants", { term: termTitle(termValue), count: shown.length })}
-          </p>
-          {shown.length === 0 ? (
-            <EmptyState message={t("noSearchResults")} />
-          ) : (
-            <ParticipantTable
-              participants={shown}
-              term={termLine(termValue)}
-              resetKey={search}
-            />
-          )}
+          <ParticipantTable
+            key={transportId}
+            participants={shown}
+            summary={t("termParticipants", { term: termTitle(termValue), count: shown.length })}
+            term={termLine(termValue)}
+            resetKey={search}
+          />
         </>
       )}
     </div>
@@ -114,45 +108,81 @@ export function TransportParticipants({
 
 function ParticipantTable({
   participants,
+  summary,
   term,
   resetKey,
 }: {
   participants: TransportParticipant[]
+  summary: string
   term: string
   resetKey: string
 }) {
   const { t } = useTranslation("transport")
+  const accordionId = useId()
   const { pageItems, ...pagination } = usePagination(participants, resetKey)
+  const [expandedIds, setExpandedIds] = useState<string[]>([])
+  const expanded = new Set(expandedIds)
+  const participantIds = new Set(participants.map(({ applicationId }) => applicationId))
+  const isEntireListExpanded = [...participantIds].every((id) => expanded.has(id))
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg border bg-card">
-        <Table>
-          <TableHeader className="bg-muted">
-            <TableRow>
-              <TableHead className="px-4">{t("participantTermColumn")}</TableHead>
-              <TableHead className="px-4">{t("contactColumn")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pageItems.map((participant) => (
-              <TableRow key={participant.applicationId}>
-                <TableCell className="px-4 py-3 whitespace-normal">
-                  <span className="block">{participant.name}</span>
-                  <span className="block text-sm text-muted-foreground">{term}</span>
-                </TableCell>
-                <TableCell className="px-4 py-3 text-sm break-all whitespace-normal text-muted-foreground">
-                  <span className="block">{participant.email}</span>
-                  {participant.phone ? <span className="block">{participant.phone}</span> : null}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p aria-live="polite">{summary}</p>
+        {participants.length > 0 && (
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            aria-controls={accordionId}
+            onClick={() =>
+              setExpandedIds(
+                isEntireListExpanded
+                  ? expandedIds.filter((id) => !participantIds.has(id))
+                  : [...new Set([...expandedIds, ...participantIds])],
+              )
+            }
+          >
+            {t(isEntireListExpanded ? "collapseAllContacts" : "expandAllContacts")}
+          </Button>
+        )}
       </div>
-      <Pagination
-        {...pagination}
-        onPageChange={pagination.setPage}
-      />
+      {participants.length === 0 ? (
+        <EmptyState message={t("noSearchResults")} />
+      ) : (
+        <>
+          <Accordion
+            id={accordionId}
+            type="multiple"
+            value={expandedIds}
+            onValueChange={setExpandedIds}
+            className="rounded-lg border bg-card"
+          >
+            {pageItems.map((participant) => (
+              <AccordionItem
+                key={participant.applicationId}
+                value={participant.applicationId}
+                className="px-3"
+              >
+                <AccordionTrigger className="min-h-11 items-center gap-2 py-2">
+                  <span className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1 wrap-anywhere">
+                    <span className="text-base font-semibold">{participant.name}</span>
+                    <span className="text-muted-foreground">{term}</span>
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="pb-2 wrap-anywhere text-muted-foreground">
+                  <p>{participant.email}</p>
+                  {participant.phone ? <p>{participant.phone}</p> : null}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+          <Pagination
+            {...pagination}
+            onPageChange={pagination.setPage}
+          />
+        </>
+      )}
     </div>
   )
 }

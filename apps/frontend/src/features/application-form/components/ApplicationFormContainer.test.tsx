@@ -113,7 +113,7 @@ describe("ApplicationFormContainer", () => {
     await userEvent.type(card.getByLabelText("First name *"), "Anna")
     await userEvent.type(card.getByLabelText("Last name *"), "Nováková")
     await userEvent.type(card.getByLabelText("Date of birth *"), "17/05/2010")
-    await userEvent.click(card.getByRole("combobox", { name: "Gender for room allocation *" }))
+    await userEvent.click(card.getByRole("combobox", { name: "Gender *" }))
     await userEvent.click(await screen.findByRole("option", { name: "Woman" }))
     await userEvent.click(card.getByRole("checkbox", { name: /4–10 Jul/ }))
     await userEvent.type(screen.getByLabelText("Contact e-mail *"), "rodic@example.com")

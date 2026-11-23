@@ -42,7 +42,7 @@ export type CopyTerm = { id: string; name: string | null; startsOn: string; ends
 // Náhled kopie do prázdného termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15728-4416
 // Návrh A · přidat k existujícím · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15728-4640
 // Návrh B · nahradit existující · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=15728-4765
-// #533 · přistýlky (bez přistýlek ve zdroji, co se zkopíruje / nezkopíruje):
+// #533 · přistýlky (Figma ještě ukazuje „bez přistýlek“ a „Nezkopíruje se“; #623 je kopíruje, viz PR „Odchylky od Figmy“):
 // Prázdný cíl · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26009-112219 (mobil 26009-112748)
 // Přidat ke stávajícím · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26009-112385 (mobil 26009-112847)
 // Nahradit · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26009-112566 (mobil 26009-112961)
@@ -70,10 +70,10 @@ export function CopyRoomsDialog({
   const sourceRooms = source.data?.rooms ?? []
   const hasTargetRooms = target.rooms.length > 0
   const isReplacing = hasTargetRooms && strategy === "REPLACE"
-  // Extra beds (přistýlky) belong to one term and are never copied (D-139), so the source counts only its own beds:
-  // Σ capacity, not `capacity.total`. The target keeps its extra beds on an add (`capacity.total`) and loses them on a replace.
-  const sourceBeds = sourceRooms.reduce((sum, room) => sum + room.capacity, 0)
+  // Extra beds (přistýlky) are copied with their room (#623), so the source counts its beds with them (Σ capacity + extraBeds).
+  // The target keeps its own extra beds on an add and loses them on a replace.
   const sourceExtraBeds = sourceRooms.reduce((sum, room) => sum + room.extraBeds, 0)
+  const sourceBeds = sourceRooms.reduce((sum, room) => sum + room.capacity, 0) + sourceExtraBeds
   const targetExtraBeds = target.rooms.reduce((sum, room) => sum + room.extraBeds, 0)
   const resultRooms = (isReplacing ? 0 : target.rooms.length) + sourceRooms.length
   const resultBeds = (isReplacing ? 0 : target.capacity.total) + sourceBeds
@@ -89,6 +89,7 @@ export function CopyRoomsDialog({
   const beds = (count: number) => t("rooms.copy.beds", { count })
   const sourceNote =
     sourceExtraBeds > 0 ? t("rooms.copy.sourceExtraBeds", { count: sourceExtraBeds }) : null
+  const resultExtraBeds = (isReplacing ? 0 : targetExtraBeds) + sourceExtraBeds
   const targetNote =
     targetExtraBeds > 0 ? t("rooms.copy.targetExtraBeds", { count: targetExtraBeds }) : null
   const copiedBox = (
@@ -100,10 +101,6 @@ export function CopyRoomsDialog({
             target.roomMode === "SHARED" ? "rooms.copy.copiedBodyShared" : "rooms.copy.copiedBody",
           )}
         </dd>
-      </div>
-      <div className="flex min-w-0 flex-col gap-2">
-        <dt className="text-sm text-muted-foreground">{t("rooms.copy.notCopiedHeading")}</dt>
-        <dd>{t("rooms.copy.notCopiedBody")}</dd>
       </div>
     </dl>
   )
@@ -258,14 +255,14 @@ export function CopyRoomsDialog({
                       {t(
                         isReplacing
                           ? "rooms.copy.replaceBody"
-                          : targetNote
+                          : resultExtraBeds > 0
                             ? "rooms.copy.addBodyExtraBeds"
                             : "rooms.copy.addBody",
                         {
                           count: target.rooms.length,
                           rooms: rooms(resultRooms),
                           beds: beds(resultBeds),
-                          extra: t("rooms.copy.extraBedsCount", { count: targetExtraBeds }),
+                          extra: t("rooms.copy.extraBedsCount", { count: resultExtraBeds }),
                         },
                       )}
                     </AlertDescription>

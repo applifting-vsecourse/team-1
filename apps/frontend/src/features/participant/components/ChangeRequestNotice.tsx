@@ -15,6 +15,7 @@ import { participantChangeRequestsQueryOptions } from "@/features/participant/ap
 
 // Figma (Design system v2): #408 Detail · žádost odeslána · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-39109 (mobile: 22640-39243)
 // Figma (Design system v2): US-114 Detail přihlášky · Žádost čeká / Změna schválená / Žádost zamítnutá · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15928-9271 (mobile: 15928-9331)
+// Figma (Design system v2): #552 Detail · žádost schválena / zamítnuta / čeká · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27254-146307
 export function ChangeRequestNotice({
   applicationId,
   terms,
@@ -54,10 +55,10 @@ export function ChangeRequestNotice({
   const hasRemovedBed = removedIds.some((id) =>
     terms.some((term) => term.termId === id && term.status === "CONFIRMED"),
   )
-  const messageKey =
-    isPending && !hasRemovedBed
-      ? (`request.message.PENDING.${isCancel ? "cancelWithoutBed" : "changeWithoutBed"}` as const)
-      : (`request.message.${request.status}.${isCancel ? "cancel" : "change"}` as const)
+  // A pending request is explained by the alert above; the card only repeats the outcome of a decided one.
+  const messageKey = isPending
+    ? null
+    : (`request.message.${request.status as "APPROVED" | "REJECTED"}.${isCancel ? "cancel" : "change"}` as const)
   return (
     <>
       {isPending ? (
@@ -83,7 +84,7 @@ export function ChangeRequestNotice({
         </h2>
         {isPending ? null : (
           <Badge
-            variant="secondary"
+            variant={request.status === "APPROVED" ? "positive" : "danger"}
             className="self-start"
           >
             {t(`request.status.${request.status}`)}
@@ -111,7 +112,7 @@ export function ChangeRequestNotice({
             <DetailItem label={t("request.requested")}>{labels(addedIds)}</DetailItem>
           </div>
         )}
-        <p>{t(messageKey)}</p>
+        {messageKey ? <p>{t(messageKey)}</p> : null}
         {request.rejectionReason ? (
           <p>{t("request.reason", { reason: request.rejectionReason })}</p>
         ) : null}

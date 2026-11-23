@@ -12,6 +12,8 @@ const importResultSchema = z.object({
   overpaidCzk: z.number().int(),
   duplicateCount: z.number().int(),
   ignoredCount: z.number().int(),
+  /** The uploaded CSV with the result of each row, in the request language (US-561). */
+  annotatedCsv: z.string(),
 })
 export type StatementImportResult = z.infer<typeof importResultSchema>
 

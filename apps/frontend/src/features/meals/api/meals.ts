@@ -115,3 +115,36 @@ export const kitchenSummaryQueryOptions = (eventId: string) =>
     queryFn: async (): Promise<KitchenTerm[]> =>
       kitchenSummarySchema.parse(await api.get(`${eventPath(eventId)}/summary`).json()),
   })
+
+const organizerMealsSchema = ownMealsSchema.extend({ editable: z.boolean() })
+export type OrganizerMeals = z.infer<typeof organizerMealsSchema>
+export type MealSelection = Parameters<typeof saveOwnMeals>[1]
+
+const applicationPath = (eventId: string, id: string) =>
+  `${eventPath(eventId)}/applications/${encodeURIComponent(id)}`
+
+export const organizerMealsQueryOptions = (eventId: string, id: string) =>
+  queryOptions({
+    queryKey: ["organizer", "events", eventId, "meals", "application", id],
+    queryFn: async () =>
+      organizerMealsSchema.parse(await api.get(applicationPath(eventId, id)).json()),
+  })
+
+export const mealRosterQueryOptions = (eventId: string, termId: string) =>
+  queryOptions({
+    queryKey: ["organizer", "events", eventId, "meals", "roster", termId],
+    queryFn: async () =>
+      z
+        .array(organizerMealsSchema)
+        .parse(
+          await api
+            .get(`${eventPath(eventId)}/terms/${encodeURIComponent(termId)}/participants`)
+            .json(),
+        ),
+  })
+
+export async function saveOrganizerMeals(eventId: string, id: string, values: MealSelection) {
+  return organizerMealsSchema.parse(
+    await api.put(applicationPath(eventId, id), { json: values }).json(),
+  )
+}

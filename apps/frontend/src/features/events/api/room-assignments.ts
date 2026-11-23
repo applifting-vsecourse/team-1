@@ -4,6 +4,12 @@ import { z } from "zod"
 import { api } from "@/lib/api-client"
 
 const genderSchema = z.enum(["FEMALE", "MALE"])
+const roomWishSchema = z.object({
+  name: z.string(),
+  status: z.enum(["fulfilled", "unfulfilled", "impossible"]),
+  roomName: z.string().nullable(),
+})
+
 const participantSchema = z.object({
   /** Application in the term — the id the assignment endpoints take. */
   applicationTermId: z.string(),
@@ -16,8 +22,7 @@ const participantSchema = z.object({
   /** Asked to settle the accommodation individually (US-38). */
   individualAccommodation: z.boolean(),
   status: z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED"]),
-  /** Roommate wishes (US-146): free text; fulfilled when the named person is in the same room. */
-  wishes: z.array(z.object({ name: z.string(), fulfilled: z.boolean() })),
+  wishes: z.array(roomWishSchema),
 })
 const otherTermSchema = z.object({
   termId: z.string(),
@@ -82,6 +87,8 @@ const roomAssignmentsSchema = z.object({
 
 export type RoomWarning = z.infer<typeof roomWarningSchema>
 export type RoomWarningKind = z.infer<typeof warningKindSchema>
+
+export type RoomWish = z.infer<typeof roomWishSchema>
 
 export type AssignmentParticipant = z.infer<typeof participantSchema>
 export type UnassignedParticipant = z.infer<typeof unassignedSchema>

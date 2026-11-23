@@ -89,7 +89,7 @@ export function TermPaymentCard({
 
   if (status === "WAITLISTED" || status === "TO_EVALUATE" || status === "CANCELLED") {
     return (
-      <Card className="gap-4 p-4 shadow-none">
+      <Card className="gap-3 p-4 shadow-none">
         <h3 className="flex min-h-11 items-center text-xl/7 font-bold">
           {title}
           {isStatusSeparate ? null : <> · {t(`termPayment.status.${status}`)}</>}
@@ -210,7 +210,7 @@ export function TermPaymentCard({
   }
 
   return (
-    <Card className="gap-4 p-4 shadow-none">
+    <Card className="gap-3 p-4 shadow-none">
       <h3>{heading}</h3>
       {detail}
       {action}
@@ -231,7 +231,7 @@ export function TermPaymentCards({
   return (
     <section className="flex flex-col gap-4">
       <h2 className="sr-only">{t("termPayment.listTitle")}</h2>
-      <div className={cn("grid items-start gap-6", !isSingleColumn && "md:grid-cols-2")}>
+      <div className={cn("grid items-start gap-3", !isSingleColumn && "md:grid-cols-2")}>
         {children}
       </div>
     </section>
