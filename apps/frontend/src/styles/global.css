@@ -312,6 +312,14 @@
     padding: 0 !important;
     border: 0 !important;
   }
+  /* A flex container does not break between pages reliably (a blank last page, a split room), so
+     the block prints as plain blocks; the gap of its screen layout becomes a margin. */
+  body:has([data-print-area]) [data-print-area] {
+    display: block !important;
+  }
+  body:has([data-print-area]) [data-print-area] > * + * {
+    margin-top: 1.5rem;
+  }
 }
 
 /* The disclosure arrow reaches its new position together with the panel. */

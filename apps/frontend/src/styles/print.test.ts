@@ -18,4 +18,9 @@ describe("print stylesheet", () => {
     expect(printBlock).toMatch(/:has\(\[data-print-area\]\)[^{]*\{[^}]*overflow: visible/)
     expect(printBlock).toMatch(/:has\(\[data-print-area\]\)[^{]*\{[^}]*height: auto/)
   })
+
+  // A flex container fragments badly across pages: a blank last page, a room split in two (#697).
+  it("prints the area itself as a block", () => {
+    expect(printBlock).toMatch(/\[data-print-area\]\s*\{\s*display: block !important/)
+  })
 })
