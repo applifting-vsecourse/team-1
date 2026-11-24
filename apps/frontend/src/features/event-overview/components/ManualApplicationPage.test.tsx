@@ -130,6 +130,14 @@ beforeEach(() => {
 })
 
 describe("ManualApplicationPage", () => {
+  it("uses the whole content width instead of a narrow column (#756)", async () => {
+    setup()
+    const form = (await screen.findByLabelText("First name *")).closest("form")!
+    for (let el: HTMLElement | null = form; el; el = el.parentElement) {
+      expect(el.className).not.toContain("max-w-196")
+    }
+  })
+
   it("requires at least one selected term and clears the error after choosing a status", async () => {
     setup()
     const user = userEvent.setup()

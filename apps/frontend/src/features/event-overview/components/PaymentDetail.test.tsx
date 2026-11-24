@@ -253,6 +253,42 @@ describe("PaymentDetail", () => {
     expect(within(details).getByRole("button", { name: "Edit" })).toBeVisible()
   })
 
+  it("lays the participant and applicant cards out at the same height (#754)", async () => {
+    respondWith(() => application([first]))
+    setup()
+    const details = await screen.findByRole("group", { name: "Participant details" })
+    expect(details).not.toHaveClass("items-start")
+  })
+
+  it("opens the participant edit as a modal, not a full-screen page, on a phone (#754)", async () => {
+    respondWith(() => application([first]))
+    setup()
+    const details = await screen.findByRole("group", { name: "Participant details" })
+    await userEvent.setup().click(within(details).getByRole("button", { name: "Edit" }))
+    const dialog = await screen.findByRole("dialog")
+    expect(dialog.className).not.toContain("max-sm:h-dvh")
+    expect(dialog.className).not.toContain("max-sm:rounded-none")
+  })
+
+  it("shows Edit as an outlined and Cancel record as a destructive button (#755)", async () => {
+    respondWith(() =>
+      application(
+        [{ ...first, paidCzk: 500 }, second],
+        [receipt("p1", "2027-03-10T12:00:00Z", [{ termId: "t1", amountCzk: 500 }])],
+      ),
+    )
+    setup()
+    const history = await screen.findByRole("list", { name: "Payment history" })
+    expect(within(history).getAllByRole("button", { name: "Edit" })[0]).toHaveAttribute(
+      "data-variant",
+      "outline",
+    )
+    expect(within(history).getAllByRole("button", { name: "Cancel record" })[0]).toHaveAttribute(
+      "data-variant",
+      "destructive",
+    )
+  })
+
   it("hides the edit button when the application can no longer be edited (#515)", async () => {
     respondWith(() => ({ ...application([first]), isEditable: false }))
     setup()

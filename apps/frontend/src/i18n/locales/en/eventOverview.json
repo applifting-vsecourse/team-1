@@ -45,7 +45,7 @@
     "paymentFilter": "Payment",
     "removeFilter": "Remove filter: {{filter}}",
     "search": "Search applications",
-    "searchPlaceholder": "Name, e-mail or variable symbol",
+    "searchPlaceholder": "Name, e-mail, VS",
     "showAllTerms": "Show all ({{count}})",
     "showApplications": "Show applications",
     "sort": "Sorted: most recently received applications",

@@ -121,37 +121,38 @@ export function TermStatuses({
                   },
                 )}
               </p>
-              {term.allowedStatuses.some(
-                (status) =>
-                  term.status !== "CONFIRMED" || (status === "WAITLISTED" && term.owedCzk > 0),
-              ) ? (
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="h-12 w-full"
-                  onClick={() => setChange(term)}
-                >
-                  {t("termStatus.change")}
-                </Button>
-              ) : null}
-              {term.status !== "CANCELLED" && term.status !== "ARCHIVED" ? (
-                <div className="flex w-full flex-col gap-2 *:w-full sm:w-auto sm:flex-row sm:flex-wrap sm:*:w-auto">
-                  <OrganizerTermChange
-                    applicationId={applicationId}
-                    application={application}
-                    term={term}
-                  />
-                  {term.status === "CONFIRMED" ? (
-                    <Button
-                      variant="destructive"
-                      className={NEGATIVE}
-                      onClick={() => setWithdrawal({ termId: term.termId })}
-                    >
-                      {t("withdrawal.trigger")}
-                    </Button>
-                  ) : null}
-                </div>
-              ) : null}
+              {/* Change, move and withdraw sit in one row; none is a full-width block. */}
+              <div className="flex flex-wrap gap-2">
+                {term.allowedStatuses.some(
+                  (status) =>
+                    term.status !== "CONFIRMED" || (status === "WAITLISTED" && term.owedCzk > 0),
+                ) ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => setChange(term)}
+                  >
+                    {t("termStatus.change")}
+                  </Button>
+                ) : null}
+                {term.status !== "CANCELLED" && term.status !== "ARCHIVED" ? (
+                  <>
+                    <OrganizerTermChange
+                      applicationId={applicationId}
+                      application={application}
+                      term={term}
+                    />
+                    {term.status === "CONFIRMED" ? (
+                      <Button
+                        variant="destructive"
+                        className={NEGATIVE}
+                        onClick={() => setWithdrawal({ termId: term.termId })}
+                      >
+                        {t("withdrawal.trigger")}
+                      </Button>
+                    ) : null}
+                  </>
+                ) : null}
+              </div>
             </Card>
             {term.history.length > 0 ? (
               <ul className="flex flex-col gap-1 text-sm text-muted-foreground">

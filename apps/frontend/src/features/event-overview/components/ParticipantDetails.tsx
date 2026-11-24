@@ -46,7 +46,7 @@ export function ParticipantDetails({ application }: ParticipantDetailsProps) {
     <div
       role="group"
       aria-label={t("payment.participantCard")}
-      className="grid min-w-0 items-start gap-4 md:grid-cols-2"
+      className="grid min-w-0 gap-4 md:grid-cols-2"
     >
       <Card className="min-w-0 gap-2 p-4">
         <div className="flex items-center justify-between gap-4">
