@@ -161,7 +161,7 @@ export function RoomsOverview({
               </Card>
             ))}
           </dl>
-          <ul className="grid items-stretch gap-3 md:auto-rows-fr md:grid-cols-2 md:has-[[data-beds-open=true]]:auto-rows-auto print:block print:columns-2 print:gap-4">
+          <ul className="grid items-start gap-3 md:grid-cols-2 print:block print:columns-2 print:gap-4">
             {data.rooms.map((room) => (
               <li
                 key={room.id}
@@ -274,7 +274,7 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
     <RoomShell
       roomId={room.id}
       controls={controls}
-      className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card print:block print:h-auto print:overflow-visible print:rounded-none print:border-0"
+      className="flex flex-col overflow-hidden rounded-xl border border-border bg-card print:block print:h-auto print:overflow-visible print:rounded-none print:border-0"
     >
       {chunks.map((chunk, chunkIndex) => (
         // On screen the pieces are invisible wrappers (`contents`); on paper each is a bordered

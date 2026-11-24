@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { BedDouble, FilterX, Plus, Search } from "lucide-react"
@@ -482,11 +482,14 @@ export function ApplicationsPage({
                               />
                             </TableCell>
                           )}
-                          <TableCell>
+                          <TableCell className="max-w-72 min-w-0 whitespace-normal">
                             <ApplicationIdentity application={row} />
                           </TableCell>
-                          <TableCell>
-                            <Terms application={row} />
+                          <TableCell className="whitespace-normal">
+                            <Terms
+                              application={row}
+                              filters={filters}
+                            />
                           </TableCell>
                           <TableCell>
                             <PaymentStatus application={row} />
@@ -543,7 +546,10 @@ export function ApplicationsPage({
                         )}
                         <ApplicationIdentity application={row} />
                       </div>
-                      <Terms application={row} />
+                      <Terms
+                        application={row}
+                        filters={filters}
+                      />
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t py-1 text-sm">
                         <PaymentStatus application={row} />
                         <span className="font-medium">
@@ -717,26 +723,79 @@ const STATUS_LABEL = {
   ARCHIVED: "archived",
 } as const
 
-function Terms({ application }: { application: ListedApplication }) {
+/** More terms than this collapse to a summary, so a row does not grow with the number of terms (#727). */
+const VISIBLE_TERMS = 3
+
+function Terms({
+  application,
+  filters,
+}: {
+  application: ListedApplication
+  filters: ApplicationsSearch
+}) {
   const { t } = useTranslation("eventOverview")
+  const [isExpanded, setIsExpanded] = useState(false)
+  const listId = useId()
+  // The term and status the list is filtered by come first, so the reason the row matches is always in view.
+  const rank = (term: ListedApplication["terms"][number]) =>
+    (filters.term && term.id === filters.term ? 0 : 2) +
+    (filters.status && term.status === filters.status ? 0 : 1)
+  const sorted =
+    application.terms.length > VISIBLE_TERMS
+      ? [...application.terms].sort((a, b) => rank(a) - rank(b))
+      : application.terms
+  const isCollapsible = sorted.length > VISIBLE_TERMS
+  const shown = isCollapsible && !isExpanded ? sorted.slice(0, VISIBLE_TERMS) : sorted
+  const hidden = sorted.slice(VISIBLE_TERMS)
+  const summary = (Object.keys(STATUS_LABEL) as (keyof typeof STATUS_LABEL)[])
+    .map((status) => ({ status, count: hidden.filter((term) => term.status === status).length }))
+    .filter((entry) => entry.count > 0)
+    .map((entry) => t(`applications.termCount.${entry.status}`, { count: entry.count }))
+    .join(", ")
   return (
     <div className="flex flex-col gap-2">
-      {application.terms.map((term) => (
-        <div
-          key={term.id}
-          className="flex flex-wrap items-center gap-2"
-        >
-          <span>{formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}</span>
-          <Badge
-            variant={STATUS_BADGE[term.status].variant}
-            className={STATUS_BADGE[term.status].className}
+      <div
+        id={listId}
+        className="flex flex-col gap-2"
+      >
+        {shown.map((term) => (
+          <div
+            key={term.id}
+            className="flex flex-wrap items-center gap-2"
           >
-            {term.status === "WAITLISTED" && term.waitlistPosition !== null
-              ? t("applications.waitlistedPosition", { position: term.waitlistPosition })
-              : t(`applications.${STATUS_LABEL[term.status]}`)}
-          </Badge>
+            <span>{formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}</span>
+            <Badge
+              variant={STATUS_BADGE[term.status].variant}
+              className={STATUS_BADGE[term.status].className}
+            >
+              {term.status === "WAITLISTED" && term.waitlistPosition !== null
+                ? t("applications.waitlistedPosition", { position: term.waitlistPosition })
+                : t(`applications.${STATUS_LABEL[term.status]}`)}
+            </Badge>
+          </div>
+        ))}
+      </div>
+      {isCollapsible ? (
+        <div className="flex flex-col items-start gap-1">
+          {isExpanded ? null : (
+            <p className="text-sm whitespace-normal text-muted-foreground">
+              {t("applications.termsHidden", { count: hidden.length, summary })}
+            </p>
+          )}
+          <Button
+            type="button"
+            variant="link"
+            className="h-auto min-h-11 p-0 whitespace-normal"
+            aria-expanded={isExpanded}
+            aria-controls={listId}
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {t(isExpanded ? "applications.hideTerms" : "applications.showAllTerms", {
+              count: sorted.length,
+            })}
+          </Button>
         </div>
-      ))}
+      ) : null}
     </div>
   )
 }

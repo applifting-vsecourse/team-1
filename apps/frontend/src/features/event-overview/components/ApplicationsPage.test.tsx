@@ -12,7 +12,7 @@ import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { formatDate, formatDateTime } from "@/lib/date"
+import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 
 import { ApplicationsPage } from "@/features/event-overview/components/ApplicationsPage"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
@@ -657,5 +657,77 @@ describe("ApplicationsPage", () => {
       await user.click(await screen.findByRole("radio", { name: "Awaiting evaluation" }))
       expect(change).toHaveBeenLastCalledWith({ status: "TO_EVALUATE" })
     })
+  })
+})
+
+/** A confirmed / waitlisted / cancelled term per index, one week each. */
+const manyTerms = (count: number) =>
+  Array.from({ length: count }, (_, index) => {
+    const start = new Date(Date.UTC(2027, 0, 1 + index * 7))
+    const end = new Date(Date.UTC(2027, 0, 7 + index * 7))
+    return {
+      id: `t${index}`,
+      name: `Term ${index}`,
+      startsOn: start.toISOString().slice(0, 10),
+      endsOn: end.toISOString().slice(0, 10),
+      status: (["CONFIRMED", "WAITLISTED", "CANCELLED"] as const)[index % 3],
+      priceCzk: 1000,
+    }
+  })
+
+describe("ApplicationsPage with a lot of content (#726, #727)", () => {
+  const longName = "Maximiliána-Alexandra-Hohenlohe-Schillingsfürstová-".repeat(2)
+  const longEmail = `${"a".repeat(100)}@${"b".repeat(40)}.example.com`
+
+  it("lets a long name and e-mail wrap inside a bounded participant column (#726)", async () => {
+    setup(
+      [{ ...application, firstName: longName, lastName: "Novák", email: longEmail }],
+      false,
+      undefined,
+      null,
+      {},
+    )
+    const trigger = (await screen.findAllByRole("button", { name: new RegExp(longName) }))[0]!
+    const cell = trigger.closest("td")!
+    expect(cell).toHaveClass("whitespace-normal", "max-w-72")
+    expect(trigger.querySelector(".wrap-anywhere")).not.toBeNull()
+    await userEvent.setup().click(trigger)
+    const email = screen.getAllByText(longEmail)[0]!
+    expect(email.closest(".wrap-anywhere")).not.toBeNull()
+  })
+
+  it("collapses a hundred terms to three, a summary and a button to show them all (#727)", async () => {
+    const user = userEvent.setup()
+    setup([{ ...application, terms: manyTerms(100) }], false, undefined, null, {})
+    const toggle = (await screen.findAllByRole("button", { name: "Show all (100)" }))[0]!
+    const list = document.getElementById(toggle.getAttribute("aria-controls")!)!
+    expect(toggle).toHaveAttribute("aria-expanded", "false")
+    expect(list.children).toHaveLength(3)
+    expect(
+      screen.getAllByText(/\+ 97 more terms: .*confirmed.*waitlisted.*cancelled/)[0]!,
+    ).toBeVisible()
+    await user.click(toggle)
+    expect(toggle).toHaveAttribute("aria-expanded", "true")
+    expect(list.children).toHaveLength(100)
+    await user.click(screen.getAllByRole("button", { name: "Show fewer" })[0]!)
+    expect(list.children).toHaveLength(3)
+  })
+
+  it("keeps a row with up to three terms as it was, without a summary (#727)", async () => {
+    setup([{ ...application, terms: manyTerms(3) }], false, undefined, null, {})
+    await screen.findAllByRole("button", { name: "Jana Test" })
+    expect(screen.queryByRole("button", { name: /Show all/ })).not.toBeInTheDocument()
+  })
+
+  it("always shows the term the list is filtered by, even when it is the 77th (#727)", async () => {
+    setup([{ ...application, terms: manyTerms(100) }], false, undefined, null, { term: "t77" })
+    const toggle = (await screen.findAllByRole("button", { name: "Show all (100)" }))[0]!
+    const list = document.getElementById(toggle.getAttribute("aria-controls")!)!
+    expect(list.children).toHaveLength(3)
+    expect(list.firstElementChild).toHaveTextContent(
+      formatDateRange(manyTerms(100)[77]!.startsOn, manyTerms(100)[77]!.endsOn, {
+        shouldShowYear: true,
+      }),
+    )
   })
 })

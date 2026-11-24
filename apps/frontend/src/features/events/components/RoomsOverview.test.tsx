@@ -453,13 +453,6 @@ describe("RoomsOverview (US-36)", () => {
     expect(label.parentElement).not.toContainElement(card.getByText("b. 2010"))
   })
 
-  it("makes every room card the same size", async () => {
-    renderOverview()
-    const card = await roomCard("Room A")
-    expect(card.parentElement).toHaveClass("md:auto-rows-fr")
-    expect(card.firstElementChild).toHaveClass("h-full")
-  })
-
   it("lists who is without a room with gender and status", async () => {
     renderOverview()
     const heading = await screen.findByRole("heading", { name: "Confirmed without a room" })
@@ -554,5 +547,21 @@ describe("RoomsOverview (US-36)", () => {
     const card = await roomCard("Room A")
     expect(card.parentElement).toHaveClass("md:grid-cols-2")
     expect(card.parentElement).not.toHaveClass("grid-cols-2")
+  })
+
+  it("sizes each room card by its content: a crowded room does not stretch its neighbour (#729)", async () => {
+    const crowd = Array.from({ length: 50 }, (_, index) =>
+      person(`c${index}`, `Dítě${index}`, "Zástup"),
+    )
+    data = { ...base(), rooms: [room("r1", "Crowded", 50, crowd), room("r2", "Empty", 2)] }
+    renderOverview()
+    const empty = await roomCard("Empty")
+    const list = empty.parentElement!
+    expect(list.className).not.toMatch(/auto-rows-fr|items-stretch/)
+    expect(list).toHaveClass("items-start")
+    expect(empty.firstElementChild!.className).not.toMatch(/(^|\s)h-full/)
+    // Print keeps its columns and never splits a room that fits a page.
+    expect(list).toHaveClass("print:columns-2")
+    expect(empty).toHaveClass("print:break-inside-avoid")
   })
 })

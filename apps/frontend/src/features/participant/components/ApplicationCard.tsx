@@ -27,12 +27,15 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
       <Card className="gap-0 rounded-xl p-0 shadow-none transition-colors hover:border-ring hover:bg-accent/40">
         <div className="flex items-start justify-between gap-4 p-4 md:px-6">
           <div className="flex min-w-0 flex-col gap-1">
-            <h3 className="flex items-center gap-2 text-lg font-semibold">
+            <h3
+              className="flex items-center gap-2 text-lg font-semibold"
+              title={`${application.firstName} ${application.lastName} · ${application.code}`}
+            >
               <UserRound
                 aria-hidden
                 className="size-5 shrink-0 text-primary"
               />
-              <span>
+              <span className="line-clamp-2 min-w-0 wrap-anywhere">
                 {application.firstName} {application.lastName}
                 {" · "}
                 <span className="text-sm font-normal text-muted-foreground">
@@ -64,12 +67,15 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
               key={term.termId}
               className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
             >
-              <span className="flex items-center gap-2">
+              <span className="flex min-w-0 items-center gap-2">
                 <CalendarDays
                   aria-hidden
                   className="size-4 shrink-0 text-muted-foreground"
                 />
-                <TermLabel term={term} />
+                <TermLabel
+                  term={term}
+                  isClamped
+                />
               </span>
               <TermStatusBadge term={term} />
             </li>

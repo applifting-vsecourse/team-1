@@ -166,10 +166,10 @@ function ParticipantNotes({ term }: { term: KitchenTerm }) {
                 key={person.applicationId}
                 className="max-sm:flex max-sm:flex-col max-sm:border-0"
               >
-                <TableCell className="align-top font-medium break-words whitespace-normal max-sm:text-lg">
+                <TableCell className="align-top font-medium wrap-anywhere whitespace-normal max-sm:text-lg">
                   {person.firstName} {person.lastName}
                 </TableCell>
-                <TableCell className="space-y-1 text-sm break-words whitespace-pre-line text-muted-foreground">
+                <TableCell className="space-y-1 text-sm wrap-anywhere whitespace-pre-line text-muted-foreground">
                   {person.allergies && <p>{person.allergies}</p>}
                   {person.specialRequest && <p>{person.specialRequest}</p>}
                   {person.lateArrival && (
@@ -297,7 +297,7 @@ export function KitchenSummary({ eventId }: { eventId: string }) {
                         key={option.id}
                         className="md:h-[84px]"
                       >
-                        <TableCell className="break-words whitespace-normal md:p-4 md:text-base">
+                        <TableCell className="wrap-anywhere whitespace-normal md:p-4 md:text-base">
                           {option.name}
                         </TableCell>
                         <TableCell className="text-right text-sm text-muted-foreground tabular-nums md:w-40 md:p-4">
@@ -317,10 +317,10 @@ export function KitchenSummary({ eventId }: { eventId: string }) {
                     <KitchenTable head={[t("kitchen.nameColumn"), t("kitchen.requestColumn")]}>
                       {term.specialRequests.map((entry) => (
                         <TableRow key={entry.applicationId}>
-                          <TableCell className="whitespace-normal">
+                          <TableCell className="wrap-anywhere whitespace-normal">
                             {entry.firstName} {entry.lastName}
                           </TableCell>
-                          <TableCell className="break-words whitespace-pre-line">
+                          <TableCell className="wrap-anywhere whitespace-pre-line">
                             {entry.specialRequest}
                           </TableCell>
                         </TableRow>
@@ -355,10 +355,10 @@ export function KitchenSummary({ eventId }: { eventId: string }) {
                       <KitchenTable head={[t("kitchen.nameColumn"), t("kitchen.allergiesColumn")]}>
                         {term.allergies.map((entry) => (
                           <TableRow key={entry.applicationId}>
-                            <TableCell className="whitespace-normal">
+                            <TableCell className="wrap-anywhere whitespace-normal">
                               {entry.firstName} {entry.lastName}
                             </TableCell>
-                            <TableCell className="break-words whitespace-pre-line">
+                            <TableCell className="wrap-anywhere whitespace-pre-line">
                               {entry.allergies}
                             </TableCell>
                           </TableRow>
@@ -382,13 +382,13 @@ export function KitchenSummary({ eventId }: { eventId: string }) {
                       >
                         {term.stays.map((entry) => (
                           <TableRow key={entry.applicationId}>
-                            <TableCell className="whitespace-normal">
+                            <TableCell className="wrap-anywhere whitespace-normal">
                               {entry.firstName} {entry.lastName}
                             </TableCell>
-                            <TableCell className="whitespace-normal">
+                            <TableCell className="wrap-anywhere whitespace-normal">
                               {entry.lateArrival ? when(entry.lateArrival) : "–"}
                             </TableCell>
-                            <TableCell className="whitespace-normal">
+                            <TableCell className="wrap-anywhere whitespace-normal">
                               {entry.earlyDeparture ? when(entry.earlyDeparture) : "–"}
                             </TableCell>
                           </TableRow>

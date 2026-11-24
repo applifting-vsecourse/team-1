@@ -174,4 +174,24 @@ describe("ApplicationList", () => {
     expect(within(row).queryByText("Waitlisted")).not.toBeInTheDocument()
     expect(within(link).getByText("Remaining to pay")).toBeInTheDocument()
   })
+
+  it("clamps a very long name and term name, and keeps the full text available (#733)", async () => {
+    const name = "Maximiliána".repeat(10)
+    const termName = "Velmi dlouhý název termínu ".repeat(12)
+    respondWith([
+      application({
+        firstName: name,
+        lastName: "Nováková",
+        terms: [{ ...application().terms[0]!, name: termName }],
+      }),
+    ])
+    renderList()
+    const link = await screen.findByRole("link")
+    const heading = within(link).getByRole("heading", { level: 3 })
+    expect(heading).toHaveAttribute("title", expect.stringContaining(name))
+    expect(heading.querySelector(".line-clamp-2")).toHaveTextContent(name)
+    const termLabel = within(link).getByTitle(termName.trim())
+    expect(termLabel).toHaveClass("line-clamp-2", "wrap-anywhere")
+    expect(termLabel).toHaveTextContent(termName.trim())
+  })
 })
