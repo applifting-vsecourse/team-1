@@ -72,7 +72,10 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
                   aria-hidden
                   className="size-4 shrink-0 text-muted-foreground"
                 />
-                <TermLabel term={term} />
+                <TermLabel
+                  term={term}
+                  isClamped
+                />
               </span>
               <TermStatusBadge term={term} />
             </li>
