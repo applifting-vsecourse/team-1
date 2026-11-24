@@ -155,6 +155,15 @@ describe("TermStatuses", () => {
     )
   })
 
+  it("keeps Change status a normal-size button in one row with the term actions (#754)", async () => {
+    get.mockReturnValue({ json: () => Promise.resolve([term()]) })
+    setup()
+    const change = await screen.findByRole("button", { name: "Change status" })
+    expect(change).not.toHaveClass("w-full")
+    expect(change.className).not.toContain("h-12")
+    expect(change.parentElement).toHaveClass("flex", "flex-wrap")
+  })
+
   it("confirms a waitlisted application after the dialog", async () => {
     get.mockReturnValue({ json: () => Promise.resolve([term()]) })
     patch.mockResolvedValue(undefined)
