@@ -100,7 +100,7 @@ export function PaymentDetail({
   return (
     <div className="flex flex-col gap-4">
       <Seo title={t("payment.title")} />
-      <div className="flex items-start gap-3 md:gap-4">
+      <div className="flex items-start gap-4 md:gap-6">
         <BackLink
           to={ROUTES.organizer.eventApplications}
           params={{ eventId: data.eventId }}
@@ -369,13 +369,13 @@ function PaymentHistory({
           {payment.cancelledAt ? null : (
             <div className="flex shrink-0 items-center gap-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 onClick={() => onCorrect(payment)}
               >
                 {t("payment.correctRecord")}
               </Button>
               <Button
-                variant="ghost"
+                variant="destructive"
                 onClick={() => onCancel(payment)}
               >
                 {t("payment.cancelRecord")}

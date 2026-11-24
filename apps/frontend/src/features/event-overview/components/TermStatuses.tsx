@@ -126,7 +126,7 @@ export function TermStatuses({
                   term.status !== "CONFIRMED" || (status === "WAITLISTED" && term.owedCzk > 0),
               ) ? (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="lg"
                   className="h-12 w-full"
                   onClick={() => setChange(term)}

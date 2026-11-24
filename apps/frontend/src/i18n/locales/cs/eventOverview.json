@@ -45,7 +45,7 @@
     "paymentFilter": "Úhrada",
     "removeFilter": "Odebrat filtr: {{filter}}",
     "search": "Hledat přihlášky",
-    "searchPlaceholder": "Jméno, e-mail nebo VS",
+    "searchPlaceholder": "Jméno, e-mail, VS",
     "showAllTerms": "Zobrazit všechny ({{count}})",
     "showApplications": "Zobrazit přihlášky",
     "sort": "Řazení: nejnověji přijaté přihlášky",

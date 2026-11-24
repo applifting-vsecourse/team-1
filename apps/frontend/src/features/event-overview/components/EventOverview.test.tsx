@@ -127,6 +127,25 @@ describe("EventOverview", () => {
     expect(screen.getByRole("combobox", { name: "Event" })).toBeVisible()
   })
 
+  it("shows the buttons to applications and the waitlist as outlined actions (#753)", async () => {
+    renderOverview({
+      toEvaluateCount: 1,
+      substituteCount: 0,
+      debt: { debtorCount: 0, overdueCount: 0, totalDebtCzk: 0 },
+      changeRequestCount: 0,
+    })
+    const [applications] = await screen.findAllByRole("link", { name: "View applications" })
+    expect(applications).toHaveAttribute("data-variant", "outline")
+    expect(screen.getByRole("link", { name: "View waitlist" })).toHaveAttribute(
+      "data-variant",
+      "outline",
+    )
+    expect(screen.getByRole("button", { name: "View waitlist" })).toHaveAttribute(
+      "data-variant",
+      "outline",
+    )
+  })
+
   it("still shows the cards, with zero counts, when nothing needs attention", async () => {
     renderOverview({
       toEvaluateCount: 0,

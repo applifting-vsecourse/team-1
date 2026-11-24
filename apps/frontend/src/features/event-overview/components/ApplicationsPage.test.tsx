@@ -8,7 +8,7 @@ import {
   Outlet,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -112,8 +112,9 @@ function setup(
           eventId="e1"
           isAutomatic={isAutomatic}
           filters={filters}
-          onFiltersChange={(next) => {
-            onFiltersChange(next)
+          onFiltersChange={(next, options) => {
+            if (options) onFiltersChange(next, options)
+            else onFiltersChange(next)
             setFilters(next)
           }}
         />
@@ -352,6 +353,10 @@ describe("ApplicationsPage", () => {
     await user.clear(input)
     expect(change).toHaveBeenLastCalledWith(expect.objectContaining({ q: undefined }))
   })
+  it("shows the whole search placeholder (#753)", async () => {
+    setup()
+    expect(await screen.findByRole("searchbox")).toHaveAttribute("placeholder", "Name, e-mail, VS")
+  })
   it("starts at the first page of search results", async () => {
     setup(Array.from({ length: 21 }, (_, index) => ({ ...application, id: `a${index}` })))
     const user = userEvent.setup()
@@ -359,6 +364,37 @@ describe("ApplicationsPage", () => {
     expect(screen.getByText("21–21 of 21 results")).toBeInTheDocument()
     await user.type(screen.getByRole("searchbox"), "jana")
     expect(await screen.findByText("1–20 of 21 results")).toBeInTheDocument()
+  })
+  describe("page in the URL (#734)", () => {
+    const rows = Array.from({ length: 41 }, (_, index) => ({ ...application, id: `a${index}` }))
+
+    it("writes the 1-based page to the search as a new history step, keeping the filters", async () => {
+      const change = setup(rows)
+      const user = userEvent.setup()
+      await user.click(await screen.findByRole("button", { name: "Next page" }))
+      expect(change).toHaveBeenLastCalledWith(
+        { term: "t1", status: "CONFIRMED", payment: "UNPAID", gender: "FEMALE", page: 2 },
+        { isPush: true },
+      )
+    })
+
+    it("shows the page the URL holds, as after a reload or a shared link", async () => {
+      setup(rows, false, undefined, null, { page: 3 })
+      expect(await screen.findByText("41–41 of 41 results")).toBeInTheDocument()
+    })
+
+    it("returns to the first page when a filter or the search changes", async () => {
+      const change = setup(rows, false, undefined, null, { term: "t1", page: 2 })
+      const user = userEvent.setup()
+      await user.type(await screen.findByRole("searchbox"), "j")
+      expect(change).toHaveBeenLastCalledWith({ term: "t1", q: "j" })
+    })
+
+    it("falls back to the last existing page when the page is past the end", async () => {
+      const change = setup(rows, false, undefined, null, { page: 9 })
+      expect(await screen.findByText("41–41 of 41 results")).toBeInTheDocument()
+      await waitFor(() => expect(change).toHaveBeenCalledWith({ page: 3 }, { isPush: false }))
+    })
   })
   it("passes combined filters, displays all terms and links to payment", async () => {
     setup()

@@ -225,7 +225,7 @@ export function ManualApplicationPage({
   }
 
   return (
-    <div className="flex max-w-196 flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <Seo title={step === "CREATED" ? t("manual.created") : t("manual.title")} />
       {step === "CREATED" && created && savedTerms.data ? (
         <>

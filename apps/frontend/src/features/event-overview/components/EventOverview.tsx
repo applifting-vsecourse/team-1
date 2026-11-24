@@ -283,7 +283,7 @@ function Occupancy({ eventId }: { eventId: string }) {
             <div className="grid gap-1 sm:grid-cols-2">
               <Button
                 asChild
-                variant="ghost"
+                variant="outline"
               >
                 <Link
                   to={ROUTES.organizer.eventApplications}
@@ -296,7 +296,7 @@ function Occupancy({ eventId }: { eventId: string }) {
               {term.waitlisted > 0 ? (
                 <Button
                   asChild
-                  variant="ghost"
+                  variant="outline"
                 >
                   <Link
                     to={ROUTES.organizer.eventApplications}
@@ -308,7 +308,7 @@ function Occupancy({ eventId }: { eventId: string }) {
                 </Button>
               ) : (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   disabled
                 >
                   {t("overview.viewWaitlist")}

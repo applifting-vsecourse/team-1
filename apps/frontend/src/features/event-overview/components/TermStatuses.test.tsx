@@ -146,6 +146,15 @@ describe("TermStatuses", () => {
     expect(screen.queryByRole("button", { name: "Cancel in term" })).not.toBeInTheDocument()
   })
 
+  it("shows Change status as a readable outlined button (#754)", async () => {
+    get.mockReturnValue({ json: () => Promise.resolve([term()]) })
+    setup()
+    expect(await screen.findByRole("button", { name: "Change status" })).toHaveAttribute(
+      "data-variant",
+      "outline",
+    )
+  })
+
   it("confirms a waitlisted application after the dialog", async () => {
     get.mockReturnValue({ json: () => Promise.resolve([term()]) })
     patch.mockResolvedValue(undefined)

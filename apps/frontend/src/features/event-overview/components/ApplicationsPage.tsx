@@ -66,14 +66,18 @@ import type { ApplicationsSearch } from "@/features/event-overview/lib/applicati
 export function ApplicationsPage({
   eventId,
   isAutomatic = false,
-  filters,
+  filters: search,
   onFiltersChange,
 }: {
   eventId: string
   isAutomatic?: boolean
   filters: ApplicationsSearch
-  onFiltersChange: (filters: ApplicationsSearch) => void
+  /** `isPush`: a new history entry (turning the page); filters replace the current one. */
+  onFiltersChange: (filters: ApplicationsSearch, options?: { isPush?: boolean }) => void
 }) {
+  // The page is in the URL (1-based, absent for the first), apart from the filters: changing a
+  // filter builds the next search from `filters`, so it drops the page and returns to the first.
+  const { page: urlPage, ...filters } = search
   useConnectionFeedback()
   const { t } = useTranslation("eventOverview")
   const searchInput = useRef<HTMLInputElement>(null)
@@ -85,7 +89,9 @@ export function ApplicationsPage({
   const query = useQuery(applicationsQueryOptions(eventId, filters))
   const client = useQueryClient()
   const occupancy = useQuery(occupancyQueryOptions(eventId))
-  const [page, setPage] = useState(0)
+  const page = (urlPage ?? 1) - 1
+  const setPage = (index: number) =>
+    onFiltersChange({ ...filters, page: index > 0 ? index + 1 : undefined }, { isPush: true })
   // Deciding in bulk (US-107, US-108) works on one term: the free beds belong to a term. With a
   // single term there is no choice to make, so the filter "all terms" is that term.
   const terms = occupancy.data?.terms ?? []
@@ -107,6 +113,16 @@ export function ApplicationsPage({
   const [taken, setTaken] = useState<SubstituteTakenData | null>(null)
   const pageCount = Math.max(1, Math.ceil((query.data?.length ?? 0) / PAGE_SIZE))
   const currentPage = Math.min(page, pageCount - 1)
+  // A page past the end (rows deleted, an old link) falls back to the last one that exists.
+  const isPastEnd = query.data !== undefined && page > currentPage
+  useEffect(() => {
+    if (isPastEnd) {
+      onFiltersChange(
+        { ...filters, page: currentPage > 0 ? currentPage + 1 : undefined },
+        { isPush: false },
+      )
+    }
+  })
   // The general list arrives newest first, with the application number breaking ties.
   const orderedRows = automaticTerm ? query.data?.toReversed() : query.data
   const visibleRows =
@@ -122,7 +138,6 @@ export function ApplicationsPage({
     // Back to the list of all applications, where the new statuses show.
     const next = { ...filters }
     delete next.status
-    setPage(0)
     onFiltersChange(next)
   }
   const finishBulk = (
@@ -158,7 +173,6 @@ export function ApplicationsPage({
     ([key, value]) => Boolean(value) && !(key === "status" && isStatusLocked),
   )
   const clearFilters = () => {
-    setPage(0)
     if (filters.term) setSelectedIds(new Set())
     onFiltersChange(isStatusLocked ? { status: filters.status } : {})
   }
@@ -205,7 +219,6 @@ export function ApplicationsPage({
         eventId={eventId}
         filters={filters}
         onChange={(next) => {
-          setPage(0)
           setSelectedIds(new Set())
           setTaken(null)
           onFiltersChange(next)
@@ -304,7 +317,6 @@ export function ApplicationsPage({
               placeholder={t("applications.searchPlaceholder")}
               className="w-full pl-11 md:w-56"
               onChange={(event) => {
-                setPage(0)
                 const q = event.target.value.trim()
                 onFiltersChange({ ...filters, q: q === "" ? undefined : q })
               }}
@@ -318,7 +330,6 @@ export function ApplicationsPage({
               name: formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true }),
             }))}
             onChange={(next) => {
-              setPage(0)
               if (next.term !== filters.term) setSelectedIds(new Set())
               onFiltersChange(next)
             }}

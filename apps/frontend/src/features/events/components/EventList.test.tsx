@@ -115,6 +115,15 @@ describe("EventList", () => {
     expect(within(card).getByRole("progressbar", { name: "79/120 confirmed" })).toBeInTheDocument()
   })
 
+  it("keeps both filters on one line so they have the same height on a phone (#753)", async () => {
+    renderList([event])
+    const organization = await screen.findByRole("combobox", { name: "Organization" })
+    const status = screen.getByRole("combobox", { name: "Event status" })
+    for (const select of [organization, status]) {
+      expect(select.className).not.toContain("whitespace-normal")
+    }
+  })
+
   it("highlights the event that was just created and says it has no term yet", async () => {
     renderList([event, draft], "e2")
 

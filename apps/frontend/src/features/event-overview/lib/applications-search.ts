@@ -17,5 +17,7 @@ export const applicationsSearchSchema = z.object({
   waitlist: z.enum(["FREE_BED"]).optional(),
   /** Applicants who asked to settle the accommodation individually (US-38). */
   accommodation: z.enum(["INDIVIDUAL"]).optional(),
+  /** Page of the list, 1-based; absent means the first. Not a filter: it isn't remembered per event. */
+  page: z.coerce.number().int().min(1).max(10000).optional().catch(undefined),
 })
 export type ApplicationsSearch = z.infer<typeof applicationsSearchSchema>

@@ -129,7 +129,7 @@ function FilteredEvents({
             <SelectTrigger
               id="event-organization"
               aria-label={t("list.organizationFilter")}
-              className="w-full text-start max-lg:*:data-[slot=select-value]:whitespace-normal"
+              className="w-full text-start"
             >
               <SelectValue />
             </SelectTrigger>
@@ -155,7 +155,7 @@ function FilteredEvents({
             <SelectTrigger
               id="event-status"
               aria-label={t("list.statusFilter")}
-              className="w-full text-start max-lg:*:data-[slot=select-value]:whitespace-normal"
+              className="w-full text-start"
             >
               <SelectValue />
             </SelectTrigger>
