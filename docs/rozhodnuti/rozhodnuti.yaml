@@ -3110,7 +3110,7 @@ rozhodnuti:
   poznamka: 'Doporučení: schválit; Figma N1 a N6 kreslí přepínače v liště (opraví design), PROJEKT popisuje patch D-069 (b).'
 - id: D-148
   nazev: 'Upozornění přihlašovatele v aplikaci: vznik a texty'
-  text: 'Upozornění v aplikaci vzniká při změně stavu přihlášky v termínu a při platbě; při změně termínů přihlašovatelem nevzniká. Platba, která uzavře více termínů, vytvoří upozornění za každý termín. Texty druhů, které Figma nekreslí, platí v první verzi tak, jak jsou.'
+  text: 'Upozornění v aplikaci vzniká při změně stavu přihlášky v termínu, při platbě a při zveřejnění nového příspěvku na nástěnce akce (US-91) každému účtu, který příspěvek uvidí; úprava příspěvku upozornění nevytváří. Při změně termínů přihlašovatelem nevzniká. Platba, která uzavře více termínů, vytvoří upozornění za každý termín. Texty druhů, které Figma nekreslí, platí v první verzi tak, jak jsou.'
   typ: produkt
   oblast: komunikace
   datum: '2026-11-05'
@@ -3118,9 +3118,15 @@ rozhodnuti:
   zdroj:
   - popis: 'PR #340 (US-118), schválení PM 5. 11.'
     url: https://github.com/applifting-vsecourse/team-1/pull/340
+  - popis: 'PR #689 (US-91)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/689
+  - popis: 'Rozhodnutí PM z 20. 11. (US-91)'
+    url: https://github.com/applifting-vsecourse/team-1/issues/91#issuecomment-7039806000
   us:
   - label: US-118
     url: https://github.com/applifting-vsecourse/team-1/issues/211
+  - label: US-91
+    url: https://github.com/applifting-vsecourse/team-1/issues/91
   rozhodl:
   - pm
   stav: platne
