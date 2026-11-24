@@ -145,7 +145,9 @@ function renderRooms(
     json: () => {
       const requestsTerm = /terms\/([^/]+)\/individual-requests/.exec(path)?.[1]
       if (requestsTerm) return Promise.resolve({ requests: requestsByTerm[requestsTerm] ?? [] })
-      if (options.failRooms && path.includes('/rooms')) return Promise.reject(new Error("rooms down"))
+      if (options.failRooms && path.includes("/rooms")) {
+        return Promise.reject(new Error("rooms down"))
+      }
       const roomTerm = byTerm[/terms\/([^/]+)\/rooms/.exec(path)?.[1] ?? ""]
       const assignmentTerm = byTerm[/terms\/([^/]+)\/room-assignments/.exec(path)?.[1] ?? ""]
       return Promise.resolve(
