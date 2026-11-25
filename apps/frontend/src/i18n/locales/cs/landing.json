@@ -24,13 +24,8 @@
     }
   },
   "findEvent": "Najít akci",
-  "footer": "Togena · Správa vícetermínových akcí",
   "footerLinks": {
-    "login": "Přihlásit se",
-    "myApplications": "Moje přihlášky",
-    "organizers": "Pro organizátory",
-    "participants": "Pro účastníky",
-    "register": "Založit účet"
+    "myApplications": "Moje přihlášky"
   },
   "nav": {
     "catalog": "Katalog akcí",

@@ -2,17 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { Logo } from "@/components/atoms/Logo"
 import { Seo } from "@/components/atoms/Seo"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 
 import { redirectSignedIn } from "@/features/auth/lib/redirect-signed-in"
 import { LandingClosing } from "@/features/landing/components/LandingClosing"
 import { LandingFeatures } from "@/features/landing/components/LandingFeatures"
 import { LandingHero } from "@/features/landing/components/LandingHero"
-import { LANDING_CONTENT } from "@/features/landing/lib/layout"
 
 export const Route = createFileRoute("/")({
   // beforeLoad, not loader: a landing the router has already cached (visited signed out) would
@@ -53,51 +50,6 @@ function LandingPage() {
             >
               <Link to={ROUTES.participant.login}>{t("footerLinks.myApplications")}</Link>
             </Button>
-          </div>
-        }
-        footer={
-          <div
-            className={cn(
-              LANDING_CONTENT,
-              "flex flex-col gap-6 py-8 md:flex-row md:justify-between md:py-12",
-            )}
-          >
-            <div className="flex flex-col gap-2">
-              <Logo />
-              <p className="text-sm text-muted-foreground">{t("footer")}</p>
-            </div>
-            <div className="flex gap-8 md:gap-16">
-              <nav className="flex flex-col gap-3 text-sm">
-                <p className="font-semibold text-link">{t("footerLinks.organizers")}</p>
-                <Link
-                  to={ROUTES.organizer.register}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  {t("footerLinks.register")}
-                </Link>
-                <Link
-                  to={ROUTES.organizer.login}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  {t("footerLinks.login")}
-                </Link>
-              </nav>
-              <nav className="flex flex-col gap-3 text-sm">
-                <p className="font-semibold text-link">{t("footerLinks.participants")}</p>
-                <Link
-                  to={ROUTES.catalog}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  {t("nav.catalog")}
-                </Link>
-                <Link
-                  to={ROUTES.participant.login}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  {t("footerLinks.myApplications")}
-                </Link>
-              </nav>
-            </div>
           </div>
         }
       >

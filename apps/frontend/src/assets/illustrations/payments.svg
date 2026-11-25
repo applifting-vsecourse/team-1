@@ -1,10 +1,69 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" aria-hidden="true">
-  <circle class="backdrop" cx="160" cy="116" r="88" fill="var(--illustration-subtle)"/>
-  <rect class="ground" x="56" y="190" width="208" height="6" rx="3" fill="var(--illustration-ink)"/>
-  <path class="box" d="M100 138C100 126.954 108.954 118 120 118H200C211.046 118 220 126.954 220 138V190H100V138Z" fill="var(--illustration-primary)"/>
-  <rect class="slot" x="136" y="132" width="48" height="10" rx="5" fill="var(--card)"/>
-  <circle class="coin-halo" cx="160" cy="90" r="21" fill="var(--card)"/>
-  <circle class="coin" cx="160" cy="90" r="16" fill="var(--brand-warm)"/>
-  <rect class="drop-1" x="147" y="44" width="6" height="16" rx="3" fill="var(--card)"/>
-  <rect class="drop-2" x="167" y="50" width="6" height="12" rx="3" fill="var(--card)"/>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 320 240"
+  fill="none"
+  aria-hidden="true"
+>
+  <circle
+    class="backdrop"
+    cx="160"
+    cy="116"
+    r="88"
+    fill="var(--illustration-subtle)"
+  />
+  <rect
+    class="ground"
+    x="56"
+    y="190"
+    width="208"
+    height="6"
+    rx="3"
+    fill="var(--illustration-ink)"
+  />
+  <path
+    class="box"
+    d="M100 138C100 126.954 108.954 118 120 118H200C211.046 118 220 126.954 220 138V190H100V138Z"
+    fill="var(--illustration-primary)"
+  />
+  <rect
+    class="slot"
+    x="136"
+    y="132"
+    width="48"
+    height="10"
+    rx="5"
+    fill="var(--card)"
+  />
+  <circle
+    class="coin-halo"
+    cx="160"
+    cy="90"
+    r="21"
+    fill="var(--card)"
+  />
+  <circle
+    class="coin"
+    cx="160"
+    cy="90"
+    r="16"
+    fill="var(--brand-warm)"
+  />
+  <rect
+    class="drop-1"
+    x="147"
+    y="44"
+    width="6"
+    height="16"
+    rx="3"
+    fill="var(--card)"
+  />
+  <rect
+    class="drop-2"
+    x="167"
+    y="50"
+    width="6"
+    height="12"
+    rx="3"
+    fill="var(--card)"
+  />
 </svg>

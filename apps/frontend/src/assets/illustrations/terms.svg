@@ -1,14 +1,85 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" aria-hidden="true">
-  <circle class="backdrop" cx="160" cy="112" r="96" fill="var(--illustration-subtle)"/>
-  <rect class="ground" x="40" y="182" width="240" height="6" rx="3" fill="var(--illustration-ink)"/>
-  <path class="term-1" d="M58 182C58 166.536 70.536 154 86 154C101.464 154 114 166.536 114 182H58Z" fill="var(--illustration-primary)"/>
-  <path class="door-1" d="M86 182H75C75 175.925 79.925 171 86 171V182Z" fill="var(--card)"/>
-  <path class="term-2-halo" d="M120 182C120 159.909 137.909 142 160 142C182.091 142 200 159.909 200 182H120Z" fill="var(--card)"/>
-  <path class="term-2" d="M124 182C124 162.118 140.118 146 160 146C179.882 146 196 162.118 196 182H124Z" fill="var(--brand-warm)"/>
-  <path class="door-2" d="M160 182H146C146 174.268 152.268 168 160 168V182Z" fill="var(--card)"/>
-  <path class="term-3" d="M206 182C206 166.536 218.536 154 234 154C249.464 154 262 166.536 262 182H206Z" fill="var(--illustration-primary)"/>
-  <path class="door-3" d="M234 182H223C223 175.925 227.925 171 234 171V182Z" fill="var(--card)"/>
-  <rect class="tag-1" x="74" y="124" width="24" height="10" rx="5" fill="var(--card)"/>
-  <rect class="tag-2" x="142" y="110" width="36" height="10" rx="5" fill="var(--card)"/>
-  <rect class="tag-3" x="222" y="124" width="24" height="10" rx="5" fill="var(--card)"/>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 320 240"
+  fill="none"
+  aria-hidden="true"
+>
+  <circle
+    class="backdrop"
+    cx="160"
+    cy="112"
+    r="96"
+    fill="var(--illustration-subtle)"
+  />
+  <rect
+    class="ground"
+    x="40"
+    y="182"
+    width="240"
+    height="6"
+    rx="3"
+    fill="var(--illustration-ink)"
+  />
+  <path
+    class="term-1"
+    d="M58 182C58 166.536 70.536 154 86 154C101.464 154 114 166.536 114 182H58Z"
+    fill="var(--illustration-primary)"
+  />
+  <path
+    class="door-1"
+    d="M86 182H75C75 175.925 79.925 171 86 171V182Z"
+    fill="var(--card)"
+  />
+  <path
+    class="term-2-halo"
+    d="M120 182C120 159.909 137.909 142 160 142C182.091 142 200 159.909 200 182H120Z"
+    fill="var(--card)"
+  />
+  <path
+    class="term-2"
+    d="M124 182C124 162.118 140.118 146 160 146C179.882 146 196 162.118 196 182H124Z"
+    fill="var(--brand-warm)"
+  />
+  <path
+    class="door-2"
+    d="M160 182H146C146 174.268 152.268 168 160 168V182Z"
+    fill="var(--card)"
+  />
+  <path
+    class="term-3"
+    d="M206 182C206 166.536 218.536 154 234 154C249.464 154 262 166.536 262 182H206Z"
+    fill="var(--illustration-primary)"
+  />
+  <path
+    class="door-3"
+    d="M234 182H223C223 175.925 227.925 171 234 171V182Z"
+    fill="var(--card)"
+  />
+  <rect
+    class="tag-1"
+    x="74"
+    y="124"
+    width="24"
+    height="10"
+    rx="5"
+    fill="var(--card)"
+  />
+  <rect
+    class="tag-2"
+    x="142"
+    y="110"
+    width="36"
+    height="10"
+    rx="5"
+    fill="var(--card)"
+  />
+  <rect
+    class="tag-3"
+    x="222"
+    y="124"
+    width="24"
+    height="10"
+    rx="5"
+    fill="var(--card)"
+  />
 </svg>

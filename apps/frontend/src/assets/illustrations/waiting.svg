@@ -1,10 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" aria-hidden="true">
-  <circle class="backdrop" cx="160" cy="116" r="88" fill="var(--illustration-subtle)"/>
-  <rect class="ground" x="56" y="182" width="208" height="6" rx="3" fill="var(--illustration-ink)"/>
-  <path class="tent" d="M84 182C84 151.072 109.072 126 140 126C170.928 126 196 151.072 196 182H84Z" fill="var(--illustration-primary)"/>
-  <path class="tent-flap" d="M140 182H116C116 168.745 126.745 158 140 158V182Z" fill="var(--illustration-subtle)"/>
-  <path class="person" d="M212 182C212 173.163 219.163 166 228 166C236.837 166 244 173.163 244 182H212ZM237 154C237 158.971 232.971 163 228 163C223.029 163 219 158.971 219 154C219 149.029 223.029 145 228 145C232.971 145 237 149.029 237 154Z" fill="var(--brand-warm)"/>
-  <circle class="dot-1" cx="216" cy="128" r="4" fill="var(--illustration-ink)"/>
-  <circle class="dot-2" cx="228" cy="128" r="4" fill="var(--illustration-ink)"/>
-  <circle class="dot-3" cx="240" cy="128" r="4" fill="var(--illustration-ink)"/>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 320 240"
+  fill="none"
+  aria-hidden="true"
+>
+  <circle
+    class="backdrop"
+    cx="160"
+    cy="116"
+    r="88"
+    fill="var(--illustration-subtle)"
+  />
+  <rect
+    class="ground"
+    x="56"
+    y="182"
+    width="208"
+    height="6"
+    rx="3"
+    fill="var(--illustration-ink)"
+  />
+  <path
+    class="tent"
+    d="M84 182C84 151.072 109.072 126 140 126C170.928 126 196 151.072 196 182H84Z"
+    fill="var(--illustration-primary)"
+  />
+  <path
+    class="tent-flap"
+    d="M140 182H116C116 168.745 126.745 158 140 158V182Z"
+    fill="var(--illustration-subtle)"
+  />
+  <path
+    class="person"
+    d="M212 182C212 173.163 219.163 166 228 166C236.837 166 244 173.163 244 182H212ZM237 154C237 158.971 232.971 163 228 163C223.029 163 219 158.971 219 154C219 149.029 223.029 145 228 145C232.971 145 237 149.029 237 154Z"
+    fill="var(--brand-warm)"
+  />
+  <circle
+    class="dot-1"
+    cx="216"
+    cy="128"
+    r="4"
+    fill="var(--illustration-ink)"
+  />
+  <circle
+    class="dot-2"
+    cx="228"
+    cy="128"
+    r="4"
+    fill="var(--illustration-ink)"
+  />
+  <circle
+    class="dot-3"
+    cx="240"
+    cy="128"
+    r="4"
+    fill="var(--illustration-ink)"
+  />
 </svg>

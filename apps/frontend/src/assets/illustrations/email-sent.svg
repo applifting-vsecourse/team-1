@@ -1,9 +1,62 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" aria-hidden="true">
-  <circle class="backdrop" cx="160" cy="116" r="88" fill="var(--illustration-subtle)"/>
-  <rect class="ground" x="64" y="190" width="192" height="6" rx="3" fill="var(--illustration-ink)"/>
-  <rect class="trail-1" x="44" y="104" width="36" height="8" rx="4" fill="var(--illustration-primary)"/>
-  <rect class="trail-2" x="56" y="124" width="28" height="8" rx="4" fill="var(--illustration-primary)"/>
-  <rect class="envelope" x="96" y="84" width="128" height="88" rx="14" fill="var(--illustration-primary)"/>
-  <path class="flap" d="M110 84C110 111.614 132.386 134 160 134C187.614 134 210 111.614 210 84H110Z" fill="var(--card)"/>
-  <circle class="seal" cx="160" cy="116" r="11" fill="var(--brand-warm)"/>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 320 240"
+  fill="none"
+  aria-hidden="true"
+>
+  <circle
+    class="backdrop"
+    cx="160"
+    cy="116"
+    r="88"
+    fill="var(--illustration-subtle)"
+  />
+  <rect
+    class="ground"
+    x="64"
+    y="190"
+    width="192"
+    height="6"
+    rx="3"
+    fill="var(--illustration-ink)"
+  />
+  <rect
+    class="trail-1"
+    x="44"
+    y="104"
+    width="36"
+    height="8"
+    rx="4"
+    fill="var(--illustration-primary)"
+  />
+  <rect
+    class="trail-2"
+    x="56"
+    y="124"
+    width="28"
+    height="8"
+    rx="4"
+    fill="var(--illustration-primary)"
+  />
+  <rect
+    class="envelope"
+    x="96"
+    y="84"
+    width="128"
+    height="88"
+    rx="14"
+    fill="var(--illustration-primary)"
+  />
+  <path
+    class="flap"
+    d="M110 84C110 111.614 132.386 134 160 134C187.614 134 210 111.614 210 84H110Z"
+    fill="var(--card)"
+  />
+  <circle
+    class="seal"
+    cx="160"
+    cy="116"
+    r="11"
+    fill="var(--brand-warm)"
+  />
 </svg>

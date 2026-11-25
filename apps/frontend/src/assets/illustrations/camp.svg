@@ -1,10 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" aria-hidden="true">
-  <circle class="backdrop" cx="160" cy="116" r="88" fill="var(--illustration-subtle)"/>
-  <rect class="ground" x="56" y="166" width="208" height="6" rx="3" fill="var(--illustration-ink)"/>
-  <path class="path" d="M195 161C195 149.402 204.402 140 216 140C222.076 140 227 135.076 227 129V116C227 113.239 229.239 111 232 111C234.761 111 237 113.239 237 116V129C237 140.598 227.598 150 216 150C209.924 150 205 154.924 205 161C205 163.761 202.761 166 200 166C197.239 166 195 163.761 195 161Z" fill="var(--card)"/>
-  <path class="tent" d="M76 166C76 137.281 99.281 114 128 114C156.719 114 180 137.281 180 166H76Z" fill="var(--illustration-primary)"/>
-  <path class="tent-door" d="M128 166H106C106 153.85 115.85 144 128 144V166Z" fill="var(--card)"/>
-  <circle class="sun" cx="232" cy="68" r="22" fill="var(--brand-warm)"/>
-  <path class="arc-1" d="M38 88V60C38 47.8493 47.8493 38 60 38H88C91.3137 38 94 40.6863 94 44C94 47.3137 91.3137 50 88 50H60C54.4767 50 50 54.4767 50 60V88C50 91.3137 47.3137 94 44 94C40.6863 94 38 91.3137 38 88Z" fill="var(--illustration-primary)"/>
-  <path class="arc-2" d="M270 188V160C270 156.686 272.686 154 276 154C279.314 154 282 156.686 282 160V188C282 200.151 272.151 210 260 210H232C228.686 210 226 207.314 226 204C226 200.686 228.686 198 232 198H260C265.523 198 270 193.523 270 188Z" fill="var(--illustration-primary)"/>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 320 240"
+  fill="none"
+  aria-hidden="true"
+>
+  <circle
+    class="backdrop"
+    cx="160"
+    cy="116"
+    r="88"
+    fill="var(--illustration-subtle)"
+  />
+  <rect
+    class="ground"
+    x="56"
+    y="166"
+    width="208"
+    height="6"
+    rx="3"
+    fill="var(--illustration-ink)"
+  />
+  <path
+    class="path"
+    d="M195 161C195 149.402 204.402 140 216 140C222.076 140 227 135.076 227 129V116C227 113.239 229.239 111 232 111C234.761 111 237 113.239 237 116V129C237 140.598 227.598 150 216 150C209.924 150 205 154.924 205 161C205 163.761 202.761 166 200 166C197.239 166 195 163.761 195 161Z"
+    fill="var(--card)"
+  />
+  <path
+    class="tent"
+    d="M76 166C76 137.281 99.281 114 128 114C156.719 114 180 137.281 180 166H76Z"
+    fill="var(--illustration-primary)"
+  />
+  <path
+    class="tent-door"
+    d="M128 166H106C106 153.85 115.85 144 128 144V166Z"
+    fill="var(--card)"
+  />
+  <circle
+    class="sun"
+    cx="232"
+    cy="68"
+    r="22"
+    fill="var(--brand-warm)"
+  />
+  <path
+    class="arc-1"
+    d="M38 88V60C38 47.8493 47.8493 38 60 38H88C91.3137 38 94 40.6863 94 44C94 47.3137 91.3137 50 88 50H60C54.4767 50 50 54.4767 50 60V88C50 91.3137 47.3137 94 44 94C40.6863 94 38 91.3137 38 88Z"
+    fill="var(--illustration-primary)"
+  />
+  <path
+    class="arc-2"
+    d="M270 188V160C270 156.686 272.686 154 276 154C279.314 154 282 156.686 282 160V188C282 200.151 272.151 210 260 210H232C228.686 210 226 207.314 226 204C226 200.686 228.686 198 232 198H260C265.523 198 270 193.523 270 188Z"
+    fill="var(--illustration-primary)"
+  />
 </svg>

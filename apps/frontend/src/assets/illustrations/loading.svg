@@ -1,9 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" aria-hidden="true">
-  <circle class="backdrop" cx="160" cy="116" r="88" fill="var(--illustration-subtle)"/>
-  <rect class="ground" x="56" y="178" width="208" height="6" rx="3" fill="var(--illustration-ink)"/>
-  <path class="tent" d="M80 178C80 147.072 105.072 122 136 122C166.928 122 192 147.072 192 178H80Z" fill="var(--illustration-primary)"/>
-  <path class="tent-door" d="M136 178H114C114 165.85 123.85 156 136 156V178Z" fill="var(--card)"/>
-  <path class="sun" d="M200 178C200 165.85 209.85 156 222 156C234.15 156 244 165.85 244 178H200Z" fill="var(--brand-warm)"/>
-  <rect class="cloud-1" x="186" y="88" width="40" height="10" rx="5" fill="var(--card)"/>
-  <rect class="cloud-2" x="206" y="104" width="28" height="10" rx="5" fill="var(--card)"/>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 320 240"
+  fill="none"
+  aria-hidden="true"
+>
+  <circle
+    class="backdrop"
+    cx="160"
+    cy="116"
+    r="88"
+    fill="var(--illustration-subtle)"
+  />
+  <rect
+    class="ground"
+    x="56"
+    y="178"
+    width="208"
+    height="6"
+    rx="3"
+    fill="var(--illustration-ink)"
+  />
+  <path
+    class="tent"
+    d="M80 178C80 147.072 105.072 122 136 122C166.928 122 192 147.072 192 178H80Z"
+    fill="var(--illustration-primary)"
+  />
+  <path
+    class="tent-door"
+    d="M136 178H114C114 165.85 123.85 156 136 156V178Z"
+    fill="var(--card)"
+  />
+  <path
+    class="sun"
+    d="M200 178C200 165.85 209.85 156 222 156C234.15 156 244 165.85 244 178H200Z"
+    fill="var(--brand-warm)"
+  />
+  <rect
+    class="cloud-1"
+    x="186"
+    y="88"
+    width="40"
+    height="10"
+    rx="5"
+    fill="var(--card)"
+  />
+  <rect
+    class="cloud-2"
+    x="206"
+    y="104"
+    width="28"
+    height="10"
+    rx="5"
+    fill="var(--card)"
+  />
 </svg>
