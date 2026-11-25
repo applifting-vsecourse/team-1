@@ -3743,3 +3743,75 @@ rozhodnuti:
   z_otazek: []
   dokumentace: []
   poznamka: 'Mění pravidlo z D-115 a D-139, podle kterého se přistýlky při kopírování pokojů nekopírovaly.'
+- id: D-180
+  nazev: 'Přeplatek bez dluhu se v seznamu přihlášek ukazuje jako „Dluh 0 Kč“'
+  text: 'Přihláška s přeplatkem a bez dluhu má v seznamu přihlášek „Dluh 0 Kč“. Stav i filtr „Přeplaceno“ zůstávají. Když jiný potvrzený termín dluží, přeplatek jeho dluh nesnižuje.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-22'
+  zdroj:
+  - popis: 'odpověď PM v PR #655, 22. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/655#issuecomment-7081079739
+  us:
+  - label: '#362'
+    url: https://github.com/applifting-vsecourse/team-1/issues/362
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-181
+  nazev: 'Kopie bankovního výpisu s výsledkem párování se neukládá'
+  text: 'Nahraný bankovní výpis ani jeho kopie se neukládají. Kopie s výsledkem párování vznikne hned po nahrání a stáhnout ji může jen ten, kdo výpis nahrál; z historie nahrání stáhnout nejde. Výsledek párování uvádí jen číslo přihlášky bez jména přihlášeného, původní sloupce výpisu zůstávají. Přeskočené řádky mají text „Přeskočeno: odchozí platba“ nebo „Přeskočeno: už nahráno dříve“, platba na souhrnný variabilní symbol text „souhrnná platba“ bez rozpadu po termínech.'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-22'
+  zdroj:
+  - popis: 'rozhodnutí PM v #561, 20. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/issues/561#issuecomment-7050912163
+  - popis: 'rozhodnutí PM v PR #657, 22. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/657#issuecomment-7081277898
+  us:
+  - label: '#561'
+    url: https://github.com/applifting-vsecourse/team-1/issues/561
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-182
+  nazev: 'Nástěnka „Informace k akci“: rozsah a viditelnost příspěvků'
+  text: 'Nástěnka je jedna za celý účet přihlašovatele; „Zpět na přihlášku“ vede na přihlášku, ze které přihlašovatel přišel, a počet nových příspěvků se ukazuje za každou přihlášku zvlášť. Úprava příspěvku ho znovu neoznačí jako nový a nevytvoří upozornění. Kdo se stane příjemcem dodatečně, starý příspěvek uvidí bez upozornění. Zrušená přihláška příspěvky ani upozornění nevidí, archivovaná příspěvky nevidí. Nadpis má nejvýše 120 znaků, text 5000 znaků, prostý text se zalomením řádků. Hromadné zprávy na nástěnce patří do US-57, kde se určí i to, kdo je uvidí.'
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-11-24'
+  zdroj:
+  - popis: 'rozhodnutí PM v PR #689, 24. 11. 2026 (body 1–3 a 5–9)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/689#issuecomment-7144297886
+  us:
+  - label: '#91'
+    url: https://github.com/applifting-vsecourse/team-1/issues/91
+  - label: '#57'
+    url: https://github.com/applifting-vsecourse/team-1/issues/57
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-183
+  nazev: 'Seznam individuálních požadavků na ubytování: stavy a požadavek bez textu'
+  text: 'Seznam individuálních požadavků na ubytování u termínu obsahuje přihlášky v termínu ve všech stavech kromě zrušených a archivovaných. Požadavek bez textu se zobrazí také, se jménem a odkazem na detail.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-23'
+  zdroj:
+  - popis: 'odpověď PM v PR #690, 23. 11. 2026'
+    url: https://github.com/applifting-vsecourse/team-1/pull/690#issuecomment-7094110012
+  us:
+  - label: '#514'
+    url: https://github.com/applifting-vsecourse/team-1/issues/514
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []

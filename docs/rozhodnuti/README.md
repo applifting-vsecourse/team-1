@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**175 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**179 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -57,6 +57,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-182](#d-182) | Nástěnka „Informace k akci“: rozsah a viditelnost příspěvků | 2026-11-24 | `pm` | produkt |
 | [D-117](#d-117) | Magic link je i v souhrnném potvrzovacím e-mailu, ne v e-mailu o změně | 2026-11-13 | `pm` | produkt |
 | [D-151](#d-151) | Potvrzení zaplacení: jazyk podle D-078, jeden e-mail za platbu | 2026-11-06 | `pm` | produkt |
 | [D-136](#d-136) | Do US-128 znamená jazyk en „nenastaveno“ | 2026-11-06 | `pm` | produkt |
@@ -112,6 +113,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-181](#d-181) | Kopie bankovního výpisu s výsledkem párování se neukládá | 2026-11-22 | `pm` | produkt |
+| [D-180](#d-180) | Přeplatek bez dluhu se v seznamu přihlášek ukazuje jako „Dluh 0 Kč“ | 2026-11-22 | `pm` | produkt |
 | [D-178](#d-178) | Organizátor smí zapsat platbu na celou přihlášku | 2026-11-20 | `pm` | produkt |
 | [D-175](#d-175) | Dialogy odhlášení a změny termínu: dopad na platbu bez slibu vrácení | 2026-11-20 | `pm` | produkt |
 | [D-170](#d-170) | Souhrnná platba přihlášky s archivovanými termíny se nepřiděluje | 2026-11-20 | `pm` | produkt |
@@ -243,6 +246,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-183](#d-183) | Seznam individuálních požadavků na ubytování: stavy a požadavek bez textu | 2026-11-23 | `pm` | produkt |
 | [D-179](#d-179) | Při kopírování pokojů mezi termíny se vždy kopírují přistýlky | 2026-11-22 | `pm` | produkt |
 | [D-174](#d-174) | Pohledy na ubytování: „Rozřazování“ × „Pokoje“ se stejným ovládáním | 2026-11-20 | `pm` | produkt |
 | [D-171](#d-171) | Pokoj s přiřazenými účastníky nejde smazat | 2026-11-20 | `pm` | produkt |
@@ -2275,3 +2279,43 @@ _Nic._
 - **Zdroj:** [rozhodnutí PM v chatu k dotazu v PR #656, 22. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/656#issuecomment-7051181535)
 - **Mění:** [D-115](#d-115), [D-139](#d-139)
 - **Poznámka:** Mění pravidlo z D-115 a D-139, podle kterého se přistýlky při kopírování pokojů nekopírovaly.
+
+<a id="d-180"></a>
+
+### D-180 – Přeplatek bez dluhu se v seznamu přihlášek ukazuje jako „Dluh 0 Kč“
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-22 · **Rozhodl:** `pm`
+- **Text:** Přihláška s přeplatkem a bez dluhu má v seznamu přihlášek „Dluh 0 Kč“. Stav i filtr „Přeplaceno“ zůstávají. Když jiný potvrzený termín dluží, přeplatek jeho dluh nesnižuje.
+- **Dotčené US:** [#362](https://github.com/applifting-vsecourse/team-1/issues/362)
+- **Zdroj:** [odpověď PM v PR #655, 22. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/655#issuecomment-7081079739)
+
+<a id="d-181"></a>
+
+### D-181 – Kopie bankovního výpisu s výsledkem párování se neukládá
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-22 · **Rozhodl:** `pm`
+- **Text:** Nahraný bankovní výpis ani jeho kopie se neukládají. Kopie s výsledkem párování vznikne hned po nahrání a stáhnout ji může jen ten, kdo výpis nahrál; z historie nahrání stáhnout nejde. Výsledek párování uvádí jen číslo přihlášky bez jména přihlášeného, původní sloupce výpisu zůstávají. Přeskočené řádky mají text „Přeskočeno: odchozí platba“ nebo „Přeskočeno: už nahráno dříve“, platba na souhrnný variabilní symbol text „souhrnná platba“ bez rozpadu po termínech.
+- **Dotčené US:** [#561](https://github.com/applifting-vsecourse/team-1/issues/561)
+- **Zdroj:** [rozhodnutí PM v #561, 20. 11. 2026](https://github.com/applifting-vsecourse/team-1/issues/561#issuecomment-7050912163); [rozhodnutí PM v PR #657, 22. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/657#issuecomment-7081277898)
+
+<a id="d-182"></a>
+
+### D-182 – Nástěnka „Informace k akci“: rozsah a viditelnost příspěvků
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-11-24 · **Rozhodl:** `pm`
+- **Text:** Nástěnka je jedna za celý účet přihlašovatele; „Zpět na přihlášku“ vede na přihlášku, ze které přihlašovatel přišel, a počet nových příspěvků se ukazuje za každou přihlášku zvlášť. Úprava příspěvku ho znovu neoznačí jako nový a nevytvoří upozornění. Kdo se stane příjemcem dodatečně, starý příspěvek uvidí bez upozornění. Zrušená přihláška příspěvky ani upozornění nevidí, archivovaná příspěvky nevidí. Nadpis má nejvýše 120 znaků, text 5000 znaků, prostý text se zalomením řádků. Hromadné zprávy na nástěnce patří do US-57, kde se určí i to, kdo je uvidí.
+- **Dotčené US:** [#91](https://github.com/applifting-vsecourse/team-1/issues/91), [#57](https://github.com/applifting-vsecourse/team-1/issues/57)
+- **Zdroj:** [rozhodnutí PM v PR #689, 24. 11. 2026 (body 1–3 a 5–9)](https://github.com/applifting-vsecourse/team-1/pull/689#issuecomment-7144297886)
+
+<a id="d-183"></a>
+
+### D-183 – Seznam individuálních požadavků na ubytování: stavy a požadavek bez textu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-23 · **Rozhodl:** `pm`
+- **Text:** Seznam individuálních požadavků na ubytování u termínu obsahuje přihlášky v termínu ve všech stavech kromě zrušených a archivovaných. Požadavek bez textu se zobrazí také, se jménem a odkazem na detail.
+- **Dotčené US:** [#514](https://github.com/applifting-vsecourse/team-1/issues/514)
+- **Zdroj:** [odpověď PM v PR #690, 23. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/690#issuecomment-7094110012)
