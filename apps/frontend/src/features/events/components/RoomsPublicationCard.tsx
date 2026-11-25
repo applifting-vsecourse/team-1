@@ -1,7 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { notify } from "@/lib/notify"
@@ -24,25 +23,19 @@ export function RoomsPublicationCard({
     onError: () => notify.error(t("roomsPublication.failed")),
   })
   return (
-    <Card className="gap-3 p-4">
-      <h3 className="text-xl font-semibold">{t("roomsPublication.title")}</h3>
-      <div className="flex items-center gap-3 py-2">
-        <Switch
-          id="rooms-published"
-          checked={term.roomsPublished}
-          disabled={mutation.isPending}
-          onCheckedChange={(isChecked) => mutation.mutate(isChecked)}
-        />
-        <Label
-          htmlFor="rooms-published"
-          className="text-base font-normal"
-        >
-          {t("roomsPublication.switch")}
-        </Label>
-      </div>
-      {term.roomsPublished ? null : (
-        <p className="text-sm text-muted-foreground">{t("roomsPublication.hintOff")}</p>
-      )}
-    </Card>
+    <div className="flex items-center gap-3 py-2">
+      <Switch
+        id="rooms-published"
+        checked={term.roomsPublished}
+        disabled={mutation.isPending}
+        onCheckedChange={(isChecked) => mutation.mutate(isChecked)}
+      />
+      <Label
+        htmlFor="rooms-published"
+        className="text-base font-normal"
+      >
+        {t("roomsPublication.switch")}
+      </Label>
+    </div>
   )
 }

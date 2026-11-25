@@ -40,9 +40,10 @@ type Term = { eventId: string; termId: string; startsOn: string; endsOn: string 
 export function RoomProposal({
   term,
   children,
+  printView,
 }: {
   term: Term
-  /** The room assignment; gets the "propose" button for its header and the notices to show above it. */
+  printView?: ReactNode
   children: (parts: { action: ReactNode; notices: ReactNode }) => ReactNode
 }) {
   const { t } = useTranslation("events")
@@ -99,6 +100,7 @@ export function RoomProposal({
     }
     return (
       <>
+        {printView}
         <RoomProposalDraftView
           data={data}
           draft={draft}
@@ -166,9 +168,8 @@ export function RoomProposal({
   const action = canPropose ? (
     <PendingButton
       type="button"
-      variant="outline"
       size="lg"
-      className="max-sm:w-full"
+      className="w-55 max-w-full"
       isPending={propose.isPending}
       onClick={() => propose.mutate()}
     >
@@ -177,7 +178,7 @@ export function RoomProposal({
   ) : null
   const notices =
     propose.isPending || propose.isError || hasOnlyIndividual ? (
-      <div className="mb-4 flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         {propose.isPending ? (
           <Alert>
             <TriangleAlert aria-hidden />

@@ -490,6 +490,7 @@
     "none": "Bez přání spolubydlení",
     "openApplication": "Otevřít přihlášku: {{name}}",
     "participant": "Účastník",
+    "showUnfulfilled": "Nesplněná přání ({{count}})",
     "status": "Stav",
     "title": "Přání spolubydlení",
     "unfulfilled": "Nesplněno",
@@ -714,9 +715,8 @@
   },
   "roomsPublication": {
     "failed": "Nastavení se nepodařilo uložit.",
-    "hintOff": "Potvrzení účastníci rozdělení zatím nevidí.",
-    "switch": "Zveřejnit rozdělení pokojů",
-    "title": "Zveřejnění rozdělení"
+    "switch": "Zveřejnit rozdělení",
+    "title": "Rozdělení do pokojů"
   },
   "settings": {
     "title": "Nastavení akce"

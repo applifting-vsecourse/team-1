@@ -490,6 +490,7 @@
     "none": "No roommate wishes",
     "openApplication": "Open application: {{name}}",
     "participant": "Participant",
+    "showUnfulfilled": "Unfulfilled wishes ({{count}})",
     "status": "Status",
     "title": "Roommate wishes",
     "unfulfilled": "Not fulfilled",
@@ -714,9 +715,8 @@
   },
   "roomsPublication": {
     "failed": "The setting could not be saved.",
-    "hintOff": "Confirmed participants do not see the assignment yet.",
     "switch": "Publish the room assignment",
-    "title": "Publishing the assignment"
+    "title": "Room distribution"
   },
   "settings": {
     "title": "Event settings"
