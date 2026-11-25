@@ -4,6 +4,7 @@ import { Search } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { PendingButton } from "@/components/atoms/PendingButton"
+import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { TermLabel } from "@/components/molecules/TermLabel"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -69,7 +70,7 @@ export function UnmatchedTransactionPanel({
     const hit =
       found.find((candidate) => candidate.id === transaction.applicationId) ??
       (found.length === 1 ? found[0] : undefined)
-    const termId = hit ? preselectedTermId(hit.terms, transaction.variableSymbol) : null
+    const termId = hit ? preselectedTermId(hit, transaction.variableSymbol) : null
     return hit && termId ? choiceOf(hit.id, termId) : null
   })()
   const selected = chosen ?? fallback
@@ -129,9 +130,11 @@ export function UnmatchedTransactionPanel({
       {text.trim() === "" ? null : !isSettled || candidates.isPending ? (
         <LoadingState />
       ) : candidates.error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{candidates.error.message}</AlertDescription>
-        </Alert>
+        <ErrorState
+          title={t("bankStatement.unmatchedList.searchError")}
+          error={candidates.error}
+          onRetry={() => void candidates.refetch()}
+        />
       ) : found.length === 0 ? (
         <p className="text-muted-foreground">{t("bankStatement.unmatchedList.noResults")}</p>
       ) : (

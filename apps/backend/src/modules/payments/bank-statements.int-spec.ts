@@ -549,6 +549,22 @@ describe("bank statement import (US-42)", () => {
       ).toBe(0)
     })
 
+    it("refuses a repeated or unknown query parameter of the search as VALIDATION_FAILED", async () => {
+      const { id } = await importUnmatched(300)
+      for (const query of [
+        "q=bank&q=test",
+        `q=bank&transactionId=${id}&transactionId=${id}`,
+        "q=bank&limit=100",
+      ]) {
+        const response = await fetch(
+          api(`/organizer/events/${eventId}/bank-transactions/application-candidates?${query}`),
+          { headers: { Cookie: cookie } },
+        )
+        expect(response.status).toBe(400)
+        expect(await response.json()).toMatchObject({ code: "VALIDATION_FAILED" })
+      }
+    })
+
     it("searches applications by name, variable symbol and number, with what each term owes", async () => {
       const number = await createApplication(true)
       const search = async (q: string) =>

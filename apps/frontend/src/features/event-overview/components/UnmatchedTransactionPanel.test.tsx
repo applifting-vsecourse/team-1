@@ -64,16 +64,23 @@ const json = (body: unknown, status = 200): Response =>
 function renderPage(options: {
   rows: ReturnType<typeof transaction>[]
   candidates?: unknown[]
+  /** How many candidate searches fail before one succeeds. */
+  searchFailures?: number
   match?: () => Response
   /** The match request answers only after this promise settles. */
   matchGate?: Promise<void>
 }) {
   let rows = options.rows
   const calls: Request[] = []
+  let searchFailures = options.searchFailures ?? 0
   vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
     const request = new Request(input, init)
     calls.push(request)
     if (request.url.includes("/application-candidates")) {
+      if (searchFailures > 0) {
+        searchFailures--
+        return Promise.resolve(json({ statusCode: 500, code: "INTERNAL", message: "x" }, 500))
+      }
       return Promise.resolve(json({ candidates: options.candidates ?? [] }))
     }
     if (request.url.endsWith("/match")) {
@@ -218,5 +225,34 @@ describe("manual match of an unmatched payment (US-562)", () => {
     await userEvent.click(screen.getByRole("button", { name: "Assign payment" }))
     expect(calls.some((request) => request.url.endsWith("/match"))).toBe(false)
     expect(await screen.findByRole("alert")).toBeVisible()
+  })
+
+  it("does not take the term of the symbol for another application the search finds", async () => {
+    const other = { ...two, id: "a34", number: 34 }
+    const calls = renderPage({
+      rows: [transaction("b1", { variableSymbol: "12002", reason: "UNKNOWN_VARIABLE_SYMBOL" })],
+      candidates: [other],
+    })
+    await userEvent.click(await screen.findByRole("button", { name: /^Assign/ }))
+    await userEvent.type(screen.getByLabelText("Find an application"), "Jana")
+    for (const radio of await screen.findAllByRole("radio")) expect(radio).not.toBeChecked()
+    await userEvent.click(screen.getByRole("button", { name: "Assign payment" }))
+    expect(await screen.findByRole("alert")).toBeVisible()
+    expect(calls.some((request) => request.url.endsWith("/match"))).toBe(false)
+  })
+
+  it("retries a failed search with the typed text kept and without sending the form", async () => {
+    const calls = renderPage({ rows: [transaction("b1")], candidates: [two], searchFailures: 1 })
+    await userEvent.click(await screen.findByRole("button", { name: /^Assign/ }))
+    await userEvent.type(screen.getByLabelText("Find an application"), "Jana")
+    const alert = await screen.findByRole("alert")
+    expect(within(alert).getByText("The applications could not be loaded")).toBeVisible()
+
+    await userEvent.click(within(alert).getByRole("button", { name: "Try again" }))
+    expect(await screen.findAllByRole("radio")).toHaveLength(2)
+    expect(screen.getByRole("textbox", { name: "Find an application" })).toHaveValue("Jana")
+    // No "pick a term" error and no match request: the retry button does not submit the form.
+    expect(screen.queryByRole("alert")).toBeNull()
+    expect(calls.some((request) => request.url.endsWith("/match"))).toBe(false)
   })
 })

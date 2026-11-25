@@ -1,6 +1,6 @@
 import { CandidateWithAfterPayment } from "@/modules/payments/domain/application-candidates"
-import { ApiProperty } from "@nestjs/swagger"
-import { IsString, MaxLength, MinLength } from "class-validator"
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
+import { IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 export class MatchBankTransactionRequestDto {
   @ApiProperty({ description: "Application the payment is assigned to" })
@@ -14,6 +14,19 @@ export class MatchBankTransactionRequestDto {
   @MinLength(1)
   @MaxLength(64)
   termId!: string
+}
+
+/** A repeated parameter arrives as an array and is refused. */
+export class ApplicationCandidatesQueryDto {
+  @ApiPropertyOptional({ description: "Part of the name, variable symbol or application number" })
+  @IsOptional()
+  @IsString()
+  q?: string
+
+  @ApiPropertyOptional({ description: "Transaction whose payment the terms are previewed with" })
+  @IsOptional()
+  @IsString()
+  transactionId?: string
 }
 
 class AfterPaymentDto {

@@ -21,6 +21,8 @@ export function ErrorState({ title, error, onRetry }: ErrorStateProps) {
         <span>{error.message}</span>
         {onRetry ? (
           <Button
+            // Never submits a form the error state sits in.
+            type="button"
             variant="outline"
             size="sm"
             onClick={onRetry}

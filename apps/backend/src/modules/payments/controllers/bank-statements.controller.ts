@@ -4,6 +4,7 @@ import {
   UnmatchedTransactionsResponseDto,
 } from "@/modules/payments/controllers/dto/bank-statement.response.dto"
 import {
+  ApplicationCandidatesQueryDto,
   ApplicationCandidatesResponseDto,
   MatchBankTransactionRequestDto,
 } from "@/modules/payments/controllers/dto/bank-transaction-match.dto"
@@ -24,7 +25,7 @@ import {
   Query,
   ValidationPipe,
 } from "@nestjs/common"
-import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
 @ApiTags("payments")
 @Auth("ORGANIZER")
@@ -72,17 +73,16 @@ export class BankStatementsController {
     summary:
       "Applications of the event for the manual match of a transaction (US-562): by a part of the name, a variable symbol or an application number; at most ten, each with what its terms owe",
   })
-  @ApiQuery({ name: "q", required: false })
-  @ApiQuery({ name: "transactionId", required: false })
   @ApiResponse({ status: 200, type: ApplicationCandidatesResponseDto })
+  @ApiResponse({ status: 400, description: "VALIDATION_FAILED" })
   async candidates(
     @User() user: Identity,
     @Param("eventId") eventId: string,
-    @Query("q") query?: string,
-    @Query("transactionId") transactionId?: string,
+    @Query(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
+    query: ApplicationCandidatesQueryDto,
   ): Promise<ApplicationCandidatesResponseDto> {
     return ApplicationCandidatesResponseDto.fromDomain(
-      await this.statements.searchCandidates(user, eventId, query ?? "", transactionId),
+      await this.statements.searchCandidates(user, eventId, query.q ?? "", query.transactionId),
     )
   }
 
