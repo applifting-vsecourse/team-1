@@ -67,7 +67,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
               </p>
             ) : null}
             {hasContact ? (
-              <CollapsibleTrigger className="flex items-center gap-1 text-link underline underline-offset-4">
+              <CollapsibleTrigger className="flex min-h-11 items-center gap-1 text-link underline underline-offset-4 md:min-h-0">
                 {t(isContactOpen ? "event.contactHide" : "event.contactShow")}
                 <ChevronDown
                   aria-hidden
@@ -77,10 +77,10 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
             ) : null}
           </div>
           <CollapsibleContent>
-            <dl className="flex flex-col gap-1 text-sm md:flex-row md:gap-6">
+            <dl className="flex flex-col gap-1 md:flex-row md:gap-6">
               {event.contactEmail ? (
                 <div className="flex items-baseline gap-3">
-                  <dt className="text-muted-foreground">{t("event.email")}</dt>
+                  <dt className="text-sm text-muted-foreground">{t("event.email")}</dt>
                   <dd>
                     <a
                       className="break-all text-link underline underline-offset-4"
@@ -93,7 +93,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
               ) : null}
               {event.contactPhone ? (
                 <div className="flex items-baseline gap-3">
-                  <dt className="text-muted-foreground">{t("event.phone")}</dt>
+                  <dt className="text-sm text-muted-foreground">{t("event.phone")}</dt>
                   <dd>
                     <a
                       className="text-link underline underline-offset-4"
@@ -164,8 +164,8 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
       </div>
       <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border bg-card px-4 py-3 md:hidden">
         {price !== null ? (
-          <p className="flex flex-col text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">
+          <p className="flex flex-col text-xs font-medium text-muted-foreground">
+            <span className="text-base font-semibold text-foreground">
               {event.terms.length > 1 ? `${t("price.from")} ` : null}
               {formatTermPrice(price)}
             </span>
@@ -175,7 +175,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
         <Button
           asChild
           size="lg"
-          className="flex-1"
+          className="w-55"
         >
           {apply}
         </Button>

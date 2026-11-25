@@ -91,7 +91,7 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
   )
 
   return (
-    <div className={cn(CONTENT, "flex flex-col gap-6 pt-4 pb-12 md:pt-8")}>
+    <div className={cn(CONTENT, "flex flex-col gap-6 pt-6 pb-12 md:pt-8")}>
       <header className="flex flex-col items-start gap-3">
         {selectedOrganization ? <BackLink to={ROUTES.catalog}>{t("event.back")}</BackLink> : null}
         <h1 className="text-2xl font-bold tracking-tight wrap-anywhere md:text-[32px]/10">
@@ -104,6 +104,7 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
       {isError ? (
         <EmptyState
           role="alert"
+          className="mx-auto w-full max-w-102"
           title={t("list.errorTitle")}
           illustration={<Loading className="w-60" />}
           action={
@@ -123,6 +124,7 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
           title={t("list.emptyTitle")}
           message={t("list.emptyDescription")}
           illustration={<Empty className="w-60" />}
+          className="mx-auto w-full max-w-102"
         />
       ) : null}
 
@@ -150,7 +152,7 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
                   </Badge>
                 </div>
               )}
-              <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-6">
+              <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-4 md:gap-6">
                 {org.events.map((event) => (
                   <li key={event.publicToken}>
                     <EventCard event={event} />

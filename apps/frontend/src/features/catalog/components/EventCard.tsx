@@ -26,7 +26,7 @@ export function EventCard({ event }: { event: CatalogEvent }) {
       className="group block h-full rounded-lg outline-none"
     >
       <Card className="h-full gap-0 overflow-hidden p-0 transition-colors group-hover:border-field-border group-focus-visible:border-2 group-focus-visible:border-ring">
-        <div className="relative h-49 w-full bg-wash">
+        <div className="relative h-46 w-full bg-wash md:h-49">
           {event.hasPhoto ? (
             <img
               src={catalogEventPhotoUrl(event.publicToken)}
