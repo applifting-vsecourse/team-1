@@ -58,6 +58,16 @@ describe("landing", () => {
     expect(screen.queryByText("For every kind of event")).not.toBeInTheDocument()
   })
 
+  it("has no catalog button in the features, not even at Confirmation and waitlist (#751, point 3)", async () => {
+    renderLanding()
+    const features = (
+      await screen.findByRole("heading", { level: 2, name: "What you can do in Togena" })
+    ).closest("section")!
+
+    expect(within(features).queryAllByRole("link")).toHaveLength(0)
+    expect(screen.queryByRole("link", { name: "Browse events" })).not.toBeInTheDocument()
+  })
+
   it("leads organizers to registration and applicants to the catalog, in the hero and again at the end", async () => {
     renderLanding()
     const hero = await heroOf()
