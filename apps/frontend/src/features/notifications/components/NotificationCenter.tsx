@@ -87,6 +87,13 @@ export function NotificationCenter({
     if (!notification) return
     if (notification.readAt === null) markRead.mutate(id)
     setIsOpen(false)
+    if (notification.kind === "BOARD_POST_PUBLISHED" && notification.params.postId) {
+      void navigate({
+        to: ROUTES.participant.boardPost,
+        params: { postId: notification.params.postId },
+      })
+      return
+    }
     if (notification.applicationId) {
       if (area === "organizer") {
         // An older notification may not carry the event: the events list is the fallback.

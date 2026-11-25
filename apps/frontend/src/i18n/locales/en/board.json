@@ -1,0 +1,61 @@
+{
+  "admin": {
+    "columns": {
+      "actions": "Actions",
+      "published": "Published",
+      "terms": "Terms",
+      "title": "Title"
+    },
+    "delete": "Delete",
+    "edit": "Edit",
+    "empty": "The posts you add for the applicants of the event will appear here.",
+    "loadFailed": "The board could not be loaded.",
+    "new": "New post",
+    "title": "Board"
+  },
+  "back": "Back to applications",
+  "backToApplication": "Back to application",
+  "backToList": "Back",
+  "deleteDialog": {
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "deleted": "Post deleted",
+    "description": "The post disappears for all applicants. This cannot be undone.",
+    "failed": "The post could not be deleted.",
+    "title": "Delete post?"
+  },
+  "dialog": {
+    "add": "Add post",
+    "added": "Post added",
+    "bodyLabel": "Text",
+    "bodyRequired": "Enter the text.",
+    "cancel": "Cancel",
+    "editTitle": "Edit post",
+    "loadFailed": "The post could not be loaded.",
+    "newTitle": "New post",
+    "save": "Save",
+    "saveFailed": "The post could not be saved.",
+    "saved": "Post saved",
+    "termsLabel": "Terms",
+    "termsRequired": "Choose at least one term.",
+    "titleLabel": "Title",
+    "titleRequired": "Enter a title.",
+    "tooLong": "The text is too long."
+  },
+  "empty": "The organizer's posts about your event will appear here.",
+  "loadFailed": "Event information could not be loaded.",
+  "new": "New",
+  "newCount_few": "{{count}} new",
+  "newCount_many": "{{count}} new",
+  "newCount_one": "{{count}} new",
+  "newCount_other": "{{count}} new",
+  "postsNewCount_few": "{{count}} new posts",
+  "postsNewCount_many": "{{count}} new posts",
+  "postsNewCount_one": "{{count}} new post",
+  "postsNewCount_other": "{{count}} new posts",
+  "showAll": "Show all ›",
+  "terms": {
+    "both": "Both terms"
+  },
+  "title": "Event information"
+}

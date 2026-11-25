@@ -122,6 +122,31 @@ describe("NotificationCenter", () => {
     })
   })
 
+  it("opens the post of a board notification", async () => {
+    serve([
+      notification("n1", {
+        type: "BOARD",
+        kind: "BOARD_POST_PUBLISHED",
+        params: {
+          eventName: "Letní kemp Lipno 2027",
+          participantName: "Adam Dvořák",
+          postId: "post-1",
+          postTitle: "Změna programu",
+        },
+      }),
+    ])
+    renderCenter()
+    const panel = within(await open())
+
+    await userEvent.click(await panel.findByRole("button", { name: /Open post/ }))
+
+    expect(post).toHaveBeenCalledWith("notifications/n1/read")
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/participant/board/$postId",
+      params: { postId: "post-1" },
+    })
+  })
+
   it("marks both sources as read", async () => {
     serve([notification("n1")])
     const feed = requestFeed()

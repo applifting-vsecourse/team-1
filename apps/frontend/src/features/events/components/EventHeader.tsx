@@ -10,6 +10,7 @@ import {
   ClipboardList,
   Gauge,
   LayoutGrid,
+  Megaphone,
   Settings,
   Utensils,
   Wallet,
@@ -58,7 +59,7 @@ export function EventHeader({ eventId }: { eventId: string }) {
   // Transport and settings look like the other event sections: no brand divider under the heading.
   const hasTabsOnly =
     matches(ROUTES.organizer.eventTransport) || matches(ROUTES.organizer.eventSettings)
-  const isProgram = matches(ROUTES.organizer.eventProgram)
+  const isProgram = matches(ROUTES.organizer.eventProgram) || matches(ROUTES.organizer.eventBoard)
   const { data: event } = useQuery(eventQueryOptions(eventId))
 
   // Figma v2: event header back arrow · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27316-3519
@@ -121,6 +122,7 @@ const SECTIONS = [
   { key: "terms", to: ROUTES.organizer.eventTerms, icon: CalendarDays },
   { key: "transport", to: ROUTES.organizer.eventTransport, icon: Bus },
   { key: "program", to: ROUTES.organizer.eventProgram, icon: CalendarClock },
+  { key: "board", to: ROUTES.organizer.eventBoard, icon: Megaphone },
   { key: "settings", to: ROUTES.organizer.eventSettings, icon: Settings },
 ] as const
 
