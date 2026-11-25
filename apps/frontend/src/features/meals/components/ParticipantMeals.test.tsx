@@ -61,8 +61,7 @@ describe("ParticipantMeals", () => {
 
   it("shows the participant, the event, the offered options and the saved values", async () => {
     setup()
-    expect(await screen.findByRole("heading", { name: "Meals · Adam Dvořák" })).toBeVisible()
-    expect(screen.getByText("Letní kemp Lipno 2027")).toBeVisible()
+    expect(await screen.findByText("Adam Dvořák · Letní kemp Lipno 2027")).toBeVisible()
     expect(screen.getByRole("checkbox", { name: "Vegetarian" })).not.toBeChecked()
     expect(screen.getByRole("checkbox", { name: "Gluten-free" })).toBeChecked()
     expect(screen.getByLabelText("Allergies and other dietary requirements")).toHaveValue("Peanuts")

@@ -35,8 +35,8 @@ export function ApplicationPreferencesDialog({
   return (
     <Dialog
       open
-      onOpenChange={(open) => {
-        if (!open) void close()
+      onOpenChange={(isOpen) => {
+        if (!isOpen) void close()
       }}
     >
       <DialogContent

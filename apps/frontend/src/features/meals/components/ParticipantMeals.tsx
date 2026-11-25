@@ -62,13 +62,10 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
         mutation.mutate()
       }}
     >
-      <div className="flex flex-col gap-1">
-        <h3 className="text-lg font-semibold">
-          {t("own.title", { name: `${meals.firstName} ${meals.lastName}` })}
-        </h3>
-        <p className="text-sm text-muted-foreground">{meals.eventName}</p>
-      </div>
-      <h4 className="text-base font-semibold">{t("own.restrictions")}</h4>
+      <p className="text-sm text-muted-foreground">
+        {meals.firstName} {meals.lastName} · {meals.eventName}
+      </p>
+      <h3 className="text-base font-semibold">{t("own.restrictions")}</h3>
       <MealSelectionFields
         draft={draft}
         noneLabel={t("own.noRestrictions")}
