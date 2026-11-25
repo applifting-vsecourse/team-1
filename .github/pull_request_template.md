@@ -28,7 +28,7 @@ Closes #
 - [ ] Nejasnosti k byznys pravidlům jsou napsané níže a Adam je označený v komentáři k PR (nebo žádné nejsou)
 - [ ] Logika má testy, `pnpm check-all` je zelený
 - [ ] Na nálezy z posledního AI review je v PR odpověď (`opraveno v <commit>`, nebo `neopravuji — <důvod>`)
-- [ ] Mění-li se UI: v „Design“ jsou odkazy na rámce ve Figmě a screenshoty jsou ze stejných stavů a šířek
+- [ ] Mění-li se UI: v „Design“ jsou odkazy na rámce ve Figmě (nebo řádek, proč rámec není) a screenshoty jsou ze stejných stavů a šířek
 - [ ] UI odpovídá [DESIGN.md](../DESIGN.md) — žádné vnořené karty, tři stavy seznamu
 - [ ] Žádné texty napevno — nové klíče v `en` i `cs` (i18n), chyby API mají `code`
 - [ ] Nejvýš jedna migrace, rebasnutá na aktuální `main`
