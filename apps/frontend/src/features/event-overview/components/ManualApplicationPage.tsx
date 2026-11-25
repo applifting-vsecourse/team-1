@@ -71,6 +71,7 @@ const emptyDraft: Draft = {
 
 // Figma (Design system v2): #653 / Ruční přidání přihlášky / Desktop · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27282-118060
 // Figma (Design system v2): #653 / Ruční přidání přihlášky / Mobil · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27282-118184
+// Figma (Design system v2): #653 / Souhrn a vytvoření · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27282-118098
 // Figma (Design system): #518 Individuální ubytování v ručním přidání · s požadavkem, desktop https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27190-3974 · mobil 360 px node-id=27190-4330 · bez požadavku, desktop node-id=27190-4151 · mobil node-id=27190-4448
 // Figma (Design system): #83 / Přidat přihlášku / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-51095
 // Figma (Design system): #83 / Přidat přihlášku / Mobile · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19786-51298
@@ -196,7 +197,7 @@ export function ManualApplicationPage({
     if (!birthDate || birthDate < "1900-01-01" || birthDate > format(new Date(), "yyyy-MM-dd")) {
       nextErrors.birthDate = t("manual.invalidDate")
     }
-    if (draft.gender === "") nextErrors.gender = t("manual.gender")
+    if (draft.gender === "") nextErrors.gender = t("manual.chooseGender")
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email)) nextErrors.email = t("manual.invalidEmail")
     const phone = normalizePhone(draft.phone)
     if (!isValidPhone(phone)) nextErrors.phone = t("manual.invalidPhone")
