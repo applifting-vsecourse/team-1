@@ -170,6 +170,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           </div>
           {isArchived ? <ArchivedApplicationCard /> : null}
           <ChangeRequestNotice
+            payments={data.paymentDetails?.terms ?? []}
             applicationId={applicationId}
             terms={data.terms}
           />
