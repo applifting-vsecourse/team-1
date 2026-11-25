@@ -866,11 +866,17 @@
 /* Brand layer (public pages and milestones only; docs/FIGMA-REMAKE.md). The warm accent is a
    fill: a highlighter under the key words of a heading, ink text on top. */
 .brand-highlight {
-  background: linear-gradient(var(--brand-warm), var(--brand-warm)) left bottom 0.04em / 100% 0.27em
-    no-repeat;
+  --highlight-offset: 0.11em;
+  background: linear-gradient(var(--brand-warm), var(--brand-warm)) left bottom
+    var(--highlight-offset) / 100% 0.27em no-repeat;
   box-decoration-break: clone;
   padding-inline: 0.07em;
   margin-inline: -0.07em;
+}
+@media (min-width: 64rem) {
+  .brand-highlight {
+    --highlight-offset: 0.04em;
+  }
 }
 
 /* Togena / Brand / Sticker: one hard offset shadow, never blurred. */

@@ -5,6 +5,9 @@ import { useTranslation } from "react-i18next"
 import { ROUTES } from "@/app/routes"
 import { Button } from "@/components/ui/button"
 
+// Both entries have the same size (Figma: the primary is 157 px wide); on mobile they span the width.
+const BUTTON_WIDTH = "sm:min-w-40 sm:self-start"
+
 /** The two entries of the landing, repeated 1:1 in the hero and the closing section. */
 export function LandingCtas() {
   const { t } = useTranslation("landing")
@@ -14,6 +17,7 @@ export function LandingCtas() {
       <Button
         asChild
         size="lg"
+        className={BUTTON_WIDTH}
       >
         <Link to={ROUTES.organizer.login}>{t("createEvent")}</Link>
       </Button>
@@ -22,6 +26,7 @@ export function LandingCtas() {
           asChild
           size="lg"
           variant="outline"
+          className={BUTTON_WIDTH}
         >
           <Link to={ROUTES.catalog}>
             {t("findEvent")}
