@@ -63,7 +63,8 @@ export function UnmatchedTransactionPanel({
     ...applicationCandidatesQueryOptions(eventId, query, transaction.id),
     enabled: query !== "",
   })
-  const found = query === "" || !isSettled ? [] : (candidates.data ?? [])
+  // Nor does the one kept after a failed refresh: the error hides the list, so nothing of it is sent.
+  const found = query === "" || !isSettled || candidates.isError ? [] : (candidates.data ?? [])
 
   // The choice of the organizer, else the term the symbol points to or the only one there is.
   const fallback = (() => {
@@ -226,6 +227,7 @@ export function UnmatchedTransactionPanel({
           type="submit"
           size="lg"
           isPending={assign.isPending}
+          disabled={candidates.isError}
         >
           {t("bankStatement.unmatchedList.submit")}
         </PendingButton>

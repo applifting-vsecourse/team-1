@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { focusManager, QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
   createMemoryHistory,
   createRootRoute,
@@ -66,6 +66,8 @@ function renderPage(options: {
   candidates?: unknown[]
   /** How many candidate searches fail before one succeeds. */
   searchFailures?: number
+  /** Candidate searches fail while this says so. */
+  isSearchDown?: () => boolean
   match?: () => Response
   /** The match request answers only after this promise settles. */
   matchGate?: Promise<void>
@@ -77,7 +79,7 @@ function renderPage(options: {
     const request = new Request(input, init)
     calls.push(request)
     if (request.url.includes("/application-candidates")) {
-      if (searchFailures > 0) {
+      if (searchFailures > 0 || options.isSearchDown?.()) {
         searchFailures--
         return Promise.resolve(json({ statusCode: 500, code: "INTERNAL", message: "x" }, 500))
       }
@@ -111,7 +113,10 @@ function renderPage(options: {
   return calls
 }
 
-afterEach(() => vi.restoreAllMocks())
+afterEach(() => {
+  vi.restoreAllMocks()
+  focusManager.setFocused(undefined)
+})
 
 describe("manual match of an unmatched payment (US-562)", () => {
   it("opens the row with the application its variable symbol points to, selected beforehand", async () => {
@@ -254,5 +259,36 @@ describe("manual match of an unmatched payment (US-562)", () => {
     // No "pick a term" error and no match request: the retry button does not submit the form.
     expect(screen.queryByRole("alert")).toBeNull()
     expect(calls.some((request) => request.url.endsWith("/match"))).toBe(false)
+  })
+
+  it("sends nothing while a failed refresh hides the chosen term", async () => {
+    let isSearchDown = false
+    const calls = renderPage({
+      rows: [transaction("b1")],
+      candidates: [two],
+      isSearchDown: () => isSearchDown,
+    })
+    await userEvent.click(await screen.findByRole("button", { name: /^Assign/ }))
+    await userEvent.type(screen.getByLabelText("Find an application"), "Jana")
+    await userEvent.click((await screen.findAllByRole("radio"))[1]!)
+
+    // The organizer comes back to the tab and the results cannot be refreshed.
+    isSearchDown = true
+    focusManager.setFocused(false)
+    focusManager.setFocused(true)
+    const alert = await screen.findByRole("alert")
+    expect(screen.queryByRole("radio")).toBeNull()
+    expect(screen.queryByText("After saving")).toBeNull()
+    const submit = screen.getByRole("button", { name: "Assign payment" })
+    expect(submit).toBeDisabled()
+    await userEvent.type(screen.getByLabelText("Find an application"), "{Enter}")
+    expect(calls.some((request) => request.url.endsWith("/match"))).toBe(false)
+
+    // Once the term is on screen again, it can be assigned.
+    isSearchDown = false
+    await userEvent.click(within(alert).getByRole("button", { name: "Try again" }))
+    expect((await screen.findAllByRole("radio"))[1]).toBeChecked()
+    await userEvent.click(submit)
+    await waitFor(() => expect(calls.some((request) => request.url.endsWith("/match"))).toBe(true))
   })
 })
