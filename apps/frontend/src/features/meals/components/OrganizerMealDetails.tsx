@@ -4,11 +4,18 @@ import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { ViewToggleGroup, ViewToggleGroupItem } from "@/components/molecules/ViewToggleGroup"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 import { mealRosterQueryOptions, type OrganizerMeals } from "@/features/meals/api/meals"
 
@@ -111,44 +118,57 @@ export function OrganizerMealRoster({ eventId, termId }: { eventId: string; term
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <div className="flex flex-wrap gap-2">
+      <ViewToggleGroup
+        aria-label={t("edit.rosterFilter")}
+        value={filter}
+        onValueChange={(value) => {
+          const next = filters.find((key) => key === value)
+          if (next) setFilter(next)
+        }}
+      >
         {filters.map((key) => (
-          <Button
+          <ViewToggleGroupItem
             key={key}
-            size="sm"
-            variant={key === filter ? "secondary" : "outline"}
-            aria-pressed={key === filter}
-            onClick={() => setFilter(key)}
+            value={key}
           >
             {t(`edit.${key}`)} ·{" "}
             {key === "all" ? data.length : data.filter((person) => status(person) === key).length}
-          </Button>
+          </ViewToggleGroupItem>
         ))}
-      </div>
+      </ViewToggleGroup>
       {matches.length ? (
-        <Table aria-label={t("edit.roster")}>
-          <TableBody>
-            {matches.map((person) => (
-              <TableRow
-                key={person.applicationId}
-                className="max-sm:grid max-sm:grid-cols-[1fr_auto]"
-              >
-                <TableCell className="font-medium whitespace-normal max-sm:pb-0">
-                  {person.firstName} {person.lastName}
-                </TableCell>
-                <TableCell className="whitespace-normal text-muted-foreground max-sm:col-start-1 max-sm:row-start-2">
-                  {restrictions(person) || t(`edit.${status(person)}`)}
-                </TableCell>
-                <TableCell className="w-14 text-right max-sm:col-start-2 max-sm:row-span-2 max-sm:row-start-1">
-                  <OrganizerMealEditor
-                    eventId={eventId}
-                    meals={person}
-                  />
-                </TableCell>
+        <div className="md:-mx-4">
+          <Table aria-label={t("edit.roster")}>
+            <TableHeader className="bg-action-subtle max-md:sr-only [&_th]:h-10 [&_th]:px-4">
+              <TableRow>
+                <TableHead>{t("kitchen.participantColumn")}</TableHead>
+                <TableHead>{t("kitchen.diet")}</TableHead>
+                <TableHead className="text-right">{t("edit.actions")}</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {matches.map((person) => (
+                <TableRow
+                  key={person.applicationId}
+                  className="max-md:grid max-md:grid-cols-[minmax(0,1fr)_auto] md:[&>td]:px-4 md:[&>td]:py-2"
+                >
+                  <TableCell className="font-medium wrap-anywhere whitespace-normal max-md:pb-0">
+                    {person.firstName} {person.lastName}
+                  </TableCell>
+                  <TableCell className="wrap-anywhere whitespace-normal text-muted-foreground max-md:col-start-1 max-md:row-start-2">
+                    {restrictions(person) || t(`edit.${status(person)}`)}
+                  </TableCell>
+                  <TableCell className="text-right max-md:col-start-2 max-md:row-span-2 max-md:row-start-1 max-md:self-center md:w-24">
+                    <OrganizerMealEditor
+                      eventId={eventId}
+                      meals={person}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       ) : (
         <p role="status">{t("edit.empty")}</p>
       )}
