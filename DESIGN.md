@@ -47,7 +47,7 @@ Two layers ([Figma Komponenty, brand](https://www.figma.com/design/6MuZPIqmrziZo
 
 ## Spacing
 
-Use the scale only: `1, 2, 3, 4, 6, 8, 12, 16` (Tailwind units — 4px…64px). No arbitrary values like `p-[13px]`. Related things get `gap-2`/`gap-3`; separate blocks get `gap-6`/`gap-8`.
+Use the scale only: `1, 2, 3, 4, 5, 6, 8, 10, 12, 16` (Tailwind units — 4px…64px). No arbitrary values like `p-[13px]`. Related things get `gap-2`/`gap-3`; separate blocks get `gap-6`/`gap-8`. `5` (20px) is for compact padding and gaps (list items, cards and gaps at 360 px), `10` (40px) for the gap under a section heading on public pages. Page sections are at most `16` (64px) apart.
 
 ## Type
 

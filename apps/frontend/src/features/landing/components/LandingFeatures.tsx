@@ -26,7 +26,7 @@ export function LandingFeatures() {
   return (
     <section
       id="organizers"
-      className="scroll-mt-16 bg-muted py-8 md:py-20"
+      className="scroll-mt-16 bg-muted py-8 md:py-16"
     >
       <div className={cn(LANDING_CONTENT, "flex flex-col gap-4 md:gap-10")}>
         <h2 className="text-center text-2xl font-semibold tracking-tight md:text-4xl/11 md:font-bold">

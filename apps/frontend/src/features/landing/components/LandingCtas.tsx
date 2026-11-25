@@ -19,7 +19,7 @@ export function LandingCtas() {
         size="lg"
         className={BUTTON_WIDTH}
       >
-        <Link to={ROUTES.organizer.login}>{t("createEvent")}</Link>
+        <Link to={ROUTES.organizer.register}>{t("createEvent")}</Link>
       </Button>
       <div className="flex flex-col gap-2">
         <Button

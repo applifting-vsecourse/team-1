@@ -17,8 +17,8 @@ test.describe("Sign-in", () => {
     page,
   }) => {
     await page.goto("/")
-    // The landing repeats its two entries in the closing section; the first one is in the hero.
-    await page.getByRole("link", { name: "Create an event" }).first().click()
+    // The hero leads new organizers to registration; an existing one signs in from the footer.
+    await page.getByRole("contentinfo").getByRole("link", { name: "Sign in" }).click()
     await expect(page).toHaveURL(/\/organizer\/login/)
 
     await fillSignInForm(page, ORGANIZER)

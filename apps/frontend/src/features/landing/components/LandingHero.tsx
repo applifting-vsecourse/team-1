@@ -25,7 +25,7 @@ function HeroIllustration() {
     <div
       aria-hidden
       className={cn(
-        "relative mx-auto w-full max-w-80 pb-14 lg:max-w-150 lg:pb-0",
+        "relative mx-auto w-full max-w-80 pb-12 lg:max-w-150 lg:pb-0",
         shouldAssemble && "brand-assemble",
       )}
     >
@@ -55,7 +55,7 @@ export function LandingHero() {
     <section
       className={cn(
         LANDING_CONTENT,
-        "grid items-center gap-5 pt-8 pb-6 lg:grid-cols-[minmax(0,560px)_minmax(0,600px)] lg:justify-between lg:py-18",
+        "grid items-center gap-5 pt-8 pb-6 lg:grid-cols-[minmax(0,560px)_minmax(0,600px)] lg:justify-between lg:py-16",
       )}
     >
       <div className="flex flex-col gap-5 lg:gap-6">

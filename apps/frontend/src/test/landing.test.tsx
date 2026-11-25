@@ -58,13 +58,13 @@ describe("landing", () => {
     expect(screen.queryByText("For every kind of event")).not.toBeInTheDocument()
   })
 
-  it("leads organizers to sign in and applicants to the catalog, in the hero and again at the end", async () => {
+  it("leads organizers to registration and applicants to the catalog, in the hero and again at the end", async () => {
     renderLanding()
     const hero = await heroOf()
 
     expect(within(hero).getByRole("link", { name: "Create an event" })).toHaveAttribute(
       "href",
-      "/organizer/login",
+      "/organizer/register",
     )
     expect(within(hero).getByRole("link", { name: "Find an event" })).toHaveAttribute(
       "href",
