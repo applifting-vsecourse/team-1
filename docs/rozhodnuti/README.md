@@ -1931,9 +1931,9 @@ _Nic._
 
 - **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
 - **Datum:** 2026-11-05 · **Rozhodl:** `pm` · **Navrhl:** `pm`
-- **Text:** Upozornění v aplikaci vzniká při změně stavu přihlášky v termínu a při platbě; při změně termínů přihlašovatelem nevzniká. Platba, která uzavře více termínů, vytvoří upozornění za každý termín. Texty druhů, které Figma nekreslí, platí v první verzi tak, jak jsou.
-- **Dotčené US:** [US-118](https://github.com/applifting-vsecourse/team-1/issues/211)
-- **Zdroj:** [PR #340 (US-118), schválení PM 5. 11.](https://github.com/applifting-vsecourse/team-1/pull/340)
+- **Text:** Upozornění v aplikaci vzniká při změně stavu přihlášky v termínu, při platbě a při zveřejnění nového příspěvku na nástěnce akce (US-91) každému účtu, který příspěvek uvidí; úprava příspěvku upozornění nevytváří. Při změně termínů přihlašovatelem nevzniká. Platba, která uzavře více termínů, vytvoří upozornění za každý termín. Texty druhů, které Figma nekreslí, platí v první verzi tak, jak jsou.
+- **Dotčené US:** [US-118](https://github.com/applifting-vsecourse/team-1/issues/211), [US-91](https://github.com/applifting-vsecourse/team-1/issues/91)
+- **Zdroj:** [PR #340 (US-118), schválení PM 5. 11.](https://github.com/applifting-vsecourse/team-1/pull/340); [PR #689 (US-91)](https://github.com/applifting-vsecourse/team-1/pull/689); [Rozhodnutí PM z 20. 11. (US-91)](https://github.com/applifting-vsecourse/team-1/issues/91#issuecomment-7039806000)
 - **Poznámka:** Doporučení: schválit; stavy v textech upozornění sladit se SLOVNIKem později.
 
 <a id="d-149"></a>

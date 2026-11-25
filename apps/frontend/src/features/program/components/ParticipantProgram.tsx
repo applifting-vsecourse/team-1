@@ -52,16 +52,20 @@ export function ParticipantProgram({ applicationId }: { applicationId: string })
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("own.pageTitle")} />
-      <BackLink
-        to={ROUTES.participant.application}
-        params={{ applicationId }}
-      >
-        {t("own.back")}
-      </BackLink>
-      <SectionHeader
-        title={t("own.title")}
-        description={`${eventName} · ${participantName}`}
-      />
+      <div className="flex items-start gap-3 md:gap-4">
+        <BackLink
+          to={ROUTES.participant.application}
+          params={{ applicationId }}
+        >
+          {t("own.back")}
+        </BackLink>
+        <div className="min-w-0 flex-1 wrap-anywhere">
+          <SectionHeader
+            title={t("own.title")}
+            description={`${eventName} · ${participantName}`}
+          />
+        </div>
+      </div>
       {terms.length > 1 && term ? (
         <div className="flex flex-col gap-2">
           <Label htmlFor="program-term">{t("termLabel")}</Label>
@@ -90,6 +94,7 @@ export function ParticipantProgram({ applicationId }: { applicationId: string })
       ) : null}
       {term?.blocks.length ? (
         <ProgramCalendar
+          key={term.termId}
           term={term}
           onSelect={setViewing}
         />

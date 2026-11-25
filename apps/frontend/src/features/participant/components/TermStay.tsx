@@ -1,6 +1,6 @@
 import { useRef, useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Clock } from "lucide-react"
+import { CalendarClock, Clock, LogIn, LogOut, Pencil, Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { PendingButton } from "@/components/atoms/PendingButton"
@@ -90,21 +90,45 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
       aria-labelledby={headingId}
       className="flex flex-col gap-4"
     >
-      <Card className="gap-3 p-4 sm:max-w-190 sm:p-6">
-        <h2
-          id={headingId}
-          className="text-2xl font-semibold tracking-tight"
-        >
-          {t("stay.title")}
-        </h2>
-        <p className="text-sm text-muted-foreground">{termLine(term)}</p>
-        {hasSaved ? (
+      <Card className="gap-4 p-4 sm:p-6">
+        <div className="flex items-start gap-3">
+          <span
+            aria-hidden
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary text-primary"
+          >
+            <CalendarClock className="size-5" />
+          </span>
           <div className="flex flex-col gap-1">
+            <h2
+              id={headingId}
+              className="text-2xl font-semibold tracking-tight"
+            >
+              {t("stay.title")}
+            </h2>
+            <p className="text-sm font-medium text-muted-foreground tabular-nums">
+              {termLine(term)}
+            </p>
+          </div>
+        </div>
+        {hasSaved ? (
+          <div className="flex flex-col gap-2 rounded-lg border bg-secondary/40 p-3">
             {saved.lateArrival ? (
-              <p>{formatWall(t("stay.arrival"), saved.lateArrival, t("stay.at"))}</p>
+              <p className="flex items-center gap-2">
+                <LogIn
+                  aria-hidden
+                  className="size-4 shrink-0 text-primary"
+                />
+                {formatWall(t("stay.arrival"), saved.lateArrival, t("stay.at"))}
+              </p>
             ) : null}
             {saved.earlyDeparture ? (
-              <p>{formatWall(t("stay.departure"), saved.earlyDeparture, t("stay.at"))}</p>
+              <p className="flex items-center gap-2">
+                <LogOut
+                  aria-hidden
+                  className="size-4 shrink-0 text-primary"
+                />
+                {formatWall(t("stay.departure"), saved.earlyDeparture, t("stay.at"))}
+              </p>
             ) : null}
           </div>
         ) : null}
@@ -113,10 +137,12 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
             type="button"
             variant="outline"
             size="lg"
-            className="h-auto min-h-12 w-full whitespace-normal sm:w-auto"
+            className="w-full whitespace-nowrap sm:w-auto"
+            aria-label={t(hasSaved ? "stay.editLabel" : "stay.addLabel", { term: termLine(term) })}
             ref={actionRef}
             onClick={() => setMode("edit")}
           >
+            {hasSaved ? <Pencil aria-hidden /> : <Plus aria-hidden />}
             {t(hasSaved ? "stay.edit" : "stay.add")}
           </Button>
         </div>

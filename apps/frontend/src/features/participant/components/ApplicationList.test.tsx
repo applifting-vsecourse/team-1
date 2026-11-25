@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { MyApplication } from "@/features/participant/api/applications"
@@ -150,5 +150,48 @@ describe("ApplicationList", () => {
     expect(screen.getAllByText("Unpaid")).toHaveLength(2)
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     expect(screen.getAllByRole("link")[0]).toHaveAttribute("href", "/participant/applications/a1")
+  })
+
+  it("is one link whose parts follow the hierarchy: person and payment, terms with statuses, amounts", async () => {
+    respondWith([application()])
+    renderList()
+
+    const link = await screen.findByRole("link")
+    expect(screen.getAllByRole("link")).toHaveLength(1)
+    expect(within(link).queryByRole("button")).not.toBeInTheDocument()
+    const heading = within(link).getByRole("heading", { name: /Jana Nováková/ })
+    const unpaid = within(link).getByText("Unpaid")
+    const confirmed = within(link).getByText("Confirmed")
+    const price = within(link).getByText("Term price")
+    const follows = (a: Node, b: Node) =>
+      Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(follows(heading, unpaid)).toBe(true)
+    expect(follows(unpaid, confirmed)).toBe(true)
+    expect(follows(confirmed, price)).toBe(true)
+    // Each term row keeps its date next to its own status chip.
+    const row = within(link).getByText("1. týden").closest("li")!
+    expect(within(row).getByText("Confirmed")).toBeVisible()
+    expect(within(row).queryByText("Waitlisted")).not.toBeInTheDocument()
+    expect(within(link).getByText("Remaining to pay")).toBeInTheDocument()
+  })
+
+  it("clamps a very long name and term name, and keeps the full text available (#733)", async () => {
+    const name = "Maximiliána".repeat(10)
+    const termName = "Velmi dlouhý název termínu ".repeat(12)
+    respondWith([
+      application({
+        firstName: name,
+        lastName: "Nováková",
+        terms: [{ ...application().terms[0]!, name: termName }],
+      }),
+    ])
+    renderList()
+    const link = await screen.findByRole("link")
+    const heading = within(link).getByRole("heading", { level: 3 })
+    expect(heading).toHaveAttribute("title", expect.stringContaining(name))
+    expect(heading.querySelector(".line-clamp-2")).toHaveTextContent(name)
+    const termLabel = within(link).getByTitle(termName.trim())
+    expect(termLabel).toHaveClass("line-clamp-2", "wrap-anywhere")
+    expect(termLabel).toHaveTextContent(termName.trim())
   })
 })

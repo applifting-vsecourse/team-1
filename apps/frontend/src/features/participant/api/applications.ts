@@ -38,6 +38,7 @@ const termSchema = z.object({
    * other term, so there is nothing to show or write.
    */
   roomWishes: z.array(z.string()).optional(),
+  noRoomWishes: z.boolean().optional(),
   /**
    * Later arrival and earlier departure, Prague wall time `yyyy-MM-ddTHH:mm` or `null` (US-143).
    * Absent for a cancelled or archived term, so there is nothing to show or write.
@@ -194,9 +195,10 @@ export async function saveRoomWishes(
   applicationId: string,
   termId: string,
   names: string[],
+  shouldDecline = false,
 ): Promise<void> {
   await api.put(`participant/applications/${applicationId}/terms/${termId}/room-wishes`, {
-    json: { names },
+    json: shouldDecline ? { names, noRoomWishes: true } : { names },
   })
 }
 

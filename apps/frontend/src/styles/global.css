@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --animate-accordion-down: accordion-down 200ms ease-out;
-  --animate-accordion-up: accordion-up 200ms ease-out;
+  /* Height makes it clear which item reveals the details and which one gives up space. */
+  --animate-accordion-down: accordion-down var(--duration-accordion-open) ease-out;
+  --animate-accordion-up: accordion-up var(--duration-accordion-close) ease-in;
   @keyframes accordion-down {
     from {
       height: 0;
@@ -101,6 +102,8 @@
  * so white button text keeps 4.5:1.
  */
 :root {
+  --duration-accordion-open: 180ms;
+  --duration-accordion-close: 120ms;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --background: #f9fdff; /* color/bg/canvas */
   --foreground: #031a1e; /* color/text/primary */
@@ -290,22 +293,81 @@
     size: A4;
     margin: 15mm;
   }
-  body:has([data-print-area]) * {
-    visibility: hidden;
+  /* Everything outside the block is removed from the layout (`display: none`), not just hidden:
+     hidden content still takes its height and pushed the block onto blank pages. The block's
+     ancestors stay, flattened to plain blocks so no fixed height, overflow or offset cuts the
+     printout into pages. */
+  body:has([data-print-area])
+    *:not(:has([data-print-area])):not([data-print-area]):not([data-print-area] *) {
+    display: none !important;
   }
-  body:has([data-print-area]) [data-print-area],
-  body:has([data-print-area]) [data-print-area] * {
-    visibility: visible;
+  body:has([data-print-area]) *:has([data-print-area]) {
+    display: block !important;
+    position: static !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
   }
+  /* A flex container does not break between pages reliably (a blank last page, a split room), so
+     the block prints as plain blocks; the gap of its screen layout becomes a margin. */
   body:has([data-print-area]) [data-print-area] {
-    position: absolute;
-    inset-inline: 0;
-    top: 0;
+    display: block !important;
   }
+  body:has([data-print-area]) [data-print-area] > * + * {
+    margin-top: 1.5rem;
+  }
+}
+
+/* The disclosure arrow reaches its new position together with the panel. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-slot="accordion-chevron"] {
+    transition: rotate var(--duration-accordion-close) ease-in;
+  }
+
+  [data-slot="accordion-trigger"][data-state="open"] > [data-slot="accordion-chevron"] {
+    transition: rotate var(--duration-accordion-open) ease-out;
+  }
+}
+
+/* The backdrop and panel appear together so focus moves to a distinct task. */
+[data-slot="dialog-overlay"][data-state="open"],
+[data-slot="dialog-content"][data-state="open"] {
+  animation: dialog-appear 160ms ease-out;
+}
+
+[data-slot="dialog-overlay"][data-state="closed"],
+[data-slot="dialog-content"][data-state="closed"] {
+  animation: dialog-disappear 120ms ease-in;
+}
+
+@keyframes dialog-appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-disappear {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Let the result of a completed action become readable as the toast enters the stack. */
+[data-sonner-toast][data-mounted="true"][data-removed="false"][data-swiping="false"] {
+  transition-duration: 180ms;
 }
 
 /* Keep status text and controls available while honoring the OS motion setting. */
 @media (prefers-reduced-motion: reduce) {
+  [data-slot="dialog-overlay"][data-state],
+  [data-slot="dialog-content"][data-state] {
+    animation: none;
+  }
+
   *,
   *::before,
   *::after {

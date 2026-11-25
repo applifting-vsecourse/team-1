@@ -2,9 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { BackButton } from "@/components/atoms/BackLink"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -23,7 +23,7 @@ import {
   type PaymentApplication,
 } from "@/features/event-overview/api/payments"
 
-/** Cancel one payment or refund record: the whole receipt with its rows, the balance after, Cancel record / Back. */
+/** Confirmation to cancel a payment or refund record with all its receipt rows. */
 // Figma v2: US-44 Zrušit zápis platby · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22479-86873
 export function PaymentCancellation({
   application,
@@ -100,7 +100,13 @@ export function PaymentCancellation({
             {mutation.error.message}
           </p>
         ) : null}
-        <DialogFooter className="sm:justify-start">
+        <DialogFooter>
+          <BackButton
+            disabled={mutation.isPending}
+            onClick={onClose}
+          >
+            {t(payment.amountCzk < 0 ? "payment.keepRefund" : "payment.keep")}
+          </BackButton>
           <PendingButton
             isPending={mutation.isPending}
             variant="destructive"
@@ -110,14 +116,6 @@ export function PaymentCancellation({
           >
             {t(mutation.isPending ? "payment.cancelling" : "payment.cancelRecord")}
           </PendingButton>
-          <Button
-            variant="ghost"
-            size="lg"
-            disabled={mutation.isPending}
-            onClick={onClose}
-          >
-            {t(payment.amountCzk < 0 ? "payment.keepRefund" : "payment.keep")}
-          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

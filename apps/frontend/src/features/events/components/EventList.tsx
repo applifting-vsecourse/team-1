@@ -38,7 +38,7 @@ export function EventList({ createdEventId }: { createdEventId?: string }) {
   const { data, isPending, error, refetch } = useQuery(eventsQueryOptions())
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <PageHeader
         hasBand
         motif="planning"
@@ -105,8 +105,8 @@ function FilteredEvents({
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="grid items-end gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="relative">
+      <div className="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="relative sm:col-span-2 lg:col-span-1">
           <Search
             aria-hidden
             className="pointer-events-none absolute start-[17px] top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
@@ -129,7 +129,7 @@ function FilteredEvents({
             <SelectTrigger
               id="event-organization"
               aria-label={t("list.organizationFilter")}
-              className="w-full"
+              className="w-full text-start"
             >
               <SelectValue />
             </SelectTrigger>
@@ -155,7 +155,7 @@ function FilteredEvents({
             <SelectTrigger
               id="event-status"
               aria-label={t("list.statusFilter")}
-              className="w-full"
+              className="w-full text-start"
             >
               <SelectValue />
             </SelectTrigger>
@@ -205,7 +205,7 @@ function FilteredEvents({
             <span>{t("list.statusColumn")}</span>
             <span>{t("list.occupancy")}</span>
           </div>
-          <ul className="flex flex-col gap-4 lg:gap-0">
+          <ul className="flex flex-col gap-2 lg:gap-0">
             {pageItems.map((event) => (
               // The event that was just created keeps the selected surface (O02a).
               <li
@@ -238,24 +238,24 @@ function EventRow({ event }: { event: OrganizerEvent }) {
     <Link
       to={ROUTES.organizer.event}
       params={{ eventId: event.id }}
-      className="grid grid-cols-1 items-center gap-3 p-4 transition-colors hover:bg-accent/40 focus-visible:outline-2 focus-visible:outline-ring lg:grid-cols-[minmax(0,1fr)_9rem_minmax(8rem,1fr)_1.25rem]"
+      className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 px-3 py-3 transition-colors hover:bg-accent/40 focus-visible:outline-2 focus-visible:outline-ring lg:grid-cols-[minmax(0,1fr)_9rem_minmax(8rem,1fr)_1.25rem] lg:items-center lg:px-4"
     >
       {/* Phone: organization above the name, then the dates; from `lg` the row reads name, then
           "organization · dates". */}
-      <div className="flex min-w-0 flex-col gap-0.5">
+      <div className="col-span-2 flex min-w-0 flex-col gap-0.5 lg:col-span-1">
         <p className="text-sm text-muted-foreground lg:hidden">{event.organizationName}</p>
-        <h3 className="text-lg font-semibold lg:text-base lg:font-medium">{event.name}</h3>
+        <h3 className="text-base font-semibold wrap-anywhere lg:font-medium">{event.name}</h3>
         <p className="text-sm text-muted-foreground lg:hidden">
           {termsSummary(event, t, "header")}
         </p>
-        <p className="hidden text-sm text-muted-foreground lg:block">{termsSummary(event, t)}</p>
+        <p className="hidden text-sm font-medium lg:block">{termsSummary(event, t)}</p>
         {event.location ? <p className="text-sm text-muted-foreground">{event.location}</p> : null}
       </div>
       <ChevronRight
         aria-hidden
         className="hidden size-5 text-muted-foreground lg:col-start-4 lg:row-start-1 lg:block"
       />
-      <div className="lg:col-start-2 lg:row-start-1">
+      <div className="col-start-2 row-start-2 self-start lg:row-start-1 lg:self-center">
         <Badge
           variant={event.applicationsOpen ? "default" : "warning"}
           className={event.applicationsOpen ? "bg-primary text-primary-foreground" : undefined}
@@ -263,7 +263,7 @@ function EventRow({ event }: { event: OrganizerEvent }) {
           {event.applicationsOpen ? t("list.statusOpen") : t("list.statusClosed")}
         </Badge>
       </div>
-      <div className="col-span-full flex flex-col gap-2 lg:col-span-1 lg:col-start-3 lg:row-start-1">
+      <div className="col-start-1 row-start-2 flex min-w-0 flex-col gap-1 lg:col-start-3 lg:row-start-1 lg:gap-2">
         <Occupancy event={event} />
       </div>
     </Link>

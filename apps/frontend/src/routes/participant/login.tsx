@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
+import { ArrowRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -46,24 +47,29 @@ function ParticipantLoginPage() {
           accountType="PARTICIPANT"
           fallback={ROUTES.participant.applications}
         />
-        <div className="flex flex-col items-start gap-1">
+        <div className="flex flex-col gap-3">
           <p>{t("participantLogin.noPassword")}</p>
           <Button
             asChild
-            variant="ghost"
+            variant="outline"
             size="lg"
+            className="w-full"
           >
             <Link to={ROUTES.participant.magicLink}>{t("participantLogin.requestLink")}</Link>
           </Button>
         </div>
-        <div className="flex flex-col items-start gap-4">
+        <div className="flex flex-col gap-3 border-t pt-4">
           <p className="text-muted-foreground">{t("participantLogin.otherAccount")}</p>
           <Button
             asChild
-            variant="ghost"
+            variant="secondary"
             size="lg"
+            className="w-full border border-primary/30 text-primary"
           >
-            <Link to={ROUTES.organizer.login}>{t("organizerLogin.title")}</Link>
+            <Link to={ROUTES.organizer.login}>
+              {t("organizerLogin.title")}
+              <ArrowRight aria-hidden />
+            </Link>
           </Button>
         </div>
       </AuthLayout>

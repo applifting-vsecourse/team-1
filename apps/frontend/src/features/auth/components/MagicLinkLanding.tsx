@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Link } from "@tanstack/react-router"
 import { CircleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -84,7 +85,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
           size="lg"
           variant="outline"
         >
-          <a href={ROUTES.participant.magicLink}>{t("magicLink.requestAnother")}</a>
+          <Link to={ROUTES.participant.magicLink}>{t("magicLink.requestAnother")}</Link>
         </Button>
       </AccessCardLayout>
     )

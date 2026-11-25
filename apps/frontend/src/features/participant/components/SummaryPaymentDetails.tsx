@@ -32,56 +32,60 @@ export function SummaryPaymentDetails({ application }: Props) {
 
   return (
     <Card className="gap-4 p-6">
-      <h2 className="text-lg font-semibold">{t("payment.totalOwed")}</h2>
-      <dl className="flex flex-col gap-3">
-        <QrDetail label={t("payment.amount")}>
-          <MoneyAmount amountCzk={amountCzk} />
-          <CopyButton
-            value={String(amountCzk)}
-            label={t("payment.copyAmount")}
+      <h3 className="text-lg font-semibold">{t("payment.totalOwed")}</h3>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <dl className="flex flex-col gap-3 sm:min-w-0 sm:flex-1">
+          <QrDetail label={t("payment.amount")}>
+            <MoneyAmount amountCzk={amountCzk} />
+            <CopyButton
+              value={String(amountCzk)}
+              label={t("payment.copyAmount")}
+            />
+          </QrDetail>
+          <QrDetail label={t("payment.account")}>
+            <span className="min-w-0 break-all">{details.bankAccount}</span>
+            <CopyButton
+              value={details.bankAccount}
+              label={t("common:clipboard.copyAccount")}
+            />
+          </QrDetail>
+          <QrDetail label={t("payment.summaryVariableSymbol")}>
+            <span>{details.summary.variableSymbol}</span>
+            <CopyButton
+              value={details.summary.variableSymbol}
+              label={t("common:clipboard.copyVariableSymbol")}
+            />
+          </QrDetail>
+          <div className="flex flex-col">
+            <dt className="text-sm text-muted-foreground">{t("payment.summaryBreakdown")}</dt>
+            <dd className="grid gap-x-4 gap-y-2 pt-1 sm:grid-cols-2">
+              {owedTerms.map((payment) => (
+                <div
+                  key={payment.termId}
+                  className="flex items-baseline justify-between gap-x-4 sm:flex-col sm:items-start"
+                >
+                  <span className="text-sm text-muted-foreground">
+                    {payment.term
+                      ? formatDateRange(payment.term.startsOn, payment.term.endsOn, {
+                          shouldShowYear: true,
+                        })
+                      : null}
+                  </span>
+                  <span className="shrink-0 text-base whitespace-nowrap">
+                    <MoneyAmount amountCzk={payment.owedCzk} />
+                  </span>
+                </div>
+              ))}
+            </dd>
+          </div>
+        </dl>
+        <div className="shrink-0 sm:max-w-48">
+          <PaymentQrDownload
+            spayd={spayd}
+            variableSymbol={details.summary.variableSymbol}
           />
-        </QrDetail>
-        <QrDetail label={t("payment.account")}>
-          <span className="min-w-0 break-all">{details.bankAccount}</span>
-          <CopyButton
-            value={details.bankAccount}
-            label={t("common:clipboard.copyAccount")}
-          />
-        </QrDetail>
-        <QrDetail label={t("payment.summaryVariableSymbol")}>
-          <span>{details.summary.variableSymbol}</span>
-          <CopyButton
-            value={details.summary.variableSymbol}
-            label={t("common:clipboard.copyVariableSymbol")}
-          />
-        </QrDetail>
-        <div className="flex flex-col">
-          <dt className="text-sm text-muted-foreground">{t("payment.summaryBreakdown")}</dt>
-          <dd className="grid gap-x-4 gap-y-2 pt-1 sm:grid-cols-2">
-            {owedTerms.map((payment) => (
-              <div
-                key={payment.termId}
-                className="flex items-baseline justify-between gap-x-4 sm:flex-col sm:items-start"
-              >
-                <span className="text-sm text-muted-foreground">
-                  {payment.term
-                    ? formatDateRange(payment.term.startsOn, payment.term.endsOn, {
-                        shouldShowYear: true,
-                      })
-                    : null}
-                </span>
-                <span className="shrink-0 text-base whitespace-nowrap">
-                  <MoneyAmount amountCzk={payment.owedCzk} />
-                </span>
-              </div>
-            ))}
-          </dd>
         </div>
-      </dl>
-      <PaymentQrDownload
-        spayd={spayd}
-        variableSymbol={details.summary.variableSymbol}
-      />
+      </div>
       <p className="text-sm text-muted-foreground">{t("payment.summaryQrExplanation")}</p>
       {details.terms.some((term) => term.owedCzk < 0) ? (
         <p className="text-sm">{t("payment.overpaymentNotTransferred")}</p>

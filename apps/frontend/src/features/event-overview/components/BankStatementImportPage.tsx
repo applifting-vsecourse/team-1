@@ -1,10 +1,10 @@
 import { Fragment, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
 import { Download } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
+import { BackLink } from "@/components/atoms/BackLink"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
 import { EmptyState } from "@/components/molecules/EmptyState"
@@ -69,23 +69,18 @@ export function BankStatementImportPage({
   return (
     <section className="flex flex-col gap-6">
       <Seo title={t("bankStatement.title")} />
-      <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">{t("bankStatement.title")}</h2>
-        {eventName ? <p>{eventName}</p> : null}
-        <p className="text-muted-foreground">{t("bankStatement.description")}</p>
-        <Button
-          asChild
-          variant="ghost"
-          size="lg"
-          className="self-start"
+      <div className="flex items-start gap-3 md:gap-4">
+        <BackLink
+          to={ROUTES.organizer.eventPayments}
+          params={{ eventId }}
         >
-          <Link
-            to={ROUTES.organizer.eventPayments}
-            params={{ eventId }}
-          >
-            {t("bankStatement.back")}
-          </Link>
-        </Button>
+          {t("bankStatement.back")}
+        </BackLink>
+        <div className="flex min-w-0 flex-col gap-2 wrap-anywhere">
+          <h2 className="text-2xl font-bold tracking-tight">{t("bankStatement.title")}</h2>
+          {eventName ? <p>{eventName}</p> : null}
+          <p className="text-muted-foreground">{t("bankStatement.description")}</p>
+        </div>
       </div>
       <UploadField
         title={t("bankStatement.upload.title")}

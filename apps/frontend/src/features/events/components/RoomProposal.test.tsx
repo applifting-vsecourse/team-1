@@ -21,6 +21,7 @@ const person = (id: string, firstName: string, lastName: string, isIndividual = 
   birthYear: 2011,
   gender: "FEMALE" as const,
   individualAccommodation: isIndividual,
+  accommodationRequest: null,
   status: "CONFIRMED" as const,
   wishes: [],
 })

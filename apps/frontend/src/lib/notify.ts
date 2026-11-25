@@ -16,7 +16,8 @@ const show = (tone: Tone, title: string, description?: string, id?: string) =>
 // Figma (Design system): DS / Toast · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14478-1651
 // Figma (Design system): Toast / Texty v aplikaci · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14491-1615
 export const notify = {
-  success: (title: string, description?: string) => show("success", title, description),
+  success: (title: string, description?: string, id?: string) =>
+    show("success", title, description, id),
   info: (title: string, description?: string, id?: string) => show("info", title, description, id),
   warning: (title: string, description?: string, id?: string) =>
     show("warning", title, description, id),

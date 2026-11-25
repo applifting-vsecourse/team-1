@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
 import {
   createMemoryHistory,
   createRootRoute,
@@ -11,7 +11,10 @@ import userEvent from "@testing-library/user-event"
 import { NetworkError } from "ky"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { PaymentApplication } from "@/features/event-overview/api/payments"
+import {
+  paymentQueryOptions,
+  type PaymentApplication,
+} from "@/features/event-overview/api/payments"
 import { PaymentDetail } from "@/features/event-overview/components/PaymentDetail"
 
 const { get, remove, post, patch } = vi.hoisted(() => ({
@@ -132,8 +135,19 @@ const historyItems = () =>
   within(screen.getByRole("list", { name: "Payment history" })).getAllByRole("listitem")
 const historyItem = (text: RegExp) => historyItems().find((item) => text.test(item.textContent))!
 
+function PaymentDetailUnderTest() {
+  const query = useQuery(paymentQueryOptions("a1"))
+  return (
+    <PaymentDetail
+      applicationId="a1"
+      query={query}
+      termStatuses={undefined}
+    />
+  )
+}
+
 function setup() {
-  const root = createRootRoute({ component: () => <PaymentDetail applicationId="a1" /> })
+  const root = createRootRoute({ component: PaymentDetailUnderTest })
   const route = createRoute({ getParentRoute: () => root, path: "/" })
   const router = createRouter({
     routeTree: root.addChildren([route]),
@@ -237,6 +251,42 @@ describe("PaymentDetail", () => {
     setup()
     const details = await screen.findByRole("group", { name: "Participant details" })
     expect(within(details).getByRole("button", { name: "Edit" })).toBeVisible()
+  })
+
+  it("lays the participant and applicant cards out at the same height (#754)", async () => {
+    respondWith(() => application([first]))
+    setup()
+    const details = await screen.findByRole("group", { name: "Participant details" })
+    expect(details).not.toHaveClass("items-start")
+  })
+
+  it("opens the participant edit as a modal, not a full-screen page, on a phone (#754)", async () => {
+    respondWith(() => application([first]))
+    setup()
+    const details = await screen.findByRole("group", { name: "Participant details" })
+    await userEvent.setup().click(within(details).getByRole("button", { name: "Edit" }))
+    const dialog = await screen.findByRole("dialog")
+    expect(dialog.className).not.toContain("max-sm:h-dvh")
+    expect(dialog.className).not.toContain("max-sm:rounded-none")
+  })
+
+  it("shows Edit as an outlined and Cancel record as a destructive button (#755)", async () => {
+    respondWith(() =>
+      application(
+        [{ ...first, paidCzk: 500 }, second],
+        [receipt("p1", "2027-03-10T12:00:00Z", [{ termId: "t1", amountCzk: 500 }])],
+      ),
+    )
+    setup()
+    const history = await screen.findByRole("list", { name: "Payment history" })
+    expect(within(history).getAllByRole("button", { name: "Edit" })[0]).toHaveAttribute(
+      "data-variant",
+      "outline",
+    )
+    expect(within(history).getAllByRole("button", { name: "Cancel record" })[0]).toHaveAttribute(
+      "data-variant",
+      "destructive",
+    )
   })
 
   it("hides the edit button when the application can no longer be edited (#515)", async () => {
@@ -534,7 +584,7 @@ describe("PaymentDetail", () => {
     expect(await screen.findByRole("heading", { name: "Adam Test" })).toBeInTheDocument()
     expect(screen.getByText(/application C-0047/)).toBeInTheDocument()
     expect(screen.getByText("No payment recorded yet.")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "← Back to applications" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Back to applications" })).toHaveAttribute(
       "href",
       "/organizer/events/e1/applications",
     )
@@ -712,4 +762,15 @@ describe("PaymentDetail refund of an overpayment (#399)", () => {
     expect(within(dialog).getByRole("combobox", { name: "Term *" })).toHaveTextContent(/500/)
     expect(within(dialog).getByLabelText("Amount *")).toHaveValue("500")
   })
+})
+
+it("renders the return to applications as a round, keyboard-accessible link", async () => {
+  respondWith(() => application([first]))
+  setup()
+  const link = await screen.findByRole("link", { name: "Back to applications" })
+  expect(link).toHaveAttribute("href", "/organizer/events/e1/applications")
+  expect(link).toHaveAttribute("data-size", "icon-lg")
+  expect(link).toHaveClass("rounded-full", "focus-visible:outline-2")
+  await userEvent.tab()
+  expect(link).toHaveFocus()
 })

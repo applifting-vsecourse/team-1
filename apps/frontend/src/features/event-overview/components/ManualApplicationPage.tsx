@@ -225,7 +225,7 @@ export function ManualApplicationPage({
   }
 
   return (
-    <div className="flex max-w-196 flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <Seo title={step === "CREATED" ? t("manual.created") : t("manual.title")} />
       {step === "CREATED" && created && savedTerms.data ? (
         <>
@@ -252,9 +252,9 @@ export function ManualApplicationPage({
             <p>{t("manual.emailSent")}</p>
             <Button
               asChild
-              variant="ghost"
+              variant="outline"
               size="lg"
-              className="self-start"
+              className="max-w-full self-start whitespace-normal"
             >
               <Link
                 to={ROUTES.organizer.application}

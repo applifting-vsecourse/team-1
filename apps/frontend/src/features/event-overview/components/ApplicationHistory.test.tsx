@@ -1,7 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
 import { render, screen, within } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { applicationHistoryQueryOptions } from "@/features/event-overview/api/applicationHistory"
 import { ApplicationHistory } from "@/features/event-overview/components/ApplicationHistory"
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
@@ -45,12 +46,17 @@ const entries = [
   },
 ]
 
+function ApplicationHistoryUnderTest() {
+  const query = useQuery(applicationHistoryQueryOptions("a1"))
+  return <ApplicationHistory query={query} />
+}
+
 function setup() {
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <ApplicationHistory applicationId="a1" />
+      <ApplicationHistoryUnderTest />
     </QueryClientProvider>,
   )
 }

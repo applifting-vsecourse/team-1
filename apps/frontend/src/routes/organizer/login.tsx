@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
+import { ArrowRight } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -38,6 +39,7 @@ function OrganizerLoginPage() {
         title={t("organizerLogin.title")}
         description={t("organizerLogin.description")}
         isSingleCard
+        showDivider={false}
         footer={
           <div className="flex flex-col gap-4 border-t pt-4">
             <Button
@@ -50,10 +52,14 @@ function OrganizerLoginPage() {
             </Button>
             <Button
               asChild
-              variant="ghost"
-              className="self-center"
+              variant="secondary"
+              size="lg"
+              className="w-full border border-primary/30 text-primary"
             >
-              <Link to={ROUTES.participant.login}>{t("organizerLogin.participantLink")}</Link>
+              <Link to={ROUTES.participant.login}>
+                {t("organizerLogin.participantLink")}
+                <ArrowRight aria-hidden />
+              </Link>
             </Button>
           </div>
         }

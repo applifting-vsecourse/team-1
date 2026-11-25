@@ -118,7 +118,7 @@ export function ParticipantEditDialog({ application, onClose }: ParticipantEditD
       }}
     >
       <DialogContent
-        className="gap-5 overflow-y-auto max-sm:top-0 max-sm:left-0 max-sm:h-dvh max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none sm:max-h-[calc(100dvh-2rem)] sm:max-w-160"
+        className="gap-5 overflow-y-auto sm:max-w-160"
         aria-describedby={undefined}
       >
         <DialogHeader>

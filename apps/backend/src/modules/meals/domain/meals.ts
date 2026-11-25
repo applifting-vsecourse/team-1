@@ -82,6 +82,8 @@ export type OwnMeals = {
   noRestrictions: boolean
 }
 
+export type OrganizerMeals = OwnMeals & { editable: boolean }
+
 export type KitchenPerson = {
   applicationId: string
   firstName: string

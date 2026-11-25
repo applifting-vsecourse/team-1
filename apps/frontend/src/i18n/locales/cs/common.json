@@ -106,6 +106,7 @@
     "page": "Stránka {{page}}",
     "previous": "Předchozí stránka",
     "range_few": "{{from}}–{{to}} z {{count}} výsledků",
+    "range_many": "{{from}}–{{to}} z {{count}} výsledků",
     "range_one": "{{from}}–{{to}} z {{count}} výsledku",
     "range_other": "{{from}}–{{to}} z {{count}} výsledků"
   },

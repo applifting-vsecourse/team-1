@@ -45,6 +45,8 @@ export type AssignmentParticipant = {
   gender: Gender
   /** The applicant asked to settle the accommodation individually (US-38). */
   individualAccommodation: boolean
+  /** The applicant's note to the request for individual accommodation; shown to organizers only. */
+  accommodationRequest: string | null
   status: ApplicationTermStatus
   /** Who they wish to room with and whether that person is in their room (US-146); free text. */
   wishes: RoomWishStatus[]

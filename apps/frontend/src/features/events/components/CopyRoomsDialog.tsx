@@ -2,6 +2,7 @@ import { useRef, useState } from "react"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { BackButton } from "@/components/atoms/BackLink"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -127,7 +128,7 @@ export function CopyRoomsDialog({
       }}
     >
       <DialogContent
-        className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-160"
+        className="bg-card shadow-md sm:max-w-160"
         aria-describedby={undefined}
         onOpenAutoFocus={(e) => {
           e.preventDefault()
@@ -314,21 +315,29 @@ export function CopyRoomsDialog({
           />
         ) : null}
         <DialogFooter className="gap-4">
-          <Button
-            ref={cancelRef}
-            onClick={() => {
-              if (isPreview) {
+          {isPreview ? (
+            <BackButton
+              ref={cancelRef}
+              disabled={mutation.isPending}
+              onClick={() => {
                 setPreview(false)
                 mutation.reset()
-              } else onClose()
-            }}
-            variant="outline"
-            size="lg"
-            className="sm:w-38"
-            disabled={mutation.isPending}
-          >
-            {t(isPreview ? "rooms.copy.back" : "rooms.copy.cancel")}
-          </Button>
+              }}
+            >
+              {t("rooms.copy.back")}
+            </BackButton>
+          ) : (
+            <Button
+              ref={cancelRef}
+              onClick={onClose}
+              variant="outline"
+              size="lg"
+              className="sm:w-38"
+              disabled={mutation.isPending}
+            >
+              {t("rooms.copy.cancel")}
+            </Button>
+          )}
 
           <PendingButton
             isPending={mutation.isPending}

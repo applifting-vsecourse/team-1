@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
 import {
   createMemoryHistory,
   createRootRoute,
@@ -9,6 +9,7 @@ import {
 import { render, screen, within } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { termStatusesQueryOptions } from "@/features/event-overview/api/termStatus"
 import { ApplicationSubstituteRecords } from "@/features/event-overview/components/ApplicationSubstituteRecords"
 import { SubstituteHistory } from "@/features/event-overview/components/SubstituteHistory"
 
@@ -29,6 +30,16 @@ const record = (overrides: object = {}) => ({
   ...overrides,
 })
 const term = { id: "t1", startsOn: "2027-07-12", endsOn: "2027-07-18" }
+
+function ApplicationSubstituteRecordsUnderTest({ applicationId }: { applicationId: string }) {
+  const { data } = useQuery(termStatusesQueryOptions(applicationId))
+  return (
+    <ApplicationSubstituteRecords
+      applicationId={applicationId}
+      terms={data}
+    />
+  )
+}
 
 function renderWithRouter(element: React.ReactNode) {
   const root = createRootRoute({ component: () => element })
@@ -159,14 +170,14 @@ describe("record in the detail of an application (US-105)", () => {
 
   it("shows who confirmed the one that passed this application over", async () => {
     respond([termWith([record()])])
-    renderWithRouter(<ApplicationSubstituteRecords applicationId="a1" />)
+    renderWithRouter(<ApplicationSubstituteRecordsUnderTest applicationId="a1" />)
     expect(await screen.findByText("Skipped by confirming a substitute")).toBeInTheDocument()
     expect(screen.getByText(/^Petr Svoboda · /)).toBeInTheDocument()
   })
 
   it("lists the skipped substitutes on the confirmed application", async () => {
     respond([termWith([record()])])
-    renderWithRouter(<ApplicationSubstituteRecords applicationId="a3" />)
+    renderWithRouter(<ApplicationSubstituteRecordsUnderTest applicationId="a3" />)
     expect(await screen.findByText("Skipped substitutes")).toBeInTheDocument()
     expect(screen.getByText(/^Adam Dvořák · \d/)).toBeInTheDocument()
     expect(screen.getByText(/^Jan Novák · \d/)).toBeInTheDocument()
@@ -183,7 +194,7 @@ describe("record in the detail of an application (US-105)", () => {
         }),
       ]),
     ])
-    renderWithRouter(<ApplicationSubstituteRecords applicationId="a3" />)
+    renderWithRouter(<ApplicationSubstituteRecordsUnderTest applicationId="a3" />)
     expect(await screen.findAllByText("Skipped substitute")).toHaveLength(1)
     expect(screen.queryByText(/Adam Dvořák/)).toBeNull()
   })
@@ -191,7 +202,7 @@ describe("record in the detail of an application (US-105)", () => {
   it("shows nothing once the confirmed one is no longer confirmed", async () => {
     const cancelled = { applicationId: "a3", name: "Petr Svoboda", status: "CANCELLED" }
     respond([termWith([record({ confirmed: cancelled })])])
-    renderWithRouter(<ApplicationSubstituteRecords applicationId="a1" />)
+    renderWithRouter(<ApplicationSubstituteRecordsUnderTest applicationId="a1" />)
     await vi.waitFor(() => expect(get).toHaveBeenCalled())
     expect(screen.queryByText(/Skipped/)).toBeNull()
   })
@@ -202,21 +213,21 @@ describe("record in the detail of an application (US-105)", () => {
         record({ skipped: [{ applicationId: "a1", name: "Adam Dvořák", status: "CANCELLED" }] }),
       ]),
     ])
-    renderWithRouter(<ApplicationSubstituteRecords applicationId="a1" />)
+    renderWithRouter(<ApplicationSubstituteRecordsUnderTest applicationId="a1" />)
     await vi.waitFor(() => expect(get).toHaveBeenCalled())
     expect(screen.queryByText(/Skipped/)).toBeNull()
   })
 
   it("shows nothing for a confirmation that skipped nobody", async () => {
     respond([termWith([record({ skipped: [] })])])
-    renderWithRouter(<ApplicationSubstituteRecords applicationId="a3" />)
+    renderWithRouter(<ApplicationSubstituteRecordsUnderTest applicationId="a3" />)
     await vi.waitFor(() => expect(get).toHaveBeenCalled())
     expect(screen.queryByText(/Skipped/)).toBeNull()
   })
 
   it("shows nothing when the application has no record", async () => {
     respond([termWith([])])
-    renderWithRouter(<ApplicationSubstituteRecords applicationId="a1" />)
+    renderWithRouter(<ApplicationSubstituteRecordsUnderTest applicationId="a1" />)
     await vi.waitFor(() => expect(get).toHaveBeenCalled())
     expect(screen.queryByText(/Skipped/)).toBeNull()
   })

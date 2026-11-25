@@ -1,10 +1,11 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
 import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { i18n } from "@/i18n"
 
+import { termStatusesQueryOptions } from "@/features/event-overview/api/termStatus"
 import { TermStatuses } from "@/features/event-overview/components/TermStatuses"
 
 const { get, patch } = vi.hoisted(() => ({ get: vi.fn(), patch: vi.fn() }))
@@ -33,12 +34,23 @@ const term = (overrides: object = {}) => ({
   ...overrides,
 })
 
+function TermStatusesUnderTest() {
+  const query = useQuery(termStatusesQueryOptions("a1"))
+  return (
+    <TermStatuses
+      applicationId="a1"
+      query={query}
+      application={undefined}
+    />
+  )
+}
+
 function setup() {
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <TermStatuses applicationId="a1" />
+      <TermStatusesUnderTest />
     </QueryClientProvider>,
   )
 }
@@ -132,6 +144,24 @@ describe("TermStatuses", () => {
     expect(await screen.findByText(/Eva: Confirmed → Cancelled/)).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Change status" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Cancel in term" })).not.toBeInTheDocument()
+  })
+
+  it("shows Change status as a readable outlined button (#754)", async () => {
+    get.mockReturnValue({ json: () => Promise.resolve([term()]) })
+    setup()
+    expect(await screen.findByRole("button", { name: "Change status" })).toHaveAttribute(
+      "data-variant",
+      "outline",
+    )
+  })
+
+  it("keeps Change status a normal-size button in one row with the term actions (#754)", async () => {
+    get.mockReturnValue({ json: () => Promise.resolve([term()]) })
+    setup()
+    const change = await screen.findByRole("button", { name: "Change status" })
+    expect(change).not.toHaveClass("w-full")
+    expect(change.className).not.toContain("h-12")
+    expect(change.parentElement).toHaveClass("flex", "flex-wrap")
   })
 
   it("confirms a waitlisted application after the dialog", async () => {

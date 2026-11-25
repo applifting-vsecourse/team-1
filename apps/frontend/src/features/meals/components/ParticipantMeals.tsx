@@ -1,26 +1,19 @@
-import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { PendingButton } from "@/components/atoms/PendingButton"
-import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
 
 import { ownMealsQueryOptions, saveOwnMeals, type OwnMeals } from "@/features/meals/api/meals"
 
-/** Same limit as the API (`ALLERGIES_MAX_LENGTH`). */
-const ALLERGIES_MAX_LENGTH = 1000
-/** Same limit as the API (`SPECIAL_REQUEST_MAX_LENGTH`). */
-const SPECIAL_REQUEST_MAX_LENGTH = 1000
+import { MealSelectionFields, useMealDraft } from "./MealSelectionFields"
 
 /** The meal restrictions of the participant of one application: ticked options and allergies. */
 // Figma (Design system v2): US-64 / Upravit stravování / Desktop · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20697-16009 (360 px: node-id=20697-16148)
@@ -50,25 +43,9 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
   const { t } = useTranslation("meals")
   const client = useQueryClient()
   const navigate = useNavigate()
-  const [optionIds, setOptionIds] = useState(new Set(meals.selectedOptionIds))
-  const [allergies, setAllergies] = useState(meals.allergies ?? "")
-  const [specialRequest, setSpecialRequest] = useState(meals.specialRequest ?? "")
-  const [hasNone, setHasNone] = useState(meals.noRestrictions)
-
+  const draft = useMealDraft(meals)
   const mutation = useMutation({
-    // An option the organizer removed meanwhile is no longer offered, so it is not sent either.
-    mutationFn: () =>
-      saveOwnMeals(
-        applicationId,
-        hasNone
-          ? { optionIds: [], allergies: "", specialRequest: "", noRestrictions: true }
-          : {
-              optionIds: meals.options.map((option) => option.id).filter((id) => optionIds.has(id)),
-              allergies,
-              specialRequest,
-              noRestrictions: false,
-            },
-      ),
+    mutationFn: () => saveOwnMeals(applicationId, draft.values),
     onSuccess: async (saved) => {
       client.setQueryData(ownMealsQueryOptions(applicationId).queryKey, saved)
       // The overview of the application shows the meals step as done (US-149).
@@ -78,14 +55,6 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
       await navigate({ to: ROUTES.participant.application, params: { applicationId } })
     },
   })
-
-  const toggle = (id: string, isChecked: boolean) =>
-    setOptionIds((current) => {
-      const next = new Set(current)
-      if (isChecked) next.add(id)
-      else next.delete(id)
-      return next
-    })
 
   return (
     <form
@@ -103,51 +72,10 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
       />
       <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
         <h2 className="text-2xl font-bold tracking-tight">{t("own.restrictions")}</h2>
-        {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
-        <CheckboxRow
-          id="meal-none"
-          label={t("own.noRestrictions")}
-          checked={hasNone}
-          onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
+        <MealSelectionFields
+          draft={draft}
+          noneLabel={t("own.noRestrictions")}
         />
-        {meals.options.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            <p className="text-sm text-muted-foreground">{t("own.multiple")}</p>
-            {meals.options.map((option) => (
-              <CheckboxRow
-                key={option.id}
-                id={`meal-${option.id}`}
-                label={option.name}
-                checked={optionIds.has(option.id)}
-                disabled={hasNone}
-                onCheckedChange={(isChecked) => toggle(option.id, isChecked === true)}
-              />
-            ))}
-          </div>
-        ) : null}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="meal-allergies">{t("own.allergiesLabel")}</Label>
-          <Textarea
-            id="meal-allergies"
-            className="min-h-32"
-            maxLength={ALLERGIES_MAX_LENGTH}
-            disabled={hasNone}
-            value={allergies}
-            onChange={(event) => setAllergies(event.target.value)}
-          />
-        </div>
-        {/* PM-requested addition (US-64), not drawn in Figma. */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="meal-special-request">{t("own.specialRequestLabel")}</Label>
-          <Textarea
-            id="meal-special-request"
-            className="min-h-32"
-            maxLength={SPECIAL_REQUEST_MAX_LENGTH}
-            disabled={hasNone}
-            value={specialRequest}
-            onChange={(event) => setSpecialRequest(event.target.value)}
-          />
-        </div>
         {mutation.error ? (
           <Alert variant="destructive">
             <AlertDescription>{mutation.error.message}</AlertDescription>

@@ -254,4 +254,23 @@ describe("KitchenSummary", () => {
       "/organizer/events/e1/meals/options",
     )
   })
+
+  it("shows a very long allergy note in full, wrapped and never clipped (#731)", async () => {
+    const note = `Ořechy, ${"bez lepku a laktózy ".repeat(60)}${"x".repeat(200)}`
+    const long = [
+      {
+        ...terms[0]!,
+        allergies: [
+          { applicationId: "a1", firstName: "Adam", lastName: "Dvořák", allergies: note },
+        ],
+      },
+    ]
+    renderPage(long)
+    const cells = (await screen.findAllByText(note)).map((node) => node.closest("td")!)
+    expect(cells.length).toBeGreaterThan(0)
+    for (const cell of cells) {
+      expect(cell).toHaveClass("wrap-anywhere", "whitespace-pre-line")
+      expect(cell.className).not.toMatch(/truncate|line-clamp|text-ellipsis|overflow-hidden/)
+    }
+  })
 })

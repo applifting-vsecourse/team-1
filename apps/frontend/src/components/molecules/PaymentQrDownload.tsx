@@ -41,7 +41,7 @@ export function PaymentQrDownload({
           src={image}
           width={200}
           height={200}
-          className="size-40 sm:size-32"
+          className="size-40"
           alt={t("termPayment.summaryQrAlt")}
         />
       )}

@@ -66,6 +66,18 @@ describe("meals (integration)", () => {
     expect((await request("GET", ownPath(), organizer)).status).toBe(403)
   })
 
+  it("requires the roster term to belong to the requested event", async () => {
+    const term = await prisma.term.findFirstOrThrow({ where: { eventId, cancelledAt: null } })
+    const created = await request("POST", "/organizer/events", organizer, { name: "Another camp" })
+    expect(created.status).toBe(201)
+    const otherEvent = (await created.json()) as { id: string }
+    const roster = (event: string, id: string) =>
+      `/organizer/events/${event}/meals/terms/${id}/participants`
+    expect((await request("GET", roster(otherEvent.id, term.id), organizer)).status).toBe(403)
+    expect((await request("GET", roster(eventId, "missing"), organizer)).status).toBe(403)
+    expect((await request("GET", roster(eventId, term.id), otherOrganizer)).status).toBe(403)
+  })
+
   it("offers vegetarian and gluten-free in a newly created event", async () => {
     const created = await request("POST", "/organizer/events", organizer, { name: "Winter camp" })
     expect(created.status).toBe(201)
@@ -205,6 +217,90 @@ describe("meals (integration)", () => {
       expect(term.specialRequests).toContainEqual(
         expect.objectContaining({ lastName: "Nováková", specialRequest: "Early dinner" }),
       )
+    }
+  })
+
+  it("saves organizer changes for the application and all its confirmed kitchen terms", async () => {
+    const path = `/organizer/events/${eventId}/meals/applications/${applicationId}`
+    const original = await (await request("GET", path, organizer)).json()
+    expect(original).toMatchObject({ editable: true, applicationId })
+    const empty = { optionIds: [], allergies: "", specialRequest: "", noRestrictions: true }
+    expect((await request("PUT", path, participant, empty)).status).toBe(403)
+    expect((await request("PUT", path, otherOrganizer, empty)).status).toBe(403)
+    expect(
+      (await request("PUT", path, organizer, { ...empty, optionIds: ["unknown"] })).status,
+    ).toBe(400)
+    try {
+      const before = await summary()
+      const response = await request("PUT", path, organizer, empty)
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({
+        noRestrictions: true,
+        selectedOptionIds: [],
+        allergies: null,
+        specialRequest: null,
+      })
+      expect(await (await request("GET", ownPath(), participant)).json()).toMatchObject({
+        noRestrictions: true,
+      })
+      const after = await summary()
+      const confirmed = await prisma.applicationTerm.findMany({
+        where: { applicationId, status: "CONFIRMED", term: { cancelledAt: null } },
+      })
+      expect(confirmed.length).toBeGreaterThan(0)
+      for (const { termId } of confirmed) {
+        const term = after.find((item) => item.termId === termId)!
+        expect(term.regular).toBe(before.find((item) => item.termId === termId)!.regular + 1)
+        const roster = await request(
+          "GET",
+          `/organizer/events/${eventId}/meals/terms/${termId}/participants`,
+          organizer,
+        )
+        expect(await roster.json()).toContainEqual(
+          expect.objectContaining({ applicationId, noRestrictions: true }),
+        )
+      }
+    } finally {
+      await request("PUT", path, organizer, {
+        optionIds: original.selectedOptionIds,
+        allergies: original.allergies ?? "",
+        specialRequest: original.specialRequest ?? "",
+        noRestrictions: original.noRestrictions,
+      })
+    }
+  })
+
+  it("refuses organizer meal access to an application of another event", async () => {
+    const created = await request("POST", "/organizer/events", organizer, { name: "Third camp" })
+    const otherEvent = (await created.json()) as { id: string }
+    const path = `/organizer/events/${otherEvent.id}/meals/applications/${applicationId}`
+    const empty = { optionIds: [], allergies: "", specialRequest: "", noRestrictions: true }
+    expect((await request("GET", path, organizer)).status).toBe(403)
+    expect((await request("PUT", path, organizer, empty)).status).toBe(403)
+  })
+
+  it("refuses organizer meal changes of an application that is no longer editable", async () => {
+    const path = `/organizer/events/${eventId}/meals/applications/${applicationId}`
+    const terms = await prisma.applicationTerm.findMany({ where: { applicationId } })
+    const empty = { optionIds: [], allergies: "", specialRequest: "", noRestrictions: true }
+    await prisma.applicationTerm.updateMany({
+      where: { applicationId },
+      data: { status: "CANCELLED" },
+    })
+    try {
+      expect(await (await request("GET", path, organizer)).json()).toMatchObject({
+        editable: false,
+      })
+      const response = await request("PUT", path, organizer, empty)
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "APPLICATION_NOT_EDITABLE" })
+    } finally {
+      for (const term of terms) {
+        await prisma.applicationTerm.update({
+          where: { id: term.id },
+          data: { status: term.status },
+        })
+      }
     }
   })
 

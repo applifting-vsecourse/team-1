@@ -46,9 +46,9 @@ export function ParticipantDetails({ application }: ParticipantDetailsProps) {
     <div
       role="group"
       aria-label={t("payment.participantCard")}
-      className="grid min-w-0 items-start gap-4 md:grid-cols-2"
+      className="grid min-w-0 gap-4 md:grid-cols-2"
     >
-      <Card className="min-w-0 gap-3 p-4 md:p-6">
+      <Card className="min-w-0 gap-2 p-4">
         <div className="flex items-center justify-between gap-4">
           <h3 className="text-lg font-semibold">{t("payment.participantCard")}</h3>
           {application.isEditable ? (
@@ -72,7 +72,7 @@ export function ParticipantDetails({ application }: ParticipantDetailsProps) {
           ))}
         </dl>
       </Card>
-      <Card className="min-w-0 gap-3 p-4 md:p-6">
+      <Card className="min-w-0 gap-2 p-4">
         <h3 className="text-lg font-semibold">{t("payment.applicant")}</h3>
         <a
           className="break-all text-link underline"

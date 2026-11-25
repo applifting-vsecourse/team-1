@@ -29,6 +29,9 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Přihláška přes odkaz: termíny a cena podle výběru (i na mobilu)                         | `application.spec.ts`        | ✅   |
 | Odeslání přihlášky → stránka potvrzení → po přihlášení vidí přihlášku se stavem         | `application.spec.ts`        | ✅   |
 | Organizátor založí akci s termínem a cenou, přidá pokoj termínu a zkopíruje odkaz       | `event-setup.spec.ts`        | ✅   |
+| Organizátor na 360 px přiřadí, přesune a odebere účastníka v Rozřazování                | `event-setup.spec.ts`        | ✅   |
+| Organizátor přetáhne účastníka myší do pokoje a potvrdí nebo odmítne přistýlku          | `event-setup.spec.ts`        | ✅   |
+| Organizátor upraví program a přihlašovatel vidí na 360 px časy a podrobnosti bloků      | `program.spec.ts`            | ✅   |
 | Organizátor otevře akci → Kapacity → obsazenost termínu a odkaz na filtrované přihlášky | `capacity.spec.ts`           | ✅   |
 | Organizátor vidí přihlášku v seznamu a zapíše platbu                                    | `payments.spec.ts`           | ✅   |
 | Organizátor odhlásí účastníka z termínu a změna se zapíše do záznamu                    | `term-status.spec.ts`        | ✅   |
@@ -39,6 +42,11 @@ Jen cesty, bez kterých produkt nefunguje a které ukazujeme na demu. Jedna cest
 | Účastník požádá o odhlášení po začátku storna → organizátor žádost na 360 px zamítne    | `change-request.spec.ts`     | ✅   |
 | Účastník odešle přihlášku v ručním režimu → organizátor ji vidí ve frontě K vyhodnocení | `queue.spec.ts`              | ✅   |
 | Návštěvník: landing → katalog → organizace → akce → přihláška (i na mobilu)             | `catalog.spec.ts`            | ✅   |
+| Organizátor zavře a dokončí tři typy dialogů programu (360 px i desktop)                | `dialog-layout.spec.ts`      | ✅   |
+| Organizátor zavře a dokončí kopírování pokojů a návrh rozdělení (360 px i desktop)      | `dialog-layout.spec.ts`      | ✅   |
+| Organizátor zavře úpravu údajů účastníka i po posunu viditelné plochy klávesnicí        | `dialog-layout.spec.ts`      | ✅   |
+| Organizátor ověří pořadí akcí při stornu platby a úpravě stravování (360 px i desktop)  | `dialog-layout.spec.ts`      | ✅   |
+| Organizátor zavře a dokončí smazání nevyužité dopravy (360 px i desktop)                | `dialog-layout.spec.ts`      | ✅   |
 
 Novou cestu přidej do tabulky v tomtéž PR. Cesta mimo tabulku se domlouvá s tech leadem. Okrajové stavy (chybné heslo, prošlý odkaz…) do E2E nepatří, pokud nejsou součástí hlavní cesty.
 

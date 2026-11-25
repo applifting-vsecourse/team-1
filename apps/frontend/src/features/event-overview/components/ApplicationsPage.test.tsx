@@ -8,11 +8,11 @@ import {
   Outlet,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { formatDate } from "@/lib/date"
+import { formatDate, formatDateRange, formatDateTime } from "@/lib/date"
 
 import { ApplicationsPage } from "@/features/event-overview/components/ApplicationsPage"
 import type { ApplicationsSearch } from "@/features/event-overview/lib/applications-search"
@@ -112,8 +112,9 @@ function setup(
           eventId="e1"
           isAutomatic={isAutomatic}
           filters={filters}
-          onFiltersChange={(next) => {
-            onFiltersChange(next)
+          onFiltersChange={(next, options) => {
+            if (options) onFiltersChange(next, options)
+            else onFiltersChange(next)
             setFilters(next)
           }}
         />
@@ -352,6 +353,10 @@ describe("ApplicationsPage", () => {
     await user.clear(input)
     expect(change).toHaveBeenLastCalledWith(expect.objectContaining({ q: undefined }))
   })
+  it("shows the whole search placeholder (#753)", async () => {
+    setup()
+    expect(await screen.findByRole("searchbox")).toHaveAttribute("placeholder", "Name, e-mail, VS")
+  })
   it("starts at the first page of search results", async () => {
     setup(Array.from({ length: 21 }, (_, index) => ({ ...application, id: `a${index}` })))
     const user = userEvent.setup()
@@ -360,9 +365,40 @@ describe("ApplicationsPage", () => {
     await user.type(screen.getByRole("searchbox"), "jana")
     expect(await screen.findByText("1–20 of 21 results")).toBeInTheDocument()
   })
+  describe("page in the URL (#734)", () => {
+    const rows = Array.from({ length: 41 }, (_, index) => ({ ...application, id: `a${index}` }))
+
+    it("writes the 1-based page to the search as a new history step, keeping the filters", async () => {
+      const change = setup(rows)
+      const user = userEvent.setup()
+      await user.click(await screen.findByRole("button", { name: "Next page" }))
+      expect(change).toHaveBeenLastCalledWith(
+        { term: "t1", status: "CONFIRMED", payment: "UNPAID", gender: "FEMALE", page: 2 },
+        { isPush: true },
+      )
+    })
+
+    it("shows the page the URL holds, as after a reload or a shared link", async () => {
+      setup(rows, false, undefined, null, { page: 3 })
+      expect(await screen.findByText("41–41 of 41 results")).toBeInTheDocument()
+    })
+
+    it("returns to the first page when a filter or the search changes", async () => {
+      const change = setup(rows, false, undefined, null, { term: "t1", page: 2 })
+      const user = userEvent.setup()
+      await user.type(await screen.findByRole("searchbox"), "j")
+      expect(change).toHaveBeenLastCalledWith({ term: "t1", q: "j" })
+    })
+
+    it("falls back to the last existing page when the page is past the end", async () => {
+      const change = setup(rows, false, undefined, null, { page: 9 })
+      expect(await screen.findByText("41–41 of 41 results")).toBeInTheDocument()
+      await waitFor(() => expect(change).toHaveBeenCalledWith({ page: 3 }, { isPush: false }))
+    })
+  })
   it("passes combined filters, displays all terms and links to payment", async () => {
     setup()
-    expect(await screen.findAllByText("jana@example.com", { exact: false })).toHaveLength(2)
+    expect(await screen.findAllByRole("button", { name: "Jana Test" })).toHaveLength(2)
     expect(screen.getAllByText("Waitlisted").length).toBeGreaterThan(0)
     expect(screen.getByRole("link", { name: "Record payment" })).toHaveAttribute(
       "href",
@@ -422,7 +458,7 @@ describe("ApplicationsPage", () => {
     expect(onFilters).toHaveBeenLastCalledWith({})
     expect(screen.queryByRole("button", { name: /Substitutes with a free bed/ })).toBeNull()
   })
-  it("keeps identifying and contact details in mobile cards for same-name participants", async () => {
+  it("reveals identifying details from the keyboard without leaving the list", async () => {
     setup([
       application,
       {
@@ -433,14 +469,35 @@ describe("ApplicationsPage", () => {
         email: "other@example.com",
       },
     ])
-    const first = await screen.findByRole("link", { name: /Jana Test.*jana@example.com/ })
-    expect(first).toHaveTextContent(formatDate("2000-01-01"))
-    expect(first).toHaveTextContent("woman")
-    expect(first).toHaveAttribute("href", "/organizer/events/e1/applications/a1")
-    const second = screen.getByRole("link", { name: /Jana Test.*other@example.com/ })
-    expect(second).toHaveTextContent(formatDate("2001-02-03"))
-    expect(second).toHaveTextContent("man")
-    expect(second).toHaveAttribute("href", "/organizer/events/e1/applications/a2")
+    const user = userEvent.setup()
+    const table = await screen.findByRole("table")
+    const [, first, second] = within(table).getAllByRole("row")
+    const firstTrigger = within(first!).getByRole("button", { name: "Jana Test" })
+    const secondTrigger = within(second!).getByRole("button", { name: "Jana Test" })
+
+    const received = formatDateTime(application.submittedAt)
+    expect(within(table).queryByRole("columnheader", { name: "Received" })).toBeNull()
+    expect(within(first!).queryByText(received, { exact: false })).toBeNull()
+    expect(firstTrigger).toHaveAttribute("aria-expanded", "false")
+    expect(within(first!).queryByText("jana@example.com")).not.toBeInTheDocument()
+
+    firstTrigger.focus()
+    await user.keyboard("{Enter}")
+    expect(firstTrigger).toHaveAttribute("aria-expanded", "true")
+    expect(within(first!).getByText(received, { exact: false })).toBeVisible()
+    await user.click(within(first!).getByText("jana@example.com"))
+    expect(firstTrigger).toHaveAttribute("aria-expanded", "true")
+    expect(screen.queryByText("Application detail page")).not.toBeInTheDocument()
+    expect(within(first!).getByText(formatDate("2000-01-01"), { exact: false })).toBeVisible()
+    expect(within(first!).getByRole("link", { name: "Record payment" })).toHaveAttribute(
+      "href",
+      "/organizer/events/e1/applications/a1",
+    )
+
+    await user.click(secondTrigger)
+    expect(within(second!).getByText("other@example.com")).toBeVisible()
+    expect(within(second!).getByText(formatDate("2001-02-03"), { exact: false })).toBeVisible()
+    expect(screen.queryByText("Application detail page")).not.toBeInTheDocument()
   })
   it("clears search and every filter from an empty result and distinguishes an event with no applications", async () => {
     const change = setup([], false, "Nobody")
@@ -464,7 +521,7 @@ describe("ApplicationsPage", () => {
   it("offers the five payment states and sends the chosen one to the API", async () => {
     const change = setup([application], false, undefined, null, {})
     const user = userEvent.setup()
-    await screen.findAllByText("jana@example.com", { exact: false })
+    await screen.findByRole("row", { name: /Jana Test/ })
     await user.click(screen.getAllByRole("combobox", { name: "Payment" })[0]!)
     expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
       "All payments",
@@ -503,7 +560,7 @@ describe("ApplicationsPage", () => {
     it("opens the detail when the row is clicked", async () => {
       setup([application], false, undefined, null, {})
       const row = await screen.findByRole("row", { name: /Jana Test/ })
-      await userEvent.setup().click(within(row).getByText("jana@example.com", { exact: false }))
+      await userEvent.setup().click(within(row).getByText("Confirmed", { exact: true }))
       expect(await screen.findByText("Application detail page")).toBeInTheDocument()
     })
     it("keeps the detail link as the keyboard path", async () => {
@@ -518,7 +575,7 @@ describe("ApplicationsPage", () => {
     it("does not open the detail when a row is selected", async () => {
       setup([application], false, undefined, null, { status: "TO_EVALUATE" })
       const user = userEvent.setup()
-      await screen.findAllByText("jana@example.com", { exact: false })
+      await screen.findByRole("row", { name: /Jana Test/ })
       const checkbox = screen.getAllByRole("checkbox", {
         name: /Select application: Jana Test/,
       })[0]!
@@ -567,7 +624,7 @@ describe("ApplicationsPage", () => {
     it("lists who is waiting in the common table, oldest first", async () => {
       setup([waiting], false, undefined, null, { status: "TO_EVALUATE" })
       const row = await screen.findByRole("row", { name: /Jana Test/ })
-      expect(within(row).getByText(/jana@example.com/)).toBeInTheDocument()
+      expect(within(row).getByRole("button", { name: "Jana Test" })).toBeVisible()
       expect(within(row).getByText("Awaiting evaluation")).toBeInTheDocument()
       expect(screen.getByText("Sorted: in order of receipt, oldest first")).toBeInTheDocument()
       expect(screen.getByRole("heading", { name: "Applications", level: 2 })).toBeVisible()
@@ -590,6 +647,32 @@ describe("ApplicationsPage", () => {
       )
     })
 
+    it("clears mobile filters while keeping the evaluation view", async () => {
+      const change = setup([waiting], false, undefined, null, { status: "TO_EVALUATE", term: "t1" })
+      const user = userEvent.setup()
+      await user.click(await screen.findByRole("button", { name: "Filters · 1" }))
+      const sheet = within(screen.getByRole("dialog", { name: "Filters" }))
+      expect(sheet.getByText(/The status is set by the chosen view/)).toBeVisible()
+
+      await user.click(sheet.getByRole("button", { name: "Clear filters" }))
+      expect(change).toHaveBeenLastCalledWith({ status: "TO_EVALUATE" })
+      expect(sheet.getByRole("button", { name: "Clear filters" })).toBeDisabled()
+    })
+
+    it.each([
+      ["TO_EVALUATE", "Awaiting evaluation"],
+      ["WAITLISTED", "Waitlisted"],
+    ] as const)("keeps the %s view when clearing an empty result", async (status, view) => {
+      const change = setup([], false, undefined, null, { status, payment: "UNPAID" })
+      const reset = await screen.findByRole("button", { name: "Clear search and filters" })
+      await userEvent.setup().click(reset)
+
+      expect(change).toHaveBeenLastCalledWith({ status })
+      expect(screen.getByRole("radio", { name: view })).toBeChecked()
+      expect(screen.getByRole("searchbox")).toHaveFocus()
+      expect(screen.queryByRole("button", { name: "Clear search and filters" })).toBeNull()
+    })
+
     it("says so when nothing waits", async () => {
       setup([], false, undefined, null, { status: "TO_EVALUATE" })
       expect(await screen.findByText("All applications are evaluated.")).toBeInTheDocument()
@@ -610,5 +693,77 @@ describe("ApplicationsPage", () => {
       await user.click(await screen.findByRole("radio", { name: "Awaiting evaluation" }))
       expect(change).toHaveBeenLastCalledWith({ status: "TO_EVALUATE" })
     })
+  })
+})
+
+/** A confirmed / waitlisted / cancelled term per index, one week each. */
+const manyTerms = (count: number) =>
+  Array.from({ length: count }, (_, index) => {
+    const start = new Date(Date.UTC(2027, 0, 1 + index * 7))
+    const end = new Date(Date.UTC(2027, 0, 7 + index * 7))
+    return {
+      id: `t${index}`,
+      name: `Term ${index}`,
+      startsOn: start.toISOString().slice(0, 10),
+      endsOn: end.toISOString().slice(0, 10),
+      status: (["CONFIRMED", "WAITLISTED", "CANCELLED"] as const)[index % 3],
+      priceCzk: 1000,
+    }
+  })
+
+describe("ApplicationsPage with a lot of content (#726, #727)", () => {
+  const longName = "Maximiliána-Alexandra-Hohenlohe-Schillingsfürstová-".repeat(2)
+  const longEmail = `${"a".repeat(100)}@${"b".repeat(40)}.example.com`
+
+  it("lets a long name and e-mail wrap inside a bounded participant column (#726)", async () => {
+    setup(
+      [{ ...application, firstName: longName, lastName: "Novák", email: longEmail }],
+      false,
+      undefined,
+      null,
+      {},
+    )
+    const trigger = (await screen.findAllByRole("button", { name: new RegExp(longName) }))[0]!
+    const cell = trigger.closest("td")!
+    expect(cell).toHaveClass("whitespace-normal", "max-w-72")
+    expect(trigger.querySelector(".wrap-anywhere")).not.toBeNull()
+    await userEvent.setup().click(trigger)
+    const email = screen.getAllByText(longEmail)[0]!
+    expect(email.closest(".wrap-anywhere")).not.toBeNull()
+  })
+
+  it("collapses a hundred terms to three, a summary and a button to show them all (#727)", async () => {
+    const user = userEvent.setup()
+    setup([{ ...application, terms: manyTerms(100) }], false, undefined, null, {})
+    const toggle = (await screen.findAllByRole("button", { name: "Show all (100)" }))[0]!
+    const list = document.getElementById(toggle.getAttribute("aria-controls")!)!
+    expect(toggle).toHaveAttribute("aria-expanded", "false")
+    expect(list.children).toHaveLength(3)
+    expect(
+      screen.getAllByText(/\+ 97 more terms: .*confirmed.*waitlisted.*cancelled/)[0]!,
+    ).toBeVisible()
+    await user.click(toggle)
+    expect(toggle).toHaveAttribute("aria-expanded", "true")
+    expect(list.children).toHaveLength(100)
+    await user.click(screen.getAllByRole("button", { name: "Show fewer" })[0]!)
+    expect(list.children).toHaveLength(3)
+  })
+
+  it("keeps a row with up to three terms as it was, without a summary (#727)", async () => {
+    setup([{ ...application, terms: manyTerms(3) }], false, undefined, null, {})
+    await screen.findAllByRole("button", { name: "Jana Test" })
+    expect(screen.queryByRole("button", { name: /Show all/ })).not.toBeInTheDocument()
+  })
+
+  it("always shows the term the list is filtered by, even when it is the 77th (#727)", async () => {
+    setup([{ ...application, terms: manyTerms(100) }], false, undefined, null, { term: "t77" })
+    const toggle = (await screen.findAllByRole("button", { name: "Show all (100)" }))[0]!
+    const list = document.getElementById(toggle.getAttribute("aria-controls")!)!
+    expect(list.children).toHaveLength(3)
+    expect(list.firstElementChild).toHaveTextContent(
+      formatDateRange(manyTerms(100)[77]!.startsOn, manyTerms(100)[77]!.endsOn, {
+        shouldShowYear: true,
+      }),
+    )
   })
 })

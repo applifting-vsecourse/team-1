@@ -7,10 +7,10 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
+import { BackButton } from "@/components/atoms/BackLink"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { PasswordInput } from "@/components/molecules/PasswordInput"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -150,15 +150,7 @@ export function ChangePasswordForm() {
 
         {/* Desktop: secondary left, primary right; phone: primary on top (Togena / Dialog actions). */}
         <div className="flex flex-col-reverse gap-3 md:flex-row">
-          <Button
-            type="button"
-            variant="ghost"
-            size="lg"
-            className="h-12 rounded-lg md:flex-1"
-            onClick={goBack}
-          >
-            {t("changePassword.back")}
-          </Button>
+          <BackButton onClick={goBack}>{t("changePassword.back")}</BackButton>
           <PendingButton
             type="submit"
             size="lg"

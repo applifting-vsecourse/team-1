@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { CalendarDays } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -46,13 +47,14 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const { data, isPending, error, refetch } = useQuery(myApplicationQueryOptions(applicationId))
   const edit = useQuery({ ...applicationEditQueryOptions(applicationId), enabled: Boolean(data) })
   const [changeMode, setChangeMode] = useState<ChangeMode | null>(null)
+  const [editRoomWishesTerm, setEditRoomWishesTerm] = useState<string | null>(null)
 
   const back = <BackLink to={ROUTES.participant.applications}>{t("detail.back")}</BackLink>
 
   if (isPending) return <LoadingState />
   if (error) {
     return (
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
         {back}
         <ErrorState
           title={t("detail.errorTitle")}
@@ -68,8 +70,8 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
   const isArchived = isFullyArchived(data)
 
   return (
-    <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
         {back}
         <PageHeader
           hasBand
@@ -93,87 +95,100 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           }
         />
       </div>
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
+      <PaymentSummary application={data} />
+      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
         <section
           aria-labelledby="application-terms"
-          className="flex min-w-0 flex-col gap-6"
+          className="flex min-w-0 flex-col gap-4"
         >
-          <h2
-            id="application-terms"
-            className="text-2xl font-semibold tracking-tight"
-          >
-            {t("detail.sections.terms")}
-          </h2>
-          <p className="text-sm text-muted-foreground tabular-nums">{data.code}</p>
-          <TermSteps application={data} />
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h2
+              id="application-terms"
+              className="text-2xl font-semibold tracking-tight"
+            >
+              {t("detail.sections.terms")}
+            </h2>
+            <p className="text-sm font-medium tabular-nums">{data.code}</p>
+          </div>
+          <TermSteps
+            application={data}
+            onEditRoomWishes={setEditRoomWishesTerm}
+          />
           <TermStaySection
             applicationId={applicationId}
             terms={data.terms}
           />
-          <ParticipantTermActions
-            application={data}
-            onStart={setChangeMode}
-          />
-          {isArchived ? <ArchivedApplicationCard /> : null}
-          <ChangeRequestNotice
-            applicationId={applicationId}
-            terms={data.terms}
-          />
-        </section>
-        <aside className="grid min-w-0 gap-4">
-          <RoomSection terms={data.terms} />
-          <RoomWishesSection
-            applicationId={applicationId}
-            terms={data.terms}
-          />
-          {hasSteps ? (
-            <div>
+          {/* One row of actions: Program (or Meals and Health) first, then change / cancel the terms. */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {hasSteps ? (
               <Button
                 asChild
-                variant="secondary"
                 size="lg"
               >
                 <Link
                   to={ROUTES.participant.applicationProgram}
                   params={{ applicationId }}
                 >
+                  <CalendarDays aria-hidden />
                   {t("detail.program")}
                 </Link>
               </Button>
-            </div>
-          ) : null}
-          {hasSteps || isArchived ? null : (
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button
-                asChild
-                variant="secondary"
-                size="lg"
-              >
-                <Link
-                  to={ROUTES.participant.applicationMeals}
-                  params={{ applicationId }}
+            ) : null}
+            {hasSteps || isArchived ? null : (
+              <>
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
                 >
-                  {t("detail.meals")}
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="secondary"
-                size="lg"
-              >
-                <Link
-                  to={ROUTES.participant.applicationHealth}
-                  params={{ applicationId }}
+                  <Link
+                    to={ROUTES.participant.applicationMeals}
+                    params={{ applicationId }}
+                  >
+                    {t("detail.meals")}
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="lg"
                 >
-                  {t("detail.health")}
-                </Link>
-              </Button>
-            </div>
-          )}
+                  <Link
+                    to={ROUTES.participant.applicationHealth}
+                    params={{ applicationId }}
+                  >
+                    {t("detail.health")}
+                  </Link>
+                </Button>
+              </>
+            )}
+            <ParticipantTermActions
+              application={data}
+              onStart={setChangeMode}
+              className="contents sm:contents"
+            />
+          </div>
+          {isArchived ? <ArchivedApplicationCard /> : null}
+          <ChangeRequestNotice
+            applicationId={applicationId}
+            terms={data.terms}
+          />
+          <RoomSection terms={data.terms} />
+          <RoomWishesSection
+            applicationId={applicationId}
+            terms={data.terms}
+            editingTermId={editRoomWishesTerm}
+            onStartEditing={setEditRoomWishesTerm}
+            onStopEditing={(termId) =>
+              setEditRoomWishesTerm((current) => (current === termId ? null : current))
+            }
+          />
+        </section>
+        <aside className="grid min-w-0 gap-4">
           {(Boolean(edit.data?.phone) ||
             data.applicantEmail !== undefined ||
             (data.birthDate !== undefined && data.gender !== undefined)) && (
-            <Card className="min-w-0 gap-4 p-4 sm:p-6">
+            <Card className="min-w-0 gap-3 p-4">
               <h2 className="text-xl font-semibold">{t("detail.participantCard")}</h2>
               {data.birthDate && data.gender && (
                 <DetailItem label={t("detail.birthGender")}>
@@ -198,9 +213,6 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           )}
           <OrganizationContact contact={data.organizationContact} />
         </aside>
-      </div>
-      <div className="mx-auto w-full max-w-[944px]">
-        <PaymentSummary application={data} />
       </div>
       {edit.error ? (
         <ErrorState

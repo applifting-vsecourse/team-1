@@ -35,18 +35,19 @@ test.describe("Waitlist", () => {
     const changeTerm = waitlistedTerm.getByRole("button", { name: "Change term", exact: true })
     await expect(changeStatus).toBeVisible()
     await expect(changeTerm).toBeVisible()
+    // The term actions share one row of normal-size buttons; none is a full-width block (#754).
     const [statusBounds, termBounds] = await Promise.all(
       [changeStatus, changeTerm].map((action) =>
         action.evaluate((button) => {
-          const { bottom, left, top, width } = button.getBoundingClientRect()
-          return { bottom, left, top, width }
+          const { height, left, top, width } = button.getBoundingClientRect()
+          return { height, left, top, width }
         }),
       ),
     )
-
-    expect(statusBounds.bottom).toBeLessThan(termBounds.top)
-    expect(statusBounds.left).toBeCloseTo(termBounds.left)
-    expect(statusBounds.width).toBeCloseTo(termBounds.width)
+    expect(statusBounds.height).toBeLessThanOrEqual(44)
+    expect(statusBounds.width).toBeLessThan(300)
+    expect(statusBounds.top).toBeCloseTo(termBounds.top)
+    expect(statusBounds.left).toBeLessThan(termBounds.left)
 
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth))

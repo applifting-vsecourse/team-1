@@ -11,6 +11,13 @@ beforeEach(() => {
 })
 
 describe("applications search session", () => {
+  it("never remembers the page, it lives in the URL (#734)", () => {
+    saveApplicationsSearch("e1", { payment: "UNPAID", page: 3 })
+    expect(readApplicationsSearch("e1")).toEqual({ payment: "UNPAID" })
+    saveApplicationsSearch("e2", { page: 2 })
+    expect(readApplicationsSearch("e2")).toEqual({})
+  })
+
   it("stores every filter separately for each event", () => {
     const filters = {
       q: "Jana",

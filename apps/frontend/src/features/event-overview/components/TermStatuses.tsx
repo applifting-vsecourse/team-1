@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { LogOut } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -9,12 +9,10 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
-import { termDatesLine } from "@/lib/term-label"
+import { termDates, termName, termTitle } from "@/lib/term-label"
 
-import {
-  termStatusesQueryOptions,
-  type TermStatusDetail,
-} from "@/features/event-overview/api/termStatus"
+import type { PaymentApplication } from "@/features/event-overview/api/payments"
+import type { TermStatusDetail } from "@/features/event-overview/api/termStatus"
 import { OrganizerTermChange } from "@/features/event-overview/components/OrganizerTermChange"
 import { OrganizerWithdrawal } from "@/features/event-overview/components/OrganizerWithdrawal"
 import { TermStatusChange } from "@/features/event-overview/components/TermStatusChange"
@@ -24,9 +22,16 @@ const NEGATIVE = "transition-colors hover:bg-destructive/75"
 // Figma (Design system): #244 Stav v termínech · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=19799-67758 (mobile: 19799-67905)
 // Figma (Design system): #364 Detail přihlášky · pořadí u termínu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=22642-89925 (360 px: 22642-90090)
 // Empty: 19799-67980 / 19799-68116. Existing withdrawal, term change and audit history remain available.
-export function TermStatuses({ applicationId }: { applicationId: string }) {
+export function TermStatuses({
+  applicationId,
+  query: { data, isPending, error, refetch },
+  application,
+}: {
+  applicationId: string
+  query: UseQueryResult<TermStatusDetail[]>
+  application: PaymentApplication | undefined
+}) {
   const { t } = useTranslation("eventOverview")
-  const { data, isPending, error, refetch } = useQuery(termStatusesQueryOptions(applicationId))
   const [change, setChange] = useState<TermStatusDetail | null>(null)
   // US-32: the term the withdrawal dialog opens on; `null` there means the whole application.
   const [withdrawal, setWithdrawal] = useState<{ termId: string | null } | null>(null)
@@ -43,7 +48,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
   const active = data.filter((term) => term.status !== "CANCELLED" && term.status !== "ARCHIVED")
   return (
     <section
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-3"
       aria-labelledby="term-statuses-title"
     >
       <div className="flex flex-col gap-1">
@@ -67,31 +72,37 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
         </div>
       ) : null}
       {data.length === 0 ? (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
           <p>{t("termStatus.emptyDescription")}</p>
           <OrganizerTermChange
             applicationId={applicationId}
+            application={application}
             term={null}
           />
         </div>
       ) : null}
-      <ul className="flex flex-col gap-6">
+      <ul className="flex flex-col gap-3">
         {data.map((term) => (
           <li
             key={term.termId}
             className="list-none"
           >
-            <Card className="gap-4 p-4">
-              <h3 className="text-2xl font-semibold tracking-tight">
-                {term.name ?? termDatesLine(term)} ·{" "}
-                {t(
-                  term.status === "CONFIRMED"
-                    ? term.owedCzk > 0
-                      ? "termStatus.confirmedWithDebt"
-                      : "termStatus.confirmedPaid"
-                    : `termStatus.state.${term.status}`,
-                )}
-              </h3>
+            <Card className="gap-2 p-3 sm:p-4">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h3 className="text-lg font-semibold tracking-tight">
+                  {termTitle(term)} ·{" "}
+                  {t(
+                    term.status === "CONFIRMED"
+                      ? term.owedCzk > 0
+                        ? "termStatus.confirmedWithDebt"
+                        : "termStatus.confirmedPaid"
+                      : `termStatus.state.${term.status}`,
+                  )}
+                </h3>
+                {termName(term) ? (
+                  <span className="text-sm font-medium tabular-nums">{termDates(term)}</span>
+                ) : null}
+              </div>
               {term.status === "WAITLISTED" && term.waitlistPosition !== null ? (
                 <p className="text-sm font-bold">
                   {t("termStatus.waitlistPosition", { position: term.waitlistPosition })}
@@ -110,36 +121,38 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
                   },
                 )}
               </p>
-              {term.allowedStatuses.some(
-                (status) =>
-                  term.status !== "CONFIRMED" || (status === "WAITLISTED" && term.owedCzk > 0),
-              ) ? (
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="h-12 w-full"
-                  onClick={() => setChange(term)}
-                >
-                  {t("termStatus.change")}
-                </Button>
-              ) : null}
-              {term.status !== "CANCELLED" && term.status !== "ARCHIVED" ? (
-                <div className="flex w-full flex-col gap-2 *:w-full sm:w-auto sm:flex-row sm:flex-wrap sm:*:w-auto">
-                  <OrganizerTermChange
-                    applicationId={applicationId}
-                    term={term}
-                  />
-                  {term.status === "CONFIRMED" ? (
-                    <Button
-                      variant="destructive"
-                      className={NEGATIVE}
-                      onClick={() => setWithdrawal({ termId: term.termId })}
-                    >
-                      {t("withdrawal.trigger")}
-                    </Button>
-                  ) : null}
-                </div>
-              ) : null}
+              {/* Change, move and withdraw sit in one row; none is a full-width block. */}
+              <div className="flex flex-wrap gap-2">
+                {term.allowedStatuses.some(
+                  (status) =>
+                    term.status !== "CONFIRMED" || (status === "WAITLISTED" && term.owedCzk > 0),
+                ) ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => setChange(term)}
+                  >
+                    {t("termStatus.change")}
+                  </Button>
+                ) : null}
+                {term.status !== "CANCELLED" && term.status !== "ARCHIVED" ? (
+                  <>
+                    <OrganizerTermChange
+                      applicationId={applicationId}
+                      application={application}
+                      term={term}
+                    />
+                    {term.status === "CONFIRMED" ? (
+                      <Button
+                        variant="destructive"
+                        className={NEGATIVE}
+                        onClick={() => setWithdrawal({ termId: term.termId })}
+                      >
+                        {t("withdrawal.trigger")}
+                      </Button>
+                    ) : null}
+                  </>
+                ) : null}
+              </div>
             </Card>
             {term.history.length > 0 ? (
               <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
@@ -166,6 +179,7 @@ export function TermStatuses({ applicationId }: { applicationId: string }) {
       {withdrawal ? (
         <OrganizerWithdrawal
           applicationId={applicationId}
+          application={application}
           terms={active}
           initialTermId={withdrawal.termId}
           onClose={() => setWithdrawal(null)}
