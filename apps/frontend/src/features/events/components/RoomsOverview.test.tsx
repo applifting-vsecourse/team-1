@@ -177,6 +177,9 @@ describe("RoomsOverview (US-36)", () => {
     const a = within(await roomCard("Room A"))
     expect(a.getByText("2 / 4")).toBeInTheDocument()
     expect(a.getByText("2 free beds")).toBeInTheDocument()
+    expect(
+      a.getByRole("button", { name: "Beds · Room A · Eva Horká and 3 more" }),
+    ).toHaveTextContent("Eva Horká and 3 more")
     expect(a.getByText("Eva Horká")).toBeInTheDocument()
     expect(a.getByText("b. 2010")).toBeInTheDocument()
     expect(a.getByText("Jana Nováková")).toBeInTheDocument()
@@ -240,7 +243,11 @@ describe("RoomsOverview (US-36)", () => {
   it("shows every bed free when nobody is assigned", async () => {
     data.rooms = [room("r1", "Room A", 3), room("r2", "Room B", 2)]
     renderOverview()
-    expect(within(await roomCard("Room A")).getAllByText("Free bed")).toHaveLength(3)
+    const a = within(await roomCard("Room A"))
+    expect(
+      a.getByRole("button", { name: "Beds · Room A · Free bed and 2 more" }),
+    ).toHaveTextContent("Free bed and 2 more")
+    expect(a.getAllByText("Free bed")).toHaveLength(3)
     expect(screen.getAllByText("Free bed")).toHaveLength(5)
   })
 
@@ -318,7 +325,7 @@ describe("RoomsOverview (US-36)", () => {
     it("moves a person from the menu with the same dialog as the assignment", async () => {
       const user = renderOverview()
       const card = within(await roomCard("Room A"))
-      await user.click(card.getByRole("button", { name: "Beds · Room A" }))
+      await user.click(card.getByRole("button", { name: "Beds · Room A · Eva Horká and 3 more" }))
       await user.click(card.getByRole("button", { name: "Actions for Jana Nováková" }))
       await user.click(await screen.findByRole("menuitem", { name: "Move to another room…" }))
       expect(
@@ -330,7 +337,7 @@ describe("RoomsOverview (US-36)", () => {
       del.mockReturnValue(Promise.resolve({}))
       const user = renderOverview()
       const card = within(await roomCard("Room A"))
-      await user.click(card.getByRole("button", { name: "Beds · Room A" }))
+      await user.click(card.getByRole("button", { name: "Beds · Room A · Eva Horká and 3 more" }))
       await user.click(card.getByRole("button", { name: "Actions for Jana Nováková" }))
       await user.click(await screen.findByRole("menuitem", { name: "Remove from room" }))
       await vi.waitFor(() => expect(del).toHaveBeenCalledOnce())

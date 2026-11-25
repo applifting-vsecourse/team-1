@@ -368,16 +368,28 @@ function AssignedParticipants({
   onRemoveParticipant,
 }: ComponentProps<typeof Chips>) {
   const { t } = useTranslation("events")
-  if (!room.participants.length) return null
+  const first = room.participants[0]
+  if (!first) return null
 
+  const name = participantName(first)
+  const remaining = room.participants.length - 1
+  const summary = remaining
+    ? t("roomAssignments.listPreview", { first: name, count: remaining })
+    : name
   return (
     <Accordion
       type="single"
       collapsible
     >
       <AccordionItem value={room.id}>
-        <AccordionTrigger className="min-h-11 items-center gap-2 py-2">
-          {t("roomAssignments.participantsColumn")}
+        <AccordionTrigger
+          className="min-h-11 items-center gap-2 py-2"
+          aria-label={t("roomAssignments.listLabel", {
+            list: t("roomAssignments.participantsColumn"),
+            summary,
+          })}
+        >
+          <span className="min-w-0 wrap-anywhere">{summary}</span>
         </AccordionTrigger>
         <AccordionContent className="pb-2">
           <Chips

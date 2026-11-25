@@ -109,9 +109,10 @@ for (const viewport of [
       await page.goto(`${eventPath}/rooms`)
       const edit = page.getByRole("button", { name: `Edit room ${room.name}`, exact: true })
       const row = page.getByRole(touch ? "listitem" : "row").filter({ has: edit })
-      const trigger = row.getByRole("button", { name: "Participants", exact: true })
+      const trigger = row.getByRole("button", { name: /^Participants · / })
       const actions = row.getByRole("button", { name: `Actions for ${participant}` })
       await expectFitsViewport(page, row, edit, trigger)
+      if (count > 1) await expect(trigger).toContainText(`and ${count - 1} more`)
       await expect(row.getByText(`${count} / ${room.beds}`, { exact: true })).toBeVisible()
       await expect(actions).toBeHidden()
       await disclose(trigger, touch)
@@ -128,9 +129,11 @@ for (const viewport of [
       const card = page.getByRole("listitem").filter({
         has: page.getByRole("heading", { name: room.name, exact: true, level: 3 }),
       })
-      const beds = card.getByRole("button", { name: `Beds · ${room.name}`, exact: true })
-      const person = card.getByText(participant, { exact: true })
+      const beds = card.getByRole("button", { name: `Beds · ${room.name} ·` })
+      const person = card.locator("ul").getByText(participant, { exact: true })
       await expectFitsViewport(page, beds)
+      const otherBeds = Math.max(count, room.beds) - 1
+      if (otherBeds > 0) await expect(beds).toContainText(`and ${otherBeds} more`)
       await expect(person).toBeHidden()
       await expect(card.getByText(`${count} / ${room.beds}`, { exact: true })).toBeVisible()
       await disclose(beds, touch)

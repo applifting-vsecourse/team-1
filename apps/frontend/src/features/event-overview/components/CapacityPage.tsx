@@ -132,16 +132,16 @@ function Filled({
   capacity: number
 }) {
   return (
-    <span className="flex items-center gap-2">
+    <span className="flex min-w-0 flex-1 items-center gap-2">
       <CapacityProgress
         confirmed={confirmed}
         capacity={capacity}
         label={label}
-        className="w-30 shrink-0"
+        className="min-w-0 flex-1 lg:max-w-30"
       />
       <span
         className={cn(
-          "text-sm font-medium tabular-nums",
+          "shrink-0 text-sm font-medium whitespace-nowrap tabular-nums",
           confirmed > capacity && "text-destructive",
         )}
       >
