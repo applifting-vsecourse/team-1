@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { HTTPError, NetworkError, TimeoutError } from "ky"
 import { useTranslation } from "react-i18next"
 
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -9,6 +10,15 @@ import { formatDate } from "@/lib/date"
 
 import { boardKeys, boardPostQueryOptions, markPostRead } from "@/features/board/api/board"
 import { termsLabel } from "@/features/board/lib/post-label"
+
+const READ_RETRIES = 3
+
+/** A failure that may pass by itself; a refusal (403, 404, ...) would only repeat. */
+const isPassing = (error: Error) =>
+  error instanceof NetworkError ||
+  error instanceof TimeoutError ||
+  (error instanceof HTTPError &&
+    (error.response.status >= 500 || [408, 429].includes(error.response.status)))
 
 /**
  * One post with its whole text. Opening it is what makes it no longer new: the account's read
@@ -22,6 +32,9 @@ export function BoardPostDetail({ postId }: { postId: string }) {
   const query = useQuery(boardPostQueryOptions(postId))
   const read = useMutation({
     mutationFn: markPostRead,
+    // The post is shown anyway, so a lost read mark would silently leave it "new". The write is
+    // idempotent; the default delay grows between the attempts (1, 2, 4 s).
+    retry: (failures, error) => failures < READ_RETRIES && isPassing(error),
     onSuccess: async () => {
       // The bell lives in features/notifications, which a feature does not import: its key by name.
       await Promise.all([

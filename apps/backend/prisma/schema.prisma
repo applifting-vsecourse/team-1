@@ -800,19 +800,18 @@ enum NotificationType {
 // applicants with an application in one of them in the status CONFIRMED or WAITLISTED see it.
 // Plain text, line breaks kept.
 model EventPost {
-  id             String          @id @default(cuid())
-  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String
-  event          Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId        String
   title          String
-  body           String          @db.Text
-  // The organizer who wrote it; null for a post made by the system (the bulk message, US-57).
-  createdBy      User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  body           String       @db.Text
+  // The organizer who wrote it; null once their account is deleted.
+  createdBy      User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
   createdById    String?
-  source         EventPostSource @default(MANUAL)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @default(now()) @updatedAt
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
 
   terms         EventPostTerm[]
   reads         EventPostRead[]
@@ -821,12 +820,6 @@ model EventPost {
   @@index([organizationId])
   @@index([eventId, createdAt])
   @@map("event_post")
-}
-
-enum EventPostSource {
-  MANUAL
-  // Prepared for US-57: a bulk message lands on the board by itself. Nothing creates it yet.
-  BULK_MESSAGE
 }
 
 // The terms a post is shown for.

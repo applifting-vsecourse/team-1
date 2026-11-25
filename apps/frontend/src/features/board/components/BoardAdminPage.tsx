@@ -8,7 +8,6 @@ import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { ListSkeleton } from "@/components/molecules/ListSkeleton"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -81,12 +80,7 @@ export function BoardAdminPage({ eventId }: { eventId: string }) {
               {posts.map((post) => (
                 <TableRow key={post.id}>
                   <TableCell className="px-4 py-1.5 font-medium whitespace-normal">
-                    <span className="flex flex-wrap items-center gap-2">
-                      {post.title}
-                      {post.source === "BULK_MESSAGE" ? (
-                        <Badge variant="neutral">{t("admin.bulkMessage")}</Badge>
-                      ) : null}
-                    </span>
+                    {post.title}
                   </TableCell>
                   <TableCell className="px-4 py-1.5 whitespace-normal">
                     {termsLabel(post.terms, post.eventTermCount, t)}

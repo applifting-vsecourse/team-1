@@ -92,7 +92,18 @@ const respondWith = (value: unknown) => get.mockReturnValue({ json: () => Promis
 describe("ApplicationList", () => {
   beforeEach(() => get.mockReset())
 
-  it("puts the badge of the board next to each application", async () => {
+  it("puts the badge of the board under the participant's data, not beside the name (360 px)", async () => {
+    respondWith([application()])
+    renderList(() => <span>Nové příspěvky</span>)
+
+    const badge = await screen.findByText("Nové příspěvky")
+    const heading = screen.getByRole("heading", { level: 3, name: /Jana Nováková/ })
+    // In the column of the name it can never take width away from it (Figma C5).
+    expect(heading.parentElement).toContainElement(badge)
+    expect(heading.parentElement).not.toContainElement(screen.getByText("Unpaid"))
+  })
+
+  it("puts the badge of the board on each application", async () => {
     respondWith([application({ id: "a1" }), application({ id: "a2", firstName: "Adam" })])
     renderList((id) => <span>Nové příspěvky {id}</span>)
 

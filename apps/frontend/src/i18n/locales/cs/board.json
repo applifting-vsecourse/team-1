@@ -1,6 +1,5 @@
 {
   "admin": {
-    "bulkMessage": "Hromadná zpráva",
     "columns": {
       "actions": "Akce",
       "published": "Zveřejněno",

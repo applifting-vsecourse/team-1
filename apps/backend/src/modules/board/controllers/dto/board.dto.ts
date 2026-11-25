@@ -1,7 +1,6 @@
 import {
   BoardSummary,
   BoardTerm,
-  EventPostSource,
   OrganizerPost,
   OrganizerPostItem,
   ParticipantPost,
@@ -40,7 +39,6 @@ export class OrganizerPostItemDto {
   @ApiProperty() id!: string
   @ApiProperty() title!: string
   @ApiProperty() createdAt!: string
-  @ApiProperty({ enum: ["MANUAL", "BULK_MESSAGE"] }) source!: EventPostSource
   @ApiProperty({ type: [BoardTermDto] }) terms!: BoardTermDto[]
   @ApiProperty({ description: "Active terms of the event" }) eventTermCount!: number
 
@@ -49,7 +47,6 @@ export class OrganizerPostItemDto {
       id: post.id,
       title: post.title,
       createdAt: post.createdAt.toISOString(),
-      source: post.source,
       terms: post.terms,
       eventTermCount: post.eventTermCount,
     }

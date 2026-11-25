@@ -3,7 +3,6 @@ import { Prisma } from "@/generated/prisma/client"
 import {
   BoardSummary,
   BoardTerm,
-  EventPostSource,
   OrganizerPost,
   OrganizerPostItem,
   ParticipantPost,
@@ -50,7 +49,6 @@ const toOrganizerItem = (row: PostRow): OrganizerPostItem => ({
   id: row.id,
   title: row.title,
   createdAt: row.createdAt,
-  source: row.source as EventPostSource,
   terms: row.terms.map((item) => toTerm(item.term)),
   eventTermCount: row.event._count.terms,
 })
@@ -290,13 +288,16 @@ export class BoardRepository {
     return this.toParticipantPost(row, visible, (await this.readIds(userId, [id])).has(id))
   }
 
-  /** Opening a post: remembered once per account, and its notification is read with it. */
+  /**
+   * Opening a post: remembered once per account, and its notification is read with it. One insert
+   * that skips an existing row, not an upsert: Prisma would select first, and two first opens at
+   * the same moment (two tabs) would then end one of them on the unique constraint.
+   */
   async markRead(userId: string, postId: string): Promise<void> {
     await this.prisma.$transaction([
-      this.prisma.eventPostRead.upsert({
-        where: { postId_userId: { postId, userId } },
-        create: { postId, userId },
-        update: {},
+      this.prisma.eventPostRead.createMany({
+        data: [{ postId, userId }],
+        skipDuplicates: true,
       }),
       this.prisma.notification.updateMany({
         where: { userId, eventPostId: postId, readAt: null },

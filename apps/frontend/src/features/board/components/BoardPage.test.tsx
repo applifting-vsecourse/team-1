@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { HTTPError } from "ky"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { BoardPage } from "@/features/board/components/BoardPage"
@@ -56,6 +57,13 @@ function serve(posts: ReturnType<typeof item>[] | Error) {
   })
 }
 
+const httpError = (status: number) =>
+  new HTTPError(
+    new Response(null, { status }),
+    new Request("http://localhost/api/participant/board/posts/p1/read", { method: "POST" }),
+    {} as ConstructorParameters<typeof HTTPError>[2],
+  )
+
 function renderPage(postId?: string, applicationId?: string) {
   const root = createRootRoute()
   const list = createRoute({
@@ -93,7 +101,12 @@ function renderPage(postId?: string, applicationId?: string) {
   })
   render(
     <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      client={
+        new QueryClient({
+          // No waiting between the attempts of a mutation that retries.
+          defaultOptions: { queries: { retry: false }, mutations: { retryDelay: 0 } },
+        })
+      }
     >
       <RouterProvider router={router} />
     </QueryClientProvider>,
@@ -129,6 +142,42 @@ describe("BoardPage", () => {
     await waitFor(() => {
       expect(screen.getByRole("link", { name: /Příspěvek p1/ })).not.toHaveTextContent("New")
     })
+  })
+
+  it("tries the read mark again after a passing error and the badge goes away", async () => {
+    serve([item("p1", true)])
+    post.mockRejectedValueOnce(httpError(503))
+    renderPage("p1")
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: /Příspěvek p1/ })).not.toHaveTextContent("New")
+    })
+    expect(post).toHaveBeenCalledTimes(2)
+  })
+
+  it("gives up after three more attempts when the server stays unavailable", async () => {
+    serve([item("p1", true)])
+    post.mockImplementation(() => Promise.reject(httpError(503)))
+    renderPage("p1")
+
+    await waitFor(() => {
+      expect(post).toHaveBeenCalledTimes(4)
+    })
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(post).toHaveBeenCalledTimes(4)
+  })
+
+  it("does not repeat a read mark the server refused", async () => {
+    serve([item("p1", true)])
+    post.mockImplementation(() => Promise.reject(httpError(403)))
+    renderPage("p1")
+
+    expect(await screen.findByText("Celý text p1")).toBeVisible()
+    await waitFor(() => {
+      expect(post).toHaveBeenCalled()
+    })
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(post).toHaveBeenCalledTimes(1)
   })
 
   it("does not mark a post that is already read", async () => {

@@ -11,7 +11,6 @@ type OrganizerPost = {
   id: string
   title: string
   body: string
-  source: string
   terms: Term[]
   eventTermCount: number
 }
@@ -274,11 +273,9 @@ describe("board (integration)", () => {
       const first = await publish({ title: "První", termIds: [t1] })
       const second = await publish({ title: "Druhý" })
 
-      expect(second).toMatchObject({
-        title: "Druhý",
-        body: "Sraz v 9:00\nu nádraží",
-        source: "MANUAL",
-      })
+      expect(second).toMatchObject({ title: "Druhý", body: "Sraz v 9:00\nu nádraží" })
+      // The source of a post comes with the bulk message (US-57), the first flow that needs it.
+      expect(second).not.toHaveProperty("source")
       expect(second.terms.map((item) => item.id)).toEqual([t1, t2])
       const list = (await (await send(base(), organizer)).json()) as OrganizerPost[]
       expect(list.map((item) => item.id)).toEqual([second.id, first.id])
@@ -574,6 +571,24 @@ describe("board (integration)", () => {
       expect((await board()).find((item) => item.id === first.id)?.isNew).toBe(false)
       expect(await bellCount()).toBe(1)
       expect(await prisma.eventPostRead.count()).toBe(1)
+    })
+
+    it("answers 204 to every one of the first opens that arrive at the same moment", async () => {
+      await apply(participantId, t1, "CONFIRMED")
+      // Several rounds of several tabs: one pair of requests may happen not to overlap.
+      for (let round = 0; round < 10; round += 1) {
+        const post = await publish()
+
+        const responses = await Promise.all(
+          Array.from({ length: 8 }, () =>
+            send(`/participant/board/posts/${post.id}/read`, participant, "POST"),
+          ),
+        )
+
+        expect(responses.map((response) => response.status)).toEqual(Array(8).fill(204))
+        expect(await prisma.eventPostRead.count({ where: { postId: post.id } })).toBe(1)
+        expect(await bellCount()).toBe(0)
+      }
     })
 
     it("reads a post once for an account with two applications in its terms", async () => {

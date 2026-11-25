@@ -29,7 +29,6 @@ const posts = [
     id: "p1",
     title: "Změna programu",
     createdAt: "2027-06-14T09:05:00.000Z",
-    source: "MANUAL",
     terms: [terms[0]],
     eventTermCount: 2,
   },
@@ -37,7 +36,6 @@ const posts = [
     id: "p2",
     title: "Doplatek do 30. 6.",
     createdAt: "2027-06-09T09:05:00.000Z",
-    source: "BULK_MESSAGE",
     terms,
     eventTermCount: 2,
   },
@@ -74,7 +72,7 @@ describe("BoardAdminPage", () => {
     del.mockClear()
   })
 
-  it("lists the posts with their terms and the bulk message badge", async () => {
+  it("lists the posts with their terms", async () => {
     serve()
     renderPage()
 
@@ -83,8 +81,6 @@ describe("BoardAdminPage", () => {
     expect(within(rows[1]!).getByText("Změna programu")).toBeVisible()
     expect(within(rows[1]!).getByText("Letní týden")).toBeVisible()
     expect(within(rows[2]!).getByText("Both terms")).toBeVisible()
-    expect(within(rows[2]!).getByText("Bulk message")).toBeVisible()
-    expect(within(rows[1]!).queryByText("Bulk message")).not.toBeInTheDocument()
   })
 
   it("says what will appear when there is no post", async () => {

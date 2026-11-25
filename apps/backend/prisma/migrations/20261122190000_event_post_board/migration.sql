@@ -1,6 +1,3 @@
--- CreateEnum
-CREATE TYPE "EventPostSource" AS ENUM ('MANUAL', 'BULK_MESSAGE');
-
 -- AlterEnum
 ALTER TYPE "NotificationType" ADD VALUE 'BOARD';
 
@@ -15,7 +12,6 @@ CREATE TABLE "event_post" (
     "title" TEXT NOT NULL,
     "body" TEXT NOT NULL,
     "createdById" TEXT,
-    "source" "EventPostSource" NOT NULL DEFAULT 'MANUAL',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

@@ -1,6 +1,5 @@
 {
   "admin": {
-    "bulkMessage": "Bulk message",
     "columns": {
       "actions": "Actions",
       "published": "Published",

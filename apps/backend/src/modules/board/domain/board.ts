@@ -1,5 +1,3 @@
-export type EventPostSource = "MANUAL" | "BULK_MESSAGE"
-
 /** A term as the board shows it: the name is optional (an unnamed term shows just its dates). */
 export type BoardTerm = {
   id: string
@@ -19,7 +17,6 @@ export type OrganizerPostItem = {
   id: string
   title: string
   createdAt: Date
-  source: EventPostSource
   terms: BoardTerm[]
   /** The active terms of the event: "both terms" is only said when it has exactly two. */
   eventTermCount: number

@@ -40,7 +40,6 @@ const organizerPostItemSchema = z.object({
   id: z.string(),
   title: z.string(),
   createdAt: z.string(),
-  source: z.enum(["MANUAL", "BULK_MESSAGE"]),
   terms: z.array(termSchema),
   eventTermCount: z.number().int().nonnegative(),
 })
