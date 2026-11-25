@@ -218,7 +218,7 @@
       "modeTab": "3. Mode",
       "now": "Now · {{step}}",
       "roomLater": "In accommodation you set up the rooms and their capacity.",
-      "roomNow": "In accommodation, add rooms and their number of beds.",
+      "roomNow": "In Accommodation, choose “By gender” or “Without gender separation” for this term. Then add rooms and enter the number of beds.",
       "roomSavedBody": "One step is left: choose the evaluation mode.",
       "roomSavedTitle": "The capacity is saved",
       "roomStep": "2. Capacity",
