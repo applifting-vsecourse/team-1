@@ -19,7 +19,7 @@
     },
     "title": "What you can do in Togena",
     "waitlist": {
-      "body": "When a term fills up, further applications are marked Waitlisted.",
+      "body": "When a term fills up, further applications for that term are marked Waitlisted.",
       "title": "Confirmation and waitlist"
     }
   },
