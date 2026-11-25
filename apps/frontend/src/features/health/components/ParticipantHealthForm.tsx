@@ -8,10 +8,8 @@ import { PendingButton } from "@/components/atoms/PendingButton"
 import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
@@ -109,117 +107,114 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
 
   return (
     <form
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault()
         mutation.mutate()
       }}
     >
-      <PageHeader
-        hasBand
-        motif="forms"
-        title={t("title")}
-        description={`${health.firstName} ${health.lastName} · ${health.eventName}`}
+      <p className="text-sm text-muted-foreground">
+        {health.firstName} {health.lastName} · {health.eventName}
+      </p>
+      <Alert>
+        <AlertTitle>{t("audienceTitle")}</AlertTitle>
+        <AlertDescription>{t("audienceText")}</AlertDescription>
+      </Alert>
+      <Button
+        asChild
+        variant="outline"
+        size="lg"
+        className="w-full sm:w-auto sm:self-start"
+      >
+        <Link
+          to={ROUTES.participant.applicationMeals}
+          params={{ applicationId }}
+        >
+          {t("goMeals")}
+        </Link>
+      </Button>
+      {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
+      {isStored ? null : (
+        <CheckboxRow
+          id="health-none"
+          label={t("noRestriction")}
+          checked={hasNone}
+          onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
+        />
+      )}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor={noteId}>{t("noteLabel")}</Label>
+        <Textarea
+          id={noteId}
+          className="min-h-32"
+          maxLength={NOTE_MAX_LENGTH}
+          readOnly={isLocked}
+          disabled={hasNone}
+          value={isLocked ? (health.note ?? "") : note}
+          onChange={(event) => setNote(event.target.value)}
+        />
+      </div>
+      <CheckboxRow
+        id="health-consent"
+        label={t("consent")}
+        checked={hasConsent}
+        disabled={isLocked || hasNone}
+        onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
       />
-      <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
+      {isStored && pending ? (
         <Alert>
-          <AlertTitle>{t("audienceTitle")}</AlertTitle>
-          <AlertDescription>{t("audienceText")}</AlertDescription>
+          <AlertTitle>{t("pendingTitle")}</AlertTitle>
+          <AlertDescription>{t("pendingText")}</AlertDescription>
         </Alert>
+      ) : null}
+      {mutation.error ? (
+        <Alert variant="destructive">
+          <AlertDescription>{mutation.error.message}</AlertDescription>
+        </Alert>
+      ) : null}
+      {!hasConsent && !isLocked && !hasNone && (
+        <p className="text-sm text-muted-foreground">{t("consentHint")}</p>
+      )}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        {isLocked ? (
+          <Button
+            type="button"
+            size="lg"
+            variant="outline"
+            className="w-full sm:w-auto"
+            disabled={pending !== null}
+            onClick={() => {
+              setIsEditing(true)
+              setNote(health.note ?? "")
+              setHasConsent(false)
+            }}
+          >
+            {t("requestChange")}
+          </Button>
+        ) : (
+          <PendingButton
+            isPending={mutation.isPending}
+            type="submit"
+            size="lg"
+            className="w-full sm:w-auto"
+            disabled={!canSave || mutation.isPending}
+          >
+            {t(isStored ? "requestSubmit" : "save")}
+          </PendingButton>
+        )}
         <Button
           asChild
-          variant="ghost"
-          className="self-start"
+          variant="outline"
+          size="lg"
         >
           <Link
-            to={ROUTES.participant.applicationMeals}
+            to={ROUTES.participant.application}
             params={{ applicationId }}
           >
-            {t("goMeals")}
+            {t("cancelChanges")}
           </Link>
         </Button>
-        {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
-        {isStored ? null : (
-          <CheckboxRow
-            id="health-none"
-            label={t("noRestriction")}
-            checked={hasNone}
-            onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
-          />
-        )}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor={noteId}>{t("noteLabel")}</Label>
-          <Textarea
-            id={noteId}
-            className="min-h-32"
-            maxLength={NOTE_MAX_LENGTH}
-            readOnly={isLocked}
-            disabled={hasNone}
-            value={isLocked ? (health.note ?? "") : note}
-            onChange={(event) => setNote(event.target.value)}
-          />
-        </div>
-        <CheckboxRow
-          id="health-consent"
-          label={t("consent")}
-          checked={hasConsent}
-          disabled={isLocked || hasNone}
-          onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
-        />
-        {isStored && pending ? (
-          <Alert>
-            <AlertTitle>{t("pendingTitle")}</AlertTitle>
-            <AlertDescription>{t("pendingText")}</AlertDescription>
-          </Alert>
-        ) : null}
-        {mutation.error ? (
-          <Alert variant="destructive">
-            <AlertDescription>{mutation.error.message}</AlertDescription>
-          </Alert>
-        ) : null}
-        {!hasConsent && !isLocked && !hasNone && (
-          <p className="text-sm text-muted-foreground">{t("consentHint")}</p>
-        )}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          {isLocked ? (
-            <Button
-              type="button"
-              size="lg"
-              variant="outline"
-              className="w-full sm:w-auto"
-              disabled={pending !== null}
-              onClick={() => {
-                setIsEditing(true)
-                setNote(health.note ?? "")
-                setHasConsent(false)
-              }}
-            >
-              {t("requestChange")}
-            </Button>
-          ) : (
-            <PendingButton
-              isPending={mutation.isPending}
-              type="submit"
-              size="lg"
-              className="w-full sm:w-auto"
-              disabled={!canSave || mutation.isPending}
-            >
-              {t(isStored ? "requestSubmit" : "save")}
-            </PendingButton>
-          )}
-          <Button
-            asChild
-            variant="ghost"
-          >
-            <Link
-              to={ROUTES.participant.application}
-              params={{ applicationId }}
-            >
-              {t("cancelChanges")}
-            </Link>
-          </Button>
-        </div>
-      </Card>
+      </div>
     </form>
   )
 }

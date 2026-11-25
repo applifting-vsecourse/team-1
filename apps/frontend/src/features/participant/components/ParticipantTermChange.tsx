@@ -74,9 +74,8 @@ export function ParticipantTermActions({
         {t("change.open")}
       </Button>
       <Button
-        variant="outline"
+        variant="destructive"
         size="lg"
-        className="text-destructive hover:text-destructive"
         disabled={requests.isPending || requests.isError || isPendingRequest}
         onClick={() => onStart("cancel")}
       >

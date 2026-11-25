@@ -1,11 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
-import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
-import { Seo } from "@/components/atoms/Seo"
-
 import { ParticipantMeals } from "@/features/meals/components/ParticipantMeals"
+import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
+import { ApplicationPreferencesDialog } from "@/features/participant/components/ApplicationPreferencesDialog"
 
 export const Route = createFileRoute("/participant/_app/applications/$applicationId_/meals")({
   component: ParticipantMealsPage,
@@ -18,14 +16,14 @@ function ParticipantMealsPage() {
 
   return (
     <>
-      <Seo title={t("own.pageTitle")} />
-      <BackLink
-        to={ROUTES.participant.application}
-        params={{ applicationId }}
+      <ApplicationDetail applicationId={applicationId} />
+      <ApplicationPreferencesDialog
+        applicationId={applicationId}
+        editor="meals"
+        title={t("own.pageTitle")}
       >
-        {t("own.back")}
-      </BackLink>
-      <ParticipantMeals applicationId={applicationId} />
+        <ParticipantMeals applicationId={applicationId} />
+      </ApplicationPreferencesDialog>
     </>
   )
 }

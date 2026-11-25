@@ -180,8 +180,8 @@ function DeclineRoomWishes({ applicationId, termId }: { applicationId: string; t
   return (
     <PendingButton
       type="button"
-      variant="ghost"
-      size="sm"
+      variant="outline"
+      size="lg"
       isPending={mutation.isPending}
       onClick={() => mutation.mutate()}
     >

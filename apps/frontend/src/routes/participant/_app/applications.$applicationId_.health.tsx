@@ -1,11 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
-import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
-import { Seo } from "@/components/atoms/Seo"
-
 import { ParticipantHealthForm } from "@/features/health/components/ParticipantHealthForm"
+import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
+import { ApplicationPreferencesDialog } from "@/features/participant/components/ApplicationPreferencesDialog"
 
 export const Route = createFileRoute("/participant/_app/applications/$applicationId_/health")({
   component: ParticipantHealthPage,
@@ -18,14 +16,14 @@ function ParticipantHealthPage() {
 
   return (
     <>
-      <Seo title={t("title")} />
-      <BackLink
-        to={ROUTES.participant.application}
-        params={{ applicationId }}
+      <ApplicationDetail applicationId={applicationId} />
+      <ApplicationPreferencesDialog
+        applicationId={applicationId}
+        editor="health"
+        title={t("title")}
       >
-        {t("back")}
-      </BackLink>
-      <ParticipantHealthForm applicationId={applicationId} />
+        <ParticipantHealthForm applicationId={applicationId} />
+      </ApplicationPreferencesDialog>
     </>
   )
 }

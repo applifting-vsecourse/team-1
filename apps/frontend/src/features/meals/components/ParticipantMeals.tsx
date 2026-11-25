@@ -6,9 +6,7 @@ import { ROUTES } from "@/app/routes"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Card } from "@/components/ui/card"
 import { notify } from "@/lib/notify"
 
 import { ownMealsQueryOptions, saveOwnMeals, type OwnMeals } from "@/features/meals/api/meals"
@@ -58,38 +56,36 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
 
   return (
     <form
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault()
         mutation.mutate()
       }}
     >
-      <PageHeader
-        hasBand
-        motif="planning"
-        title={t("own.title", { name: `${meals.firstName} ${meals.lastName}` })}
-        description={meals.eventName}
+      <div className="flex flex-col gap-1">
+        <h3 className="text-lg font-semibold">
+          {t("own.title", { name: `${meals.firstName} ${meals.lastName}` })}
+        </h3>
+        <p className="text-sm text-muted-foreground">{meals.eventName}</p>
+      </div>
+      <h4 className="text-base font-semibold">{t("own.restrictions")}</h4>
+      <MealSelectionFields
+        draft={draft}
+        noneLabel={t("own.noRestrictions")}
       />
-      <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
-        <h2 className="text-2xl font-bold tracking-tight">{t("own.restrictions")}</h2>
-        <MealSelectionFields
-          draft={draft}
-          noneLabel={t("own.noRestrictions")}
-        />
-        {mutation.error ? (
-          <Alert variant="destructive">
-            <AlertDescription>{mutation.error.message}</AlertDescription>
-          </Alert>
-        ) : null}
-        <PendingButton
-          isPending={mutation.isPending}
-          type="submit"
-          size="lg"
-          className="w-full sm:w-auto sm:self-start"
-        >
-          {t("own.save")}
-        </PendingButton>
-      </Card>
+      {mutation.error ? (
+        <Alert variant="destructive">
+          <AlertDescription>{mutation.error.message}</AlertDescription>
+        </Alert>
+      ) : null}
+      <PendingButton
+        isPending={mutation.isPending}
+        type="submit"
+        size="lg"
+        className="w-full sm:w-auto sm:self-start"
+      >
+        {t("own.save")}
+      </PendingButton>
     </form>
   )
 }
