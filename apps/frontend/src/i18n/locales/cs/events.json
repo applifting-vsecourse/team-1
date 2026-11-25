@@ -129,6 +129,13 @@
     "noTerms": "Zatím bez termínu",
     "oneTerm": "{{dates}}"
   },
+  "individualRequests": {
+    "loadFailed": "Individuální požadavky se nepodařilo načíst",
+    "none": "Pro vybraný termín nikdo individuální ubytování nepožaduje.",
+    "openApplication": "Otevřít detail přihlášky: {{name}}",
+    "openApplicationShort": "Detail přihlášky",
+    "title": "Individuální požadavky na ubytování"
+  },
   "list": {
     "clearOrganization": "Zrušit filtr",
     "count_few": "{{count}} akce",
@@ -369,6 +376,7 @@
     "unassignedTitle": "Potvrzení bez pokoje",
     "viewAssignment": "Rozřazování",
     "viewOverview": "Pokoje",
+    "viewRequests": "Individuální požadavky",
     "views": "Pohled na ubytování"
   },
   "roomProposal": {

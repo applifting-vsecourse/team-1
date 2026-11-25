@@ -39,6 +39,7 @@ import {
 import { BulkRoomsDialog } from "@/features/events/components/BulkRoomsDialog"
 import { CopyRoomsDialog } from "@/features/events/components/CopyRoomsDialog"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
+import { IndividualRequestsCard } from "@/features/events/components/IndividualRequestsCard"
 import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignmentsCard"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
 import { RoomExtraBedsDialog } from "@/features/events/components/RoomExtraBedsDialog"
@@ -48,8 +49,15 @@ import { RoomsOverview } from "@/features/events/components/RoomsOverview"
 import { RoomsPublicationCard } from "@/features/events/components/RoomsPublicationCard"
 import { RoomWishesOverview } from "@/features/events/components/RoomWishesOverview"
 
-/** The two views of the accommodation: Rozřazování, from the people (US-35), and Pokoje, from the rooms (US-36, #542). */
-export type RoomsView = "assignment" | "overview"
+/** The views of the accommodation: Rozřazování, from the people (US-35), Pokoje, from the rooms (US-36, #542), and Individuální požadavky (#514). */
+export type RoomsView = "assignment" | "overview" | "requests"
+
+const VIEWS = ["assignment", "overview", "requests"] as const
+const VIEW_LABELS = {
+  assignment: "roomOverview.viewAssignment",
+  overview: "roomOverview.viewOverview",
+  requests: "roomOverview.viewRequests",
+} as const
 
 /** What the page needs to know about every active term; the route reads it from the occupancy. */
 export type AccommodationTerm = {
@@ -113,6 +121,87 @@ export function RoomsPage({
         <Seo title={t("rooms.title")} />
         <SectionHeader title={t("rooms.title")} />
         <p className="text-sm text-muted-foreground">{t("rooms.noTerms")}</p>
+      </div>
+    )
+  }
+  const termSelect = (
+    <div className="flex flex-col gap-2 sm:w-72 print:hidden">
+      <Label htmlFor="accommodation-term">{t("rooms.termLabel")}</Label>
+      <Select
+        value={selected.id}
+        onValueChange={onSelectTerm}
+      >
+        <SelectTrigger
+          id="accommodation-term"
+          className="w-full bg-card"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {terms.map((item) => (
+            <SelectItem
+              key={item.id}
+              value={item.id}
+            >
+              {termDatesLine(item)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+  // The top of every view of the accommodation, in this order: the tabs with the print button, then the term.
+  // A new view only has to be added to the tabs; it gets the print button without more work.
+  const viewBar = (
+    <div className="flex flex-col gap-6 print:hidden">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end print:hidden">
+        <ViewToggleGroup
+          aria-label={t("roomOverview.views")}
+          value={view}
+          onValueChange={(next) => {
+            // Pressing the active view again must not leave the group empty.
+            if (next === "assignment" || next === "overview" || next === "requests") {
+              onSelectView(next)
+            }
+          }}
+        >
+          {VIEWS.map((item) => (
+            <ViewToggleGroupItem
+              key={item}
+              value={item}
+            >
+              {t(VIEW_LABELS[item])}
+            </ViewToggleGroupItem>
+          ))}
+        </ViewToggleGroup>
+        {/* Printing is for the room views; a printed list of requests is out of scope (#514). */}
+        {view === "requests" ? null : (
+          <Button
+            variant="outline"
+            size="lg"
+            className="max-sm:w-full sm:ml-auto"
+            disabled={(query.data?.rooms.length ?? 0) === 0}
+            onClick={() => window.print()}
+          >
+            {t("roomOverview.print")}
+          </Button>
+        )}
+      </div>
+      {termSelect}
+    </div>
+  )
+  if (view === "requests") {
+    // The requests do not depend on the rooms: a failed rooms query must not hide them or the term switcher.
+    return (
+      <div className="flex flex-col gap-6">
+        <Seo title={t("rooms.title")} />
+        <SectionHeader title={t("rooms.title")} />
+        {viewBar}
+        <IndividualRequestsCard
+          key={selected.id}
+          eventId={eventId}
+          termId={selected.id}
+        />
       </div>
     )
   }
@@ -201,69 +290,6 @@ export function RoomsPage({
             helper: t("rooms.sharedRooms"),
           },
         ]
-  const termSelect = (
-    <div className="flex flex-col gap-2 sm:w-72 print:hidden">
-      <Label htmlFor="accommodation-term">{t("rooms.termLabel")}</Label>
-      <Select
-        value={selected.id}
-        onValueChange={onSelectTerm}
-      >
-        <SelectTrigger
-          id="accommodation-term"
-          className="w-full bg-card"
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {terms.map((item) => (
-            <SelectItem
-              key={item.id}
-              value={item.id}
-            >
-              {termDatesLine(item)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  )
-  // The top of every view of the accommodation, in this order: the tabs with the print button, then the term.
-  // A new view only has to be added to the tabs; it gets the print button without more work.
-  const viewBar = (
-    <div className="flex flex-col gap-6 print:hidden">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end print:hidden">
-        <ViewToggleGroup
-          aria-label={t("roomOverview.views")}
-          value={view}
-          onValueChange={(next) => {
-            // Pressing the active view again must not leave the group empty.
-            if (next === "assignment" || next === "overview") onSelectView(next)
-          }}
-        >
-          {(["assignment", "overview"] as const).map((item) => (
-            <ViewToggleGroupItem
-              key={item}
-              value={item}
-            >
-              {t(
-                item === "assignment" ? "roomOverview.viewAssignment" : "roomOverview.viewOverview",
-              )}
-            </ViewToggleGroupItem>
-          ))}
-        </ViewToggleGroup>
-        <Button
-          variant="outline"
-          size="lg"
-          className="max-sm:w-full sm:ml-auto"
-          disabled={term.rooms.length === 0}
-          onClick={() => window.print()}
-        >
-          {t("roomOverview.print")}
-        </Button>
-      </div>
-      {termSelect}
-    </div>
-  )
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("rooms.title")} />

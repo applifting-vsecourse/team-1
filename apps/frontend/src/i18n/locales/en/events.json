@@ -129,6 +129,13 @@
     "noTerms": "No term yet",
     "oneTerm": "{{dates}}"
   },
+  "individualRequests": {
+    "loadFailed": "Could not load individual requests",
+    "none": "Nobody has asked for individual accommodation in the selected term.",
+    "openApplication": "Open the application detail: {{name}}",
+    "openApplicationShort": "Application detail",
+    "title": "Individual accommodation requests"
+  },
   "list": {
     "clearOrganization": "Clear filter",
     "count_few": "{{count}} events",
@@ -369,6 +376,7 @@
     "unassignedTitle": "Confirmed without a room",
     "viewAssignment": "Assignment",
     "viewOverview": "Rooms",
+    "viewRequests": "Individual requests",
     "views": "Accommodation view"
   },
   "roomProposal": {

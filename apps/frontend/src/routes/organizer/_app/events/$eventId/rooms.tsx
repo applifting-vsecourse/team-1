@@ -9,10 +9,12 @@ import { occupancyQueryOptions } from "@/features/event-overview/api/occupancy"
 import { RoomsPage } from "@/features/events/components/RoomsPage"
 
 export const Route = createFileRoute("/organizer/_app/events/$eventId/rooms")({
-  validateSearch: (search: Record<string, unknown>): { termId?: string; view?: "overview" } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { termId?: string; view?: "overview" | "requests" } => ({
     termId: typeof search.termId === "string" ? search.termId : undefined,
-    // The room assignment is the page itself; only the overview (US-36) is named in the link.
-    view: search.view === "overview" ? "overview" : undefined,
+    // The room assignment is the page itself; only the other views (US-36, #514) are named in the link.
+    view: search.view === "overview" || search.view === "requests" ? search.view : undefined,
   }),
   component: EventRoomsPage,
 })
@@ -41,7 +43,7 @@ function EventRoomsPage() {
     <RoomsPage
       eventId={eventId}
       termId={termId}
-      view={view === "overview" ? "overview" : "assignment"}
+      view={view ?? "assignment"}
       terms={occupancy.data.terms}
       onSelectTerm={(next) => {
         void navigate({
@@ -53,7 +55,7 @@ function EventRoomsPage() {
       }}
       onSelectView={(next) => {
         void navigate({
-          search: (prev) => ({ ...prev, view: next === "overview" ? "overview" : undefined }),
+          search: (prev) => ({ ...prev, view: next === "assignment" ? undefined : next }),
           replace: true,
           resetScroll: false,
         })
