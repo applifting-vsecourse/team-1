@@ -782,9 +782,7 @@ describe("room assignment", () => {
       expect(await screen.findByText("rule broken")).toBeInTheDocument()
       expect(screen.queryByText("confirmed without a bed")).not.toBeInTheDocument()
       const table = screen.getByRole("table")
-      expect(
-        within(table).getByText("Overcrowded room: 2 participants for 1 bed."),
-      ).toBeInTheDocument()
+      expect(within(table).getByText("Overcrowded room · Occupancy: 2 / 1.")).toBeInTheDocument()
       expect(within(table).getByText("Overcrowded")).toBeInTheDocument()
     })
 
@@ -795,6 +793,7 @@ describe("room assignment", () => {
       const table = await screen.findByRole("table")
       await user.click(within(table).getByRole("button", { name: "Confirm with a note" }))
       const dialog = await screen.findByRole("dialog", { name: "Confirm the warning" })
+      expect(within(dialog).getByText("Overcrowded · Occupancy: 2 / 1")).toBeVisible()
       expect(
         within(dialog).getByText("Only the organizers of the event see the note."),
       ).toBeInTheDocument()

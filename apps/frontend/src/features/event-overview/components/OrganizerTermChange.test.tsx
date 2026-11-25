@@ -120,6 +120,7 @@ describe("OrganizerTermChange", () => {
 
     const dialog = await pickNewTerm(user)
     await user.click(await within(dialog).findByRole("button", { name: "Confirm the term change" }))
+    expect(screen.getByText(/Occupancy if confirmed: 50 \/ 50 → 51 \/ 50/)).toBeVisible()
     expect(put).not.toHaveBeenCalled()
     const confirm = screen.getByRole("button", { name: "Confirm the change" })
     expect(confirm).toBeDisabled()

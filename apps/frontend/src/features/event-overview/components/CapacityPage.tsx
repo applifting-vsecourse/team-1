@@ -384,7 +384,7 @@ function TermDetail({
           <CheckCircle2 aria-hidden="true" />
           <AlertTitle className="line-clamp-none">
             {t(increase.gender === "FEMALE" ? "capacity.increasedWomen" : "capacity.increasedMen", {
-              count: increase.addedBeds,
+              addedBeds: increase.addedBeds,
             })}
           </AlertTitle>
           <AlertDescription>
@@ -415,7 +415,7 @@ function TermDetail({
                   gender: t(gender === "FEMALE" ? "capacity.women" : "capacity.men"),
                   excess: -byGender[gender].free,
                   confirmed: byGender[gender].confirmed,
-                  count: byGender[gender].capacity,
+                  capacity: byGender[gender].capacity,
                 })}
               </p>
             ))}
