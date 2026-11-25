@@ -5,6 +5,8 @@ import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 
+// #764 reuses the transport dialog pattern over the application detail for both preferences forms.
+// Figma (Design system v2): #402 / Výběr způsobu dopravy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-39327 (360 px: https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-39416)
 export function ApplicationPreferencesDialog({
   applicationId,
   editor,
