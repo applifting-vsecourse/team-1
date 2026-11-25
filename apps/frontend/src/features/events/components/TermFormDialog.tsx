@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { isIsoDate } from "@/lib/date-input"
+import { cn } from "@/lib/utils"
 
 import type { EventTerm } from "@/features/events/api/terms"
 import { TermRangeCalendar } from "@/features/events/components/TermRangeCalendar"
@@ -124,7 +125,12 @@ export function TermFormDialog({
       open
       onOpenChange={(isOpen) => (isOpen ? undefined : onClose())}
     >
-      <DialogContent className="max-h-dvh max-w-full gap-4 overflow-y-auto p-4 sm:max-h-[calc(100dvh-2rem)] sm:max-w-[800px] sm:p-6">
+      <DialogContent
+        className={cn(
+          "gap-4 p-4 sm:max-w-200 sm:p-6",
+          !term && "max-h-dvh max-w-full sm:max-h-[calc(100dvh-2rem)]",
+        )}
+      >
         <DialogHeader>
           <p className="text-xs font-medium text-muted-foreground uppercase">{eventName}</p>
           <DialogTitle className="text-lg tracking-tight">

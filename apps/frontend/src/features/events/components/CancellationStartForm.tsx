@@ -85,10 +85,10 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
     >
       <form
         noValidate
-        className="flex flex-1 flex-col gap-4"
+        className="flex flex-col gap-3"
         onSubmit={submit}
       >
-        <div className="flex min-h-10 items-center gap-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <Switch
             id="cancellation-start-enabled"
             checked={isEnabled}
@@ -107,7 +107,6 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
           </Label>
           <Badge
             variant={isEnabled ? "success" : "secondary"}
-            className="ml-auto"
           >
             {t(isEnabled ? "cancellationStart.on" : "cancellationStart.off")}
           </Badge>
@@ -137,7 +136,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
             ) : null}
           </div>
         ) : null}
-        <p className="mt-auto text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {t(isEnabled ? "cancellationStart.afterDate" : "cancellationStart.noDate")}
         </p>
         {mutation.isError ? (

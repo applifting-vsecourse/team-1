@@ -53,11 +53,11 @@ export function EventSettings({ eventId }: { eventId: string }) {
     )
   }
 
-  // Row-based and equally tall: evaluation | approval, then public details and delete full width.
+  // Evaluation and approval sit side by side, with public details and deletion below.
   return (
     <div className="flex flex-col gap-6">
       <SectionHeader title={t("settings.title")} />
-      <CardGrid className="items-stretch">
+      <CardGrid className="items-start">
         {event.evaluationModeLocked ? (
           <LockedMode mode={event.evaluationMode} />
         ) : (
