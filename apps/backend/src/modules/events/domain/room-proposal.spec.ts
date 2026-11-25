@@ -4,8 +4,12 @@ import {
   proposeRoomAssignments,
 } from "@/modules/events/domain/room-proposal"
 
-const room = (id: string, freeBeds: number, gender: ProposalRoom["gender"], occupants = []) =>
-  ({ id, freeBeds, gender, occupants }) satisfies ProposalRoom
+const room = (
+  id: string,
+  freeBeds: number,
+  gender: ProposalRoom["gender"],
+  occupants: ProposalRoom["occupants"] = [],
+) => ({ id, freeBeds, gender, occupants }) satisfies ProposalRoom
 
 let counter = 0
 const person = (
@@ -87,10 +91,53 @@ describe("proposeRoomAssignments", () => {
     const friend = { applicationTermId: "friend", firstName: "Karel", lastName: "Dvořák" }
     const p = person("Tomáš", "Novotný", "MALE", ["Karel Dvořák"])
     const result = proposeRoomAssignments({
-      rooms: [room("empty", 4, "MALE"), room("with-friend", 1, "MALE", [friend] as never)],
+      rooms: [room("empty", 4, "MALE"), room("with-friend", 1, "MALE", [friend])],
       participants: [p],
     })
     expect(roomOf(result, p)).toBe("with-friend")
+  })
+
+  it("fits an unassigned pair in the occupied room before opening an exact-fit empty room", () => {
+    const current = [person("Pavla", "A", "FEMALE"), person("Marie", "B", "FEMALE")]
+    const jana = person("Jana", "Nováková", "FEMALE")
+    const eva = person("Eva", "Černá", "FEMALE", ["Jana Nováková"])
+    const result = proposeRoomAssignments({
+      rooms: [room("B", 2, "FEMALE"), room("A", 5, "FEMALE", current)],
+      participants: [eva, jana],
+    })
+    expect(result.placements).toEqual([
+      { applicationTermId: eva.applicationTermId, roomId: "A" },
+      { applicationTermId: jana.applicationTermId, roomId: "A" },
+    ])
+    expect(result.wishes[0]?.fulfilled).toBe(true)
+  })
+
+  it("opens one large room instead of several small rooms when no occupied room fits", () => {
+    const participants = ["Anna", "Beta", "Cora", "Dora"].map((name) => person(name, "A", "FEMALE"))
+    const result = proposeRoomAssignments({
+      rooms: [room("small", 1, "FEMALE"), room("small2", 2, "FEMALE"), room("large", 4, "FEMALE")],
+      participants,
+    })
+    expect(result.placements.map(({ roomId }) => roomId)).toEqual([
+      "large",
+      "large",
+      "large",
+      "large",
+    ])
+    expect(result.unplaced).toEqual([])
+  })
+
+  it("opens a room when putting a group into an occupied room would split a wish", () => {
+    const current = person("Pavla", "A", "FEMALE")
+    const jana = person("Jana", "Nováková", "FEMALE")
+    const eva = person("Eva", "Černá", "FEMALE", ["Jana Nováková"])
+    const result = proposeRoomAssignments({
+      rooms: [room("occupied", 1, "FEMALE", [current]), room("empty", 2, "FEMALE")],
+      participants: [eva, jana],
+    })
+    expect(roomOf(result, eva)).toBe("empty")
+    expect(roomOf(result, jana)).toBe("empty")
+    expect(result.wishes[0]?.fulfilled).toBe(true)
   })
 
   it("does not fulfil a wish across genders in gendered rooms and reports it", () => {

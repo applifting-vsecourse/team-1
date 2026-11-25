@@ -49,10 +49,10 @@ const byName = (a: ProposalParticipant, b: ProposalParticipant): number =>
  * Proposes rooms for the confirmed participants without one (US-147), keeping the rules of US-37:
  * a room with a gender takes only that gender, nobody goes over the beds (no extra bed is added)
  * and people with individual accommodation are left out. Within that it fulfils as many wishes to
- * room together as it can: people who wish each other are grouped and put into one room that fits
- * them best, then single moves and swaps are tried while they fulfil more wishes. Optimising by
- * age or anything else is not done. Pure and deterministic: the same input gives the same
- * proposal.
+ * room together as it can: people who wish each other are grouped, then single moves and swaps
+ * are tried while they fulfil more wishes. The placement prefers occupied rooms and, when a room
+ * needs to be opened, uses the larger one to reduce the need for more rooms. Pure and deterministic:
+ * the same input gives the same proposal.
  */
 export function proposeRoomAssignments(input: {
   rooms: readonly ProposalRoom[]
@@ -165,6 +165,8 @@ export function proposeRoomAssignments(input: {
     groups.set(root, [...(groups.get(root) ?? []), person])
   }
   const orderedGroups = [...groups.values()].sort((a, b) => b.length - a.length)
+  const occupancyPriority = (room: ProposalRoom): number =>
+    room.occupants.length > 0 ? 2 : members.get(room.id)?.size ? 1 : 0
   for (const group of orderedGroups) {
     let rest = group
     while (rest.length > 0) {
@@ -175,11 +177,14 @@ export function proposeRoomAssignments(input: {
         }))
         .filter((option) => option.takes > 0)
       if (options.length === 0) break
-      // Whole group in the tightest room that holds it; otherwise the room that takes most.
-      const whole = options
-        .filter((option) => option.takes === rest.length)
-        .sort((a, b) => (free.get(a.room.id) ?? 0) - (free.get(b.room.id) ?? 0))[0]
-      const best = whole ?? options.sort((a, b) => b.takes - a.takes)[0]
+      // Keep as much of the group together as possible. Prefer rooms occupied before the
+      // proposal, then rooms already used by the proposal, and preserve spare beds in one room.
+      const best = options.sort(
+        (a, b) =>
+          b.takes - a.takes ||
+          occupancyPriority(b.room) - occupancyPriority(a.room) ||
+          (free.get(b.room.id) ?? 0) - (free.get(a.room.id) ?? 0),
+      )[0]
       if (!best) break
       const chosen = rest.filter((p) => fits(best.room, p)).slice(0, best.takes)
       for (const person of chosen) place(person.applicationTermId, best.room.id)
@@ -241,6 +246,24 @@ export function proposeRoomAssignments(input: {
       }
     }
     if (!isImproved) break
+  }
+
+  // After wish improvements, close a room opened by the proposal if its entire group fits
+  // into another used room. Moving the group together preserves every fulfilled wish.
+  for (const room of rooms) {
+    if (room.occupants.length > 0) continue
+    const group = [...(members.get(room.id) ?? [])]
+    if (group.length === 0) continue
+    const target = rooms
+      .filter(
+        (other) =>
+          other.id !== room.id &&
+          occupancyPriority(other) > 0 &&
+          (free.get(other.id) ?? 0) >= group.length &&
+          group.every((id) => fits(other, candidateById.get(id)!)),
+      )
+      .sort((a, b) => occupancyPriority(b) - occupancyPriority(a))[0]
+    if (target) for (const id of group) place(id, target.id)
   }
 
   const placed = candidates.filter((person) => roomOf.has(person.applicationTermId))
