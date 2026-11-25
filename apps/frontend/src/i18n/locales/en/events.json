@@ -131,6 +131,7 @@
     "oneTerm": "{{dates}}"
   },
   "individualRequests": {
+    "loadFailed": "Could not load individual requests",
     "none": "Nobody has asked for individual accommodation in the selected term.",
     "openApplication": "Open the application detail: {{name}}",
     "openApplicationShort": "Application detail",

@@ -137,14 +137,18 @@ const requestsByTerm: Record<string, unknown[]> = {
 function renderRooms(
   termId: string,
   view: RoomsView = "assignment",
-  options: { failRooms?: boolean } = {},
+  options: { failRooms?: boolean; failRequests?: boolean } = {},
 ) {
   const onSelectTerm = vi.fn()
   const onSelectView = vi.fn()
   get.mockImplementation((path: string) => ({
     json: () => {
       const requestsTerm = /terms\/([^/]+)\/individual-requests/.exec(path)?.[1]
-      if (requestsTerm) return Promise.resolve({ requests: requestsByTerm[requestsTerm] ?? [] })
+      if (requestsTerm) {
+        return options.failRequests
+          ? Promise.reject(new Error("requests down"))
+          : Promise.resolve({ requests: requestsByTerm[requestsTerm] ?? [] })
+      }
       if (options.failRooms && path.includes("/rooms")) {
         return Promise.reject(new Error("rooms down"))
       }
@@ -270,6 +274,17 @@ describe("accommodation by term", () => {
     renderRooms("t1", "requests", { failRooms: true })
     expect(await screen.findByText("Prosím o pokoj v přízemí.")).toBeInTheDocument()
     expect(screen.getByRole("combobox", { name: "Term" })).toBeInTheDocument()
+  })
+
+  it("names the individual requests, not the rooms, when the requests fail to load (#514)", async () => {
+    const { user } = renderRooms("t1", "requests", { failRequests: true })
+    expect(await screen.findByText("Could not load individual requests")).toBeInTheDocument()
+    expect(screen.queryByText("Could not load rooms")).not.toBeInTheDocument()
+    const calls = () =>
+      get.mock.calls.filter(([path]) => String(path).endsWith("/individual-requests")).length
+    const before = calls()
+    await user.click(screen.getByRole("button", { name: "Try again" }))
+    await waitFor(() => expect(calls()).toBeGreaterThan(before))
   })
 
   it("says that nobody asked for individual accommodation in a term without requests (#514)", async () => {

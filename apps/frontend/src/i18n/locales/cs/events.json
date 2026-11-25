@@ -131,6 +131,7 @@
     "oneTerm": "{{dates}}"
   },
   "individualRequests": {
+    "loadFailed": "Individuální požadavky se nepodařilo načíst",
     "none": "Pro vybraný termín nikdo individuální ubytování nepožaduje.",
     "openApplication": "Otevřít detail přihlášky: {{name}}",
     "openApplicationShort": "Detail přihlášky",

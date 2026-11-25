@@ -21,7 +21,7 @@ export function IndividualRequestsCard({ eventId, termId }: { eventId: string; t
   if (query.isError || !query.data) {
     return query.isError ? (
       <ErrorState
-        title={t("rooms.loadFailed")}
+        title={t("individualRequests.loadFailed")}
         error={query.error}
         onRetry={() => {
           void query.refetch()
