@@ -1,5 +1,19 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="158" height="48" viewBox="0 0 158 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="Brand corners">
-<path id="Vector" d="M22.764 2H14.1124C10.9 2 7.81914 2.7375 5.54763 4.05025C3.27612 5.36301 2 7.14348 2 9V14M135.236 46H143.888C147.1 46 150.181 45.2625 152.452 43.9497C154.724 42.637 156 40.8565 156 39V34" stroke-width="2" stroke="#007F72"/>
-</g>
+<svg
+  preserveAspectRatio="none"
+  overflow="visible"
+  style="display: block"
+  width="158"
+  height="48"
+  viewBox="0 0 158 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <g id="Brand corners">
+    <path
+      id="Vector"
+      d="M22.764 2H14.1124C10.9 2 7.81914 2.7375 5.54763 4.05025C3.27612 5.36301 2 7.14348 2 9V14M135.236 46H143.888C147.1 46 150.181 45.2625 152.452 43.9497C154.724 42.637 156 40.8565 156 39V34"
+      stroke-width="2"
+      stroke="#007F72"
+    />
+  </g>
 </svg>

@@ -3,7 +3,13 @@ import { X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 
 /** The names of the selected applications, one per line, scrolling when there are many. */
@@ -85,23 +91,17 @@ export function BulkActionDialog({
         >
           {children}
         </div>
-        <div
-          className={cn(
-            "flex flex-col-reverse gap-3 md:flex-row md:justify-end",
-            isFullScreenOnMobile && "max-sm:pt-2",
-          )}
-        >
+        <DialogFooter className={cn(isFullScreenOnMobile && "max-sm:pt-2")}>
           <Button
             variant="outline"
             size="lg"
-            className="h-12 md:min-w-40"
             disabled={isBusy}
             onClick={onClose}
           >
             {t("bulk.cancel")}
           </Button>
           {submit}
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

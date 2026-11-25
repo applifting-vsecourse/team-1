@@ -1,5 +1,21 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="Icon">
-<path id="Vector" d="M2.5 2.5L17.5 17.5M8.33333 4.16667C10.4168 3.84031 12.5491 4.24232 14.3707 5.30493C16.1924 6.36754 17.5919 8.02575 18.3333 10C17.5351 11.6126 16.3981 13.0339 15 14.1667M5 5C3.54412 6.40912 2.40744 8.11414 1.66667 10C1.66667 10 4.16667 15.8333 10 15.8333C11.1509 15.7499 12.2786 15.468 13.3333 15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#50686D"/>
-</g>
+<svg
+  preserveAspectRatio="none"
+  overflow="visible"
+  style="display: block"
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <g id="Icon">
+    <path
+      id="Vector"
+      d="M2.5 2.5L17.5 17.5M8.33333 4.16667C10.4168 3.84031 12.5491 4.24232 14.3707 5.30493C16.1924 6.36754 17.5919 8.02575 18.3333 10C17.5351 11.6126 16.3981 13.0339 15 14.1667M5 5C3.54412 6.40912 2.40744 8.11414 1.66667 10C1.66667 10 4.16667 15.8333 10 15.8333C11.1509 15.7499 12.2786 15.468 13.3333 15"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke="#50686D"
+    />
+  </g>
 </svg>

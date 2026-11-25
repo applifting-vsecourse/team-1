@@ -152,7 +152,9 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-// Keep the secondary action first in the DOM for desktop layout and initial focus.
+// Keep the secondary action first in the DOM for desktop layout and initial focus: the cancel / back
+// action comes first, the main action last (desktop: cancel left, main right; phone: main on top).
+// A footer with only `showCloseButton` is the single "Close" dialog (Togena / Dialog, #570 / #583).
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -162,18 +164,25 @@ function DialogFooter({
   showCloseButton?: boolean
 }) {
   const { t } = useTranslation("common")
+  const isCloseOnly = showCloseButton && React.Children.count(children) === 0
   return (
     <div
       data-slot="dialog-footer"
       className={cn(
         "flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:justify-end sm:*:flex-1 [&>button]:h-auto [&>button]:text-center [&>button]:whitespace-normal [&>button[data-size=default]]:min-h-10 [&>button[data-size=lg]]:min-h-11 [&>button[data-size=lg]]:py-2",
+        isCloseOnly && "sm:justify-start sm:*:flex-none",
         className,
       )}
       {...props}
     >
       {showCloseButton && (
         <DialogPrimitive.Close asChild>
-          <Button variant="outline">{t("close")}</Button>
+          <Button
+            variant={isCloseOnly ? "secondary" : "outline"}
+            size={isCloseOnly ? "lg" : "default"}
+          >
+            {t("close")}
+          </Button>
         </DialogPrimitive.Close>
       )}
       {children}

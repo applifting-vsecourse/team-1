@@ -1,7 +1,37 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="Togena mark">
-<path id="Vector" opacity="0.5" d="M39.6682 10.6531L16.9782 14.6539C12.9664 15.3613 9.39986 17.6335 7.06327 20.9705C4.72668 24.3075 3.8114 28.436 4.5188 32.4478L9.18646 58.9195" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round" stroke="#007F72"/>
-<path id="Vector_2" opacity="0.5" d="M45.6631 82.6797L68.3531 86.6805C72.365 87.3879 76.4935 86.4727 79.8305 84.1361C83.1675 81.7995 85.4396 78.233 86.147 74.2211L90.8147 47.7495" stroke-width="4.8" stroke-linecap="round" stroke-linejoin="round" stroke="#007F72"/>
-<path id="Vector_3" opacity="0.3" d="M47.999 51.456C49.9077 51.456 51.455 49.9087 51.455 48C51.455 46.0913 49.9077 44.544 47.999 44.544C46.0903 44.544 44.543 46.0913 44.543 48C44.543 49.9087 46.0903 51.456 47.999 51.456Z" fill="#007F72"/>
-</g>
+<svg
+  preserveAspectRatio="none"
+  overflow="visible"
+  style="display: block"
+  width="96"
+  height="96"
+  viewBox="0 0 96 96"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <g id="Togena mark">
+    <path
+      id="Vector"
+      opacity="0.5"
+      d="M39.6682 10.6531L16.9782 14.6539C12.9664 15.3613 9.39986 17.6335 7.06327 20.9705C4.72668 24.3075 3.8114 28.436 4.5188 32.4478L9.18646 58.9195"
+      stroke-width="4.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke="#007F72"
+    />
+    <path
+      id="Vector_2"
+      opacity="0.5"
+      d="M45.6631 82.6797L68.3531 86.6805C72.365 87.3879 76.4935 86.4727 79.8305 84.1361C83.1675 81.7995 85.4396 78.233 86.147 74.2211L90.8147 47.7495"
+      stroke-width="4.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke="#007F72"
+    />
+    <path
+      id="Vector_3"
+      opacity="0.3"
+      d="M47.999 51.456C49.9077 51.456 51.455 49.9087 51.455 48C51.455 46.0913 49.9077 44.544 47.999 44.544C46.0903 44.544 44.543 46.0913 44.543 48C44.543 49.9087 46.0903 51.456 47.999 51.456Z"
+      fill="#007F72"
+    />
+  </g>
 </svg>

@@ -1,3 +1,18 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="9.00011" height="9.00005" viewBox="0 0 9.00011 9.00005" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path id="Completed / check" d="M0.500053 4.50005L3.16672 8.50005L8.50005 0.500053" stroke-linecap="round" stroke-linejoin="round" stroke="#50686D"/>
+<svg
+  preserveAspectRatio="none"
+  overflow="visible"
+  style="display: block"
+  width="9.00011"
+  height="9.00005"
+  viewBox="0 0 9.00011 9.00005"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    id="Completed / check"
+    d="M0.500053 4.50005L3.16672 8.50005L8.50005 0.500053"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke="#50686D"
+  />
 </svg>
