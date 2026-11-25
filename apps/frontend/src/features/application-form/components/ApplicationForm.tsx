@@ -21,6 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { focusFirstInvalidField } from "@/lib/focus-first-invalid"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 import {
@@ -44,7 +45,6 @@ import {
   type ApplicationFormValues,
   type ParticipantDraft,
 } from "@/features/application-form/lib/application-form-schema"
-import { focusFirstInvalidField } from "@/features/application-form/lib/focus-first-invalid"
 import { priceOfSelection, totalPrice } from "@/features/application-form/lib/selection-price"
 
 // Figma (Design system): the form part of V07 / V07a (desktop) and M02 / M02a (360 px);

@@ -36,6 +36,7 @@ export const ROUTES = {
     eventPaymentsImport: "/organizer/events/$eventId/payments/import",
     eventCancellationTerms: "/organizer/events/$eventId/payments/cancellation",
     eventProgram: "/organizer/events/$eventId/program",
+    eventBoard: "/organizer/events/$eventId/board",
     eventTransport: "/organizer/events/$eventId/transport",
     eventTransportParticipants: "/organizer/events/$eventId/transport/$transportId/participants",
     application: "/organizer/events/$eventId/applications/$applicationId",
@@ -54,6 +55,8 @@ export const ROUTES = {
     applicationHealth: "/participant/applications/$applicationId/health",
     applicationProgram: "/participant/applications/$applicationId/program",
     applicationTransport: "/participant/applications/$applicationId/transport",
+    board: "/participant/board",
+    boardPost: "/participant/board/$postId",
     account: "/participant/account",
   },
 } as const

@@ -58,7 +58,6 @@
     "blockedAlertTitle": "Akce už má přihlášku.",
     "blockedTitle": "Akci nelze smazat",
     "cancel": "Zrušit",
-    "close": "Zavřít",
     "confirm": "Smazat akci",
     "deleted": "Akce {{name}} byla smazána.",
     "failed": "Akci se nepodařilo smazat",
@@ -130,6 +129,13 @@
     "noTerms": "Zatím bez termínu",
     "oneTerm": "{{dates}}"
   },
+  "individualRequests": {
+    "loadFailed": "Individuální požadavky se nepodařilo načíst",
+    "none": "Pro vybraný termín nikdo individuální ubytování nepožaduje.",
+    "openApplication": "Otevřít detail přihlášky: {{name}}",
+    "openApplicationShort": "Detail přihlášky",
+    "title": "Individuální požadavky na ubytování"
+  },
   "list": {
     "clearOrganization": "Zrušit filtr",
     "count_few": "{{count}} akce",
@@ -172,9 +178,9 @@
     "cancel": "Zrušit",
     "description": "Nejdříve založte akci. Termíny, ceny a kapacitu doplníte v dalším kroku.",
     "form": {
-      "description": "Popis akce (nepovinný)",
+      "description": "Popis akce",
       "heading": "Základní údaje",
-      "location": "Místo konání (nepovinné)",
+      "location": "Místo konání",
       "name": "Název akce *",
       "nameHelper": "Název uvidí také účastníci.",
       "nameRequired": "Vyplňte název akce.",
@@ -370,6 +376,7 @@
     "unassignedTitle": "Potvrzení bez pokoje",
     "viewAssignment": "Rozřazování",
     "viewOverview": "Pokoje",
+    "viewRequests": "Individuální požadavky",
     "views": "Pohled na ubytování"
   },
   "roomProposal": {
@@ -777,7 +784,7 @@
       "endBeforeStart": "Konec musí být po začátku.",
       "endsOn": "Datum konce *",
       "fieldRequired": "Vyplňte toto pole.",
-      "name": "Název termínu (nepovinný)",
+      "name": "Název termínu",
       "nameHint": "Bez názvu se přihlašovateli zobrazí datum termínu.",
       "namePlaceholder": "např. 1. turnus, 5. třída, věk 8–10",
       "price": "Cena termínu (Kč) *",

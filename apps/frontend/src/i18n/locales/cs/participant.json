@@ -116,7 +116,7 @@
   "edit": {
     "accommodationHeading": "Individuální řešení ubytování",
     "accommodationIndividual": "Individuální řešení",
-    "accommodationRequest": "Poznámka pro organizátora (nepovinné)",
+    "accommodationRequest": "Poznámka pro organizátora",
     "accommodationRequestHint": "Napište, co by vám vyhovovalo. Důvody uvádět nemusíte.",
     "accommodationRequestTooLong": "Poznámka může mít nejvýše 2 000 znaků.",
     "accommodationSummary": "Ubytování · {{request}}",

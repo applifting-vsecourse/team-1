@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { act, fireEvent, render, screen } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -71,7 +71,7 @@ async function fillForm(
   await user.click(screen.getByRole("combobox", { name: "Gender for room assignment *" }))
   await user.click(screen.getByRole("option", { name: "Female" }))
   if (phone) await user.type(screen.getByLabelText("Phone"), phone)
-  await user.type(screen.getByLabelText("E-mail *"), "eva@example.com")
+  await user.type(screen.getByLabelText("Contact e-mail *"), "eva@example.com")
   await user.click(screen.getByRole("combobox", { name: /First/ }))
   await user.click(screen.getByRole("option", { name: status }))
 }
@@ -138,6 +138,45 @@ describe("ManualApplicationPage", () => {
     }
   })
 
+  it("marks required fields with an asterisk and never writes (optional) (#701)", async () => {
+    const user = userEvent.setup()
+    setup()
+    await screen.findByLabelText("First name *")
+    await user.click(screen.getByRole("checkbox", { name: /individually/ }))
+    expect(screen.getByLabelText("Note for the organizer")).toBeInTheDocument()
+    expect(screen.getByLabelText("Phone")).toBeInTheDocument()
+    for (const label of screen.getAllByText(/./, { selector: "label" })) {
+      expect(label.textContent).not.toMatch(/optional/i)
+    }
+    expect(screen.getByLabelText("Contact e-mail *")).toBeInTheDocument()
+    expect(screen.getByLabelText("Date of birth *")).toBeInTheDocument()
+  })
+
+  it("focuses the first invalid field and shows its message after a failed submit (#702)", async () => {
+    const user = userEvent.setup()
+    setup()
+    await screen.findByLabelText("First name *")
+    await user.click(screen.getByRole("button", { name: "Create application" }))
+    const first = screen.getByLabelText("First name *")
+    await waitFor(() => expect(first).toHaveFocus())
+    expect(first).toHaveAttribute("aria-invalid", "true")
+    expect(first).toHaveAccessibleDescription("Enter a first and last name.")
+    expect(screen.getByLabelText("Last name *")).toHaveAttribute("aria-invalid", "true")
+    expect(post).not.toHaveBeenCalled()
+  })
+
+  it("summarises the selected terms and what is due (#653)", async () => {
+    const user = userEvent.setup()
+    setup()
+    await user.type(await screen.findByLabelText("First name *"), "Eva")
+    await user.type(screen.getByLabelText("Last name *"), "Novak")
+    expect(screen.getByText("Eva Novak · 0 terms")).toBeInTheDocument()
+    await user.click(screen.getByRole("combobox", { name: /First/ }))
+    await user.click(screen.getByRole("option", { name: "Waitlisted" }))
+    expect(screen.getByText("Eva Novak · 1 term")).toBeInTheDocument()
+    expect(screen.getByText("A substitute does not pay anything yet.")).toBeInTheDocument()
+  })
+
   it("requires at least one selected term and clears the error after choosing a status", async () => {
     setup()
     const user = userEvent.setup()
@@ -145,7 +184,7 @@ describe("ManualApplicationPage", () => {
     await user.click(screen.getByRole("combobox", { name: /First/ }))
     await user.click(screen.getByRole("option", { name: "Not selected" }))
     await user.click(
-      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+      screen.getByRole("checkbox", { name: /Consent to the processing of personal data/ }),
     )
     await user.click(screen.getByRole("button", { name: "Create application" }))
     expect(screen.getByText("Choose at least one term and its status.")).toBeInTheDocument()
@@ -192,7 +231,7 @@ describe("ManualApplicationPage", () => {
       await user.click(screen.getByRole("combobox", { name: /Second/ }))
       await user.click(screen.getByRole("option", { name: label }))
       await user.click(
-        screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+        screen.getByRole("checkbox", { name: /Consent to the processing of personal data/ }),
       )
       await user.click(screen.getByRole("button", { name: "Create application" }))
 
@@ -227,7 +266,7 @@ describe("ManualApplicationPage", () => {
       expect(post).not.toHaveBeenCalled()
 
       await user.click(
-        screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+        screen.getByRole("checkbox", { name: /Consent to the processing of personal data/ }),
       )
       await user.click(screen.getByRole("button", { name: "Create application" }))
       expect(post).not.toHaveBeenCalled()
@@ -262,7 +301,7 @@ describe("ManualApplicationPage", () => {
       const user = userEvent.setup()
       await fillForm(user, "Waitlisted", emptyPhone)
       await user.click(
-        screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+        screen.getByRole("checkbox", { name: /Consent to the processing of personal data/ }),
       )
       await user.click(screen.getByRole("button", { name: "Create application" }))
 
@@ -293,7 +332,7 @@ describe("ManualApplicationPage", () => {
     const user = userEvent.setup()
     await fillForm(user, "Confirmed, with a debt")
     await user.click(
-      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+      screen.getByRole("checkbox", { name: /Consent to the processing of personal data/ }),
     )
     await user.click(screen.getByRole("button", { name: "Create application" }))
     expect(screen.getByRole("heading", { name: "Confirm over capacity" })).toBeInTheDocument()
@@ -339,7 +378,7 @@ describe("ManualApplicationPage", () => {
     const user = userEvent.setup()
     await fillForm(user)
     await user.click(
-      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+      screen.getByRole("checkbox", { name: /Consent to the processing of personal data/ }),
     )
     await user.click(screen.getByRole("button", { name: "Create application" }))
     await user.clear(screen.getByLabelText("First name *"))
@@ -364,7 +403,7 @@ describe("ManualApplicationPage", () => {
     const user = userEvent.setup()
     await fillForm(user)
     await user.click(
-      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+      screen.getByRole("checkbox", { name: /Consent to the processing of personal data/ }),
     )
     await user.click(screen.getByRole("button", { name: "Create application" }))
     expect(await screen.findByText("The statuses could not be loaded")).toBeInTheDocument()
@@ -427,7 +466,7 @@ describe("ManualApplicationPage", () => {
     const user = userEvent.setup()
     await fillForm(user, "Confirmed, with a debt")
     await user.click(
-      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ }),
+      screen.getByRole("checkbox", { name: /Consent to the processing of personal data/ }),
     )
     await user.click(screen.getByRole("button", { name: "Create application" }))
     await user.click(screen.getByRole("combobox", { name: /First/ }))
@@ -471,23 +510,20 @@ describe("ManualApplicationPage", () => {
   describe("individual accommodation (#518)", () => {
     const sent = () => (post.mock.calls.at(-1)?.[1] as { json: Record<string, unknown> }).json
     const consent = () =>
-      screen.getByRole("checkbox", { name: /I confirm that the applicant consented/ })
+      screen.getByRole("checkbox", { name: /Consent to the processing of personal data/ })
 
     it("shows the note only after ticking the request and sends both, trimmed", async () => {
       setup()
       const user = userEvent.setup()
       await fillForm(user)
-      expect(screen.queryByLabelText("Note for the organizer (optional)")).not.toBeInTheDocument()
+      expect(screen.queryByLabelText("Note for the organizer")).not.toBeInTheDocument()
       // The organizer fills the form in themselves: the applicant hint of the public form is not shown.
       expect(screen.queryByText(/Only the event organizer will see this/)).not.toBeInTheDocument()
 
       await user.click(
         screen.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
       )
-      await user.type(
-        screen.getByLabelText("Note for the organizer (optional)"),
-        "  Ground floor please. ",
-      )
+      await user.type(screen.getByLabelText("Note for the organizer"), "  Ground floor please. ")
       await user.click(consent())
       await user.click(screen.getByRole("button", { name: "Create application" }))
 
@@ -523,9 +559,9 @@ describe("ManualApplicationPage", () => {
         name: "I want to arrange the accommodation individually",
       })
       await user.click(request)
-      await user.type(screen.getByLabelText("Note for the organizer (optional)"), "Not needed")
+      await user.type(screen.getByLabelText("Note for the organizer"), "Not needed")
       await user.click(request)
-      expect(screen.queryByLabelText("Note for the organizer (optional)")).not.toBeInTheDocument()
+      expect(screen.queryByLabelText("Note for the organizer")).not.toBeInTheDocument()
       await user.click(consent())
       await user.click(screen.getByRole("button", { name: "Create application" }))
 
@@ -541,7 +577,7 @@ describe("ManualApplicationPage", () => {
       await user.click(
         screen.getByRole("checkbox", { name: "I want to arrange the accommodation individually" }),
       )
-      fireEvent.change(screen.getByLabelText("Note for the organizer (optional)"), {
+      fireEvent.change(screen.getByLabelText("Note for the organizer"), {
         target: { value: "x".repeat(2001) },
       })
       await user.click(consent())

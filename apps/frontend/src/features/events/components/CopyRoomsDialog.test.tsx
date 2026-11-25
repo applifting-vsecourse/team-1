@@ -3,6 +3,8 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { footerButtonNames } from "@/test/dialog-footer"
+
 import type { TermRooms } from "@/features/events/api/rooms"
 import { CopyRoomsDialog } from "@/features/events/components/CopyRoomsDialog"
 
@@ -105,6 +107,14 @@ describe("copying rooms into a term", () => {
   beforeEach(() => {
     get.mockReset()
     post.mockReset()
+  })
+
+  it("puts Cancel before the main action (#757)", async () => {
+    const { user } = renderDialog(termRooms("t1", []))
+    await pickSource(user)
+    const names = footerButtonNames()
+    expect(names.at(-1)).toBe("Copy rooms")
+    expect(names.indexOf("Cancel")).toBeLessThan(names.indexOf("Copy rooms"))
   })
 
   it("explains when all compatible source terms have no rooms", () => {

@@ -91,7 +91,8 @@ Open the PR as a draft (`gh pr create --draft`) and run `gh pr ready` when the w
 Run the `pr-finish` skill before opening a PR, when marking it ready and after every push ([`.claude/skills/pr-finish/SKILL.md`](.claude/skills/pr-finish/SKILL.md)). The rules it carries out:
 
 - **Acceptance criteria:** list each one in the PR body under „Akceptační kritéria“ as ✅ / ❌ / ❓ with the test or file that shows it, and tick the ✅ ones in the issue. A criterion is met only when a test or a described manual step shows it.
-- **What the PR still lacks:** tell the author in your last message — E2E test (journey from [`docs/E2E.md`](docs/E2E.md)), ticket link, criteria, open items („Nejasnosti k byznys pravidlům“, „Odchylky od Figmy“, „Mimo rozsah story“) and screenshots.
+- **What the PR still lacks:** tell the author in your last message — E2E test (journey from [`docs/E2E.md`](docs/E2E.md)), ticket link, criteria, open items („Nejasnosti k byznys pravidlům“, „Odchylky od Figmy“, „Mimo rozsah story“), the design link and screenshots.
+- **Design link:** a PR that changes what a user sees links the Figma frames it implements under „Design“ — the v2 frames from the issue's „Podklady“, desktop and 360 px, one link per drawn state it touches — so a reviewer can compare them with the screenshots side by side. When the issue has no frame, say so there in one line instead of picking one yourself (see „UI follows Figma“ in `.claude/rules/frontend.md`).
 - **Screenshots:** a PR that changes what a user sees gets them under „Screenshoty“ (desktop and 360 px, before / after for a fix), taken headless from seed data and uploaded to the `pr-screenshots` branch, never to the PR branch.
 - **Review:** after every push wait for the Codex review (`node scripts/pr-review.mjs wait <pr>`) and answer every finding and every „Pozor“ in a PR comment starting with `<!-- ai-review-answer: <sha> -->`.
 
