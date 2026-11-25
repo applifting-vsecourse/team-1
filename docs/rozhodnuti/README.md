@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**179 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**191 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -13,6 +13,7 @@ _Nic._
 | ID | Rozhodnutí | Soubor | Co zapsat |
 | --- | --- | --- | --- |
 | [D-140](#d-140) | E-maily o přijetí a zamítnutí žádosti o změnu | `docs/emaily/TEXTY.md` | texty obou zpráv CS/EN |
+| [D-195](#d-195) | Štítek potvrzeného termínu v e-mailech je „Potvrzeno / Confirmed“ | `docs/emaily/TEXTY.md` |  |
 
 ## Změny dřívějších rozhodnutí
 
@@ -41,6 +42,7 @@ _Nic._
 | [D-167](#d-167) | Úprava údajů přihlášky organizátorem nikomu neposílá upozornění | 2026-11-18 | mění [D-141](#d-141) |
 | [D-168](#d-168) | Jednokrokové vyhodnocení: o přihláškách, které se nevejdou, rozhoduje organizátor | 2026-11-18 | mění [D-142](#d-142) |
 | [D-179](#d-179) | Při kopírování pokojů mezi termíny se vždy kopírují přistýlky | 2026-11-22 | mění [D-115](#d-115), mění [D-139](#d-139) |
+| [D-191](#d-191) | Organizátor umí zapsat všechno, co účastník | 2026-11-25 | mění [D-122](#d-122), mění [D-159](#d-159) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -48,6 +50,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-187](#d-187) | Nepovinná pole bez dodatku „(nepovinné)“ | 2026-11-25 | `pm` | design |
+| [D-186](#d-186) | Dialogy se třemi a více tlačítky: mazání vlevo, hlavní akce poslední | 2026-11-25 | `pm` | design |
 | [D-049](#d-049) | Zdroj designové pravdy je Design systém ve Figmě | 2026-10-27 | `pm` | design |
 | [D-038](#d-038) | Organizátor: akce jako karty, sekce akce v sidebaru | 2026-10-21 | `tech-lead` | design |
 | [D-029](#d-029) | Redesign v původním Figma souboru a barvách | 2026-10-20 | `tech-lead` | design |
@@ -57,6 +61,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-195](#d-195) | Štítek potvrzeného termínu v e-mailech je „Potvrzeno / Confirmed“ | 2026-11-25 | `pm` | produkt |
 | [D-182](#d-182) | Nástěnka „Informace k akci“: rozsah a viditelnost příspěvků | 2026-11-24 | `pm` | produkt |
 | [D-117](#d-117) | Magic link je i v souhrnném potvrzovacím e-mailu, ne v e-mailu o změně | 2026-11-13 | `pm` | produkt |
 | [D-151](#d-151) | Potvrzení zaplacení: jazyk podle D-078, jeden e-mail za platbu | 2026-11-06 | `pm` | produkt |
@@ -79,6 +84,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-192](#d-192) | Úpravy stravování a dopravy končí archivací | 2026-11-25 | `pm` | produkt |
 | [D-177](#d-177) | Souhrn pro kuchyni: počty stravy po kombinacích | 2026-11-20 | `pm` | produkt |
 | [D-173](#d-173) | Vlastní doprava zůstává volný text bez času a místa příjezdu | 2026-11-20 | `pm` | produkt |
 | [D-155](#d-155) | Kopírování programu mezi termíny | 2026-11-14 | `pm` | produkt |
@@ -113,6 +119,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-185](#d-185) | Ruční spárování bankovní transakce: rozsah první verze | 2026-11-25 | `pm` | produkt |
 | [D-181](#d-181) | Kopie bankovního výpisu s výsledkem párování se neukládá | 2026-11-22 | `pm` | produkt |
 | [D-180](#d-180) | Přeplatek bez dluhu se v seznamu přihlášek ukazuje jako „Dluh 0 Kč“ | 2026-11-22 | `pm` | produkt |
 | [D-178](#d-178) | Organizátor smí zapsat platbu na celou přihlášku | 2026-11-20 | `pm` | produkt |
@@ -156,6 +163,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-190](#d-190) | Seznam přihlášek ukazuje tři termíny, zbytek sbalí | 2026-11-25 | `pm` | design |
 | [D-172](#d-172) | Přehled akce: cílem je US-51 „Co vyžaduje pozornost“ | 2026-11-20 | `pm` | produkt |
 | [D-114](#d-114) | Přehled akce je dashboard; po přihlášení poslední otevřená akce | 2026-11-07 | `pm` | produkt |
 | [D-050](#d-050) | Dashboard organizátora se vrací | 2026-10-28 | `pm` | produkt |
@@ -165,6 +173,9 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-191](#d-191) | Organizátor umí zapsat všechno, co účastník | 2026-11-25 | `pm` | produkt |
+| [D-188](#d-188) | Karta přihlášky se zrušeným nebo archivovaným termínem beze změny | 2026-11-25 | `pm` | produkt |
+| [D-184](#d-184) | Zavřený odkaz akce dál vrací 404 | 2026-11-25 | `pm` | produkt |
 | [D-176](#d-176) | Výsledek žádosti o změnu: čip i u čekající žádosti a červená pro Zamítnuto | 2026-11-20 | `pm` | produkt |
 | [D-168](#d-168) | Jednokrokové vyhodnocení: o přihláškách, které se nevejdou, rozhoduje organizátor | 2026-11-18 | `pm` | produkt |
 | [D-167](#d-167) | Úprava údajů přihlášky organizátorem nikomu neposílá upozornění | 2026-11-18 | `pm` | produkt |
@@ -246,6 +257,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-194](#d-194) | Individuální pokoje: kapacita, režimy, zrušení příznaku a tisk | 2026-11-25 | `pm` | produkt |
+| [D-193](#d-193) | Krok „Kapacita“ nejmenuje konkrétní režimy pokojů | 2026-11-25 | `pm` | produkt |
 | [D-183](#d-183) | Seznam individuálních požadavků na ubytování: stavy a požadavek bez textu | 2026-11-23 | `pm` | produkt |
 | [D-179](#d-179) | Při kopírování pokojů mezi termíny se vždy kopírují přistýlky | 2026-11-22 | `pm` | produkt |
 | [D-174](#d-174) | Pohledy na ubytování: „Rozřazování“ × „Pokoje“ se stejným ovládáním | 2026-11-20 | `pm` | produkt |
@@ -269,6 +282,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-189](#d-189) | „Získat nový odkaz“ je ohraničené tlačítko v plné šířce | 2026-11-25 | `pm` | design |
 | [D-147](#d-147) | Jazyk a vzhled se přepínají v Nastavení účtu | 2026-11-08 | `pm` | produkt |
 | [D-109](#d-109) | Registrace organizátora vyžaduje ověření e-mailu odkazem | 2026-11-06 | `pm` | produkt |
 | [D-128](#d-128) | Změna e-mailu účtu přepíše e-mail ve všech jeho přihláškách | 2026-11-03 | `pm` | produkt |
@@ -1635,6 +1649,7 @@ _Nic._
 - **Text:** Zdravotní omezení vyplní přihlašovatel na stránce přihlášky s výslovným souhlasem (bez souhlasu se neuloží); ve veřejném formuláři není. Vidí ho všichni organizátoři organizace, které akce patří, a nikdo jiný. Po prvním vyplnění ho přihlašovatel sám nemění ani nemaže, pošle žádost organizátorovi bez časového omezení. Mazání po akci a záznam přístupů se nedělají (D-143).
 - **Dotčené US:** [US-68](https://github.com/applifting-vsecourse/team-1/issues/68)
 - **Zdroj:** [PR #385 (US-68), komentář PM 7. 11.](https://github.com/applifting-vsecourse/team-1/pull/385)
+- **Změněno v:** [D-191](#d-191)
 - **Z otázek:** `Q-LOG-05`
 - **Poznámka:** Doporučení: schválit; dobu uchování pokrývá D-143.
 
@@ -2062,6 +2077,7 @@ _Nic._
 - **Text:** Přihlašovatel u přihlášky v termínu volitelně zadá pozdější příjezd nebo dřívější odjezd účastníka (datum a čas v rozsahu termínu). Organizátor ho vidí v souhrnu pro kuchyni u účastníka. Aplikace s údajem dál nepočítá: žádné denní počty, jídla, výchozí hodnoty ani nastavení organizátora; nemění cenu, kapacitu ani stav.
 - **Dotčené US:** [US-143](https://github.com/applifting-vsecourse/team-1/issues/485)
 - **Zdroj:** [US-143, rozhodnutí PM 14. 11. za PO](https://github.com/applifting-vsecourse/team-1/issues/485); [status s PO 11. 11., §2](../../docs/zapisy/2026-11-11-status-s-po.md)
+- **Změněno v:** [D-191](#d-191)
 - **Z otázek:** `Q-UBY-05`
 - **Poznámka:** Rozhodl PM za PO 14. 11.
 
@@ -2319,3 +2335,127 @@ _Nic._
 - **Text:** Seznam individuálních požadavků na ubytování u termínu obsahuje přihlášky v termínu ve všech stavech kromě zrušených a archivovaných. Požadavek bez textu se zobrazí také, se jménem a odkazem na detail.
 - **Dotčené US:** [#514](https://github.com/applifting-vsecourse/team-1/issues/514)
 - **Zdroj:** [odpověď PM v PR #690, 23. 11. 2026](https://github.com/applifting-vsecourse/team-1/pull/690#issuecomment-7094110012)
+
+<a id="d-184"></a>
+
+### D-184 – Zavřený odkaz akce dál vrací 404
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** Veřejný odkaz neprozrazuje, že existuje akce, která nepřijímá přihlášky (bez termínů, bez pokojů, se zrušenými termíny nebo bez režimu vyhodnocování). Vrací 404 stejně jako neznámý odkaz, D-116 platí beze změny.
+- **Dotčené US:** [#738](https://github.com/applifting-vsecourse/team-1/issues/738)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k #738](https://github.com/applifting-vsecourse/team-1/issues/738#issuecomment-7162824036)
+
+<a id="d-185"></a>
+
+### D-185 – Ruční spárování bankovní transakce: rozsah první verze
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** platby
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** Nespárovanou transakci jde ručně přiřadit jen na jeden termín; přiřazení na celou přihlášku se udělá později (D-178). Dvojí započtení ručně zapsané platby se neřeší v tomto rozsahu, patří do #563. Částky s haléři a jiné měny než CZK přiřadit nejde. Když organizátor zruší platbu vzniklou přiřazením, transakce se má vrátit mezi nespárované (samostatný ticket #785).
+- **Dotčené US:** [#562](https://github.com/applifting-vsecourse/team-1/issues/562), [#563](https://github.com/applifting-vsecourse/team-1/issues/563), [#785](https://github.com/applifting-vsecourse/team-1/issues/785)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k PR #685](https://github.com/applifting-vsecourse/team-1/pull/685#issuecomment-7082079694)
+
+<a id="d-186"></a>
+
+### D-186 – Dialogy se třemi a více tlačítky: mazání vlevo, hlavní akce poslední
+
+- **Stav:** platné · **Typ:** design · **Oblast:** design
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** V dialozích se třemi a více tlačítky je destruktivní akce odděleně vlevo, zavírací tlačítko uprostřed a hlavní akce poslední.
+- **Dotčené US:** [#757](https://github.com/applifting-vsecourse/team-1/issues/757)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k #757](https://github.com/applifting-vsecourse/team-1/issues/757#issuecomment-7157084819)
+
+<a id="d-187"></a>
+
+### D-187 – Nepovinná pole bez dodatku „(nepovinné)“
+
+- **Stav:** platné · **Typ:** design · **Oblast:** design
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** V celé aplikaci se u nepovinných polí nepíše „(nepovinné)“; povinná pole mají hvězdičku.
+- **Dotčené US:** [#701](https://github.com/applifting-vsecourse/team-1/issues/701)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k #701](https://github.com/applifting-vsecourse/team-1/issues/701#issuecomment-7157084216)
+
+<a id="d-188"></a>
+
+### D-188 – Karta přihlášky se zrušeným nebo archivovaným termínem beze změny
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** Karta v „Moje přihlášky“ ukazuje u zrušeného nebo archivovaného termínu čip stavu; „Cena termínů“ a „Zbývá zaplatit“ zůstávají.
+- **Dotčené US:** [#744](https://github.com/applifting-vsecourse/team-1/issues/744)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k #744](https://github.com/applifting-vsecourse/team-1/issues/744#issuecomment-7099234652)
+
+<a id="d-189"></a>
+
+### D-189 – „Získat nový odkaz“ je ohraničené tlačítko v plné šířce
+
+- **Stav:** platné · **Typ:** design · **Oblast:** účty
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** Na přihlášení přihlašovatele je „Získat nový odkaz“ ohraničené tlačítko v plné šířce, aby na stránce nebyla dvě primární tlačítka.
+- **Dotčené US:** [#743](https://github.com/applifting-vsecourse/team-1/issues/743)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k PR #746](https://github.com/applifting-vsecourse/team-1/pull/746)
+- **Poznámka:** Mění znění kritéria v #743, které chtělo primární tlačítko.
+
+<a id="d-190"></a>
+
+### D-190 – Seznam přihlášek ukazuje tři termíny, zbytek sbalí
+
+- **Stav:** platné · **Typ:** design · **Oblast:** přehledy
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** Seznam přihlášek ukáže u přihlášky nejvýše tři termíny, ostatní jsou sbalené.
+- **Dotčené US:** [#727](https://github.com/applifting-vsecourse/team-1/issues/727)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k PR #765](https://github.com/applifting-vsecourse/team-1/pull/765)
+
+<a id="d-191"></a>
+
+### D-191 – Organizátor umí zapsat všechno, co účastník
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** K účasti na akci není povinné používat aplikaci, proto organizátor umí zapsat všechno, co přihlašovatel, včetně dopravy, přání spolubydlení, pozdějšího příjezdu a dřívějšího odjezdu. Zdravotní omezení smí poprvé zapsat (i potvrdit „Nemám žádné omezení“) jen po potvrzení, že má od přihlašovatele výslovný souhlas.
+- **Dotčené US:** [#662](https://github.com/applifting-vsecourse/team-1/issues/662), [#786](https://github.com/applifting-vsecourse/team-1/issues/786), [#787](https://github.com/applifting-vsecourse/team-1/issues/787), [#788](https://github.com/applifting-vsecourse/team-1/issues/788), [#789](https://github.com/applifting-vsecourse/team-1/issues/789)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k auditu #662 (PR #782)](https://github.com/applifting-vsecourse/team-1/pull/782)
+- **Mění:** [D-122](#d-122), [D-159](#d-159)
+
+<a id="d-192"></a>
+
+### D-192 – Úpravy stravování a dopravy končí archivací
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** Stravování a dopravu jde upravit jen do archivace, tedy do dne po konci termínu; platí pro přihlašovatele i organizátora, v obrazovkách i na serveru.
+- **Dotčené US:** [#790](https://github.com/applifting-vsecourse/team-1/issues/790)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k auditu #662 (PR #782)](https://github.com/applifting-vsecourse/team-1/pull/782)
+
+<a id="d-193"></a>
+
+### D-193 – Krok „Kapacita“ nejmenuje konkrétní režimy pokojů
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** Aktivní krok „2. Kapacita“ na přehledu akce říká jen „Zvolte režim pokojů a přidejte pokoje.“ (EN „Choose the room mode and add rooms.“). Konkrétní režimy nejmenuje, protože se mohou změnit; podrobnosti ukazuje stránka Ubytování.
+- **Dotčené US:** [#600](https://github.com/applifting-vsecourse/team-1/issues/600)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k #600](https://github.com/applifting-vsecourse/team-1/issues/600#issuecomment-7162270598)
+
+<a id="d-194"></a>
+
+### D-194 – Individuální pokoje: kapacita, režimy, zrušení příznaku a tisk
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** Lůžko individuálního pokoje se počítá do kapacity pohlaví podle obsazení (potvrzený účastník v něm přidá jedno místo svého pohlaví). Individuální pokoj je výjimka v termínu s pokoji podle pohlaví, ve společném režimu se nenabízí. Příznak jde zrušit i u obsazeného pokoje, zobrazí se běžná varování. Organizátor pokoj vidí v přehledu ubytování i v tisku s označením „Individuální“.
+- **Dotčené US:** [#505](https://github.com/applifting-vsecourse/team-1/issues/505)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k #505](https://github.com/applifting-vsecourse/team-1/issues/505#issuecomment-7037206853)
+- **Poznámka:** Mění kritérium #505, podle kterého se pokoj v tištěných přehledech neukazoval.
+
+<a id="d-195"></a>
+
+### D-195 – Štítek potvrzeného termínu v e-mailech je „Potvrzeno / Confirmed“
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-11-25 · **Rozhodl:** `pm`
+- **Text:** Štítek stavu potvrzeného termínu v souhrnu e-mailů je „Potvrzeno“ / „Confirmed“, stejně jako v aplikaci; předměty a nadpisy e-mailů se nemění. Štítek „Potvrzená s dluhem“ zůstává.
+- **Dotčené US:** [#608](https://github.com/applifting-vsecourse/team-1/issues/608)
+- **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k PR #641](https://github.com/applifting-vsecourse/team-1/pull/641#issuecomment-7024949825)
+- **Dokumentace:** `docs/emaily/TEXTY.md`: ceka

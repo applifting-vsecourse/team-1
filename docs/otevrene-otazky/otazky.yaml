@@ -2330,8 +2330,8 @@ otazky:
   - label: '#631'
     url: https://github.com/applifting-vsecourse/team-1/issues/631
   stav: otevreno
-  priorita: P0
-  priorita_duvod: 'Blokuje dokončení PR #683; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení).'
+  priorita: P2
+  priorita_duvod: 'PR #683 je sloučené; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení).'
   ceka_na: po
   zdroje:
   - popis: 'PR #683, komentář s otázkou na PM (issue #631)'

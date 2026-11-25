@@ -2516,6 +2516,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-191
   z_otazek:
   - Q-LOG-05
   dokumentace: []
@@ -3351,6 +3353,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-191
   z_otazek:
   - Q-UBY-05
   dokumentace: []
@@ -3815,3 +3819,226 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace: []
+- id: D-184
+  nazev: Zavřený odkaz akce dál vrací 404
+  text: Veřejný odkaz neprozrazuje, že existuje akce, která nepřijímá přihlášky (bez termínů, bez pokojů, se zrušenými termíny nebo bez režimu vyhodnocování). Vrací 404 stejně jako neznámý odkaz, D-116 platí beze změny.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k #738'
+    url: https://github.com/applifting-vsecourse/team-1/issues/738#issuecomment-7162824036
+  us:
+  - label: '#738'
+    url: https://github.com/applifting-vsecourse/team-1/issues/738
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-185
+  nazev: 'Ruční spárování bankovní transakce: rozsah první verze'
+  text: 'Nespárovanou transakci jde ručně přiřadit jen na jeden termín; přiřazení na celou přihlášku se udělá později (D-178). Dvojí započtení ručně zapsané platby se neřeší v tomto rozsahu, patří do #563. Částky s haléři a jiné měny než CZK přiřadit nejde. Když organizátor zruší platbu vzniklou přiřazením, transakce se má vrátit mezi nespárované (samostatný ticket #785).'
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k PR #685'
+    url: https://github.com/applifting-vsecourse/team-1/pull/685#issuecomment-7082079694
+  us:
+  - label: '#562'
+    url: https://github.com/applifting-vsecourse/team-1/issues/562
+  - label: '#563'
+    url: https://github.com/applifting-vsecourse/team-1/issues/563
+  - label: '#785'
+    url: https://github.com/applifting-vsecourse/team-1/issues/785
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-186
+  nazev: 'Dialogy se třemi a více tlačítky: mazání vlevo, hlavní akce poslední'
+  text: V dialozích se třemi a více tlačítky je destruktivní akce odděleně vlevo, zavírací tlačítko uprostřed a hlavní akce poslední.
+  typ: design
+  oblast: design
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k #757'
+    url: https://github.com/applifting-vsecourse/team-1/issues/757#issuecomment-7157084819
+  us:
+  - label: '#757'
+    url: https://github.com/applifting-vsecourse/team-1/issues/757
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-187
+  nazev: Nepovinná pole bez dodatku „(nepovinné)“
+  text: V celé aplikaci se u nepovinných polí nepíše „(nepovinné)“; povinná pole mají hvězdičku.
+  typ: design
+  oblast: design
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k #701'
+    url: https://github.com/applifting-vsecourse/team-1/issues/701#issuecomment-7157084216
+  us:
+  - label: '#701'
+    url: https://github.com/applifting-vsecourse/team-1/issues/701
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-188
+  nazev: Karta přihlášky se zrušeným nebo archivovaným termínem beze změny
+  text: Karta v „Moje přihlášky“ ukazuje u zrušeného nebo archivovaného termínu čip stavu; „Cena termínů“ a „Zbývá zaplatit“ zůstávají.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k #744'
+    url: https://github.com/applifting-vsecourse/team-1/issues/744#issuecomment-7099234652
+  us:
+  - label: '#744'
+    url: https://github.com/applifting-vsecourse/team-1/issues/744
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-189
+  nazev: „Získat nový odkaz“ je ohraničené tlačítko v plné šířce
+  text: Na přihlášení přihlašovatele je „Získat nový odkaz“ ohraničené tlačítko v plné šířce, aby na stránce nebyla dvě primární tlačítka.
+  typ: design
+  oblast: účty
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k PR #746'
+    url: https://github.com/applifting-vsecourse/team-1/pull/746
+  us:
+  - label: '#743'
+    url: https://github.com/applifting-vsecourse/team-1/issues/743
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Mění znění kritéria v #743, které chtělo primární tlačítko.'
+- id: D-190
+  nazev: Seznam přihlášek ukazuje tři termíny, zbytek sbalí
+  text: Seznam přihlášek ukáže u přihlášky nejvýše tři termíny, ostatní jsou sbalené.
+  typ: design
+  oblast: přehledy
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k PR #765'
+    url: https://github.com/applifting-vsecourse/team-1/pull/765
+  us:
+  - label: '#727'
+    url: https://github.com/applifting-vsecourse/team-1/issues/727
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-191
+  nazev: Organizátor umí zapsat všechno, co účastník
+  text: K účasti na akci není povinné používat aplikaci, proto organizátor umí zapsat všechno, co přihlašovatel, včetně dopravy, přání spolubydlení, pozdějšího příjezdu a dřívějšího odjezdu. Zdravotní omezení smí poprvé zapsat (i potvrdit „Nemám žádné omezení“) jen po potvrzení, že má od přihlašovatele výslovný souhlas.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k auditu #662 (PR #782)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/782
+  us:
+  - label: '#662'
+    url: https://github.com/applifting-vsecourse/team-1/issues/662
+  - label: '#786'
+    url: https://github.com/applifting-vsecourse/team-1/issues/786
+  - label: '#787'
+    url: https://github.com/applifting-vsecourse/team-1/issues/787
+  - label: '#788'
+    url: https://github.com/applifting-vsecourse/team-1/issues/788
+  - label: '#789'
+    url: https://github.com/applifting-vsecourse/team-1/issues/789
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-122
+  - D-159
+  z_otazek: []
+  dokumentace: []
+- id: D-192
+  nazev: Úpravy stravování a dopravy končí archivací
+  text: Stravování a dopravu jde upravit jen do archivace, tedy do dne po konci termínu; platí pro přihlašovatele i organizátora, v obrazovkách i na serveru.
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k auditu #662 (PR #782)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/782
+  us:
+  - label: '#790'
+    url: https://github.com/applifting-vsecourse/team-1/issues/790
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-193
+  nazev: Krok „Kapacita“ nejmenuje konkrétní režimy pokojů
+  text: Aktivní krok „2. Kapacita“ na přehledu akce říká jen „Zvolte režim pokojů a přidejte pokoje.“ (EN „Choose the room mode and add rooms.“). Konkrétní režimy nejmenuje, protože se mohou změnit; podrobnosti ukazuje stránka Ubytování.
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k #600'
+    url: https://github.com/applifting-vsecourse/team-1/issues/600#issuecomment-7162270598
+  us:
+  - label: '#600'
+    url: https://github.com/applifting-vsecourse/team-1/issues/600
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-194
+  nazev: 'Individuální pokoje: kapacita, režimy, zrušení příznaku a tisk'
+  text: Lůžko individuálního pokoje se počítá do kapacity pohlaví podle obsazení (potvrzený účastník v něm přidá jedno místo svého pohlaví). Individuální pokoj je výjimka v termínu s pokoji podle pohlaví, ve společném režimu se nenabízí. Příznak jde zrušit i u obsazeného pokoje, zobrazí se běžná varování. Organizátor pokoj vidí v přehledu ubytování i v tisku s označením „Individuální“.
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k #505'
+    url: https://github.com/applifting-vsecourse/team-1/issues/505#issuecomment-7037206853
+  us:
+  - label: '#505'
+    url: https://github.com/applifting-vsecourse/team-1/issues/505
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Mění kritérium #505, podle kterého se pokoj v tištěných přehledech neukazoval.'
+- id: D-195
+  nazev: Štítek potvrzeného termínu v e-mailech je „Potvrzeno / Confirmed“
+  text: Štítek stavu potvrzeného termínu v souhrnu e-mailů je „Potvrzeno“ / „Confirmed“, stejně jako v aplikaci; předměty a nadpisy e-mailů se nemění. Štítek „Potvrzená s dluhem“ zůstává.
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-11-25'
+  zdroj:
+  - popis: 'rozhodnutí PM 25. 11. 2026 v chatu k PR #641'
+    url: https://github.com/applifting-vsecourse/team-1/pull/641#issuecomment-7024949825
+  us:
+  - label: '#608'
+    url: https://github.com/applifting-vsecourse/team-1/issues/608
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/emaily/TEXTY.md
+    stav: ceka
