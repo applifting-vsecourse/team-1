@@ -12,7 +12,7 @@
   "noRestriction": "I have no health restriction",
   "notFilled": "The applicant has not provided any health restriction yet.",
   "notFilledHint": "Missing information does not mean the participant has no health restriction.",
-  "noteLabel": "Participant's health restriction (optional)",
+  "noteLabel": "Participant's health restriction",
   "organizerAccessText": "Other users cannot see this health restriction. Food allergies are listed under meals.",
   "organizerAccessTitle": "Organiser access only",
   "organizerCardTitle": "Participant health restriction",

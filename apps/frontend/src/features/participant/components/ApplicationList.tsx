@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -16,9 +17,14 @@ import {
 } from "@/features/participant/api/applications"
 import { ApplicationCard } from "@/features/participant/components/ApplicationCard"
 
+type ApplicationListProps = {
+  /** The badge with new posts of an application (US-91); a route composes it, as features do not import each other. */
+  renderBoardBadge?: (applicationId: string) => ReactNode
+}
+
 /** All applications under the signed-in account — loading, empty and error are all drawn here (DESIGN.md). */
 // Figma (Design system v2): US-54 / Moje přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-2 (360 px: node-id=15649-122; empty: 15649-449)
-export function ApplicationList() {
+export function ApplicationList({ renderBoardBadge }: ApplicationListProps) {
   const { t } = useTranslation("participant")
   const { data, isPending, error, refetch } = useQuery(myApplicationsQueryOptions())
 
@@ -34,10 +40,21 @@ export function ApplicationList() {
   }
   if (data.length === 0) return <EmptyState message={t("list.empty")} />
 
-  return <Applications applications={data} />
+  return (
+    <Applications
+      applications={data}
+      renderBoardBadge={renderBoardBadge}
+    />
+  )
 }
 
-function Applications({ applications }: { applications: MyApplication[] }) {
+function Applications({
+  applications,
+  renderBoardBadge,
+}: {
+  applications: MyApplication[]
+  renderBoardBadge?: (applicationId: string) => ReactNode
+}) {
   const { t } = useTranslation("participant")
   const { pageItems, ...pagination } = usePagination(applications)
   const groups = new Map<string, [MyApplication, ...MyApplication[]]>()
@@ -77,7 +94,10 @@ function Applications({ applications }: { applications: MyApplication[] }) {
           <ul className="flex flex-col gap-4">
             {group.map((application) => (
               <li key={application.id}>
-                <ApplicationCard application={application} />
+                <ApplicationCard
+                  application={application}
+                  boardBadge={renderBoardBadge?.(application.id)}
+                />
               </li>
             ))}
           </ul>

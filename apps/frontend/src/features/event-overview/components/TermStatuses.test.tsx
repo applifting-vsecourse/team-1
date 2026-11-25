@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { i18n } from "@/i18n"
+import { footerButtonNames } from "@/test/dialog-footer"
 
 import { termStatusesQueryOptions } from "@/features/event-overview/api/termStatus"
 import { TermStatuses } from "@/features/event-overview/components/TermStatuses"
@@ -296,6 +297,14 @@ describe("designed status states", () => {
     expect(patch).toHaveBeenCalledWith("organizer/applications/a1/terms/t1/status", {
       json: { status: "CONFIRMED" },
     })
+  })
+  it("puts Cancel before the main action in the cancel-participant dialog, without the change notice (#699, #757)", async () => {
+    get.mockReturnValue({ json: () => Promise.resolve([term({ allowedStatuses: ["CANCELLED"] })]) })
+    setup()
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole("button", { name: "Change status" }))
+    expect(footerButtonNames()).toEqual(["Cancel", "Cancel participation in term"])
+    expect(screen.queryByText(/recorded automatically/)).not.toBeInTheDocument()
   })
   it("cancels a waitlisted term through the status endpoint", async () => {
     get.mockReturnValue({ json: () => Promise.resolve([term({ allowedStatuses: ["CANCELLED"] })]) })

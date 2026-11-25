@@ -17,6 +17,7 @@ describe("notification", () => {
     ["PAYMENT_CANCELLED", "PAYMENT"],
     ["PAYMENT_REFUNDED", "PAYMENT"],
     ["REQUEST_APPROVED", "REQUEST"],
+    ["BOARD_POST_PUBLISHED", "BOARD"],
   ] as const)("%s is of the type %s", (kind, type) => {
     expect(typeOfKind(kind)).toBe(type)
   })
