@@ -3,21 +3,21 @@
   "cta": {
     "title": "Připraveni vypsat první akci?"
   },
-  "description": "Togena pomáhá organizátorům vypsat termíny, hlídat místa a vidět přihlášky i platby na jednom místě.",
+  "description": "Togena pomáhá organizátorům vypsat termíny, hlídat místa a vidět přihlášky i platby na jednom místě.",
   "features": {
     "capacity": {
-      "body": "Volná místa se počítají z pokojů, společných i podle pohlaví.",
+      "body": "Volná místa se počítají z pokojů, společných i podle pohlaví.",
       "title": "Kapacitu podle pokojů"
     },
     "multiTerm": {
-      "body": "Více termínů s vlastní cenou, zájemce si vybere jeden nebo víc.",
+      "body": "Více termínů s vlastní cenou, zájemce si vybere jeden nebo víc.",
       "title": "Přihlášky na více termínů"
     },
     "payments": {
-      "body": "Vidíte, kdo zaplatil a kdo ještě ne.",
+      "body": "Vidíte, kdo zaplatil a kdo ještě ne.",
       "title": "Přehled plateb"
     },
-    "title": "Co v Togeně vyřídíte",
+    "title": "Co v Togeně vyřídíte",
     "waitlist": {
       "body": "Když se termín zaplní, zájemci čekají jako náhradníci.",
       "title": "Potvrzení a náhradníky"
@@ -41,6 +41,6 @@
     "confirmed": "Potvrzeno",
     "event": "Letní tábor Modrá Hora"
   },
-  "title": "Přihlášky na akce s více termíny",
-  "titleAccent": "bez zmatku"
+  "title": "Přihlášky na akce s více termíny",
+  "titleAccent": "bez zmatku"
 }

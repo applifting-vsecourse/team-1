@@ -30,7 +30,7 @@ function HeroIllustration() {
       )}
     >
       <CampIllustration className="h-auto w-full" />
-      <div className="absolute top-[95%] left-0 flex flex-col gap-0.5 rounded-lg border bg-card px-4 py-3 text-sm whitespace-nowrap shadow-sm lg:top-[83.5%] lg:left-[8%]">
+      <div className="absolute top-[77%] left-0 flex flex-col gap-0.5 rounded-lg border bg-card px-4 py-3 text-sm whitespace-nowrap shadow-sm lg:top-[83.5%] lg:left-[8%]">
         <span className="font-semibold">{t("preview.event")}</span>
         <span className="text-muted-foreground">
           {formatDateRange("2027-07-12", "2027-07-18", { shouldShowYear: true })}
@@ -40,7 +40,7 @@ function HeroIllustration() {
         label={t("preview.confirmed")}
         tilt="illustration"
         isAnimated={shouldAssemble}
-        className="absolute top-[85%] left-[43%] -translate-1/2 lg:top-[78%] lg:left-[38%]"
+        className="absolute top-[69%] left-[43%] -translate-1/2 lg:top-[78%] lg:left-[38%]"
       />
     </div>
   )
