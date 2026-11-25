@@ -25,7 +25,7 @@ When a frame contradicts a rule below, build the frame and report the conflict i
 - **`destructive` only for destructive actions and errors.** Never for emphasis.
 - **`accent` is a quiet teal tint, not a brand colour.** It marks badges, icon tiles, the active tab and hover surfaces. The brand colour is `primary`; `link` is the teal for text links and accented words.
 - Body text is `foreground`; supporting text is `muted-foreground`. There is no third level.
-- **`brand-warm` (warm orange) is a fill, never text.** Illustrations, the highlighter under the key words of a public heading and the sticker surface, always with ink content (`brand-warm-foreground`). It never carries a state on its own, never colours a button or a link, and never touches primary teal (a white gap or an ink line between them).
+- **`brand-warm` (warm orange) is a fill, never text.** Illustrations, the highlighter stripe under the key words of a public heading (the heading keeps its own colour) and the sticker surface, whose content is always ink (`brand-warm-foreground`). It never carries a state on its own, never colours a button or a link, and never touches primary teal (a white gap or an ink line between them).
 
 ## Layout
 
@@ -59,7 +59,7 @@ Use the scale only: `1, 2, 3, 4, 6, 8, 12, 16` (Tailwind units — 4px…64px). 
 ## Surfaces
 
 - **Borders are hairlines**: `border border-border`. One border, not two adjacent ones.
-- **Shadows are for cards and things that float** — `shadow-sm` on cards, `shadow-md` on dropdowns, dialogs and toasts. Inputs, buttons, badges and nav items do not get shadows.
+- **Shadows are for cards and things that float** — `shadow-sm` on cards, `shadow-md` on dropdowns, dialogs and toasts. Inputs, buttons, badges and nav items do not get shadows. The one exception is the brand `Sticker` with its hard offset shadow.
 - Radius comes from the token (DS scale 4 / 8 / 12 / 20): `rounded-lg` cards, alerts and floating menus, `rounded-md` buttons, inputs and nav items, `rounded-sm` menu items, `rounded-full` badges and avatars. Never mix radii in one component.
 
 ## Forms

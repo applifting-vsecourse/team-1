@@ -29,12 +29,14 @@ export function LandingFeatures() {
       className="scroll-mt-16 bg-muted py-8 md:py-20"
     >
       <div className={cn(LANDING_CONTENT, "flex flex-col gap-4 md:gap-10")}>
-        <h2 className="text-center text-2xl font-semibold md:text-4xl/11 md:font-bold">
+        <h2 className="text-center text-2xl font-semibold tracking-tight md:text-4xl/11 md:font-bold">
           {t("features.title")}
         </h2>
         <Card className="flex-col-reverse items-center gap-3 p-5 text-center md:flex-row md:gap-12 md:py-6 md:pr-8 md:pl-12 md:text-left">
           <div className="flex flex-col gap-2 md:flex-1">
-            <h3 className="text-xl font-semibold md:text-2xl">{t("features.waitlist.title")}</h3>
+            <h3 className="text-xl font-semibold tracking-tight md:text-2xl">
+              {t("features.waitlist.title")}
+            </h3>
             <p className="text-muted-foreground">{t("features.waitlist.body")}</p>
           </div>
           <div
@@ -62,7 +64,9 @@ export function LandingFeatures() {
               className="items-center gap-3 p-5 text-center md:gap-4 md:p-6"
             >
               <Illustration className="h-auto w-full max-w-60 md:max-w-67" />
-              <h3 className="text-lg/6.5 font-semibold">{t(`features.${key}.title`)}</h3>
+              <h3 className="text-lg/6.5 font-semibold tracking-tight">
+                {t(`features.${key}.title`)}
+              </h3>
               <p className="text-muted-foreground">{t(`features.${key}.body`)}</p>
             </Card>
           ))}

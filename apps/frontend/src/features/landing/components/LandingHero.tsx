@@ -59,7 +59,7 @@ export function LandingHero() {
       )}
     >
       <div className="flex flex-col gap-5 lg:gap-6">
-        <h1 className="text-4xl/11 font-bold lg:text-6xl/16">
+        <h1 className="text-4xl/11 font-bold tracking-tight lg:text-6xl/16">
           {t("title")} <span className="brand-highlight">{t("titleAccent")}</span>
         </h1>
         <p className="text-muted-foreground md:text-lg">{t("description")}</p>

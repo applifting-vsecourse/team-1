@@ -19,7 +19,9 @@ export function LandingClosing() {
       )}
     >
       <div className="flex flex-col gap-5 md:flex-1 md:gap-6">
-        <h2 className="text-2xl font-semibold md:text-4xl/11 md:font-bold">{t("cta.title")}</h2>
+        <h2 className="text-2xl font-semibold tracking-tight md:text-4xl/11 md:font-bold">
+          {t("cta.title")}
+        </h2>
         <LandingCtas />
       </div>
       <CampIllustration className="mx-auto h-auto w-full max-w-72 shrink-0 md:max-w-100" />
