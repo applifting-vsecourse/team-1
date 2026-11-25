@@ -73,6 +73,11 @@
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
+  --color-brand-warm: var(--brand-warm);
+  --color-brand-warm-subtle: var(--brand-warm-subtle);
+  --color-brand-warm-foreground: var(--brand-warm-foreground);
+  --color-sticker-edge: var(--sticker-edge);
+  --color-sticker-shadow: var(--sticker-shadow);
 
   --font-sans: var(--font-sans);
 
@@ -104,6 +109,16 @@
 :root {
   --duration-accordion-open: 180ms;
   --duration-accordion-close: 120ms;
+  /* Togena / Motion tokens (Figma Motion 27361:3603). Organizer screens use fast/base with
+     ease-standard only; enter, overshoot, slow and mark belong to public pages and milestones. */
+  --ease-standard: cubic-bezier(0.22, 0.8, 0.2, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-overshoot: cubic-bezier(0.54, 1.2, 0.38, 1.2);
+  --ease-effect: cubic-bezier(0.31, 0.94, 0.34, 1);
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 400ms;
+  --duration-mark: 650ms;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --background: #f9fdff; /* color/bg/canvas */
   --foreground: #031a1e; /* color/text/primary */
@@ -152,6 +167,15 @@
   --sidebar-accent: #c3ecdf; /* color/bg/selected */
   --sidebar-accent-foreground: #031a1e; /* color/text/primary */
   --sidebar-border: #dae3e4; /* color/border/default */
+  /* Togena / Color brand (Figma 27360:3600): warm accent is a fill only, never text. */
+  --brand-warm: #f08a3c; /* color/brand/warm */
+  --brand-warm-subtle: #fde8d7; /* color/brand/warm-subtle */
+  --brand-warm-foreground: #031a1e; /* color/text/on-warm */
+  --illustration-primary: #007f72; /* color/illustration/primary */
+  --illustration-subtle: #c3ecdf; /* color/illustration/subtle */
+  --illustration-ink: #031a1e; /* color/illustration/ink */
+  --sticker-edge: #ffffff; /* color/brand/sticker-edge */
+  --sticker-shadow: #031a1e; /* color/brand/sticker-shadow */
   /* Sonner reads --radius directly; matches radius/md. */
   --radius: 0.5rem;
   /* shadows/surface: cards and the other things that sit on the canvas */
@@ -213,6 +237,12 @@
   --sidebar-accent: #005f5a;
   --sidebar-accent-foreground: #e4edee;
   --sidebar-border: #142223;
+  --brand-warm: #f5a05f;
+  --brand-warm-subtle: #3d2a1d;
+  --illustration-primary: #8bdfc4;
+  --illustration-subtle: #244f47;
+  --illustration-ink: #e9f6f0;
+  --sticker-edge: #f0fff7;
 }
 
 @layer base {
@@ -830,5 +860,115 @@
 @media (min-width: 48rem) {
   .pagination-current-marker:not([data-compact]) {
     mask-image: url("../assets/navigation/pagination-current.svg");
+  }
+}
+
+/* Brand layer (public pages and milestones only; docs/FIGMA-REMAKE.md). The warm accent is a
+   fill: a highlighter under the key words of a heading, ink text on top. */
+.brand-highlight {
+  background: linear-gradient(var(--brand-warm), var(--brand-warm)) left bottom 0.04em / 100% 0.27em
+    no-repeat;
+  box-decoration-break: clone;
+  padding-inline: 0.07em;
+  margin-inline: -0.07em;
+}
+
+/* Togena / Brand / Sticker: one hard offset shadow, never blurred. */
+.sticker {
+  box-shadow: 4px 4px 0 var(--sticker-shadow);
+}
+.sticker[data-size="s"] {
+  box-shadow: 3px 3px 0 var(--sticker-shadow);
+}
+
+/* M31 and M32 (Figma Motion 27363:3600) play once; with reduced motion the end state shows at once.
+   M31: the logo arcs fly in, the tent rises from the ground, the sun comes up, the path fades in.
+   M32: the sticker sticks with an overshoot, then its check draws. */
+@media (prefers-reduced-motion: no-preference) {
+  .brand-assemble :is(.arc-1, .arc-2, .tent, .tent-door, .sun) {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .brand-assemble :is(.backdrop, .ground) {
+    animation: brand-fade var(--duration-base) var(--ease-effect) both;
+  }
+  .brand-assemble .arc-1 {
+    animation:
+      brand-arc-start var(--duration-slow) var(--ease-enter) both,
+      brand-fade var(--duration-base) var(--ease-effect) both;
+  }
+  .brand-assemble .arc-2 {
+    animation:
+      brand-arc-end var(--duration-slow) var(--ease-enter) 80ms both,
+      brand-fade var(--duration-base) var(--ease-effect) 80ms both;
+  }
+  .brand-assemble :is(.tent, .tent-door) {
+    transform-origin: bottom;
+    animation: brand-rise var(--duration-slow) var(--ease-enter) 160ms both;
+  }
+  .brand-assemble .sun {
+    animation:
+      brand-sunrise var(--duration-slow) var(--ease-enter) 240ms both,
+      brand-fade var(--duration-base) var(--ease-effect) 240ms both;
+  }
+  .brand-assemble .path {
+    animation: brand-fade var(--duration-base) var(--ease-effect) 460ms both;
+  }
+  /* The term is confirmed once the camp stands. */
+  .brand-assemble {
+    --sticker-delay: var(--duration-mark);
+  }
+
+  .sticker[data-animated] {
+    animation:
+      sticker-stick var(--duration-slow) var(--ease-overshoot) var(--sticker-delay, 0ms) both,
+      brand-fade var(--duration-base) var(--ease-effect) var(--sticker-delay, 0ms) both;
+  }
+  .sticker[data-animated] path {
+    stroke-dasharray: 1;
+    animation: sticker-check 250ms var(--ease-standard)
+      calc(var(--sticker-delay, 0ms) + var(--duration-slow)) both;
+  }
+
+  @keyframes brand-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes brand-arc-start {
+    from {
+      translate: -17px -17px;
+      rotate: -20deg;
+    }
+  }
+  @keyframes brand-arc-end {
+    from {
+      translate: 17px 17px;
+      rotate: -20deg;
+    }
+  }
+  @keyframes brand-rise {
+    from {
+      scale: 1 0;
+    }
+  }
+  @keyframes brand-sunrise {
+    from {
+      translate: 0 24px;
+    }
+  }
+  @keyframes sticker-stick {
+    from {
+      scale: 0.6;
+      rotate: 0deg;
+    }
+  }
+  @keyframes sticker-check {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 }
