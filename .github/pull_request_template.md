@@ -13,8 +13,8 @@ Closes #
 <!-- Mění-li se, co uživatel vidí: odkazy na rámce ve Figmě (Design system v2) z „Podklady“ v issue — desktop a 360 px, každý dotčený stav. Bez rámce jeden řádek proč. -->
 
 | Stav | Figma desktop | Figma 360 px |
-| --- | --- | --- |
-|  |  |  |
+| ---- | ------------- | ------------ |
+|      |               |              |
 
 ## Screenshoty
 
