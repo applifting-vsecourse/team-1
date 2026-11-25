@@ -127,10 +127,9 @@ export function DeleteTransportDialog({
             <AlertTitle>{t("deleteFailed")}</AlertTitle>
           </Alert>
         ) : null}
-        <DialogFooter className={hasParticipants ? undefined : "flex-row sm:justify-start"}>
+        <DialogFooter className={hasParticipants ? undefined : "flex-row *:flex-1"}>
           <Button
             variant={hasParticipants ? "outline" : "ghost"}
-            className={hasParticipants ? undefined : "h-12 flex-1 sm:flex-none"}
             size="lg"
             disabled={mutation.isPending}
             onClick={onClose}
@@ -140,7 +139,6 @@ export function DeleteTransportDialog({
           <PendingButton
             isPending={mutation.isPending}
             variant="destructive"
-            className={hasParticipants ? undefined : "h-12 flex-1 sm:min-w-53 sm:flex-none"}
             size="lg"
             disabled={mutation.isPending || (hasParticipants && !isAcknowledged)}
             onClick={() => {
