@@ -33,14 +33,14 @@ type Room = { gender: Gender | null; beds: number }
 
 const GENDERS = ["FEMALE", "MALE"] as const
 
-/** Rooms of one gender grouped by their beds with the extra beds (přistýlky), largest first: `[{ beds: 5, count: 10 }]`. */
+/** Rooms of one gender grouped by their beds with the extra beds (přistýlky), largest first: `[{ beds: 5, rooms: 10 }]`. */
 function roomGroups(rooms: readonly Room[], gender: Gender) {
   const groups = new Map<number, number>()
   for (const room of rooms) {
     if (room.gender !== gender) continue
     groups.set(room.beds, (groups.get(room.beds) ?? 0) + 1)
   }
-  return [...groups].sort(([a], [b]) => b - a).map(([beds, count]) => ({ beds, count }))
+  return [...groups].sort(([a], [b]) => b - a).map(([beds, rooms]) => ({ beds, rooms }))
 }
 
 /**
@@ -370,9 +370,7 @@ function TermDetail({
                 figures={byGender[gender]}
                 helper={[
                   freeText(byGender[gender], t),
-                  ...roomGroups(rooms, gender).map((group) =>
-                    t(gender === "FEMALE" ? "capacity.roomsFemale" : "capacity.roomsMale", group),
-                  ),
+                  ...roomGroups(rooms, gender).map((group) => t("capacity.roomsGroup", group)),
                 ].join(" · ")}
               />
             ))
@@ -395,10 +393,8 @@ function TermDetail({
                 ? "capacity.increaseWomenDetail"
                 : "capacity.increaseMenDetail",
               {
-                confirmed: t("events:terms.cancelDialog.confirmed", {
-                  count: changedFigures.confirmed,
-                }),
-                beds: t("capacity.increaseBedTotal", { count: changedFigures.capacity }),
+                confirmed: changedFigures.confirmed,
+                beds: changedFigures.capacity,
                 free:
                   changedFigures.free < 0
                     ? t("capacity.missingBeds", { count: -changedFigures.free })

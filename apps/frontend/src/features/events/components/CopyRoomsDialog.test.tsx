@@ -122,9 +122,8 @@ describe("copying rooms into a term", () => {
     const { user, onCopied, onClose } = renderDialog(termRooms("t1", []))
     expect(screen.getByRole("button", { name: "Show preview" })).toBeDisabled()
     await pickSource(user)
-    expect(
-      screen.getByText(/The target term gets 2 rooms of its own and a capacity of 10 beds/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/2 rooms, 10 beds/)).toBeInTheDocument()
+    expect(screen.getByText("Will be copied")).toBeInTheDocument()
     expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: "Copy rooms" }))
     expect(post).toHaveBeenCalledWith("organizer/events/e1/terms/t1/rooms/copy", {
@@ -195,7 +194,6 @@ describe("copying rooms into a term", () => {
     it("counts the beds of a source with extra beds including them and says they are copied", async () => {
       const { user } = renderDialog(termRooms("t1", []), withExtras)
       await pickSource(user)
-      expect(screen.getByText(/2 rooms of its own and a capacity of 12 beds/)).toBeInTheDocument()
       expect(screen.getByText(/2 rooms, 12 beds/)).toBeInTheDocument()
       expect(screen.getByText("including 2 extra beds")).toBeInTheDocument()
       expect(screen.getByText("Will be copied")).toBeInTheDocument()
@@ -208,7 +206,7 @@ describe("copying rooms into a term", () => {
       const { user } = renderDialog(termRooms("t1", []))
       await pickSource(user)
       expect(screen.queryByText(/including .* extra bed/)).not.toBeInTheDocument()
-      expect(screen.getByText(/capacity of 10 beds/)).toBeInTheDocument()
+      expect(screen.getByText(/2 rooms, 10 beds/)).toBeInTheDocument()
     })
 
     it("adds: target beds with its extra beds plus the beds of the source with theirs", async () => {

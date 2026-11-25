@@ -61,7 +61,6 @@
     "meals": "Stravování",
     "overview": "Přehled",
     "payments": "Platby",
-    "position": "{{current}} z {{total}}",
     "program": "Program",
     "rooms": "Ubytování",
     "settings": "Nastavení",
@@ -105,10 +104,7 @@
     "next": "Další stránka",
     "page": "Stránka {{page}}",
     "previous": "Předchozí stránka",
-    "range_few": "{{from}}–{{to}} z {{count}} výsledků",
-    "range_many": "{{from}}–{{to}} z {{count}} výsledků",
-    "range_one": "{{from}}–{{to}} z {{count}} výsledku",
-    "range_other": "{{from}}–{{to}} z {{count}} výsledků"
+    "range": "{{from}}–{{to}} / {{total}}"
   },
   "password": {
     "hide": "Skrýt heslo",

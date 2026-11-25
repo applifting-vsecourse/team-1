@@ -173,7 +173,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     const user = userEvent.setup()
     const dialog = await openDialog(user)
 
-    expect(await within(dialog).findByText("All 3 will be confirmed.")).toBeInTheDocument()
+    expect(await within(dialog).findByText("All will be confirmed.")).toBeInTheDocument()
     expect(within(dialog).queryByRole("radio")).toBeNull()
     expect(within(dialog).queryByRole("alert")).toBeNull()
     const submit = within(dialog).getByRole("button", { name: "Evaluate" })
@@ -197,7 +197,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     const dialog = await openDialog(user)
 
     expect(
-      await within(dialog).findByText("2 of 3 will be confirmed in order of application receipt."),
+      await within(dialog).findByText("To confirm: 2 / 3 (by order received)"),
     ).toBeInTheDocument()
     expect(within(dialog).getByText("Remaining 1:")).toBeInTheDocument()
     expect(within(dialog).getByRole("radio", { name: "Waitlist" })).not.toBeChecked()
@@ -255,7 +255,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     const dialog = await openDialog(userEvent.setup())
 
     expect(
-      await within(dialog).findByText("8 of 20 will be confirmed in order of application receipt."),
+      await within(dialog).findByText("To confirm: 8 / 20 (by order received)"),
     ).toBeInTheDocument()
     expect(within(dialog).queryByRole("list")).toBeNull()
     expect(within(dialog).queryByText(/Women|Men/)).toBeNull()
@@ -266,7 +266,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
     post.mockImplementation(() => json(sharedPreview(0, 3, 0)))
     setup()
     const dialog = await openDialog(userEvent.setup())
-    expect(await within(dialog).findByText("None of 3 will be confirmed.")).toBeInTheDocument()
+    expect(await within(dialog).findByText("None will be confirmed.")).toBeInTheDocument()
   })
 
   it("shows one sentence and the new result when the capacity changed meanwhile, and changes nothing before", async () => {
@@ -297,7 +297,7 @@ describe("evaluating the selected applications in one step (US-140)", () => {
       await within(dialog).findByText("The free beds changed meanwhile. Check the new numbers."),
     ).toBeInTheDocument()
     expect(
-      await within(dialog).findByText("8 of 20 will be confirmed in order of application receipt."),
+      await within(dialog).findByText("To confirm: 8 / 20 (by order received)"),
     ).toBeInTheDocument()
     expect(onFiltersChange).not.toHaveBeenCalled()
 
@@ -336,7 +336,6 @@ describe("the dialog declines its counts (US-140)", () => {
       count: 1,
       title: "Vyhodnotit 1 přihlášku",
       rest: "Zbývá 1:",
-      all: "Potvrdí se 1.",
       doneTitle: "Vyhodnocena 1 přihláška",
       confirmed: "1 potvrzená",
       rejected: "1 zamítnutá",
@@ -346,7 +345,6 @@ describe("the dialog declines its counts (US-140)", () => {
       count: 2,
       title: "Vyhodnotit 2 přihlášky",
       rest: "Zbylé 2:",
-      all: "Potvrdí se všech 2.",
       doneTitle: "Vyhodnoceny 2 přihlášky",
       confirmed: "2 potvrzené",
       rejected: "2 zamítnuté",
@@ -356,7 +354,6 @@ describe("the dialog declines its counts (US-140)", () => {
       count: 5,
       title: "Vyhodnotit 5 přihlášek",
       rest: "Zbylých 5:",
-      all: "Potvrdí se všech 5.",
       doneTitle: "Vyhodnoceno 5 přihlášek",
       confirmed: "5 potvrzených",
       rejected: "5 zamítnutých",
@@ -366,7 +363,6 @@ describe("the dialog declines its counts (US-140)", () => {
       count: 8,
       title: "Vyhodnotit 8 přihlášek",
       rest: "Zbylých 8:",
-      all: "Potvrdí se všech 8.",
       doneTitle: "Vyhodnoceno 8 přihlášek",
       confirmed: "8 potvrzených",
       rejected: "8 zamítnutých",
@@ -379,7 +375,6 @@ describe("the dialog declines its counts (US-140)", () => {
     const t = i18n.getFixedT("cs", "eventOverview")
     expect(t("bulkEvaluation.title", { count })).toBe(expected.title)
     expect(t("bulkEvaluation.restQuestion", { count })).toBe(expected.rest)
-    expect(t("bulkEvaluation.confirmAll", { count })).toBe(expected.all)
     expect(t("bulkEvaluation.doneTitle", { count })).toBe(expected.doneTitle)
     expect(t("bulkEvaluation.doneConfirmed", { count })).toBe(expected.confirmed)
     expect(t("bulkEvaluation.doneRejected", { count })).toBe(expected.rejected)
@@ -390,12 +385,13 @@ describe("the dialog declines its counts (US-140)", () => {
     post.mockImplementation(() => json(sharedPreview(10, 10, 10)))
     setup()
     const dialog = await openDialog(userEvent.setup())
-    await within(dialog).findByText("10 of 20 will be confirmed in order of application receipt.")
+    await within(dialog).findByText("To confirm: 10 / 20 (by order received)")
     await act(() => i18n.changeLanguage("cs"))
     expect(screen.getByRole("dialog", { name: "Vyhodnotit 20 přihlášek" })).toBeInTheDocument()
-    expect(
-      within(dialog).getByText("Potvrdí se 10 z 20 podle pořadí přijetí přihlášky."),
-    ).toBeInTheDocument()
+    expect(within(dialog).getByText("Potvrdí se: 10 / 20 (podle pořadí)")).toBeInTheDocument()
+    expect(i18n.getFixedT("cs", "eventOverview")("bulkEvaluation.confirmAll")).toBe(
+      "Potvrdí se všechny.",
+    )
     expect(within(dialog).getByText("Zbylých 10:")).toBeInTheDocument()
     expect(within(dialog).getByRole("radio", { name: "Mezi náhradníky" })).toBeInTheDocument()
     expect(within(dialog).getByRole("radio", { name: "Zamítnout" })).toBeInTheDocument()

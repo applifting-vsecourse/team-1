@@ -112,6 +112,7 @@ describe("CapacityPage", () => {
       renderPage(gendered, 200, { termId: "t1" }, client)
       await screen.findByText("2 / 5")
       expect(Boolean(screen.queryByText("Women's capacity increased by 2 beds"))).toBe(isShown)
+      expect(Boolean(screen.queryByText(/Women: 2 \/ 5 · 3 free/))).toBe(isShown)
     },
   )
 
@@ -161,7 +162,7 @@ describe("CapacityPage", () => {
     ).toHaveTextContent("2 / 5")
     expect(
       screen.getByRole("heading", { name: /Women · capacity 5 beds/ }).parentElement,
-    ).toHaveTextContent("3 free places · 1 women’s room of 5 beds")
+    ).toHaveTextContent("3 free places · Rooms: 1 · beds per room: 5")
     for (const part of ["term=t1", "status=CONFIRMED", "gender=FEMALE"]) {
       expect(women.getAttribute("href")).toContain(part)
     }

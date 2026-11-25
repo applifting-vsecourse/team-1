@@ -2,7 +2,6 @@ import i18n from "i18next"
 import LanguageDetector from "i18next-browser-languagedetector"
 import { initReactI18next } from "react-i18next"
 
-import { czechFrom } from "@/i18n/czech-from"
 import { defaultNS, resources } from "@/i18n/resources"
 
 export const LANGUAGES = ["en", "cs"] as const
@@ -35,9 +34,6 @@ void i18n
     interpolation: { escapeValue: false },
     returnNull: false,
   })
-
-// Czech copy writes `{{before, czechFrom}}` where "z" must become "ze" ("ze 2", "z 3").
-i18n.services.formatter?.add("czechFrom", (value) => czechFrom(value))
 
 const syncDocumentLanguage = (language: string) => {
   if (typeof document !== "undefined") document.documentElement.lang = language

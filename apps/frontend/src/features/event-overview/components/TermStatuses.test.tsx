@@ -171,6 +171,7 @@ describe("TermStatuses", () => {
     const user = userEvent.setup()
 
     await user.click(await screen.findByRole("button", { name: "Change status" }))
+    expect(screen.getByText(/Occupancy: 48\/50 → 49\/50 · Amount due: CZK/)).toBeVisible()
     await user.click(
       within(screen.getByRole("dialog")).getByRole("button", { name: "Save status" }),
     )

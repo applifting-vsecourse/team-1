@@ -270,7 +270,7 @@ function EventRow({ event }: { event: OrganizerEvent }) {
   )
 }
 
-/** Confirmed of all beds across the terms ("152/160 potvrzených"), with a bar; a dash until there are terms and rooms. */
+/** Occupancy and term count, with a bar when rooms have been configured. */
 function Occupancy({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
   const confirmed = event.terms.reduce((sum, term) => sum + term.confirmedCount, 0)
@@ -279,7 +279,7 @@ function Occupancy({ event }: { event: OrganizerEvent }) {
   if (capacity === 0) {
     return <span className="text-sm font-medium">{t("list.noCapacity")}</span>
   }
-  const label = t("list.occupancyConfirmed", { confirmed, capacity })
+  const label = t("list.occupancyConfirmed", { confirmed, capacity, terms: event.termCount })
 
   return (
     <>

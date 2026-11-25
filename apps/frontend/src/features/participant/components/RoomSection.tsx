@@ -41,7 +41,7 @@ export function RoomSection({ terms }: { terms: MyApplicationTerm[] }) {
                   <p className="text-sm text-muted-foreground tabular-nums">
                     {t("detail.roomOccupancy", {
                       occupied: term.room.occupancy.occupants.length,
-                      count: term.room.occupancy.beds,
+                      beds: term.room.occupancy.beds,
                     })}
                   </p>
                 ) : null}

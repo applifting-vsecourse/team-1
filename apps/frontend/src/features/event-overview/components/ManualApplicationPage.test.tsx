@@ -449,7 +449,7 @@ describe("ManualApplicationPage", () => {
       finishRefresh()
       await refresh
     })
-    expect(await screen.findByText(/from 1\/1 to 2\/1/)).toBeInTheDocument()
+    expect(await screen.findByText("Occupancy: 1/1 → 2/1")).toBeInTheDocument()
     await user.click(screen.getByRole("checkbox", { name: "I confirm exceeding capacity" }))
     await user.click(screen.getByRole("button", { name: "Create application" }))
     expect(await screen.findByText("Application created")).toBeInTheDocument()

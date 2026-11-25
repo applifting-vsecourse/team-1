@@ -110,7 +110,7 @@ export function BulkEvaluateDialog({
               />
             </>
           ) : (
-            <p>{t("bulkEvaluation.confirmAll", { count: data.confirm.total })}</p>
+            <p>{t("bulkEvaluation.confirmAll")}</p>
           )}
         </>
       )}
@@ -133,8 +133,8 @@ function RestWarning({ data }: { data: BulkEvaluationPreview }) {
       <TriangleAlert aria-hidden="true" />
       <AlertTitle className="line-clamp-none">
         {confirm.total === 0
-          ? t("bulkEvaluation.confirmNone", { of: selected.total })
-          : t("bulkEvaluation.restWarning", { count: confirm.total, of: selected.total })}
+          ? t("bulkEvaluation.confirmNone")
+          : t("bulkEvaluation.restWarning", { confirmed: confirm.total, selected: selected.total })}
       </AlertTitle>
     </Alert>
   )

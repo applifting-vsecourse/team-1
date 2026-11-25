@@ -100,6 +100,7 @@ describe("OrganizerTermChange", () => {
 
     const dialog = await pickNewTerm(user)
     expect(await within(dialog).findByText(/Capacity for men/)).toBeInTheDocument()
+    expect(within(dialog).getByText("Free places: 2 / 50")).toBeVisible()
     await user.click(within(dialog).getByRole("button", { name: "Confirm the term change" }))
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())

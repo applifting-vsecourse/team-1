@@ -80,8 +80,9 @@ Copy exists only so the user makes the right decision or knows the next step; ev
 6. **No add-ons after a dot in headings.** A subheading is a name, not a list of contents. ✗ „Původní termín · vratka“, „Nový termín · nová částka k úhradě“ ✓ „Původní termín“, „Nový termín“.
 7. **The user's language, not accounting or system terms.** ✗ „Zaplaceno 0 Kč · dluh po odhlášení 0 Kč“ ✓ „Zatím jste nic neplatili, nemusíte nic řešit.“
 8. **An action result doesn't linger.** It is a toast (see above), or it disappears with the next action. ✗ „Zkopírovány 2 bloky · 2 bloky přeskočeny“ still shown after the next edit.
+9. **Use the same numeric format in Czech and English.** Write counts as `Label: value`, ratios as `X / Y`, and changes as `A → B`. Separate multiple values with ` · `. Omit prepositions before numbers and nouns after numbers that need inflection. Existing translation keys with working plural forms may retain the noun. Omit a count from dialog copy when it already appears elsewhere in that dialog.
 
-Before handing over: every sentence in a dialog maps to a decision or step of the user; nothing on the screen is said twice; warnings sit in one block with a heading; counts and prepositions are declined correctly („1 lůžko“, „ze 2“).
+Before handing over, check that every sentence in a dialog maps to a user decision or step, each value appears once, and warnings sit in one block with a heading.
 
 ## Every list has three states
 

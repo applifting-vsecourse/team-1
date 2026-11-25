@@ -48,7 +48,7 @@ describe("RoomSection", () => {
         ]}
       />,
     )
-    expect(screen.getByText("2 of 3 beds occupied")).toBeVisible()
+    expect(screen.getByText("Occupied beds: 2 / 3")).toBeVisible()
     expect(screen.getByRole("list", { name: "Beds" })).toBeVisible()
     expect(screen.getByText("Jana")).toBeVisible()
     expect(screen.getByText("(you)")).toBeInTheDocument()
@@ -74,7 +74,7 @@ describe("RoomSection", () => {
         ]}
       />,
     )
-    expect(screen.getByText("1 of 1000 beds occupied")).toBeVisible()
+    expect(screen.getByText("Occupied beds: 1 / 1000")).toBeVisible()
     expect(screen.getAllByRole("listitem")).toHaveLength(21)
   })
 

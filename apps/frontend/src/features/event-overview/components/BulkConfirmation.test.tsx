@@ -190,9 +190,9 @@ describe("bulk decisions on the queue (US-107, US-108)", () => {
     ).toEqual(["Adam Test", "Jana Test"])
     expect(within(dialog).getByText("Free beds after the confirmation")).toBeInTheDocument()
     expect(
-      within(dialog).getByText("1 men's + 1 women's → 0 men's + 0 women's"),
+      within(dialog).getByText("Free beds – men: 1, women: 1 → Free beds – men: 0, women: 0"),
     ).toBeInTheDocument()
-    expect(within(dialog).getByText("2 of 3 applications will be confirmed.")).toBeInTheDocument()
+    expect(within(dialog).getByText("Selected: 3 · to confirm: 2")).toBeInTheDocument()
 
     await user.click(within(dialog).getByRole("button", { name: "Confirm applications" }))
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())

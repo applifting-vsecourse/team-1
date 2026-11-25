@@ -61,7 +61,6 @@
     "meals": "Meals",
     "overview": "Overview",
     "payments": "Payments",
-    "position": "{{current}} of {{total}}",
     "program": "Program",
     "rooms": "Accommodation",
     "settings": "Settings",
@@ -105,10 +104,7 @@
     "next": "Next page",
     "page": "Page {{page}}",
     "previous": "Previous page",
-    "range_few": "{{from}}–{{to}} of {{count}} results",
-    "range_many": "{{from}}–{{to}} of {{count}} results",
-    "range_one": "{{from}}–{{to}} of {{count}} result",
-    "range_other": "{{from}}–{{to}} of {{count}} results"
+    "range": "{{from}}–{{to}} / {{total}}"
   },
   "password": {
     "hide": "Hide password",

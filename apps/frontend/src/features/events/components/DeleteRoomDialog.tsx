@@ -106,22 +106,21 @@ export function DeleteRoomDialog({
             <Alert className="border-status-warning bg-status-warning-bg p-6">
               <AlertTitle className="line-clamp-none text-lg text-status-warning">
                 {room.individual
-                  ? t(
-                      occupied > 0 ? "rooms.deleteIndividualImpact" : "rooms.deleteIndividualEmpty",
-                      {
+                  ? occupied > 0
+                    ? t("rooms.deleteIndividualImpact", {
                         femaleBefore: term.capacity.FEMALE,
                         femaleAfter: term.capacity.FEMALE - occupiedBy.FEMALE,
                         maleBefore: term.capacity.MALE,
                         maleAfter: term.capacity.MALE - occupiedBy.MALE,
-                      },
-                    )
+                      })
+                    : t("rooms.deleteIndividualEmpty")
                   : t(
                       term.roomMode === "SHARED"
                         ? "rooms.deleteImpact"
                         : room.gender === "FEMALE"
                           ? "rooms.deleteFemaleImpact"
                           : "rooms.deleteMaleImpact",
-                      { before, count: before - room.beds },
+                      { before, after: before - room.beds },
                     )}
               </AlertTitle>
               {room.individual && occupied > 0 ? (

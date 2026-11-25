@@ -51,7 +51,7 @@ export function Pagination({
         {t("pagination.range", {
           from: page * pageSize + 1,
           to: Math.min((page + 1) * pageSize, total),
-          count: total,
+          total,
         })}
       </span>
       <div className={cn("flex flex-wrap items-center gap-2", !isCompact && "md:justify-center")}>

@@ -90,7 +90,7 @@ describe("EventSetup", () => {
     renderSetup(base)
 
     expect(
-      await screen.findByRole("heading", { name: "0/3 done · Application setup" }),
+      await screen.findByRole("heading", { name: "Done: 0 / 3 · Application setup" }),
     ).toBeInTheDocument()
     expect(screen.getByText("The event is created")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Now · 1. Term and price" })).toBeInTheDocument()
@@ -112,7 +112,7 @@ describe("EventSetup", () => {
     renderSetup({ ...base, termCount: 1, missing: ["ROOM", "EVALUATION_MODE"] })
 
     expect(
-      await screen.findByRole("heading", { name: "1/3 done · Capacity setup" }),
+      await screen.findByRole("heading", { name: "Done: 1 / 3 · Capacity setup" }),
     ).toBeInTheDocument()
     expect(screen.getByText("The term and price are saved")).toBeInTheDocument()
     expect(screen.getByText("Done")).toBeInTheDocument()
@@ -148,7 +148,7 @@ describe("EventSetup", () => {
     renderSetup({ ...base, termCount: 1, missing: ["EVALUATION_MODE"] })
 
     expect(
-      await screen.findByRole("heading", { name: "2/3 done · Evaluation mode" }),
+      await screen.findByRole("heading", { name: "Done: 2 / 3 · Evaluation mode" }),
     ).toBeInTheDocument()
     expect(screen.getByRole("radio", { name: "Automatic" })).not.toBeChecked()
     expect(screen.getByRole("radio", { name: "Manual" })).not.toBeChecked()
@@ -189,7 +189,7 @@ describe("EventSetup", () => {
     renderSetup({ ...base, evaluationModePending: false, missing: ["TERM", "ROOM"] })
 
     expect(
-      await screen.findByRole("heading", { name: "1/3 done · Application setup" }),
+      await screen.findByRole("heading", { name: "Done: 1 / 3 · Application setup" }),
     ).toBeInTheDocument()
     expect(screen.getByText("Evaluation mode: Automatic")).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Change" })).toBeInTheDocument()

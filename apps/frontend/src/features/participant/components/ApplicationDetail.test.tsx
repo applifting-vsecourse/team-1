@@ -315,7 +315,7 @@ describe("ApplicationDetail", () => {
     await user.click(await within(terms).findByRole("button", { name: "Change terms" }))
     const dialog = await screen.findByRole("dialog", { name: "Change term" })
     expect(within(dialog).getByRole("heading", { name: "Change impact" })).toBeInTheDocument()
-    expect(within(dialog).getByText(/You paid CZK 2,000/)).toBeInTheDocument()
+    expect(within(dialog).getByText(/Paid: CZK 2,000 \//)).toBeInTheDocument()
     expect(within(dialog).getByText("You will pay CZK 4,900 for the new term.")).toBeInTheDocument()
     expect(within(dialog).getByRole("combobox", { name: "New term" })).toBeInTheDocument()
     expect(within(dialog).getByText(/Paid money is not refunded automatically/)).toBeInTheDocument()

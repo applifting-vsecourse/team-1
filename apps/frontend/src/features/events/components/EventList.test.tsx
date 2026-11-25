@@ -111,8 +111,10 @@ describe("EventList", () => {
     ) as HTMLElement
     expect(within(card).getByText("Published")).toBeInTheDocument()
     expect(within(card).getByText("Kemp Lipno · 2 terms · July 2027")).toBeInTheDocument()
-    expect(within(card).getByText("79/120 confirmed")).toBeInTheDocument()
-    expect(within(card).getByRole("progressbar", { name: "79/120 confirmed" })).toBeInTheDocument()
+    expect(within(card).getByText("Places: 79 / 120 · Terms: 2")).toBeInTheDocument()
+    expect(
+      within(card).getByRole("progressbar", { name: "Places: 79 / 120 · Terms: 2" }),
+    ).toBeInTheDocument()
   })
 
   it("keeps both filters on one line so they have the same height on a phone (#753)", async () => {

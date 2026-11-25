@@ -77,7 +77,7 @@ export function BulkConfirmDialog({
   ): string =>
     preview.isShared
       ? String(places.MALE)
-      : `${t("bulk.men", { count: places.MALE })} + ${t("bulk.women", { count: places.FEMALE })}`
+      : t("bulk.freeBedsByGender", { men: places.MALE, women: places.FEMALE })
   return (
     <BulkActionDialog
       title={t("bulk.dialogTitle")}
