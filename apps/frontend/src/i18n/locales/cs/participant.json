@@ -168,8 +168,10 @@
     "errorTitle": "Přihlášky se nepodařilo načíst",
     "female": "žena",
     "male": "muž",
+    "hidePaymentReminders": "Skrýt další",
     "paymentNote": "Platí jen pro potvrzený termín; za náhradnický termín zatím neplaťte.",
     "remaining": "Zbývá zaplatit",
+    "showMorePaymentReminders": "Zobrazit další ({{count}})",
     "termPrice": "Cena termínů"
   },
   "notifications": {

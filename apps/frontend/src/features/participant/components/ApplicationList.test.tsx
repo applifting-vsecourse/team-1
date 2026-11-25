@@ -7,6 +7,7 @@ import {
   RouterProvider,
 } from "@tanstack/react-router"
 import { render, screen, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { MyApplication } from "@/features/participant/api/applications"
@@ -150,6 +151,82 @@ describe("ApplicationList", () => {
     expect(screen.getAllByText("Unpaid")).toHaveLength(2)
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     expect(screen.getAllByRole("link")[0]).toHaveAttribute("href", "/participant/applications/a1")
+  })
+
+  it("shows the nearest unpaid term even off the first page and keeps the remaining reminders reachable", async () => {
+    const user = userEvent.setup()
+    const template = application()
+    const reminder = (
+      id: string,
+      eventName: string,
+      startsOn: string,
+      endsOn: string,
+    ): MyApplication => application({
+      id,
+      eventName,
+      terms: [
+        { ...template.terms[0]!, startsOn, endsOn },
+        // An earlier confirmed, paid term does not make this payment reminder more urgent.
+        { ...template.terms[1]!, startsOn: "2099-01-01", endsOn: "2099-01-02", status: "CONFIRMED" },
+      ],
+      paymentDetails: {
+        ...template.paymentDetails!,
+        terms: [{
+          termId: "t1",
+          termNumber: 1,
+          variableSymbol: "48001",
+          dueCzk: 4500,
+          paidCzk: 2000,
+          owedCzk: 2500,
+          paymentStatus: "PARTIALLY_PAID",
+          paymentDeadline: null,
+        }, {
+          termId: "t2",
+          termNumber: 2,
+          variableSymbol: "48002",
+          dueCzk: 4900,
+          paidCzk: 4900,
+          owedCzk: 0,
+          paymentStatus: "PAID",
+          paymentDeadline: null,
+        }],
+      },
+    })
+    respondWith([
+      reminder("later", "Later event", "2099-05-01", "2099-05-03"),
+      reminder("past", "Past event", "2000-05-01", "2000-05-03"),
+      ...Array.from({ length: 18 }, (_, index) =>
+        application({ id: `paid-${index}`, paymentDetails: null }),
+      ),
+      reminder("next", "Next event", "2099-04-01", "2099-04-03"),
+    ])
+    renderList()
+
+    expect(await screen.findByRole("note")).toHaveTextContent("Next event")
+    expect(screen.queryByRole("heading", { name: "Next event" })).not.toBeInTheDocument()
+    const toggle = screen.getByRole("button", { name: "Show more (2)" })
+    expect(toggle).toHaveAttribute("aria-expanded", "false")
+    await user.tab()
+    expect(toggle).toHaveFocus()
+    await user.keyboard("{Enter}")
+    expect(screen.getAllByRole("note").map((note) => note.textContent)).toEqual([
+      expect.stringContaining("Next event"),
+      expect.stringContaining("Later event"),
+      expect.stringContaining("Past event"),
+    ])
+    expect(toggle).toHaveAttribute("aria-expanded", "true")
+    expect(toggle).toHaveFocus()
+    await user.keyboard(" ")
+    expect(screen.getByRole("note")).toHaveTextContent("Next event")
+    expect(toggle).toHaveAttribute("aria-expanded", "false")
+  })
+
+  it("does not show a disclosure for a single payment reminder", async () => {
+    respondWith([application()])
+    renderList()
+
+    expect(await screen.findByRole("note")).toBeVisible()
+    expect(screen.queryByRole("button", { name: /show more/i })).not.toBeInTheDocument()
   })
 
   it("is one link whose parts follow the hierarchy: person and payment, terms with statuses, amounts", async () => {

@@ -1,3 +1,4 @@
+import { useId, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -8,7 +9,9 @@ import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Pagination } from "@/components/molecules/Pagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import { usePagination } from "@/hooks/usePagination"
+import { todayIsoInAppZone } from "@/lib/date-input"
 
 import {
   myApplicationsQueryOptions,
@@ -38,7 +41,6 @@ export function ApplicationList() {
 }
 
 function Applications({ applications }: { applications: MyApplication[] }) {
-  const { t } = useTranslation("participant")
   const { pageItems, ...pagination } = usePagination(applications)
   const groups = new Map<string, [MyApplication, ...MyApplication[]]>()
   for (const application of pageItems) {
@@ -49,25 +51,7 @@ function Applications({ applications }: { applications: MyApplication[] }) {
   }
   return (
     <div className="flex flex-col gap-6">
-      {pageItems.map((application) => {
-        const due = application.paymentDetails?.summary.payableCzk
-        return due !== undefined && due > 0 ? (
-          <Alert
-            key={application.id}
-            role="note"
-            className="bg-secondary"
-          >
-            <TriangleAlert aria-hidden />
-            <AlertTitle>
-              {t("list.remaining")} <MoneyAmount amountCzk={due} />
-            </AlertTitle>
-            <AlertDescription>
-              {application.firstName} {application.lastName} · {application.eventName}.{" "}
-              {t("list.paymentNote")}
-            </AlertDescription>
-          </Alert>
-        ) : null
-      })}
+      <PaymentReminders applications={applications} />
       {Array.from(groups, ([id, group]) => (
         <section
           key={id}
@@ -87,6 +71,79 @@ function Applications({ applications }: { applications: MyApplication[] }) {
         {...pagination}
         onPageChange={pagination.setPage}
       />
+    </div>
+  )
+}
+
+function PaymentReminders({ applications }: { applications: MyApplication[] }) {
+  const { t } = useTranslation("participant")
+  const [isExpanded, setExpanded] = useState(false)
+  const moreId = useId()
+  const today = todayIsoInAppZone()
+
+  const reminders = applications.flatMap((application) => {
+    const payment = application.paymentDetails
+    if (!payment || payment.summary.payableCzk <= 0) return []
+
+    const unpaidIds = new Set(payment.terms.filter((term) => term.owedCzk > 0).map((term) => term.termId))
+    let nextDate: string | undefined
+    let lastEnd: string | undefined
+    for (const term of application.terms) {
+      if (!unpaidIds.has(term.termId)) continue
+      if (term.endsOn >= today) {
+        const date = term.startsOn < today ? today : term.startsOn
+        if (nextDate === undefined || date < nextDate) nextDate = date
+      } else if (lastEnd === undefined || term.endsOn > lastEnd) {
+        lastEnd = term.endsOn
+      }
+    }
+
+    return [{ application, due: payment.summary.payableCzk, nextDate, lastEnd }]
+  })
+  // A current or upcoming debt comes first. Keep past and undated reminders available.
+  reminders.sort(
+    (a, b) =>
+      Number(!a.nextDate) - Number(!b.nextDate) ||
+      (a.nextDate ?? "").localeCompare(b.nextDate ?? "") ||
+      (b.lastEnd ?? "").localeCompare(a.lastEnd ?? ""),
+  )
+
+  const [first, ...more] = reminders
+  if (!first) return null
+
+  const renderReminder = ({ application, due }: (typeof reminders)[number]) => (
+    <Alert key={application.id} role="note" className="bg-secondary">
+      <TriangleAlert aria-hidden />
+      <AlertTitle>
+        {t("list.remaining")} <MoneyAmount amountCzk={due} />
+      </AlertTitle>
+      <AlertDescription>
+        {application.firstName} {application.lastName} · {application.eventName}.{" "}
+        {t("list.paymentNote")}
+      </AlertDescription>
+    </Alert>
+  )
+
+  return (
+    <div className="flex flex-col gap-4">
+      {renderReminder(first)}
+      {more.length > 0 && (
+        <>
+          <Button
+            variant="outline"
+            size="lg"
+            className="self-start"
+            aria-expanded={isExpanded}
+            aria-controls={moreId}
+            onClick={() => setExpanded((isOpen) => !isOpen)}
+          >
+            {isExpanded ? t("list.hidePaymentReminders") : t("list.showMorePaymentReminders", { count: more.length })}
+          </Button>
+          <div id={moreId} hidden={!isExpanded}>
+            {isExpanded && <div className="flex flex-col gap-4">{more.map(renderReminder)}</div>}
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -168,8 +168,10 @@
     "errorTitle": "Couldn't load your applications",
     "female": "female",
     "male": "male",
+    "hidePaymentReminders": "Show fewer",
     "paymentNote": "This applies only to the confirmed term; don't pay for a waitlisted term yet.",
     "remaining": "Remaining to pay",
+    "showMorePaymentReminders": "Show more ({{count}})",
     "termPrice": "Term price"
   },
   "notifications": {
