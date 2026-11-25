@@ -31,8 +31,7 @@ function renderLanding() {
   return render(<RouterProvider router={router} />)
 }
 
-const heroOf = async () =>
-  (await screen.findByRole("heading", { level: 1 })).closest("section")!
+const heroOf = async () => (await screen.findByRole("heading", { level: 1 })).closest("section")!
 
 afterEach(() => cleanup())
 
