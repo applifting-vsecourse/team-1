@@ -165,7 +165,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
       <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border bg-card px-4 py-3 md:hidden">
         {price !== null ? (
           <p className="flex flex-col text-xs font-medium text-muted-foreground">
-            <span className="text-base font-semibold text-foreground">
+            <span className="text-base font-semibold whitespace-nowrap text-foreground">
               {event.terms.length > 1 ? `${t("price.from")} ` : null}
               {formatTermPrice(price)}
             </span>
