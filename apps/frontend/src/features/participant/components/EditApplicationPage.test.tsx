@@ -28,6 +28,7 @@ const initial = {
   lastName: "Nováková",
   birthDate: "2005-03-14",
   phone: null,
+  pronouns: null,
   individualAccommodation: true,
   accommodationRequest: null,
   history: [],
@@ -74,6 +75,33 @@ describe("EditApplicationPage", () => {
     get.mockReset()
     put.mockReset()
     vi.mocked(notify.success).mockClear()
+  })
+
+  it.each([
+    { value: "  they/them  ", sent: "they/them" },
+    { value: "", sent: null },
+  ])("saves or clears only the edited pronouns ($sent)", async ({ value, sent }) => {
+    const user = userEvent.setup()
+    get.mockReturnValue({ json: () => Promise.resolve({ ...initial, pronouns: "she/her" }) })
+    put.mockReturnValue({ json: () => Promise.resolve({ ...initial, pronouns: sent }) })
+    renderEdit(new QueryClient({ defaultOptions: { queries: { retry: false } } }))
+    const input = await screen.findByRole("textbox", { name: "Pronouns (optional)" })
+    expect(input).toHaveValue("she/her")
+    await user.clear(input)
+    if (value) await user.type(input, value)
+    await user.click(screen.getByRole("button", { name: "Save changes" }))
+    expect(put).toHaveBeenCalledWith("participant/applications/a1/edit", {
+      json: {
+        firstName: initial.firstName,
+        lastName: initial.lastName,
+        birthDate: initial.birthDate,
+        phone: initial.phone,
+        pronouns: sent,
+        individualAccommodation: initial.individualAccommodation,
+        accommodationRequest: initial.accommodationRequest ?? "",
+      },
+    })
+    expect(await screen.findByRole("heading", { name: "Application detail" })).toBeInTheDocument()
   })
 
   it("does not offer to save unchanged details", async () => {

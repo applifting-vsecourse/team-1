@@ -152,6 +152,7 @@
     "participant": "Participant details",
     "phone": "Phone",
     "phoneInvalid": "Enter a valid phone number, for example +420 777 123 456.",
+    "pronouns": "Pronouns (optional)",
     "retry": "Try again",
     "save": "Save changes",
     "saveError": "Try saving your changes again",

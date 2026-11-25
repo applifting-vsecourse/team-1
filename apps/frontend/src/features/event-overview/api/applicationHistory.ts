@@ -10,6 +10,7 @@ export const EDITABLE_FIELDS = [
   "firstName",
   "lastName",
   "birthDate",
+  "pronouns",
   "phone",
   "individualAccommodation",
   "accommodationRequest",

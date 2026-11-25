@@ -474,6 +474,7 @@
     "no": "ne",
     "noteChanged": "Poznámka k ubytování: změněna",
     "payment": "Platba {{amount}}",
+    "pronounsChanged": "Změněna zájmena",
     "refund": "Vratka {{amount}}",
     "status": "{{term}}: {{from}} → {{to}}",
     "system": "Systém",
@@ -544,7 +545,8 @@
     "female": "Žena",
     "gender": "Pohlaví",
     "male": "Muž",
-    "phone": "Telefon"
+    "phone": "Telefon",
+    "pronouns": "Zájmena"
   },
   "payment": {
     "afterCorrection": "Po uložení",

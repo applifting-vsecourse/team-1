@@ -44,6 +44,7 @@ const toDomain = (row: Row): PaymentApplication => ({
   number: row.number,
   firstName: row.firstName,
   lastName: row.lastName,
+  pronouns: row.pronouns,
   individualAccommodation: row.individualAccommodation,
   accommodationRequest: row.accommodationRequest,
   birthDate: row.birthDate,

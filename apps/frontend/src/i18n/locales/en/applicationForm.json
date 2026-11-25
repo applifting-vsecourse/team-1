@@ -78,6 +78,7 @@
       "firstNameRequired": "Enter the first name.",
       "genderRequired": "Choose Woman or Man.",
       "lastNameRequired": "Enter the last name.",
+      "pronounsTooLong": "Pronouns must be at most {{max}} characters.",
       "termsRequired": "Choose at least one term."
     },
     "firstName": "First name *",
@@ -96,6 +97,8 @@
     "lastName": "Last name *",
     "participantTitle": "Participant {{number}}",
     "participantTitleNamed": "Participant {{number}} · {{name}}",
+    "pronouns": "Pronouns (optional)",
+    "pronounsPlaceholder": "E.g. she/her",
     "removeParticipantAria": "Remove participant {{number}}",
     "requiredNote": "* Required fields",
     "submit": "Submit application",

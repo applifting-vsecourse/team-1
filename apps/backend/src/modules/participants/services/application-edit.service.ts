@@ -7,12 +7,16 @@ import {
 import { Identity } from "@/shared/auth/domain/identity"
 import { normalizeAccommodation } from "@/shared/domain/accommodation"
 import { isValidPhone, normalizePhone } from "@/shared/domain/phone"
+import { normalizePronouns } from "@/shared/domain/pronouns"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
-/** What the client sends: the phone is optional, an empty one means none. */
-type EditRequest = Omit<EditInput, "phone"> & { phone?: string | null }
+/** The phone is optional; an omitted pronouns field preserves the saved value. */
+type EditRequest = Omit<EditInput, "phone" | "pronouns"> & {
+  phone?: string | null
+  pronouns?: string | null
+}
 
 @Injectable()
 export class ApplicationEditService {
@@ -46,7 +50,7 @@ export class ApplicationEditService {
   async saveByOrganizer(
     user: Identity,
     applicationId: string,
-    input: EditRequest,
+    input: Omit<EditRequest, "pronouns">,
   ): Promise<EditableApplication> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     const application = await this.edits.save(
@@ -63,10 +67,11 @@ export class ApplicationEditService {
     return { id: user.id, name: user.name?.trim() || user.email }
   }
 
-  private validated(input: EditRequest): EditInput {
-    const normalized: EditInput = {
+  private validated(input: EditRequest) {
+    const normalized = {
       firstName: input.firstName.trim(),
       lastName: input.lastName.trim(),
+      ...(input.pronouns === undefined ? {} : { pronouns: normalizePronouns(input.pronouns) }),
       birthDate: input.birthDate,
       phone: normalizePhone(input.phone),
       ...normalizeAccommodation(input.individualAccommodation, input.accommodationRequest),

@@ -474,6 +474,7 @@
     "no": "no",
     "noteChanged": "Accommodation note: changed",
     "payment": "Payment {{amount}}",
+    "pronounsChanged": "Pronouns changed",
     "refund": "Refund {{amount}}",
     "status": "{{term}}: {{from}} → {{to}}",
     "system": "System",
@@ -544,7 +545,8 @@
     "female": "Female",
     "gender": "Gender",
     "male": "Male",
-    "phone": "Phone"
+    "phone": "Phone",
+    "pronouns": "Pronouns"
   },
   "payment": {
     "afterCorrection": "After saving",

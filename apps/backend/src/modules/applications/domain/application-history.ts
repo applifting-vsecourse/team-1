@@ -28,6 +28,7 @@ export type HistoryPaymentRow = {
 export const EDITABLE_FIELDS = [
   "firstName",
   "lastName",
+  "pronouns",
   "birthDate",
   "phone",
   "individualAccommodation",
@@ -46,17 +47,16 @@ export type HistoryEdit = {
 }
 
 /**
- * A changed field with its value before and after; a flag is `"true"` / `"false"`. The note about
- * the accommodation is long free text: its history says only that it changed (values stay stored
- * in the edit, they are not listed).
+ * A changed field with its value before and after; a flag is `"true"` / `"false"`.
+ * Accommodation notes and pronouns are only marked as changed in the displayed history.
  */
 export type HistoryFieldChange =
   | {
-      field: Exclude<EditableField, "accommodationRequest">
+      field: Exclude<EditableField, "accommodationRequest" | "pronouns">
       from: string | null
       to: string | null
     }
-  | { field: "accommodationRequest"; from?: undefined; to?: undefined }
+  | { field: "accommodationRequest" | "pronouns"; from?: undefined; to?: undefined }
 
 export type ApplicationHistorySource = {
   /** E-mail of the applicant who submitted the application. */
@@ -150,7 +150,7 @@ export function buildApplicationHistory(source: ApplicationHistorySource): Histo
       author: edit.authorName,
       changes: EDITABLE_FIELDS.filter((field) => edit.changedFields.includes(field)).map(
         (field): HistoryFieldChange =>
-          field === "accommodationRequest"
+          field === "accommodationRequest" || field === "pronouns"
             ? { field }
             : { field, from: asText(edit.before[field]), to: asText(edit.after[field]) },
       ),

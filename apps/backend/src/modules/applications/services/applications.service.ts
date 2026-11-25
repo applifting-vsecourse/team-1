@@ -19,6 +19,7 @@ import { Identity } from "@/shared/auth/domain/identity"
 import { normalizeAccommodation } from "@/shared/domain/accommodation"
 import { Gender } from "@/shared/domain/gender"
 import { isValidPhone, normalizePhone } from "@/shared/domain/phone"
+import { normalizePronouns } from "@/shared/domain/pronouns"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
 import { KeyedMutex } from "@/shared/utils/keyed-mutex"
@@ -30,6 +31,7 @@ export type SubmitApplicationInput = {
   participants: {
     firstName: string
     lastName: string
+    pronouns?: string | null
     birthDate: string
     gender: Gender
     individualAccommodation?: boolean
@@ -209,6 +211,7 @@ export class ApplicationsService {
       const consentAt = new Date()
       const applications: NewApplication[] = input.participants.map((participant) => ({
         ...participant,
+        pronouns: normalizePronouns(participant.pronouns),
         ...normalizeAccommodation(
           participant.individualAccommodation,
           participant.accommodationRequest,

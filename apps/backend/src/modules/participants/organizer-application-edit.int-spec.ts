@@ -86,6 +86,7 @@ describe("organizer edit of an application (integration)", () => {
       { ...input, accommodationRequest: "x".repeat(2001) },
       { ...input, email: "novy@example.com" },
       { ...input, gender: "MALE" },
+      { ...input, pronouns: "oni / jejich" },
     ]) {
       expect((await edit(applicationId, organizerCookie, invalid)).status).toBe(400)
     }

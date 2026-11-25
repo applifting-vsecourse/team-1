@@ -15,6 +15,7 @@ export const paymentApplicationSchema = z.object({
   /** Participant date of birth, `YYYY-MM-DD`. */
   birthDate: z.string(),
   gender: z.enum(["FEMALE", "MALE"]),
+  pronouns: z.string().nullable(),
   /** Contact of the applicant who submitted the application. */
   email: z.string(),
   /** Phone of the participant; null for an application from before it was required. */

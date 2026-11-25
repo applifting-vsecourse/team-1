@@ -54,6 +54,7 @@ describe("participant application edit (integration)", () => {
       eventName: "Letní kemp 2027",
       firstName: "Jana",
       phone: null,
+      pronouns: null,
       individualAccommodation: false,
       accommodationRequest: null,
       history: [],
@@ -311,6 +312,72 @@ describe("participant application edit (integration)", () => {
     expect(
       (await prisma.application.findUniqueOrThrow({ where: { id: ownId } })).firstName,
     ).not.toBe("Zrušená")
+  })
+
+  it("updates, preserves on omission and clears optional pronouns", async () => {
+    const own = await prisma.application.findUniqueOrThrow({ where: { id: ownId } })
+    const details = {
+      firstName: own.firstName,
+      lastName: own.lastName,
+      birthDate: own.birthDate.toISOString().slice(0, 10),
+      phone: own.phone,
+      individualAccommodation: own.individualAccommodation,
+      accommodationRequest: own.accommodationRequest,
+    }
+    const lengthLimit = "x".repeat(100)
+    const saved = await call("PUT", ownId, participantCookie, {
+      ...details,
+      pronouns: lengthLimit,
+    })
+    expect(saved.status).toBe(200)
+    const savedBody = (await saved.json()) as {
+      pronouns: string | null
+      history: { changedFields: string[] }[]
+    }
+    expect(savedBody.pronouns).toBe(lengthLimit)
+    expect(savedBody.history[0].changedFields).toEqual(["pronouns"])
+    const organizerHistory = await fetch(api(`/organizer/applications/${ownId}/history`), {
+      headers: { Cookie: organizerCookie },
+    })
+    expect(organizerHistory.status).toBe(200)
+    const entries = (await organizerHistory.json()) as { kind: string; changes?: unknown }[]
+    expect(entries[0]).toMatchObject({ kind: "EDIT", changes: [{ field: "pronouns" }] })
+    expect(JSON.stringify(entries[0])).not.toContain(lengthLimit)
+
+    const legacyDetails = { ...details, phone: details.phone === null ? normalizedPhone : null }
+    const legacy = await call("PUT", ownId, participantCookie, legacyDetails)
+    expect(legacy.status).toBe(200)
+    expect(await legacy.json()).toMatchObject({
+      phone: legacyDetails.phone,
+      pronouns: lengthLimit,
+    })
+    const current = await call("GET", ownId, participantCookie)
+    expect(current.status).toBe(200)
+    expect(await current.json()).toMatchObject({ pronouns: lengthLimit })
+
+    const rejected = await call("PUT", ownId, participantCookie, {
+      ...legacyDetails,
+      pronouns: "x".repeat(101),
+    })
+    expect(rejected.status).toBe(400)
+    expect(await prisma.application.findUniqueOrThrow({ where: { id: ownId } })).toMatchObject({
+      pronouns: lengthLimit,
+    })
+
+    for (const pronouns of [null, "   "]) {
+      const written = await call("PUT", ownId, participantCookie, {
+        ...legacyDetails,
+        pronouns: "  ona / její  ",
+      })
+      expect(written.status).toBe(200)
+      expect(await written.json()).toMatchObject({ pronouns: "ona / její" })
+      const cleared = await call("PUT", ownId, participantCookie, { ...legacyDetails, pronouns })
+      expect(cleared.status).toBe(200)
+      expect(await cleared.json()).toMatchObject({ pronouns: null })
+    }
+    expect(await prisma.application.findUniqueOrThrow({ where: { id: ownId } })).toMatchObject({
+      pronouns: null,
+    })
   })
 
   it("keeps the phone optional: an empty, null or missing phone saves as null, and removes a stored one", async () => {
