@@ -45,6 +45,11 @@ const byName = (a: ProposalParticipant, b: ProposalParticipant): number =>
   a.firstName.localeCompare(b.firstName, "cs") ||
   a.applicationTermId.localeCompare(b.applicationTermId)
 
+type ProposalInput = {
+  rooms: readonly ProposalRoom[]
+  participants: readonly ProposalParticipant[]
+}
+
 /**
  * Proposes rooms for the confirmed participants without one (US-147), keeping the rules of US-37:
  * a room with a gender takes only that gender, nobody goes over the beds (no extra bed is added)
@@ -54,10 +59,33 @@ const byName = (a: ProposalParticipant, b: ProposalParticipant): number =>
  * needs to be opened, uses the larger one to reduce the need for more rooms. Pure and deterministic:
  * the same input gives the same proposal.
  */
-export function proposeRoomAssignments(input: {
-  rooms: readonly ProposalRoom[]
-  participants: readonly ProposalParticipant[]
-}): RoomProposal {
+export function proposeRoomAssignments(input: ProposalInput): RoomProposal {
+  const packed = buildProposal(input, true)
+  const hasWishes = input.participants.some(
+    (person) => !person.individualAccommodation && person.wishes.length > 0,
+  )
+  if (!hasWishes && !packed.unplaced.some(({ reason }) => reason === "NO_FREE_BED")) return packed
+
+  // A larger first room can leave less usable space for later groups. Compare with the
+  // tight-fit order when wishes or participants without a bed make that trade-off relevant.
+  const tightFit = buildProposal(input, false)
+  if (tightFit.placements.length !== packed.placements.length) {
+    return tightFit.placements.length > packed.placements.length ? tightFit : packed
+  }
+  const fulfilled = (proposal: RoomProposal): number =>
+    proposal.wishes.filter((wish) => wish.fulfilled).length
+  const wishDifference = fulfilled(tightFit) - fulfilled(packed)
+  if (wishDifference !== 0) return wishDifference > 0 ? tightFit : packed
+  const occupiedRoomIds = new Set(
+    input.rooms.filter((room) => room.occupants.length).map((room) => room.id),
+  )
+  const openedRooms = (proposal: RoomProposal): number =>
+    new Set(proposal.placements.map((item) => item.roomId).filter((id) => !occupiedRoomIds.has(id)))
+      .size
+  return openedRooms(tightFit) < openedRooms(packed) ? tightFit : packed
+}
+
+function buildProposal(input: ProposalInput, isPacking: boolean): RoomProposal {
   const { rooms } = input
   const unplaced: RoomProposal["unplaced"] = []
   const candidates = input.participants
@@ -179,12 +207,13 @@ export function proposeRoomAssignments(input: {
       if (options.length === 0) break
       // Keep as much of the group together as possible. Prefer rooms occupied before the
       // proposal, then rooms already used by the proposal, and preserve spare beds in one room.
-      const best = options.sort(
-        (a, b) =>
-          b.takes - a.takes ||
-          occupancyPriority(b.room) - occupancyPriority(a.room) ||
-          (free.get(b.room.id) ?? 0) - (free.get(a.room.id) ?? 0),
-      )[0]
+      const best = options.sort((a, b) => {
+        if (a.takes !== b.takes) return b.takes - a.takes
+        const freeDifference = (free.get(b.room.id) ?? 0) - (free.get(a.room.id) ?? 0)
+        if (isPacking)
+          return occupancyPriority(b.room) - occupancyPriority(a.room) || freeDifference
+        return a.takes === rest.length ? -freeDifference : 0
+      })[0]
       if (!best) break
       const chosen = rest.filter((p) => fits(best.room, p)).slice(0, best.takes)
       for (const person of chosen) place(person.applicationTermId, best.room.id)

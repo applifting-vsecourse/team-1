@@ -127,6 +127,30 @@ describe("proposeRoomAssignments", () => {
     expect(result.unplaced).toEqual([])
   })
 
+  it("retains the tighter fit when filling the biggest room would break wishes", () => {
+    const group = (names: string[], surname: string): ProposalParticipant[] =>
+      names.map((name) =>
+        person(
+          name,
+          surname,
+          "FEMALE",
+          names.filter((other) => other !== name).map((other) => `${other} ${surname}`),
+        ),
+      )
+    const participants = [
+      ...group(["Anna", "Beta", "Cora"], "A"),
+      ...group(["Dana", "Eva"], "B"),
+      ...group(["Fany", "Gita"], "C"),
+    ]
+    const result = proposeRoomAssignments({
+      rooms: [room("small", 3, "FEMALE"), room("large", 4, "FEMALE")],
+      participants,
+    })
+    expect(result.placements).toHaveLength(7)
+    expect(result.wishes).toHaveLength(10)
+    expect(result.wishes.every((wish) => wish.fulfilled)).toBe(true)
+  })
+
   it("opens a room when putting a group into an occupied room would split a wish", () => {
     const current = person("Pavla", "A", "FEMALE")
     const jana = person("Jana", "Nováková", "FEMALE")
