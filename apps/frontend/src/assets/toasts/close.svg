@@ -1,20 +1,5 @@
-<svg
-  preserveAspectRatio="none"
-  overflow="visible"
-  style="display: block"
-  width="24"
-  height="24"
-  viewBox="0 0 24 24"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <g id="Zav&#197;&#153;&#195;&#173;t ozn&#195;&#161;men&#195;&#173;">
-    <path
-      id="Close"
-      d="M6 6L18 18M18 6L6 18"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke="#50686D"
-    />
-  </g>
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Zav&#197;&#153;&#195;&#173;t ozn&#195;&#161;men&#195;&#173;">
+<path id="Close" d="M6 6L18 18M18 6L6 18" stroke-width="1.5" stroke-linecap="round" stroke="#50686D"/>
+</g>
 </svg>
