@@ -10,7 +10,7 @@
       "title": "Kapacitu podle pokojů"
     },
     "multiTerm": {
-      "body": "Více termínů s vlastní cenou, zájemce si vybere jeden nebo víc.",
+      "body": "Více termínů s vlastní cenou, účastník si vybere jeden nebo víc.",
       "title": "Přihlášky na více termínů"
     },
     "payments": {
@@ -19,7 +19,7 @@
     },
     "title": "Co v Togeně vyřídíte",
     "waitlist": {
-      "body": "Když se termín zaplní, zájemci čekají jako náhradníci.",
+      "body": "Když se termín zaplní, další přihlášky dostanou stav Náhradník.",
       "title": "Potvrzení a náhradníky"
     }
   },
