@@ -202,7 +202,7 @@ export function RoomsPage({
           },
         ]
   const termSelect = (
-    <div className="flex flex-col gap-2 sm:w-60">
+    <div className="flex flex-col gap-2 sm:w-60 print:hidden">
       <Label htmlFor="accommodation-term">{t("rooms.termLabel")}</Label>
       <Select
         value={selected.id}
@@ -246,7 +246,6 @@ export function RoomsPage({
           </ViewToggleGroupItem>
         ))}
       </ViewToggleGroup>
-      {termSelect}
       <Button
         variant="outline"
         size="lg"
@@ -279,6 +278,7 @@ export function RoomsPage({
           }}
         />
       ) : null}
+      {termSelect}
       {viewBar}
       {view === "assignment" ? printView : null}
       <RoomProposal

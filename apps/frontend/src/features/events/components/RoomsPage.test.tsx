@@ -178,7 +178,7 @@ describe("accommodation by term", () => {
     expect(within(table).getByText("Extra bed +2")).toBeInTheDocument()
   })
 
-  it("switches between Assignment and Rooms with a switcher above the term (#542)", async () => {
+  it("focuses the term before the view switcher and switches views with the keyboard", async () => {
     const { user, onSelectView } = renderRooms("t1")
     await screen.findByRole("table")
     const views = screen.getByRole("radiogroup", { name: "Accommodation view" })
@@ -186,7 +186,8 @@ describe("accommodation by term", () => {
     const rooms = within(views).getByRole("radio", { name: "Rooms" })
     expect(assignment).toBeChecked()
     const term = screen.getByRole("combobox", { name: "Term" })
-    expect(views.compareDocumentPosition(term) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    await user.tab()
+    expect(term).toHaveFocus()
     await user.tab()
     expect(assignment).toHaveFocus()
     await user.keyboard("{ArrowRight}")
