@@ -85,7 +85,9 @@ function PaymentReminders({ applications }: { applications: MyApplication[] }) {
     const payment = application.paymentDetails
     if (!payment || payment.summary.payableCzk <= 0) return []
 
-    const unpaidIds = new Set(payment.terms.filter((term) => term.owedCzk > 0).map((term) => term.termId))
+    const unpaidIds = new Set(
+      payment.terms.filter((term) => term.owedCzk > 0).map((term) => term.termId),
+    )
     let nextDate: string | undefined
     let lastEnd: string | undefined
     for (const term of application.terms) {
@@ -112,7 +114,11 @@ function PaymentReminders({ applications }: { applications: MyApplication[] }) {
   if (!first) return null
 
   const renderReminder = ({ application, due }: (typeof reminders)[number]) => (
-    <Alert key={application.id} role="note" className="bg-secondary">
+    <Alert
+      key={application.id}
+      role="note"
+      className="bg-secondary"
+    >
       <TriangleAlert aria-hidden />
       <AlertTitle>
         {t("list.remaining")} <MoneyAmount amountCzk={due} />
@@ -137,9 +143,14 @@ function PaymentReminders({ applications }: { applications: MyApplication[] }) {
             aria-controls={moreId}
             onClick={() => setExpanded((isOpen) => !isOpen)}
           >
-            {isExpanded ? t("list.hidePaymentReminders") : t("list.showMorePaymentReminders", { count: more.length })}
+            {isExpanded
+              ? t("list.hidePaymentReminders")
+              : t("list.showMorePaymentReminders", { count: more.length })}
           </Button>
-          <div id={moreId} hidden={!isExpanded}>
+          <div
+            id={moreId}
+            hidden={!isExpanded}
+          >
             {isExpanded && <div className="flex flex-col gap-4">{more.map(renderReminder)}</div>}
           </div>
         </>

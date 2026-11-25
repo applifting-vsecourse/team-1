@@ -161,37 +161,46 @@ describe("ApplicationList", () => {
       eventName: string,
       startsOn: string,
       endsOn: string,
-    ): MyApplication => application({
-      id,
-      eventName,
-      terms: [
-        { ...template.terms[0]!, startsOn, endsOn },
-        // An earlier confirmed, paid term does not make this payment reminder more urgent.
-        { ...template.terms[1]!, startsOn: "2099-01-01", endsOn: "2099-01-02", status: "CONFIRMED" },
-      ],
-      paymentDetails: {
-        ...template.paymentDetails!,
-        terms: [{
-          termId: "t1",
-          termNumber: 1,
-          variableSymbol: "48001",
-          dueCzk: 4500,
-          paidCzk: 2000,
-          owedCzk: 2500,
-          paymentStatus: "PARTIALLY_PAID",
-          paymentDeadline: null,
-        }, {
-          termId: "t2",
-          termNumber: 2,
-          variableSymbol: "48002",
-          dueCzk: 4900,
-          paidCzk: 4900,
-          owedCzk: 0,
-          paymentStatus: "PAID",
-          paymentDeadline: null,
-        }],
-      },
-    })
+    ): MyApplication =>
+      application({
+        id,
+        eventName,
+        terms: [
+          { ...template.terms[0]!, startsOn, endsOn },
+          // An earlier confirmed, paid term does not make this payment reminder more urgent.
+          {
+            ...template.terms[1]!,
+            startsOn: "2099-01-01",
+            endsOn: "2099-01-02",
+            status: "CONFIRMED",
+          },
+        ],
+        paymentDetails: {
+          ...template.paymentDetails!,
+          terms: [
+            {
+              termId: "t1",
+              termNumber: 1,
+              variableSymbol: "48001",
+              dueCzk: 4500,
+              paidCzk: 2000,
+              owedCzk: 2500,
+              paymentStatus: "PARTIALLY_PAID",
+              paymentDeadline: null,
+            },
+            {
+              termId: "t2",
+              termNumber: 2,
+              variableSymbol: "48002",
+              dueCzk: 4900,
+              paidCzk: 4900,
+              owedCzk: 0,
+              paymentStatus: "PAID",
+              paymentDeadline: null,
+            },
+          ],
+        },
+      })
     respondWith([
       reminder("later", "Later event", "2099-05-01", "2099-05-03"),
       reminder("past", "Past event", "2000-05-01", "2000-05-03"),
