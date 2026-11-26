@@ -341,8 +341,10 @@ describe("participant application edit (integration)", () => {
     })
     expect(organizerHistory.status).toBe(200)
     const entries = (await organizerHistory.json()) as { kind: string; changes?: unknown }[]
-    expect(entries[0]).toMatchObject({ kind: "EDIT", changes: [{ field: "pronouns" }] })
-    expect(JSON.stringify(entries[0])).not.toContain(lengthLimit)
+    expect(entries[0]).toMatchObject({
+      kind: "EDIT",
+      changes: [{ field: "pronouns", from: null, to: lengthLimit }],
+    })
 
     const legacyDetails = { ...details, phone: details.phone === null ? normalizedPhone : null }
     const legacy = await call("PUT", ownId, participantCookie, legacyDetails)

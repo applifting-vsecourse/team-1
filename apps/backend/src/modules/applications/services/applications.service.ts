@@ -44,6 +44,7 @@ export type ManualApplicationInput = {
   email: string
   phone?: string | null
   consent: true
+  pronouns?: string | null
   firstName: string
   lastName: string
   birthDate: string
@@ -118,6 +119,7 @@ export class ApplicationsService {
       let mustSetPassword = false
       const submitted: ApplicationToSave = {
         ...participant,
+        pronouns: normalizePronouns(input.pronouns),
         gender: input.gender,
         ...normalizeAccommodation(input.individualAccommodation, input.accommodationRequest),
         email,

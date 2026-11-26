@@ -155,6 +155,7 @@ export async function recordRefund(
 }
 
 export type EditApplicationInput = {
+  pronouns?: string | null
   firstName: string
   lastName: string
   /** `YYYY-MM-DD`. */

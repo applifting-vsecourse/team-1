@@ -97,7 +97,7 @@
     "lastName": "Last name *",
     "participantTitle": "Participant {{number}}",
     "participantTitleNamed": "Participant {{number}} · {{name}}",
-    "pronouns": "Pronouns (optional)",
+    "pronouns": "Pronouns",
     "pronounsPlaceholder": "E.g. she/her",
     "removeParticipantAria": "Remove participant {{number}}",
     "requiredNote": "* Required fields",

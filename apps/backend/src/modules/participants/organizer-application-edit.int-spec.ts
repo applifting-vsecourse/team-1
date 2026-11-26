@@ -86,7 +86,7 @@ describe("organizer edit of an application (integration)", () => {
       { ...input, accommodationRequest: "x".repeat(2001) },
       { ...input, email: "novy@example.com" },
       { ...input, gender: "MALE" },
-      { ...input, pronouns: "oni / jejich" },
+      { ...input, pronouns: "x".repeat(101) },
     ]) {
       expect((await edit(applicationId, organizerCookie, invalid)).status).toBe(400)
     }
@@ -263,6 +263,18 @@ describe("organizer edit of an application (integration)", () => {
     expect(
       (await prisma.application.findUniqueOrThrow({ where: { id: applicationId } })).firstName,
     ).not.toBe("Zrušená")
+  })
+
+  it("trims, preserves and clears pronouns as an organizer", async () => {
+    for (const [patch, expected] of [
+      [{ pronouns: "  oni / jejich  " }, "oni / jejich"],
+      [{}, "oni / jejich"],
+      [{ pronouns: "  " }, null],
+    ] as const) {
+      const saved = await edit(applicationId, organizerCookie, { ...input, ...patch })
+      expect(saved.status).toBe(200)
+      expect(await saved.json()).toMatchObject({ pronouns: expected })
+    }
   })
 
   it.each([

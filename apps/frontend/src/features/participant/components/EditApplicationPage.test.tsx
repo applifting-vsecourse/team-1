@@ -85,7 +85,7 @@ describe("EditApplicationPage", () => {
     get.mockReturnValue({ json: () => Promise.resolve({ ...initial, pronouns: "she/her" }) })
     put.mockReturnValue({ json: () => Promise.resolve({ ...initial, pronouns: sent }) })
     renderEdit(new QueryClient({ defaultOptions: { queries: { retry: false } } }))
-    const input = await screen.findByRole("textbox", { name: "Pronouns (optional)" })
+    const input = await screen.findByRole("textbox", { name: "Pronouns" })
     expect(input).toHaveValue("she/her")
     await user.clear(input)
     if (value) await user.type(input, value)

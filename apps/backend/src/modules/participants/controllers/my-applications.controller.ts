@@ -6,7 +6,7 @@ import { User } from "@/shared/auth/decorators/user.decorator"
 import { Identity } from "@/shared/auth/domain/identity"
 import { Body, Controller, Get, Param, Put, UsePipes, ValidationPipe } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
-import { EditableApplicationDto, EditOwnApplicationRequestDto } from "./dto/edit-application.dto"
+import { EditableApplicationDto, EditApplicationRequestDto } from "./dto/edit-application.dto"
 
 @ApiTags("participants")
 @Controller("participant/applications")
@@ -50,7 +50,7 @@ export class MyApplicationsController {
   async saveEdit(
     @User() user: Identity,
     @Param("id") id: string,
-    @Body() body: EditOwnApplicationRequestDto,
+    @Body() body: EditApplicationRequestDto,
   ): Promise<EditableApplicationDto> {
     return this.edits.save(user, id, body)
   }

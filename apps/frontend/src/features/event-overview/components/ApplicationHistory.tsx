@@ -48,7 +48,6 @@ export function ApplicationHistory({
         changes: entry.changes
           .map(({ field, from, to }) => {
             if (field === "accommodationRequest") return t("history.noteChanged")
-            if (field === "pronouns") return t("history.pronounsChanged")
             return t("history.change", {
               field: t(`history.field.${field}`),
               from: value(field, from),

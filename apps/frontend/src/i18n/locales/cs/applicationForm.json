@@ -97,7 +97,7 @@
     "lastName": "Příjmení *",
     "participantTitle": "Účastník {{number}}",
     "participantTitleNamed": "Účastník {{number}} · {{name}}",
-    "pronouns": "Zájmena (nepovinné)",
+    "pronouns": "Zájmena",
     "pronounsPlaceholder": "Např. ona/její",
     "removeParticipantAria": "Odebrat účastníka {{number}}",
     "requiredNote": "* Povinná pole",

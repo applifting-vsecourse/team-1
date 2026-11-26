@@ -42,9 +42,6 @@ export class EditApplicationRequestDto {
   @IsString()
   @MaxLength(MAX_ACCOMMODATION_NOTE_LENGTH)
   accommodationRequest!: string | null
-}
-
-export class EditOwnApplicationRequestDto extends EditApplicationRequestDto {
   @ApiProperty({ type: String, nullable: true, required: false, maxLength: MAX_PRONOUNS_LENGTH })
   @Transform(({ value }: { value: unknown }) =>
     typeof value === "string" ? normalizePronouns(value) : value,

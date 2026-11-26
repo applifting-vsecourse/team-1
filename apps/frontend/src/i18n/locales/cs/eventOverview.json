@@ -469,12 +469,12 @@
       "firstName": "Jméno",
       "individualAccommodation": "Individuální ubytování",
       "lastName": "Příjmení",
-      "phone": "Telefon"
+      "phone": "Telefon",
+      "pronouns": "Zájmena"
     },
     "no": "ne",
     "noteChanged": "Poznámka k ubytování: změněna",
     "payment": "Platba {{amount}}",
-    "pronounsChanged": "Změněna zájmena",
     "refund": "Vratka {{amount}}",
     "status": "{{term}}: {{from}} → {{to}}",
     "system": "Systém",

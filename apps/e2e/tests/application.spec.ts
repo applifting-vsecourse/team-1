@@ -48,7 +48,7 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
 
     await page.getByLabel("First name").fill("Karel")
     await page.getByLabel("Last name").fill(`Novotný ${unique}`)
-    await page.getByLabel("Pronouns (optional)").fill("he/him")
+    await page.getByLabel("Pronouns").fill("he/him")
     await page.getByLabel("Date of birth").fill("12/05/2012")
     await page.getByRole("combobox", { name: "Gender" }).click()
     await page.getByRole("option", { name: "Man", exact: true }).click()
@@ -107,6 +107,6 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     )
 
     await page.getByRole("link", { name: "Edit application", exact: true }).click()
-    await expect(page.getByLabel("Pronouns (optional)")).toHaveValue("he/him")
+    await expect(page.getByLabel("Pronouns")).toHaveValue("he/him")
   })
 })

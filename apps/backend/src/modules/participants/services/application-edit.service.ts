@@ -50,7 +50,7 @@ export class ApplicationEditService {
   async saveByOrganizer(
     user: Identity,
     applicationId: string,
-    input: Omit<EditRequest, "pronouns">,
+    input: EditRequest,
   ): Promise<EditableApplication> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     const application = await this.edits.save(

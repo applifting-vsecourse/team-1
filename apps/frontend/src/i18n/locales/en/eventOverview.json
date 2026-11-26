@@ -469,12 +469,12 @@
       "firstName": "First name",
       "individualAccommodation": "Individual accommodation",
       "lastName": "Last name",
-      "phone": "Phone"
+      "phone": "Phone",
+      "pronouns": "Pronouns"
     },
     "no": "no",
     "noteChanged": "Accommodation note: changed",
     "payment": "Payment {{amount}}",
-    "pronounsChanged": "Pronouns changed",
     "refund": "Refund {{amount}}",
     "status": "{{term}}: {{from}} → {{to}}",
     "system": "System",
