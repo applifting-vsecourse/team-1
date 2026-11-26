@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**205 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**213 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -63,6 +63,19 @@ _Nic._
 | [D-038](#d-038) | Organizátor: akce jako karty, sekce akce v sidebaru | 2026-10-21 | `tech-lead` | design |
 | [D-029](#d-029) | Redesign v původním Figma souboru a barvách | 2026-10-20 | `tech-lead` | design |
 | [D-022](#d-022) | Tokeny z Figmy, pravidla z DESIGN.md | 2026-10-16 | `tech-lead` | design |
+
+### ekonomika
+
+| ID | Rozhodnutí | Datum | Rozhodl | Typ |
+| --- | --- | --- | --- | --- |
+| [D-217](#d-217) | Náklady podle délky pobytu se zadávají jako cena × počet | 2026-11-26 | `pm` | produkt |
+| [D-216](#d-216) | Bod zvratu a scénáře počítají s průměrnou cenou | 2026-11-26 | `pm` | produkt |
+| [D-215](#d-215) | Cena × účastníci počítá každou účast | 2026-11-26 | `pm` | produkt |
+| [D-214](#d-214) | Ekonomický přehled je manažerský a za celou akci | 2026-11-26 | `po`, `pm` | byznys |
+| [D-213](#d-213) | Výchozí kategorie nákladů a vlastní kategorie | 2026-11-26 | `pm` | produkt |
+| [D-212](#d-212) | Uzavřená nákladová položka se počítá jen zaplacenou částkou | 2026-11-26 | `pm` | produkt |
+| [D-211](#d-211) | Nákladová položka: výpočet plánu a započtení do výsledku | 2026-11-26 | `pm` | produkt |
+| [D-210](#d-210) | Výsledek akce se počítá ze skutečně zaplacených peněz | 2026-11-26 | `pm` | byznys |
 
 ### komunikace
 
@@ -2632,3 +2645,75 @@ _Nic._
 - **Dotčené US:** [#804](https://github.com/applifting-vsecourse/team-1/issues/804)
 - **Zdroj:** [rozhodnutí PM 26. 11. 2026 zapsané v #804](https://github.com/applifting-vsecourse/team-1/issues/804)
 - **Mění:** [D-177](#d-177)
+
+<a id="d-210"></a>
+
+### D-210 – Výsledek akce se počítá ze skutečně zaplacených peněz
+
+- **Stav:** platné · **Typ:** byznys · **Oblast:** ekonomika
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Hlavní výsledek akce jsou peníze, které účastníci skutečně zaplatili, minus náklady akce. Za přihlášku v termínu se počítají platby minus vratky nejvýše do částky k úhradě; přeplatky se do příjmu nepočítají. Ručně zapsané příjmové položky se k výsledku přičítají. Očekávaný příjem od potvrzených je jen doplňkový pohled a podklad pro bod zvratu a scénář Co kdyby.
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu](../../docs/prototypy/ekonomika/index.html); [zápis ze statusu s PO 25. 11. 2026](../../docs/zapisy/2026-11-25-sprint-5-planning.md)
+
+<a id="d-211"></a>
+
+### D-211 – Nákladová položka: výpočet plánu a započtení do výsledku
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ekonomika
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Plán nákladové položky je pevná částka, cena × účastníci, nebo cena × vlastní počet. Otevřená položka se do výsledku počítá vyšší částkou z plánu a součtu svých výdajů, a to po položkách, ne ze součtů. Výdaj bez položky se počítá celý.
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu](../../docs/prototypy/ekonomika/index.html); [zápis ze statusu s PO 25. 11. 2026](../../docs/zapisy/2026-11-25-sprint-5-planning.md)
+
+<a id="d-212"></a>
+
+### D-212 – Uzavřená nákladová položka se počítá jen zaplacenou částkou
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ekonomika
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Organizátor může nákladovou položku uzavřít a znovu otevřít. Uzavřená se do výsledku počítá jen součtem svých výdajů, takže se projeví i úspora proti plánu.
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu](../../docs/prototypy/ekonomika/index.html)
+
+<a id="d-213"></a>
+
+### D-213 – Výchozí kategorie nákladů a vlastní kategorie
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ekonomika
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Systém nabídne výchozí kategorie Prostory, Doprava, Strava, Lidé, Materiál a program a Ostatní. Organizátor si má moci kategorie přidávat, upravovat a odebírat; to je navazující ticket s nižší prioritou.
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu](../../docs/prototypy/ekonomika/index.html)
+
+<a id="d-214"></a>
+
+### D-214 – Ekonomický přehled je manažerský a za celou akci
+
+- **Stav:** platné · **Typ:** byznys · **Oblast:** ekonomika
+- **Datum:** 2026-11-26 · **Rozhodl:** `po`, `pm`
+- **Text:** Ekonomický přehled ukazuje souhrn za celou akci, ne po termínech. Pro MVP stačí manažerský přehled; pokladny, cash flow a účetní evidence nejsou součástí.
+- **Zdroj:** [zápis ze statusu s PO 25. 11. 2026](../../docs/zapisy/2026-11-25-sprint-5-planning.md)
+
+<a id="d-215"></a>
+
+### D-215 – Cena × účastníci počítá každou účast
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ekonomika
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Počet pro výpočet cena × účastníci jsou potvrzené a archivované přihlášky v termínu přes všechny termíny akce. Kdo jede na dva termíny, počítá se dvakrát.
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu](../../docs/prototypy/ekonomika/index.html)
+
+<a id="d-216"></a>
+
+### D-216 – Bod zvratu a scénáře počítají s průměrnou cenou
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ekonomika
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Pro bod zvratu, náklad na účastníka a scénář Co kdyby se použije průměr částek k úhradě potvrzených a archivovaných přihlášek v termínu. Bez nich průměr cen termínů.
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu](../../docs/prototypy/ekonomika/index.html)
+
+<a id="d-217"></a>
+
+### D-217 – Náklady podle délky pobytu se zadávají jako cena × počet
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ekonomika
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Pro náklady závislé na délce pobytu (např. porce × dny) nevzniká zvláštní výpočet; organizátor použije cenu × vlastní počet.
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu](../../docs/prototypy/ekonomika/index.html); [zápis ze statusu s PO 25. 11. 2026](../../docs/zapisy/2026-11-25-sprint-5-planning.md)
