@@ -145,7 +145,8 @@ for (const viewport of [
       await expect(person).toBeHidden()
       await expect(card.getByText(`${count} / ${room.beds}`, { exact: true })).toBeVisible()
       await disclose(beds, touch)
-      if (count < room.beds) await expect(card.locator("ul").getByText("Free bed").first()).toBeVisible()
+      if (count < room.beds)
+        await expect(card.locator("ul").getByText("Free bed").first()).toBeVisible()
       await expectFitsViewport(
         page,
         person,
