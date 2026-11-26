@@ -50,7 +50,9 @@ test("participant submits a cancellation request and organizer declines it at 36
   const pendingRequest = page.locator('[data-slot="card"]').filter({ has: chip })
   await expect(pendingRequest.getByText("Current participation")).toBeVisible()
   await expect(pendingRequest.getByText(/1\. týden · Confirmed/)).toBeVisible()
-  await expect(pendingRequest.getByText("Your original participation remains valid for now.")).toBeVisible()
+  await expect(
+    pendingRequest.getByText("Your original participation remains valid for now."),
+  ).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
   await signOut(page, PARTICIPANT)
   await expect(page).toHaveURL(/\/$/)
