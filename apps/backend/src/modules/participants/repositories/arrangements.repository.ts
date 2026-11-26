@@ -1,4 +1,5 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { canWriteRoomWishes, canWriteStay } from "@/modules/participants/domain/arrangement-rules"
 import { Injectable } from "@nestjs/common"
 
 export type TermArrangement = {
@@ -63,12 +64,9 @@ export class ArrangementsRepository {
       firstName: application.firstName,
       lastName: application.lastName,
       terms: application.terms.map((row) => {
-        const isOpen =
-          row.status !== "CANCELLED" && row.status !== "ARCHIVED" && row.term.cancelledAt === null
-        const hasWishes =
-          row.status === "CONFIRMED" &&
-          row.term.cancelledAt === null &&
-          !application.individualAccommodation
+        const state = { status: row.status, termCancelled: row.term.cancelledAt !== null }
+        const isOpen = canWriteStay(state)
+        const hasWishes = canWriteRoomWishes(state, application.individualAccommodation)
         const names = row.roomWishes
         return {
           termId: row.term.id,

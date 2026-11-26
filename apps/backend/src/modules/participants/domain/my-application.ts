@@ -16,6 +16,7 @@ import {
 } from "@/modules/applications/domain/pricing"
 import { variableSymbol as toVariableSymbol } from "@/modules/applications/domain/variable-symbol"
 import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
+import { canWriteRoomWishes, canWriteStay } from "./arrangement-rules"
 
 export type RoomOccupancy = {
   beds: number
@@ -264,10 +265,10 @@ export function buildMyApplication(
               },
             }
           : {}),
-        ...(term.status === "CONFIRMED" && !term.termCancelled && !record.individualAccommodation
+        ...(canWriteRoomWishes(term, record.individualAccommodation)
           ? { roomWishes: term.roomWishes, noRoomWishes: term.noRoomWishes }
           : {}),
-        ...(term.status !== "CANCELLED" && term.status !== "ARCHIVED" && !term.termCancelled
+        ...(canWriteStay(term)
           ? { stay: { lateArrival: term.lateArrival, earlyDeparture: term.earlyDeparture } }
           : {}),
       })),

@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { ApplicationScope, OrganizerEditor } from "@/modules/applications/domain/application-scope"
 import { logOrganizerEdit } from "@/modules/applications/repositories/application-edit-log"
+import { canWriteRoomWishes } from "@/modules/participants/domain/arrangement-rules"
 import { Injectable } from "@nestjs/common"
 
 export type RoomWishesTarget =
@@ -51,7 +52,12 @@ export class RoomWishesRepository {
     if (!row) return { kind: "NOT_FOUND" }
     if (row.term.cancelledAt) return { kind: "TERM_CANCELLED" }
     // No room is arranged for an individually accommodated participant (US-38), so no wishes.
-    if (row.status !== "CONFIRMED" || row.application.individualAccommodation)
+    if (
+      !canWriteRoomWishes(
+        { status: row.status, termCancelled: false },
+        row.application.individualAccommodation,
+      )
+    )
       return { kind: "NOT_AVAILABLE" }
     return {
       kind: "OK",

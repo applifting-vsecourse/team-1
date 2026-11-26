@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { ApplicationScope, OrganizerEditor } from "@/modules/applications/domain/application-scope"
 import { logOrganizerEdit } from "@/modules/applications/repositories/application-edit-log"
+import { canWriteStay } from "@/modules/participants/domain/arrangement-rules"
 import { Injectable } from "@nestjs/common"
 
 export type StayTarget =
@@ -46,7 +47,7 @@ export class StayRepository {
       },
     })
     if (!row) return { kind: "NOT_FOUND" }
-    if (row.status === "CANCELLED" || row.status === "ARCHIVED" || row.term.cancelledAt) {
+    if (!canWriteStay({ status: row.status, termCancelled: row.term.cancelledAt !== null })) {
       return { kind: "NOT_AVAILABLE" }
     }
     return {

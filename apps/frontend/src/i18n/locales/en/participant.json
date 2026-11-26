@@ -187,7 +187,6 @@
   },
   "organizerArrangements": {
     "back": "Back to the application",
-    "declineHint": "The participant has no roommate wishes. This can be confirmed only before the rooms are published and without names.",
     "declined": "Confirmed: the participant has no roommate wishes.",
     "errorTitle": "Could not load the participant’s data",
     "nothing": "No roommate wishes or stay can be entered for this application: no term is confirmed or open.",
