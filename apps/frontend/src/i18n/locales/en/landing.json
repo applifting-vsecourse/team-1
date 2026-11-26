@@ -10,7 +10,7 @@
       "title": "Capacity by rooms"
     },
     "multiTerm": {
-      "body": "Several terms, each with its own price; the applicant picks one or more.",
+      "body": "Several terms, each with its own price; the participant picks one or more.",
       "title": "Applications for several terms"
     },
     "payments": {
@@ -19,7 +19,7 @@
     },
     "title": "What you can do in Togena",
     "waitlist": {
-      "body": "When a term fills up, new applicants go on the waitlist.",
+      "body": "When a term fills up, further applications for that term are marked Waitlisted.",
       "title": "Confirmation and waitlist"
     }
   },
