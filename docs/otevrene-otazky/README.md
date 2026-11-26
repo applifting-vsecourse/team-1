@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**45 neuzavřených** otázek, **90 uzavřených**.
+**43 neuzavřených** otázek, **92 uzavřených**.
 
 ## Role
 
@@ -46,15 +46,13 @@
 
 _Nic._
 
-### `po` (Tomáš): 29
+### `po` (Tomáš): 27
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
 | [Q-KOM-04](#q-kom-04) | Mají účastníci dostat upozornění, když se na nástěnce objeví něco nového? Je to MVP, nebo Nice to have? | [US-91](https://github.com/applifting-vsecourse/team-1/issues/91) | P2 | PO 11. 11. chce komunitu potvrzených účastníků (§4); ověřit na refinementu 17. 11. |
 | [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | P2 | PR #683 je sloučené; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení). |
 | [Q-UCT-11](#q-uct-11) | Jaké údaje o sobě navzájem uvidí potvrzení účastníci téže akce a jak se k tomu dává souhlas? | [US-92](https://github.com/applifting-vsecourse/team-1/issues/92) | P2 | PO 11. 11. chce viditelnost v uzavřené skupině; rozsah údajů a souhlas chybí. |
-| [Q-EKO-01](#q-eko-01) | Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech? | [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
-| [Q-EKO-02](#q-eko-02) | Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete? | [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-KOM-01](#q-kom-01) | Potřebuješ to už pro první ročník (MVP), nebo zatím stačí Mailchimp? | [US-57](https://github.com/applifting-vsecourse/team-1/issues/57) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-KOM-02](#q-kom-02) | Má být už v MVP, nebo stačí po spuštění přihlášek? | [US-58](https://github.com/applifting-vsecourse/team-1/issues/58) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-LOG-01](#q-log-01) | Které další dokumenty kromě bezinfekčnosti od účastníků potřebuješ? | [US-62](https://github.com/applifting-vsecourse/team-1/issues/62) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
@@ -95,13 +93,6 @@ _Nic._
 _Nic._
 
 ## Podle epiců
-
-### Epic: ekonomika
-
-| ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
-| --- | --- | --- | --- | --- | --- |
-| [Q-EKO-01](#q-eko-01) | Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech? | [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) | otevřeno | P3 | `po` |
-| [Q-EKO-02](#q-eko-02) | Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete? | [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) | otevřeno | P3 | `po` |
 
 ### Epic: komunikace
 
@@ -252,6 +243,8 @@ _Nic._
 | [Q-PRE-01](#q-pre-01) | Má administrace otevírat poslední akci, se kterou organizátor pracoval? | [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) | Dashboard organizátora je Přehled akce se čtyřmi kartami „co vyžaduje pozornost“: K vyhodnocení, Náhradníci k vyřešení (náhradníci s volným lůžkem), Účastníci s dluhem a Žádosti ke schválení; každá s počtem a odkazem na stejně filtrovaný seznam, zobrazují se i s nulou. Po přihlášení se organizátorovi otevře akce, kterou otevřel naposledy (ukládá se na serveru); bez ní seznam akcí. |
 | [Q-PRE-02](#q-pre-02) | Dashboard organizátora: jaký přesně obsah mají karty „co vyžaduje pozornost“? | [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) | Dashboard organizátora je Přehled akce se čtyřmi kartami „co vyžaduje pozornost“: K vyhodnocení, Náhradníci k vyřešení (náhradníci s volným lůžkem), Účastníci s dluhem a Žádosti ke schválení; každá s počtem a odkazem na stejně filtrovaný seznam, zobrazují se i s nulou. Po přihlášení se organizátorovi otevře akce, kterou otevřel naposledy (ukládá se na serveru); bez ní seznam akcí. |
 | [Q-PRE-04](#q-pre-04) | Stačí pamatovat filtry seznamu přihlášek jen v rámci session, nebo mají přežít zavření prohlížeče? | [#175](https://github.com/applifting-vsecourse/team-1/issues/175) | Filtry se pamatují v sessionStorage (PR #283); PO 4. 11.: „Pamatování filtrů: OK.“ |
+| [Q-EKO-01](#q-eko-01) | Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech? | [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) | PO 25. 11.: stačí souhrn za celou akci. Výpočet nákladů závislých na počtu účastníků a délce pobytu u akcí s více termíny zůstal na schůzce otevřený. |
+| [Q-EKO-02](#q-eko-02) | Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete? | [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) | PO 25. 11.: před otevřením přihlášek nastavuje cenu a hledá bod zvratu, po otevření sleduje počet přihlášených a rezervu. Proměnné jsou cena a počet účastníků; o změně nákladů ve scénáři řeč nebyla. |
 | [Q-PLT-02](#q-plt-02) | Kdy reálně přijde druhá organizace? Chcete nové organizace schvalovat? | [US-69](https://github.com/applifting-vsecourse/team-1/issues/69) | Organizátor se zaregistruje e-mailem a heslem, ověří e-mail odkazem (D-109) a založí organizaci bez schvalování správcem platformy; dokud nedoplní profil (kontaktní e-mail, telefon, bankovní účet), nezaloží akci. Každý organizátor patří do organizace. Účet přihlašovatele dál vzniká jen odesláním přihlášky. |
 | [Q-PLT-04](#q-plt-04) | Kdo je správcem údajů: organizace, nebo provozovatel Togeny? | [US-77](https://github.com/applifting-vsecourse/team-1/issues/77) | Rozhodnuto 28. 10.: organizátor je správcem údajů účastníků, Togena zpracovatelem; Togena je správcem údajů organizátorů. |
 | [Q-PLT-05](#q-plt-05) | Kdo je správcem osobních údajů: organizace, nebo provozovatel Togeny? (Odpověď tohoto issue uzavírá otázky z US-77 a US-78.) **Duplicita s [Q-PLT-04](#q-plt-04).** | [US-97](https://github.com/applifting-vsecourse/team-1/issues/164) | Správce údajů: rozhodnuto 28. 10. (viz US-77). Zůstává otevřená doba uchování (US-78) a smluvní strana (#167). |
@@ -366,19 +359,23 @@ _Nic._
 
 ### Q-EKO-01 – Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech?
 
-- **Epic:** ekonomika · **Dotčené US:** [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** ekonomika · **Dotčené US:** [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) · **Stav:** uzavřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/59): „**Otevřená otázka na PO:** F-40 – stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech?“
+  - [zápis ze statusu s PO 25. 11.](https://github.com/applifting-vsecourse/team-1/blob/e7e7abb7395722e04486e374f1b6bb5d0442c0cd/docs/zapisy/2026-11-25-sprint-5-planning.md): „Ano, pro Tomášovy akce stačí souhrn za celou akci.“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+- **Uzavřeno, protože:** PO 25. 11.: stačí souhrn za celou akci. Výpočet nákladů závislých na počtu účastníků a délce pobytu u akcí s více termíny zůstal na schůzce otevřený.
 
 <a id="q-eko-02"></a>
 
 ### Q-EKO-02 – Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete?
 
-- **Epic:** ekonomika · **Dotčené US:** [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** ekonomika · **Dotčené US:** [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) · **Stav:** uzavřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/61): „**Otevřená otázka na PO:** F-41 – které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete?“
+  - [zápis ze statusu s PO 25. 11.](https://github.com/applifting-vsecourse/team-1/blob/e7e7abb7395722e04486e374f1b6bb5d0442c0cd/docs/zapisy/2026-11-25-sprint-5-planning.md): „Scénář „Co kdyby“ má pro Tomáše vysokou hodnotu při nastavování ceny a ověřování bodu zvratu.“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+- **Uzavřeno, protože:** PO 25. 11.: před otevřením přihlášek nastavuje cenu a hledá bod zvratu, po otevření sleduje počet přihlášených a rezervu. Proměnné jsou cena a počet účastníků; o změně nákladů ve scénáři řeč nebyla.
 
 <a id="q-kom-01"></a>
 
