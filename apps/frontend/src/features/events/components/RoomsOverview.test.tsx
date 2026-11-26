@@ -177,9 +177,9 @@ describe("RoomsOverview (US-36)", () => {
     const a = within(await roomCard("Room A"))
     expect(a.getByText("2 / 4")).toBeInTheDocument()
     expect(a.getByText("2 free beds")).toBeInTheDocument()
-    expect(
-      a.getByRole("button", { name: "Beds · Room A · Eva Horká +1" }),
-    ).toHaveTextContent("Eva Horká +1")
+    expect(a.getByRole("button", { name: "Beds · Room A · Eva Horká +1" })).toHaveTextContent(
+      "Eva Horká +1",
+    )
     expect(a.getByText("Eva Horká")).toBeInTheDocument()
     expect(a.getByText("b. 2010")).toBeInTheDocument()
     expect(a.getByText("Jana Nováková")).toBeInTheDocument()
@@ -244,9 +244,9 @@ describe("RoomsOverview (US-36)", () => {
     data.rooms = [room("r1", "Room A", 3), room("r2", "Room B", 2)]
     renderOverview()
     const a = within(await roomCard("Room A"))
-    expect(
-      a.getByRole("button", { name: "Beds · Room A · Free beds: 3" }),
-    ).toHaveTextContent("Free beds: 3")
+    expect(a.getByRole("button", { name: "Beds · Room A · Free beds: 3" })).toHaveTextContent(
+      "Free beds: 3",
+    )
     expect(a.getAllByText("Free bed")).toHaveLength(3)
     expect(screen.getAllByText("Free bed")).toHaveLength(5)
   })
