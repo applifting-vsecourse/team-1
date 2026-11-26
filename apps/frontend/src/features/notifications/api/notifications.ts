@@ -22,6 +22,8 @@ export const NOTIFICATION_KINDS = [
   // REQUEST — prepared for US-114, nothing raises it yet
   "REQUEST_APPROVED",
   "APPLICATION_EDITED",
+  // BOARD — a post on the event board (US-91)
+  "BOARD_POST_PUBLISHED",
 ] as const
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
 
@@ -29,7 +31,7 @@ const termStatusSchema = z.enum(["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANC
 
 const notificationSchema = z.object({
   id: z.string(),
-  type: z.enum(["STATUS_CHANGED", "PAYMENT", "REQUEST"]),
+  type: z.enum(["STATUS_CHANGED", "PAYMENT", "REQUEST", "BOARD"]),
   kind: z.enum(NOTIFICATION_KINDS),
   /** The application the notification leads to. */
   applicationId: z.string().nullable(),
@@ -47,6 +49,9 @@ const notificationSchema = z.object({
     amountCzk: z.number().int().optional(),
     /** PAYMENT: what is still owed in the term after the payment. */
     owedCzk: z.number().int().optional(),
+    /** BOARD: the post the notification leads to and its title. */
+    postId: z.string().optional(),
+    postTitle: z.string().optional(),
   }),
   /** ISO instant. */
   createdAt: z.string(),

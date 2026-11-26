@@ -10,6 +10,7 @@
     "markRead": "Označit jako přečtené",
     "new": "Nové",
     "open": "Detail přihlášky",
+    "openPost": "Otevřít příspěvek",
     "read": "Přečtené"
   },
   "note": {
@@ -35,6 +36,7 @@
   },
   "title": {
     "APPLICATION_EDITED": "Přihlašovatel upravil přihlášku",
+    "BOARD_POST_PUBLISHED": "Nový příspěvek na nástěnce",
     "CANCELLED": "Odhlášení bylo potvrzeno",
     "CANCELLED_BY_ORGANIZER": "Přihlášku zrušil organizátor",
     "CONFIRMED": "Přihláška byla potvrzena",

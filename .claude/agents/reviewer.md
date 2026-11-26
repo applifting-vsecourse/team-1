@@ -48,6 +48,7 @@ Business rules (CLAUDE.md, "Business rules and acceptance criteria"): a term, st
 
 UI that follows Figma (`.claude/rules/frontend.md`, "UI follows Figma"). You can't open Figma, so check only what the diff shows:
 
+- a diff that changes what a user sees while the PR body (when the prompt includes it) has no Figma frame link under „Design“ and no line saying why,
 - a new screen or block — a route page, or a component under `features/*/components` that renders a whole section — with no `Figma:` comment naming the frame and its node URL,
 - UI copy, a control type or a state that looks invented: a string with no counterpart in an earlier version of the file, an extra heading, hint or section, a drawn-looking element nobody asked for. Report it as a WARNING "not from the design? check with @design-reviewer", never as a BLOCKER — you can't tell.
 

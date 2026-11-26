@@ -18,6 +18,8 @@ export type NotificationItemProps = {
   note?: string
   /** Already formatted, `11. 3. 2027 · 10:32`. */
   time: string
+  /** What opening says to a screen reader; the application by default. */
+  openLabel?: string
   isUnread: boolean
   /** Opens the application the notification is about. */
   onOpen: () => void
@@ -37,6 +39,7 @@ export function NotificationItem({
   change,
   note,
   time,
+  openLabel,
   isUnread,
   onOpen,
   onMarkRead,
@@ -75,7 +78,7 @@ export function NotificationItem({
             variant="ghost"
             size="icon-lg"
             className="static after:absolute after:inset-0 after:rounded-lg after:content-[''] focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50"
-            aria-label={`${title}, ${participant}, ${t("item.open")}`}
+            aria-label={`${title}, ${participant}, ${openLabel ?? t("item.open")}`}
             onClick={onOpen}
           >
             <ChevronRight

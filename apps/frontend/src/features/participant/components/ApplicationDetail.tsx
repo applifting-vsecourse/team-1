@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { CalendarDays } from "lucide-react"
@@ -34,7 +34,11 @@ import {
   TermSteps,
 } from "@/features/participant/components/TermSteps"
 
-type ApplicationDetailProps = { applicationId: string }
+type ApplicationDetailProps = {
+  applicationId: string
+  /** The card leading to the board (US-91); a route composes it, as features do not import each other. */
+  boardEntry?: ReactNode
+}
 
 /** One application: the event, the status of every term and, with a confirmed term, the payment details. */
 // Figma (Design system v2): #509 / Dva potvrzené termíny · kroky a dluh · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-14581 (360 px: node-id=24910-14762)
@@ -42,7 +46,7 @@ type ApplicationDetailProps = { applicationId: string }
 // Figma (Design system v2): US-102 / Detail přihlášky (K vyhodnocení) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15751-1721 (360 px: node-id=15751-1784)
 // Figma (Design system v2): US-54 + US-121 / Detail přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-211 (360 px: node-id=15649-293)
 // Action placement follows #407; its linked #311 frames cover the payment cards only.
-export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
+export function ApplicationDetail({ applicationId, boardEntry }: ApplicationDetailProps) {
   const { t } = useTranslation("participant")
   const { data, isPending, error, refetch } = useQuery(myApplicationQueryOptions(applicationId))
   const edit = useQuery({ ...applicationEditQueryOptions(applicationId), enabled: Boolean(data) })
@@ -185,6 +189,7 @@ export function ApplicationDetail({ applicationId }: ApplicationDetailProps) {
           />
         </section>
         <aside className="grid min-w-0 gap-4">
+          {boardEntry}
           {(Boolean(edit.data?.phone) ||
             data.applicantEmail !== undefined ||
             (data.birthDate !== undefined && data.gender !== undefined)) && (

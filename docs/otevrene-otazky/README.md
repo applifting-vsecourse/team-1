@@ -50,8 +50,8 @@ _Nic._
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
-| [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | P0 | Blokuje dokončení PR #683; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení). |
 | [Q-KOM-04](#q-kom-04) | Mají účastníci dostat upozornění, když se na nástěnce objeví něco nového? Je to MVP, nebo Nice to have? | [US-91](https://github.com/applifting-vsecourse/team-1/issues/91) | P2 | PO 11. 11. chce komunitu potvrzených účastníků (§4); ověřit na refinementu 17. 11. |
+| [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | P2 | PR #683 je sloučené; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení). |
 | [Q-UCT-11](#q-uct-11) | Jaké údaje o sobě navzájem uvidí potvrzení účastníci téže akce a jak se k tomu dává souhlas? | [US-92](https://github.com/applifting-vsecourse/team-1/issues/92) | P2 | PO 11. 11. chce viditelnost v uzavřené skupině; rozsah údajů a souhlas chybí. |
 | [Q-EKO-01](#q-eko-01) | Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech? | [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-EKO-02](#q-eko-02) | Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete? | [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
@@ -186,9 +186,9 @@ _Nic._
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
-| [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | otevřeno | P0 | `po` |
 | [Q-UBY-07](#q-uby-07) | Ukazovat spolubydlícům v Moje přihláška celá jména, nebo jen křestní (GDPR)? | [US-144](https://github.com/applifting-vsecourse/team-1/issues/504) | rozhodnuto, nezapsáno | P2 | `pm` |
 | [Q-UBY-08](#q-uby-08) | V jakém pořadí nabízet pokoje při přiřazení účastníka (pohlaví, volná lůžka)? | [#534](https://github.com/applifting-vsecourse/team-1/issues/534) | rozhodnuto, nezapsáno | P2 | `pm` |
+| [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | otevřeno | P2 | `po` |
 | [Q-UBY-03](#q-uby-03) | Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat. | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | rozhodnuto, nezapsáno | P3 | `pm` |
 | [Q-UBY-06](#q-uby-06) | Jak má organizátor před spuštěním přihlášek předem připravit pokoje nebo konkrétní osoby (páry, rodiny), aby to nenarušilo vyhodnocení? | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | otevřeno | P3 | `pm` |
 
@@ -1597,7 +1597,7 @@ _Nic._
 - **Poznámka:** Pravidlo je izolované ve funkci isWishableStatus (room-wish-status.ts), změna odpovědi je jednořádková. Navazují body „individuální ubytování“ a „stejná jména“ z návrhu #631.
 - **Zdroje:**
   - [PR #683, komentář s otázkou na PM (issue #631)](https://github.com/applifting-vsecourse/team-1/pull/683)
-- **Priorita:** P0 – Blokuje dokončení PR #683; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení).
+- **Priorita:** P2 – PR #683 je sloučené; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení).
 
 <a id="q-uct-01"></a>
 
