@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { COMPACT_LIMITS, compactList, FORM_SINGLE_COLUMN_TERMS } from "@/lib/compact-list"
 import { formatDateRange } from "@/lib/date"
 import { termName } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
@@ -43,6 +44,7 @@ import {
 // Figma (Design system): "DS / Registration participant"
 // V07 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914 (mobile 15507-1033)
 // errors https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15506-544
+// #732 compact list of terms (12 / 100 terms, desktop and 360 px): https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27413-15412 (mobile 27413-16274; 100 terms 27413-15688; expanded 27413-15964)
 // US-120 gender label + explanation and US-38 individual accommodation are kept from their stories.
 
 type ParticipantFieldsProps = {
@@ -68,6 +70,8 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
   })
   const number = index + 1
   const termsMessageId = `participant-${index}-terms-message`
+  const [isExpanded, setIsExpanded] = useState(false)
+  const { visible: visibleTerms, hiddenCount } = compactList(terms, COMPACT_LIMITS.formSelection)
   const name = [firstName, lastName].filter(Boolean).join(" ").trim()
 
   return (
@@ -187,70 +191,100 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
       <FormField
         control={control}
         name={`participants.${index}.termIds`}
-        render={({ field, fieldState }) => (
-          <FormItem>
-            <fieldset className="grid gap-2">
-              <legend className="mb-2 text-2xl font-semibold">{t("form.terms")}</legend>
-              {terms.map((term) => {
-                const id = `participant-${index}-term-${term.id}`
-                const selected = field.value ?? []
-                const isSelected = selected.includes(term.id)
-                const isInvalid =
-                  fieldState.invalid &&
-                  (fieldState.error?.type !== "duplicate" ||
-                    fieldState.error.types?.termId === term.id)
-                return (
-                  <Label
-                    key={term.id}
-                    htmlFor={id}
-                    className={cn(
-                      "min-h-20 cursor-pointer gap-2 rounded-lg border border-border bg-card p-4 text-sm leading-5 transition-colors hover:bg-accent",
-                      isSelected && "border-2 border-primary bg-accent",
-                      isInvalid && "border-2 border-action-destructive",
-                      isDisabled && "cursor-default opacity-65",
-                    )}
-                  >
-                    <Checkbox
-                      id={id}
-                      className="size-6"
-                      disabled={isDisabled}
-                      checked={isSelected}
-                      onCheckedChange={(isChecked) =>
-                        field.onChange(
-                          isChecked
-                            ? [...selected, term.id]
-                            : selected.filter((v) => v !== term.id),
-                        )
-                      }
-                      onBlur={field.onBlur}
-                      aria-invalid={isInvalid}
-                      aria-describedby={isInvalid ? termsMessageId : undefined}
-                    />
-                    <span className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span
-                        className={cn("font-medium", isSelected && "text-primary dark:text-link")}
-                      >
-                        {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+        render={({ field, fieldState }) => {
+          const selected = field.value ?? []
+          const isTermInvalid = (termId: string): boolean =>
+            fieldState.invalid &&
+            (fieldState.error?.type !== "duplicate" || fieldState.error.types?.termId === termId)
+          // Folded-away terms that the applicant ticked, or that carry an error, open the list.
+          const hiddenTerms = terms.slice(visibleTerms.length)
+          const isForcedOpen = hiddenTerms.some(
+            (term) => selected.includes(term.id) || isTermInvalid(term.id),
+          )
+          const isFolded = hiddenCount > 0 && !isExpanded && !isForcedOpen
+          const shownTerms = isFolded ? visibleTerms : terms
+          return (
+            <FormItem>
+              <fieldset
+                className={cn(
+                  "grid gap-2",
+                  terms.length > FORM_SINGLE_COLUMN_TERMS && "md:grid-cols-2",
+                )}
+              >
+                <legend className="mb-2 text-2xl font-semibold md:col-span-2">
+                  {t("form.terms")}
+                </legend>
+                {shownTerms.map((term) => {
+                  const id = `participant-${index}-term-${term.id}`
+                  const isSelected = selected.includes(term.id)
+                  const isInvalid = isTermInvalid(term.id)
+                  return (
+                    <Label
+                      key={term.id}
+                      htmlFor={id}
+                      className={cn(
+                        "min-h-20 cursor-pointer gap-2 rounded-lg border border-border bg-card p-4 text-sm leading-5 transition-colors hover:bg-accent",
+                        isSelected && "border-2 border-primary bg-accent",
+                        isInvalid && "border-2 border-action-destructive",
+                        isDisabled && "cursor-default opacity-65",
+                      )}
+                    >
+                      <Checkbox
+                        id={id}
+                        className="size-6"
+                        disabled={isDisabled}
+                        checked={isSelected}
+                        onCheckedChange={(isChecked) =>
+                          field.onChange(
+                            isChecked
+                              ? [...selected, term.id]
+                              : selected.filter((v) => v !== term.id),
+                          )
+                        }
+                        onBlur={field.onBlur}
+                        aria-invalid={isInvalid}
+                        aria-describedby={isInvalid ? termsMessageId : undefined}
+                      />
+                      <span className="flex min-w-0 flex-1 flex-col gap-1">
+                        <span
+                          className={cn("font-medium", isSelected && "text-primary dark:text-link")}
+                        >
+                          {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+                        </span>
+                        {termName(term) ? (
+                          <>
+                            <span className="sr-only"> · </span>
+                            <span className="text-sm text-muted-foreground">{termName(term)}</span>
+                          </>
+                        ) : null}
                       </span>
-                      {termName(term) ? (
-                        <>
-                          <span className="sr-only"> · </span>
-                          <span className="text-sm text-muted-foreground">{termName(term)}</span>
-                        </>
-                      ) : null}
-                    </span>
-                    <span className="sr-only"> · </span>
-                    <TermPrice
-                      className="font-medium"
-                      amountCzk={term.priceCzk}
-                    />
-                  </Label>
-                )
-              })}
-            </fieldset>
-            <FormMessage id={termsMessageId} />
-          </FormItem>
-        )}
+                      <span className="sr-only"> · </span>
+                      <TermPrice
+                        className="font-medium"
+                        amountCzk={term.priceCzk}
+                      />
+                    </Label>
+                  )
+                })}
+                {hiddenCount > 0 && !isForcedOpen ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className="w-full md:col-span-2"
+                    aria-expanded={!isFolded}
+                    onClick={() => setIsExpanded(!isExpanded)}
+                  >
+                    {isFolded
+                      ? t("form.showMoreTerms", { count: hiddenCount })
+                      : t("form.showFewerTerms")}
+                  </Button>
+                ) : null}
+              </fieldset>
+              <FormMessage id={termsMessageId} />
+            </FormItem>
+          )
+        }}
       />
 
       {/* US-38: below the terms, set off by a hairline; the note appears once the box is ticked. */}
