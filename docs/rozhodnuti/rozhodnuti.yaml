@@ -3355,6 +3355,8 @@ rozhodnuti:
   stav: platne
   zmeneno_v:
   - D-191
+  - D-207
+  - D-208
   z_otazek:
   - Q-UBY-05
   dokumentace: []
@@ -3710,6 +3712,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-209
   z_otazek: []
   dokumentace: []
 - id: D-178
@@ -3988,6 +3992,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-202
   z_otazek: []
   dokumentace: []
 - id: D-193
@@ -4152,5 +4158,158 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-202
+  nazev: 'Úpravy dopravy a stravování do posledního dne termínu'
+  text: 'Dopravu jde upravit do posledního dne termínu včetně, stravování do posledního dne posledního nezrušeného termínu; platí podle data pro přihlašovatele i organizátora, bez ohledu na zaplacení.'
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v PR #797'
+    url: https://github.com/applifting-vsecourse/team-1/pull/797#issuecomment-7194171917
+  us:
+  - label: '#790'
+    url: https://github.com/applifting-vsecourse/team-1/issues/790
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-192
+  z_otazek: []
+  dokumentace: []
+- id: D-203
+  nazev: 'Zápis organizátora za účastníka: souhlas, historie, bez upozornění'
+  text: 'Zdravotní omezení organizátor zapíše po potvrzení „Potvrzuji, že mám od přihlašovatele výslovný souhlas se zpracováním zdravotního omezení účastníka.“; do historie se zapíše jen „zapsáno organizátorem“, bez textu poznámky. O změně dopravy, přání spolubydlení a příjezdu či odjezdu se přihlašovateli nic neposílá, změna se jen zapíše do historie. Organizátor tyto údaje otevírá tlačítky v detailu přihlášky. Nové texty z PR #797 platí; prázdný stav přání u organizátora zní „Pro tento termín zatím není zadané žádné přání.“'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v PR #797'
+    url: https://github.com/applifting-vsecourse/team-1/pull/797#issuecomment-7194171917
+  us:
+  - label: '#786'
+    url: https://github.com/applifting-vsecourse/team-1/issues/786
+  - label: '#787'
+    url: https://github.com/applifting-vsecourse/team-1/issues/787
+  - label: '#788'
+    url: https://github.com/applifting-vsecourse/team-1/issues/788
+  - label: '#789'
+    url: https://github.com/applifting-vsecourse/team-1/issues/789
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Doplňuje D-191.'
+- id: D-204
+  nazev: 'Texty nového landingu'
+  text: 'Tlačítko pro organizátora je „Vytvořit akci“, druhé tlačítko „Najít akci“ s popiskem „Přihlásíte se bez registrace.“, úvod má jen jednu větu, nadpis zápatí je „Pro účastníky“ a karty funkcí mají znění z PR #794.'
+  typ: design
+  oblast: design
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v PR #794'
+    url: https://github.com/applifting-vsecourse/team-1/pull/794#issuecomment-7194171255
+  us:
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-205
+  nazev: 'Katalog ukazuje jen akce s funkčním přihlašováním'
+  text: 'Zveřejněná akce se v katalogu ukáže jen s funkčním přihlašovacím formulářem, protože bez něj mohou chybět klíčové údaje. Štítek „Přihlašování není otevřené“ v katalogu odpadá; stránka akce dál vrací 404.'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v PR #795'
+    url: https://github.com/applifting-vsecourse/team-1/pull/795#issuecomment-7194172634
+  us:
+  - label: '#803'
+    url: https://github.com/applifting-vsecourse/team-1/issues/803
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Doplňuje D-116 a D-184.'
+- id: D-206
+  nazev: 'Texty katalogu, stránky akce a nefunkčního odkazu'
+  text: 'Platí nové a odstraněné texty katalogu a stránky akce z PR #795. U nefunkčního nebo zavřeného odkazu je jen „Tento odkaz nefunguje“ a „Prohlédnout akce“, bez popisu.'
+  typ: design
+  oblast: design
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v PR #795'
+    url: https://github.com/applifting-vsecourse/team-1/pull/795#issuecomment-7194172634
+  us:
+  - label: '#738'
+    url: https://github.com/applifting-vsecourse/team-1/issues/738
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Nahrazuje text stránky 404 z PR #796.'
+- id: D-207
+  nazev: 'Souhrn pro kuchyni po dnech: tři jídla s pevnými časy'
+  text: 'Souhrn pro kuchyni ukazuje pro každý den termínu počet snídaní, obědů a večeří. Jídlo dostane, kdo je přítomen v jeho čas (8:00, 12:00, 18:00; příjezd nebo odjezd přesně v tu dobu se počítá). Bez zadaného příjezdu se počítá od oběda prvního dne, bez odjezdu do oběda posledního dne. Vlastní jídla a časy a první a poslední jídlo termínu jsou navazující s nižší prioritou (#805).'
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 zapsané v #630'
+    url: https://github.com/applifting-vsecourse/team-1/issues/630
+  us:
+  - label: '#630'
+    url: https://github.com/applifting-vsecourse/team-1/issues/630
+  - label: '#805'
+    url: https://github.com/applifting-vsecourse/team-1/issues/805
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-159
+  z_otazek: []
+  dokumentace: []
+- id: D-208
+  nazev: 'Obsazená lůžka po nocích jen podle pokojů'
+  text: 'Přehled obsazených lůžek po nocích počítá jen účastníky přiřazené do pokoje; bez zadaného času se počítají na všechny noci termínu.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 zapsané v #658'
+    url: https://github.com/applifting-vsecourse/team-1/issues/658
+  us:
+  - label: '#658'
+    url: https://github.com/applifting-vsecourse/team-1/issues/658
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-159
+  z_otazek: []
+  dokumentace: []
+- id: D-209
+  nazev: 'Počty po kombinacích omezení jako samostatný ticket'
+  text: 'Souhrn pro kuchyni dává konkrétní počty ke všem kombinacím omezení, které akce nabízí; každý účastník se počítá jen jednou. Dělá se ve sprintu 5 v samostatném ticketu #804.'
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 zapsané v #804'
+    url: https://github.com/applifting-vsecourse/team-1/issues/804
+  us:
+  - label: '#804'
+    url: https://github.com/applifting-vsecourse/team-1/issues/804
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-177
   z_otazek: []
   dokumentace: []
