@@ -189,9 +189,7 @@ describe("bulk decisions on the queue (US-107, US-108)", () => {
         .map((li) => li.textContent),
     ).toEqual(["Adam Test", "Jana Test"])
     expect(within(dialog).getByText("Free beds after the confirmation")).toBeInTheDocument()
-    expect(
-      within(dialog).getByText("Men: 1 → 0 · Women: 1 → 0"),
-    ).toBeInTheDocument()
+    expect(within(dialog).getByText("Men: 1 → 0 · Women: 1 → 0")).toBeInTheDocument()
     expect(within(dialog).getByText("Selected: 3 · to confirm: 2")).toBeInTheDocument()
 
     await user.click(within(dialog).getByRole("button", { name: "Confirm applications" }))

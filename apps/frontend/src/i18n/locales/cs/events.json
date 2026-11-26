@@ -153,7 +153,6 @@
     "noTerms": "{{organization}} · Zatím bez termínu",
     "occupancy": "Obsazenost",
     "occupancyConfirmed": "Lůžka: {{confirmed}} / {{capacity}}",
-    "termsSummary": "{{organization}} · Termíny: {{count}} · {{months}}",
     "organizationAll": "Všechny organizace",
     "organizationFilter": "Organizace",
     "organizations_few": "{{count}} organizace",
@@ -167,6 +166,7 @@
     "statusColumn": "Stav",
     "statusFilter": "Stav akce",
     "statusOpen": "Publikováno",
+    "termsSummary": "{{organization}} · Termíny: {{count}} · {{months}}",
     "title": "Akce"
   },
   "new": {

@@ -153,7 +153,6 @@
     "noTerms": "{{organization}} · No term yet",
     "occupancy": "Occupancy",
     "occupancyConfirmed": "Beds: {{confirmed}} / {{capacity}}",
-    "termsSummary": "{{organization}} · Terms: {{count}} · {{months}}",
     "organizationAll": "All organizations",
     "organizationFilter": "Organization",
     "organizations_few": "{{count}} organizations",
@@ -167,6 +166,7 @@
     "statusColumn": "Status",
     "statusFilter": "Event status",
     "statusOpen": "Published",
+    "termsSummary": "{{organization}} · Terms: {{count}} · {{months}}",
     "title": "Events"
   },
   "new": {

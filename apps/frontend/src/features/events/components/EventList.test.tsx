@@ -112,9 +112,7 @@ describe("EventList", () => {
     expect(within(card).getByText("Published")).toBeInTheDocument()
     expect(within(card).getByText("Kemp Lipno · Terms: 2 · July 2027")).toBeInTheDocument()
     expect(within(card).getByText("Beds: 79 / 120")).toBeInTheDocument()
-    expect(
-      within(card).getByRole("progressbar", { name: "Beds: 79 / 120" }),
-    ).toBeInTheDocument()
+    expect(within(card).getByRole("progressbar", { name: "Beds: 79 / 120" })).toBeInTheDocument()
   })
 
   it("keeps both filters on one line so they have the same height on a phone (#753)", async () => {
