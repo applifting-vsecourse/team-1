@@ -160,12 +160,23 @@ function renderRooms(
               eventId: "e1",
               termId: assignmentTerm.termId,
               rooms: assignmentTerm.rooms.map((room) => ({ ...room, participants: [] })),
-              unassigned: options.withWish ? [{
-                applicationTermId: "p1", applicationId: "a1", firstName: "Jana", lastName: "Nováková",
-                birthYear: 2011, gender: "FEMALE", individualAccommodation: false,
-                accommodationRequest: null, status: "CONFIRMED", alsoInTerms: [],
-                wishes: [{ name: "Tereza Malá", status: "impossible", roomName: null }],
-              }] : [],
+              unassigned: options.withWish
+                ? [
+                    {
+                      applicationTermId: "p1",
+                      applicationId: "a1",
+                      firstName: "Jana",
+                      lastName: "Nováková",
+                      birthYear: 2011,
+                      gender: "FEMALE",
+                      individualAccommodation: false,
+                      accommodationRequest: null,
+                      status: "CONFIRMED",
+                      alsoInTerms: [],
+                      wishes: [{ name: "Tereza Malá", status: "impossible", roomName: null }],
+                    },
+                  ]
+                : [],
               warnings: [],
               summary: { violations: 0, acknowledged: 0, confirmedWithoutBed: 0 },
             }

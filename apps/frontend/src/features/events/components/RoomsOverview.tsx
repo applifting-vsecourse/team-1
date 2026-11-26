@@ -165,55 +165,55 @@ export function RoomsOverview({
           </dl>
           {draftView}
           <div className={draftView ? "hidden print:contents" : "contents"}>
-          <ul className="grid items-start gap-3 md:grid-cols-2 print:block print:columns-2 print:gap-4">
-            {data.rooms.map((room) => (
-              <li
-                key={room.id}
-                // A room that fits a page is never split; a longer one takes the whole width (a column spanner) and
-                // is split between its chunks of beds (see RoomOverviewCard).
-                className={
-                  isSplitOnPaper(room)
-                    ? "print:mb-4 print:[column-span:all]"
-                    : "print:mb-4 print:break-inside-avoid"
-                }
-              >
-                <RoomOverviewCard
-                  room={room}
-                  controls={
-                    isPrintOnly || draftView
-                      ? undefined
-                      : {
-                          isEligible: dnd.isEligible(room),
-                          isDragActive: dnd.dragged !== null,
-                          warnings: warningsOfRoom(data.warnings, room.id),
-                          onAcknowledge: actions.acknowledge,
-                          onEditExtraBeds: () => onEditExtraBeds(room.id),
-                          onMove: (participant) => actions.openAssign(participant, room.id),
-                          onRemove: (participant) =>
-                            actions.removeFromRoom(
-                              participant.applicationTermId,
-                              participantName(participant),
-                            ),
-                        }
+            <ul className="grid items-start gap-3 md:grid-cols-2 print:block print:columns-2 print:gap-4">
+              {data.rooms.map((room) => (
+                <li
+                  key={room.id}
+                  // A room that fits a page is never split; a longer one takes the whole width (a column spanner) and
+                  // is split between its chunks of beds (see RoomOverviewCard).
+                  className={
+                    isSplitOnPaper(room)
+                      ? "print:mb-4 print:[column-span:all]"
+                      : "print:mb-4 print:break-inside-avoid"
                   }
-                />
-              </li>
-            ))}
-          </ul>
-          {isPrintOnly || draftView ? null : (
-            <UnassignedPanel
-              className="print:hidden"
-              isFullWidth
-              unassigned={data.unassigned}
-              isAllDone={data.unassigned.length === 0 && !isNobodyAssigned}
-              isNobodyAssigned={isNobodyAssigned}
-              hasRooms={hasRooms}
-              isDragActive={dnd.dragged !== null && dnd.dragged.fromRoomId !== null}
-              onAssign={(person) => actions.openAssign(person, null)}
-            />
-          )}
-          {/* The paper lists the confirmed people without a room as before. */}
-          {withoutRoom.length > 0 ? <WithoutRoomCard people={withoutRoom} /> : null}
+                >
+                  <RoomOverviewCard
+                    room={room}
+                    controls={
+                      isPrintOnly || draftView
+                        ? undefined
+                        : {
+                            isEligible: dnd.isEligible(room),
+                            isDragActive: dnd.dragged !== null,
+                            warnings: warningsOfRoom(data.warnings, room.id),
+                            onAcknowledge: actions.acknowledge,
+                            onEditExtraBeds: () => onEditExtraBeds(room.id),
+                            onMove: (participant) => actions.openAssign(participant, room.id),
+                            onRemove: (participant) =>
+                              actions.removeFromRoom(
+                                participant.applicationTermId,
+                                participantName(participant),
+                              ),
+                          }
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+            {isPrintOnly || draftView ? null : (
+              <UnassignedPanel
+                className="print:hidden"
+                isFullWidth
+                unassigned={data.unassigned}
+                isAllDone={data.unassigned.length === 0 && !isNobodyAssigned}
+                isNobodyAssigned={isNobodyAssigned}
+                hasRooms={hasRooms}
+                isDragActive={dnd.dragged !== null && dnd.dragged.fromRoomId !== null}
+                onAssign={(person) => actions.openAssign(person, null)}
+              />
+            )}
+            {/* The paper lists the confirmed people without a room as before. */}
+            {withoutRoom.length > 0 ? <WithoutRoomCard people={withoutRoom} /> : null}
           </div>
         </>
       ) : (

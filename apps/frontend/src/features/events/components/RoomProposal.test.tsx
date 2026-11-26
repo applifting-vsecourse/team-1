@@ -69,7 +69,11 @@ function renderProposal() {
   function TestProposal() {
     const [draft, setDraft] = useState<RoomDraft | null>(null)
     return (
-      <RoomProposal term={term} draft={draft} onDraftChange={setDraft}>
+      <RoomProposal
+        term={term}
+        draft={draft}
+        onDraftChange={setDraft}
+      >
         {({ action, notices, draftView }) => (
           <>
             {action}
