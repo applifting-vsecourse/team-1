@@ -188,7 +188,12 @@ export function CancelTermDialog({
         )}
 
         <DialogFooter>
-          <BackButton disabled={isBusy} onClick={onClose}>{t("terms.cancelDialog.back")}</BackButton>
+          <BackButton
+            disabled={isBusy}
+            onClick={onClose}
+          >
+            {t("terms.cancelDialog.back")}
+          </BackButton>
           {isUnverified ? (
             <PendingButton
               isPending={isVerifying}

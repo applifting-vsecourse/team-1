@@ -22,7 +22,9 @@ const term = {
   cancelReason: null,
 }
 
-function renderDialog(answer: (input: RequestInfo | URL, init?: RequestInit) => Response | Promise<Response>) {
+function renderDialog(
+  answer: (input: RequestInfo | URL, init?: RequestInit) => Response | Promise<Response>,
+) {
   const onClose = vi.fn()
   const fetchMock = vi
     .spyOn(globalThis, "fetch")

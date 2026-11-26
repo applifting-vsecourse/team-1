@@ -105,7 +105,10 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
           >
             {t("cancellationStart.enable")}
           </Label>
-          <Badge className="shrink-0" variant={isEnabled ? "success" : "secondary"}>
+          <Badge
+            className="shrink-0"
+            variant={isEnabled ? "success" : "secondary"}
+          >
             {t(isEnabled ? "cancellationStart.on" : "cancellationStart.off")}
           </Badge>
         </div>
