@@ -1,0 +1,543 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Togena Ekonomika</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: the Togena organizer workspace (sidebar, top bar, event head, tabs) with the Ekonomika section below. Tokens from apps/frontend global.css. */
+:root{
+  --background:#f9fdff;--foreground:#031a1e;--card:#fff;--primary:#007f72;--primary-hover:#006f63;--primary-fg:#fff;
+  --muted:#f5f9fa;--muted-fg:#50686d;--accent:#c3ecdf;--border:#dae3e4;--field:#718882;--sidebar:#f5f9fa;
+  --danger:#b34640;--success:#16634a;--success-bg:#eaf6f0;--warn:#8a4b0e;--warn-bg:#fff5e6;--danger-bg:#fbecea;
+  --cost:#50686d;--cost-soft:#dae3e4;--badge-pos:#007f72;--badge-fg:#fff;
+  --shadow:0 1px 3px 0 rgb(3 26 30/.08),0 1px 2px -1px rgb(3 26 30/.06);
+  --shadow-lg:0 10px 15px -3px rgb(0 0 0/.12),0 4px 6px -4px rgb(0 0 0/.1);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --background:#030b0b;--foreground:#e4edee;--card:#061415;--muted:#031011;--muted-fg:#7a9596;--accent:#005f5a;--border:#142223;--field:#6e959e;--sidebar:#031011;
+  --danger:#ffaaa3;--success:#75dbaf;--success-bg:#14382b;--warn:#f6c779;--warn-bg:#3c2d18;--danger-bg:#3a1f1d;
+  --cost:#7a9596;--cost-soft:#1d3233;--badge-pos:#8bdfc4;--badge-fg:#173438;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --background:#030b0b;--foreground:#e4edee;--card:#061415;--muted:#031011;--muted-fg:#7a9596;--accent:#005f5a;--border:#142223;--field:#6e959e;--sidebar:#031011;
+  --danger:#ffaaa3;--success:#75dbaf;--success-bg:#14382b;--warn:#f6c779;--warn-bg:#3c2d18;--danger-bg:#3a1f1d;
+  --cost:#7a9596;--cost-soft:#1d3233;--badge-pos:#8bdfc4;--badge-fg:#173438;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--background);color:var(--foreground);font:16px/1.5 Inter,ui-sans-serif,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+h1,h2,h3{letter-spacing:-.02em;line-height:1.25;text-wrap:balance}
+h2{font-size:18px;font-weight:600}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+svg{display:block;flex:none}
+
+.app{display:flex;min-height:100vh}
+.side{width:224px;flex:none;background:var(--sidebar);border-right:1px solid var(--border);padding:16px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh}
+.logo{display:flex;align-items:center;gap:10px;font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.logo svg{width:40px;height:40px;color:var(--primary)}
+.navitem{position:relative;display:flex;align-items:center;gap:16px;min-height:48px;padding:8px 12px;border-radius:10px;background:var(--accent)}
+.account{margin-top:auto;display:flex;gap:10px;align-items:center;min-width:0}
+.avatar{width:36px;height:36px;border-radius:99px;background:var(--accent);display:grid;place-items:center;font-size:13px;font-weight:600;flex:none}
+.account div:last-child{min-width:0;font-size:13px;line-height:1.35}
+.account span{display:block;color:var(--muted-fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.corner{position:absolute;width:18px;height:18px;color:var(--primary);pointer-events:none}
+.corner.tl{top:0;left:0}.corner.br{bottom:0;right:0;transform:rotate(180deg)}
+
+.work{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{height:76px;flex:none;display:flex;align-items:center;gap:12px;padding:0 42px;background:var(--card);border-bottom:1px solid var(--border);font-weight:500;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.top .logo{display:none;font-size:18px}.top .logo svg{width:24px;height:24px}
+.crumb{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0;flex:1}
+main{padding:32px 42px 48px}
+.wrap{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+
+.band{position:relative;margin:0 -42px;padding:0 42px 72px}
+.band>svg.wave{position:absolute;left:0;bottom:0;width:100%;height:70px}
+.head{position:relative;display:flex;gap:16px;align-items:flex-start;padding-right:160px}
+.back{width:40px;height:40px;border-radius:99px;border:1px solid var(--field);background:var(--card);display:grid;place-items:center;flex:none}
+.back:hover{background:var(--accent)}
+.org{color:var(--muted-fg)}
+.titlerow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:2px 0 6px}
+h1{font-size:30px;font-weight:700}
+.badge{display:inline-flex;border-radius:99px;padding:3px 10px;font-size:14px;font-weight:500;white-space:nowrap}
+.badge.pos{background:var(--badge-pos);color:var(--badge-fg)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.bad{background:var(--danger-bg);color:var(--danger)}
+.meta{font-size:14px;font-weight:500}
+.motif{position:absolute;right:42px;bottom:12px}
+
+.tabs{display:flex;gap:16px;overflow-x:auto;padding:4px;scrollbar-width:thin}
+.tab{position:relative;display:flex;align-items:center;justify-content:center;min-width:93px;min-height:60px;padding:0 12px;border-radius:10px;color:var(--muted-fg);white-space:nowrap;flex:none}
+.tab.on{background:var(--accent);color:var(--foreground)}
+.mobiletab{display:none}
+
+.seg{display:flex;gap:4px;padding:4px;background:var(--muted);border:1px solid var(--border);border-radius:12px;width:fit-content;max-width:100%;overflow-x:auto}
+.seg a{padding:8px 18px;border-radius:8px;font-size:14px;font-weight:500;color:var(--muted-fg);white-space:nowrap}
+.seg a.on{background:var(--card);color:var(--foreground);box-shadow:var(--shadow)}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.cardhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px 16px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.stat{gap:4px;padding:20px 24px}
+.label{font-size:14px;color:var(--muted-fg)}
+.big{font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.sub{font-size:14px;color:var(--muted-fg)}
+.pos-t{color:var(--success)}.neg-t{color:var(--danger)}
+.two{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:24px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:24px;min-width:0}
+
+.money{display:grid;gap:20px}
+.mrow{display:grid;gap:6px}
+.mtitle{display:flex;justify-content:space-between;gap:12px;font-weight:500}
+.bar{display:flex;height:32px;border-radius:8px;overflow:hidden;background:var(--muted)}
+.bar i{display:block;height:100%;transition:width .35s ease-out}
+.in-a{background:var(--primary)}.in-b{background:var(--accent)}
+.out-a{background:var(--cost)}.out-b{background:var(--cost-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:14px;color:var(--muted-fg)}
+.legend span{display:flex;align-items:center;gap:8px}
+.legend b{color:var(--foreground);font-weight:500}
+.dot{width:12px;height:12px;border-radius:3px;flex:none}
+
+.rows{display:flex;flex-direction:column}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:12px 0;border-top:1px solid var(--border)}
+.row:first-child{border-top:0;padding-top:0}.row:last-child{padding-bottom:0}
+.row>:last-child{font-weight:600;text-align:right;white-space:nowrap}
+.row.head3,.row.col3{display:grid;grid-template-columns:minmax(0,1fr) 120px 120px;gap:12px}
+.row.col3>*{text-align:right;white-space:nowrap}.row.col3>:first-child{text-align:left;white-space:normal;font-weight:400}
+.row.head3>*{font-size:14px;font-weight:400;color:var(--muted-fg);text-align:right}
+.row.total>*{font-weight:700!important}
+
+.cat{display:grid;gap:6px}
+.cat+.cat{margin-top:-4px}
+.catline{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+.catline span:last-child{white-space:nowrap}
+.thin{height:10px;border-radius:99px;background:var(--muted);overflow:hidden;position:relative}
+.thin i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;transition:width .35s ease-out}
+
+.card.strip{flex-direction:row;flex-wrap:wrap;gap:16px 56px;align-items:center;padding-block:18px}
+.strip .big{font-size:24px}
+.delta{display:inline-block;margin-left:10px;font-size:14px;font-weight:600;vertical-align:middle}
+
+.group{font-size:14px;font-weight:600;padding:14px 0 6px;border-top:1px solid var(--border)}
+.group:first-child{border-top:0;padding-top:0}
+.item{display:grid;grid-template-columns:minmax(140px,1.2fr) 192px minmax(190px,1.2fr) minmax(100px,.8fr) minmax(130px,1fr) 128px;gap:16px;align-items:center;padding:12px 0}
+.item+.detail,.item+.item{border-top:0}
+.line{border-top:1px solid var(--border)}
+.group+.line{border-top:0}
+.r{text-align:right}
+.colhead{font-size:14px;color:var(--muted-fg);padding-top:0}
+.name{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.expand{display:flex;align-items:center;gap:8px;background:none;border:0;padding:6px 0;text-align:left;font-weight:500}
+.expand svg{transition:transform .15s}
+.expand[aria-expanded="true"] svg{transform:rotate(90deg)}
+.plansum{display:block;margin-top:4px;font-size:14px;color:var(--muted-fg)}
+.paid{display:grid;gap:6px;text-align:right;white-space:nowrap}
+.resultcell{text-align:right;font-weight:600;white-space:nowrap}
+.resultcell small{display:block;font-size:12px;font-weight:500;color:var(--muted-fg)}
+.resultcell small.neg-t{color:var(--danger)}.resultcell small.pos-t{color:var(--success)}
+.totals>*{font-weight:700}
+.detail{background:var(--muted);border-radius:8px;padding:12px 16px;margin-bottom:12px;display:grid;gap:12px}
+.detail .btn{justify-self:start}
+.field{display:flex;align-items:center;gap:8px;min-width:0}
+.field em{font-style:normal;font-size:14px;color:var(--muted-fg);white-space:nowrap}
+.field .qty{width:72px;flex:none}
+input[type=text],input[type=date],select{width:100%;min-width:0;height:44px;padding:0 12px;border:1px solid var(--field);border-radius:12px;background:var(--card)}
+input.num{text-align:right}
+input:disabled,select:disabled{opacity:.55}
+.mlabel{display:none}
+
+dialog{margin:auto;width:min(440px,calc(100% - 32px));border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--foreground);box-shadow:var(--shadow-lg);padding:24px}
+dialog::backdrop{background:rgb(3 11 11/.5)}
+.form{display:grid;gap:16px}
+.form label{display:grid;gap:6px;font-size:14px;font-weight:500}
+.form label>*{font-size:16px;font-weight:400}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.actions{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap}
+.btn{height:44px;padding:0 20px;border-radius:10px;border:0;background:var(--primary);color:var(--primary-fg);font-size:14px;font-weight:500;white-space:nowrap}
+.btn:hover{background:var(--primary-hover)}
+.btn.out{background:var(--card);color:var(--foreground);border:1px solid var(--field)}
+.btn.out:hover{background:var(--accent)}
+.btn.sm{height:32px;padding:0 12px;border-radius:6px}
+.btn:disabled{opacity:.45;pointer-events:none}
+.err{font-size:14px;color:var(--danger)}
+.empty{color:var(--muted-fg);font-size:14px}
+
+.slider{display:grid;gap:10px}
+.sliderhead{display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:500}
+.sliderhead .field{width:170px}
+input[type=range]{width:100%;accent-color:var(--primary);height:28px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:24px 40px}
+.chart{width:100%;min-width:0}
+.chart svg{width:100%;height:auto;overflow:visible}
+.chart text{font:12px Inter,system-ui,sans-serif;fill:var(--muted-fg)}
+
+.events{display:grid;gap:16px}
+.event{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:20px 24px}
+.event:hover{border-color:var(--primary)}
+.event h2{margin-bottom:2px}
+
+.toast{position:fixed;right:24px;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:20;max-width:360px;background:var(--card);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:12px;box-shadow:var(--shadow-lg);padding:14px 18px}
+.toast strong{display:block;font-weight:600}
+.toast span{font-size:14px;color:var(--muted-fg)}
+
+@media (max-width:1100px){
+  .two{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:1180px){
+  .colhead{display:none}
+  .item{grid-template-columns:1fr 1fr;align-items:start}
+  .item>.name,.item>.act{grid-column:1/-1}
+  .item>.act .btn{width:100%}
+  .item>div:empty{display:none}
+  .item>.paid,.item>.resultcell{text-align:left}
+  .mlabel{display:block;font-size:12px;font-weight:400;color:var(--muted-fg)}
+}
+@media (max-width:768px){
+  .side{display:none}
+  .top{height:56px;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+  .top .logo{display:flex}.top .crumb{display:none}
+  main{padding:24px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+  .band{margin:0 -16px;padding:0 16px 44px}
+  .band>svg.wave{height:30px}
+  .head{padding-right:0}.motif{display:none}
+  h1{font-size:24px}
+  .tabs{display:none}
+  .mobiletab{display:flex;align-items:center;height:44px;padding:0 14px;border:1px solid var(--field);border-radius:10px;background:var(--card);font-size:14px;font-weight:500}
+  .stats,.controls{grid-template-columns:minmax(0,1fr)}
+  .card{padding:20px 16px}
+  .seg a{padding:8px 12px}
+  .row.head3,.row.col3{grid-template-columns:minmax(0,1fr) auto auto;font-size:14px}
+  .toast{left:16px;right:16px;max-width:none;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <aside class="side" aria-label="Hlavní navigace">
+    <a class="logo" href="#akce"></a>
+    <a class="navitem" href="#akce">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span>Akce</span>
+    </a>
+    <div class="account"><div class="avatar">JN</div><div>Jana Nováková<span>jana@example.com</span></div></div>
+  </aside>
+  <div class="work">
+    <div class="top"><a class="logo" href="#akce"></a><p class="crumb" id="crumb"></p></div>
+    <main><div class="wrap" id="page"></div></main>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <form class="form" id="form" novalidate>
+    <div><h2 id="dlg-title">Zapsat výdaj</h2><p class="sub" id="dlg-item"></p></div>
+    <div class="pair"><label>Částka v Kč<input class="num" type="text" inputmode="numeric" id="f-amount" autocomplete="off"></label>
+    <label>Datum<input type="date" id="f-date" value="2026-11-25"></label></div>
+    <label>Popis<input type="text" id="f-note" autocomplete="off" placeholder="Například doplatek faktury"></label>
+    <p class="err" id="f-err" role="alert" hidden>Zadejte částku.</p>
+    <div class="actions"><button class="btn out" type="button" id="f-cancel">Zrušit</button><button class="btn" type="submit">Zapsat výdaj</button></div>
+  </form>
+</dialog>
+
+<script>
+const CATS=["Prostory","Doprava","Strava","Lidé","Materiál a program","Ostatní"];
+const it=(id,cat,name,mode,price,qty,unit,closed)=>({id,cat,name,mode,price,qty:qty||1,unit:unit||"ks",closed:!!closed});
+const ex=(date,item,note,amount)=>({date,item,note,amount});
+const EVENTS={
+  letni:{name:"Letní kemp Lipno 2027",dates:"3.–10. 7. 2027 a 10.–17. 7. 2027",open:true,confirmed:96,capacity:120,price:5200,collected:410000,refund:5200,
+    items:[
+      it("areal","Prostory","Pronájem areálu","fix",180000),
+      it("bus","Doprava","Autobus","fix",30000),
+      it("strava","Strava","Strava","per",2090),
+      it("lektori","Lidé","Lektoři","qty",6000,8,"lektorů"),
+      it("zmrzlina","Materiál a program","Zmrzlina","per",10)],
+    expenses:[ex("2026-11-20","areal","Záloha na areál",90000),ex("2026-11-18","strava","Záloha dodavateli stravy",95000),ex("2026-11-12","lektori","Zálohy lektorům",20000),ex("2026-11-05","bus","Rezervace autobusu",10000)]},
+  zimni:{name:"Zimní kemp Šumava 2028",dates:"12.–19. 2. 2028",open:false,confirmed:0,capacity:80,price:4900,collected:0,refund:0,start:60,
+    items:[
+      it("areal","Prostory","Pronájem chaty","fix",150000),
+      it("bus","Doprava","Autobus","fix",24000),
+      it("strava","Strava","Strava","per",1800),
+      it("lektori","Lidé","Instruktoři","qty",5000,6,"instruktorů")],
+    expenses:[]},
+  joga:{name:"Podzimní kurz jógy",dates:"5. 10. – 7. 12. 2027",open:true,confirmed:14,capacity:20,price:3200,collected:38400,refund:0,
+    items:[
+      it("sal","Prostory","Pronájem sálu","qty",800,10,"lekcí"),
+      it("lektor","Lidé","Lektorné","qty",1200,10,"lekcí"),
+      it("pomucky","Materiál a program","Pomůcky","per",250),
+      it("web","Ostatní","Propagace","fix",2000)],
+    expenses:[ex("2026-11-21","lektor","První čtyři lekce",4800),ex("2026-11-14","sal","První čtyři lekce",3200),ex("2026-11-02","web","Letáky",2000)]}
+};
+
+/* ---------- format ---------- */
+const nf=new Intl.NumberFormat("cs-CZ",{maximumFractionDigits:0});
+const num=v=>nf.format(Math.round(v)).replace("-","−");
+const kc=v=>num(v)+" Kč";
+const signed=v=>(v>0?"+":"")+kc(v);
+const tone=v=>v<0?"neg-t":"pos-t";
+const day=d=>{const [y,m,dd]=d.split("-").map(Number);return dd+". "+m+". "+y};
+const parse=s=>Math.min(100000000,Number(String(s).replace(/\D/g,""))||0);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=s=>document.querySelector(s);
+const set=(id,html)=>{const el=document.getElementById(id);if(el)el.innerHTML=html};
+
+/* ---------- business rules ---------- */
+const spentOf=(e,id)=>e.expenses.filter(x=>x.item===id).reduce((a,x)=>a+x.amount,0);
+const estimate=(i,n)=>i.mode==="fix"?i.price:i.price*(i.mode==="per"?n:i.qty);
+// An open item counts as the higher of estimate and spent, a closed one as what was spent.
+const expectedOf=(e,i,n=e.confirmed)=>i.closed?spentOf(e,i.id):Math.max(estimate(i,n),spentOf(e,i.id));
+const loose=e=>spentOf(e,"");
+const costs=(e,n=e.confirmed)=>e.items.reduce((a,i)=>a+expectedOf(e,i,n),0)+loose(e);
+const spent=e=>e.expenses.reduce((a,x)=>a+x.amount,0);
+// Headline income is what participants have really paid (overpayments excluded);
+// expected income serves the projection, break-even and what-if.
+const expected=e=>e.confirmed*e.price;
+const result=e=>e.collected-costs(e);
+const breakEven=(e,price)=>{for(let n=0;n<=2000;n++)if(n*price-costs(e,n)>=0)return n;return null};
+const byCat=e=>CATS.map(c=>{const items=e.items.filter(i=>i.cat===c);
+  let plan=items.reduce((a,i)=>a+expectedOf(e,i),0),done=items.reduce((a,i)=>a+spentOf(e,i.id),0);
+  if(c==="Ostatní"){plan+=loose(e);done+=loose(e)}
+  return{c,plan,done}}).filter(x=>x.plan>0||x.done>0);
+Object.values(EVENTS).forEach(e=>{e.base=result(e);e.sim={n:e.start??e.confirmed,price:e.price}});
+
+/* ---------- shell ---------- */
+const corners='<svg class="corner tl" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M1.5 16.5V7.5C1.5 4.2 4.2 1.5 7.5 1.5H16.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><svg class="corner br" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M1.5 16.5V7.5C1.5 4.2 4.2 1.5 7.5 1.5H16.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
+const logo='<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M6.667 18.667V10c0-2.222 1.111-3.333 3.333-3.333h6.667M25.333 13.333V22c0 2.222-1.111 3.333-3.333 3.333h-6.667" stroke="currentColor" stroke-width="2.667" stroke-linecap="round"/><circle cx="16" cy="16" r="2" fill="currentColor"/></svg><span>togena</span>';
+document.querySelectorAll(".logo").forEach(a=>a.innerHTML=logo);
+$(".navitem").insertAdjacentHTML("beforeend",corners);
+
+const VIEWS=[["vysledek","Výsledek"],["naklady","Náklady"],["scenare","Co kdyby"]];
+const TABS=["Přehled","Přihlášky","Platby","Ekonomika","Kapacita","Stravování","Ubytování","Termíny","Doprava","Program","Nástěnka","Nastavení"];
+const badge=e=>e.open?'<span class="badge pos">Přihláška otevřená</span>':'<span class="badge warn">Přihláška neaktivní</span>';
+
+function header(e,key,view){
+  return `<div class="band">
+    <svg class="wave" viewBox="0 0 1216 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 62L1216 2V70H0V62Z" fill="var(--accent)"/><path d="M0 62L1216 2" stroke="var(--primary)" stroke-width="4" vector-effect="non-scaling-stroke"/></svg>
+    <header class="head">
+      <a class="back" href="#akce" aria-label="Všechny akce"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></a>
+      <div><div class="org">Kempy Lipno</div><div class="titlerow"><h1>${e.name}</h1>${badge(e)}</div><p class="meta">${e.dates}</p></div>
+    </header>
+    <svg class="motif" width="144" height="108" viewBox="0 0 160 120" fill="none" aria-hidden="true"><circle cx="72" cy="60" r="56" fill="var(--accent)"/><rect x="24.75" y="30.75" width="102.5" height="58.5" rx="5.25" fill="var(--accent)" stroke="var(--primary)" stroke-width="1.5"/><rect x="34.5" y="42.5" width="103" height="59" rx="5.5" fill="var(--card)" stroke="var(--primary)"/><circle cx="86" cy="72" r="14.5" fill="var(--accent)" stroke="var(--primary)"/><rect x="46" y="70" width="12" height="3" rx="1.5" fill="var(--primary)"/><rect x="112" y="70" width="12" height="3" rx="1.5" fill="var(--primary)"/></svg>
+  </div>
+  <nav class="tabs" aria-label="Části akce">${TABS.map(t=>t==="Ekonomika"?`<a class="tab on" href="#${key}-vysledek" aria-current="page">${t}${corners}</a>`:`<span class="tab">${t}</span>`).join("")}</nav>
+  <div class="mobiletab">Ekonomika</div>
+  <nav class="seg" aria-label="Ekonomika">${VIEWS.map(([v,l])=>`<a href="#${key}-${v}" class="${v===view?"on":""}" ${v===view?'aria-current="page"':""}>${l}</a>`).join("")}</nav>`;
+}
+
+/* ---------- Výsledek ---------- */
+function vOverview(e){
+  const rev=expected(e),cost=costs(e),res=e.collected-cost,done=spent(e),left=Math.max(0,cost-done),out=Math.max(0,rev-e.collected);
+  const max=Math.max(rev,cost,1),w=v=>(v/max*100).toFixed(2)+"%";
+  const cats=byCat(e),cmax=Math.max(1,...cats.map(c=>Math.max(c.plan,c.done)));
+  const per=e.confirmed?cost/e.confirmed:null,exp=rev-cost,be=breakEven(e,e.price);
+  const beNote=be===null?"Bod zvratu: nelze dosáhnout":"Bod zvratu: "+be+(e.confirmed?(e.confirmed>=be?" · Rezerva: "+(e.confirmed-be):" · Chybí: "+(be-e.confirmed)):"");
+  return `<div class="stats">
+    <div class="card stat"><span class="label">Vybráno</span><span class="big">${kc(e.collected)}</span><span class="sub">Očekávaně ${kc(rev)}</span></div>
+    <div class="card stat"><span class="label">Náklady akce</span><span class="big">${kc(cost)}</span><span class="sub">Zaplaceno ${kc(done)}</span></div>
+    <div class="card stat"><span class="label">Výsledek akce</span><span class="big ${tone(res)}">${kc(res)}</span><span class="sub">${beNote}</span></div>
+  </div>
+  <div class="two">
+    <div class="stack">
+      <section class="card"><h2>Peníze akce</h2>
+        <div class="money">
+          <div class="mrow"><div class="mtitle"><span>Příjmy očekávaně</span><span>${kc(rev)}</span></div>
+            <div class="bar" role="img" aria-label="Vybráno ${kc(e.collected)}, zbývá vybrat ${kc(out)}"><i class="in-a" style="width:${w(e.collected)}"></i><i class="in-b" style="width:${w(out)}"></i></div>
+            <div class="legend"><span><i class="dot in-a"></i>Vybráno <b>${kc(e.collected)}</b></span><span><i class="dot in-b"></i>Zbývá vybrat <b>${kc(out)}</b></span></div></div>
+          <div class="mrow"><div class="mtitle"><span>Náklady akce</span><span>${kc(cost)}</span></div>
+            <div class="bar" role="img" aria-label="Zaplaceno ${kc(done)}, zbývá zaplatit ${kc(left)}"><i class="out-a" style="width:${w(done)}"></i><i class="out-b" style="width:${w(left)}"></i></div>
+            <div class="legend"><span><i class="dot out-a"></i>Zaplaceno <b>${kc(done)}</b></span><span><i class="dot out-b"></i>Zbývá zaplatit <b>${kc(left)}</b></span></div></div>
+        </div>
+        <div class="rows">
+          <div class="row head3"><span></span><span>Zaplaceno</span><span>Očekávaně</span></div>
+          <div class="row col3"><span>Peníze od účastníků</span><span>${kc(e.collected)}</span><span>${kc(rev)}</span></div>
+          <div class="row col3"><span>Náklady akce</span><span>${kc(cost)}</span><span>${kc(cost)}</span></div>
+          <div class="row col3 total"><span>Výsledek akce</span><span class="${tone(res)}">${kc(res)}</span><span class="${tone(exp)}">${kc(exp)}</span></div>
+        </div>
+      </section>
+    </div>
+    <div class="stack">
+      <section class="card"><h2>Na účastníka</h2><div class="rows">
+        <div class="row"><span>Cena</span><span>${kc(e.price)}</span></div>
+        <div class="row"><span>Náklad</span><span>${per===null?"–":kc(per)}</span></div>
+        <div class="row"><span>Rozdíl</span><span class="${per===null?"":tone(e.price-per)}">${per===null?"–":kc(e.price-per)}</span></div>
+        <div class="row"><span>Potvrzení</span><span>${e.confirmed} / ${e.capacity}</span></div>
+        ${e.refund?`<div class="row"><span>Přeplatky k vrácení<br><span class="sub">Nejsou ve výsledku</span></span><span>${kc(e.refund)}</span></div>`:""}
+      </div></section>
+      <section class="card"><div class="cardhead"><h2>Náklady podle kategorií</h2></div>
+        ${cats.map(c=>`<div class="cat"><div class="catline"><span>${c.c}</span><span>${kc(c.plan)}</span></div><div class="thin" title="Zaplaceno ${kc(c.done)} z ${kc(c.plan)}"><i class="out-b" style="width:${c.plan/cmax*100}%"></i><i class="out-a" style="width:${c.done/cmax*100}%"></i></div></div>`).join("")}
+        <div class="legend"><span><i class="dot out-a"></i>Zaplaceno</span><span><i class="dot out-b"></i>Zbývá zaplatit</span></div>
+      </section>
+    </div>
+  </div>`;
+}
+
+/* ---------- result strip ---------- */
+function strip(e){
+  const res=result(e),d=res-e.base;
+  return `<div><div class="label">Vybráno</div><div class="big">${kc(e.collected)}</div></div>
+  <div><div class="label">Náklady akce</div><div class="big">${kc(costs(e))}</div></div>
+  <div><div class="label">Výsledek akce</div><div class="big ${tone(res)}">${kc(res)}${d?`<span class="delta ${tone(d)}">${signed(d)}</span>`:""}</div></div>`;
+}
+
+/* ---------- Náklady ---------- */
+const opened=new Set();
+const chevron='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+const planTotal=e=>e.items.reduce((a,i)=>a+estimate(i,e.confirmed),0);
+function paidCell(e,i){
+  const s=spentOf(e,i.id),plan=estimate(i,e.confirmed);
+  return `<span class="mlabel">Zaplaceno</span><span>${kc(s)}</span><span class="thin" role="img" aria-label="Zaplaceno ${kc(s)} z ${kc(plan)}"><i style="width:${plan?Math.min(100,s/plan*100):s?100:0}%;background:var(--${s>plan?"danger":"cost"})"></i></span>`;
+}
+function resultCell(e,i){
+  const s=spentOf(e,i.id),plan=estimate(i,e.confirmed),v=expectedOf(e,i);
+  const note=s>plan?`<small class="neg-t">Nad plán: ${kc(s-plan)}</small>`:i.closed&&s<plan?`<small class="pos-t">Ušetřeno: ${kc(plan-s)}</small>`:"";
+  return `<span class="mlabel">Do výsledku</span>${kc(v)}${note}`;
+}
+function payments(e,id){
+  const list=e.expenses.filter(x=>x.item===id);
+  return list.length?`<div class="rows">${list.map(x=>`<div class="row"><span>${esc(x.note||"Výdaj")}<br><span class="sub">${day(x.date)}</span></span><span>${kc(x.amount)}</span></div>`).join("")}</div>`:'<p class="empty">Zatím tu nejsou žádné výdaje.</p>';
+}
+const expandBtn=(key,label)=>`<button class="expand" id="x-${key}" data-expand="${key}" aria-expanded="${opened.has(key)}">${chevron}<span>${label}</span></button>`;
+function itemRow(e,key,i){
+  const k=key+":"+i.id,off=i.closed?"disabled":"";
+  const priceLabel=i.mode==="fix"?"Částka":"Cena za jednotku";
+  const factor=i.mode==="per"?`<em>Kč × ${e.confirmed}</em>`:i.mode==="qty"?`<em>Kč ×</em><input class="num qty" type="text" inputmode="numeric" id="qty-${i.id}" data-item="${i.id}" data-f="qty" value="${num(i.qty)}" aria-label="Počet ${i.unit}: ${i.name}" title="Počet ${i.unit}" ${off}>`:"<em>Kč</em>";
+  return `<div class="line"><div class="item">
+    <div class="name">${expandBtn(k,i.name)}${i.closed?'<span class="badge pos">Uzavřeno</span>':""}</div>
+    <div><span class="mlabel">Výpočet</span><select id="mode-${i.id}" data-item="${i.id}" data-f="mode" aria-label="Výpočet: ${i.name}" ${off}>
+      <option value="fix" ${i.mode==="fix"?"selected":""}>Pevná částka</option>
+      <option value="per" ${i.mode==="per"?"selected":""}>Cena × účastníci</option>
+      <option value="qty" ${i.mode==="qty"?"selected":""}>Cena × počet</option></select></div>
+    <div><span class="mlabel">Plán</span><div class="field"><input class="num" type="text" inputmode="numeric" id="price-${i.id}" data-item="${i.id}" data-f="price" value="${num(i.price)}" aria-label="${priceLabel}: ${i.name}" ${off}>${factor}</div>${i.mode==="fix"?"":`<span class="plansum" id="plan-${i.id}">= ${kc(estimate(i,e.confirmed))}</span>`}</div>
+    <div class="paid" id="paid-${i.id}">${paidCell(e,i)}</div>
+    <div class="resultcell" id="res-${i.id}">${resultCell(e,i)}</div>
+    <div class="act r"><button class="btn out sm" data-add="${i.id}" ${off}>Zapsat výdaj</button></div>
+  </div>${opened.has(k)?`<div class="detail">${payments(e,i.id)}<button class="btn out sm" data-toggle="${i.id}">${i.closed?"Otevřít položku":"Uzavřít položku"}</button></div>`:""}</div>`;
+}
+function totalsRow(e){
+  return `<div class="name">Celkem</div><div></div><div><span class="mlabel">Plán</span>${kc(planTotal(e))}</div><div class="paid"><span class="mlabel">Zaplaceno</span><span>${kc(spent(e))}</span></div><div class="resultcell"><span class="mlabel">Do výsledku</span>${kc(costs(e))}</div><div></div>`;
+}
+function vCosts(e,key){
+  const groups=CATS.map(c=>{const items=e.items.filter(i=>i.cat===c);return items.length?`<div class="group">${c}</div>`+items.map(i=>itemRow(e,key,i)).join(""):""}).join("");
+  const k=key+":";
+  return `<section class="card strip" id="strip">${strip(e)}</section>
+  <section class="card"><h2>Náklady</h2>
+    <div><div class="item colhead"><span>Položka</span><span>Výpočet</span><span>Plán</span><span class="r">Zaplaceno</span><span class="r">Do výsledku</span><span></span></div>${groups}
+    <div class="group">Ostatní</div>
+    <div class="line"><div class="item"><div class="name">${expandBtn(k,"Výdaje bez položky")}</div><div></div><div></div>
+      <div class="paid"><span class="mlabel">Zaplaceno</span><span>${kc(loose(e))}</span></div>
+      <div class="resultcell"><span class="mlabel">Do výsledku</span>${kc(loose(e))}</div>
+      <div class="act r"><button class="btn out sm" data-add="">Zapsat výdaj</button></div></div>${opened.has(k)?`<div class="detail">${payments(e,"")}</div>`:""}</div>
+    <div class="line"><div class="item totals" id="totals">${totalsRow(e)}</div></div></div>
+  </section>
+  <section class="card"><h2>Podle kategorií</h2><div class="stack" style="gap:16px" id="catchart">${catChart(e)}</div></section>`;
+}
+function catChart(e){
+  const cats=byCat(e),max=Math.max(1,...cats.map(c=>c.plan)),all=costs(e)||1;
+  return cats.map(c=>`<div class="cat" style="margin:0"><div class="catline"><span>${c.c}</span><span>${kc(c.plan)} · ${Math.round(c.plan/all*100)} %</span></div><div class="thin"><i class="in-a" style="width:${c.plan/max*100}%"></i></div></div>`).join("")||'<p class="empty">Zatím žádné náklady.</p>';
+}
+
+/* ---------- Co kdyby ---------- */
+function vSim(e){
+  const nMax=Math.max(e.capacity,e.sim.n),pMax=Math.max(1000,Math.ceil(e.price*1.8/500)*500);
+  return `<section class="card"><div class="cardhead"><h2>Vyzkoušejte jiný počet a cenu</h2><button class="btn out sm" id="reset">Obnovit očekávání</button></div>
+    <div class="controls">
+      <div class="slider"><div class="sliderhead"><label for="s-n">Počet účastníků</label><div class="field"><input class="num" type="text" inputmode="numeric" id="s-nv" value="${e.sim.n}" aria-label="Počet účastníků"></div></div><input type="range" id="s-n" min="0" max="${nMax}" value="${e.sim.n}"></div>
+      <div class="slider"><div class="sliderhead"><label for="s-p">Cena za účastníka</label><div class="field"><input class="num" type="text" inputmode="numeric" id="s-pv" value="${num(e.sim.price)}" aria-label="Cena za účastníka"><em>Kč</em></div></div><input type="range" id="s-p" min="0" max="${pMax}" step="100" value="${e.sim.price}"></div>
+    </div></section>
+  <div class="stats" id="simstats"></div>
+  <section class="card"><h2>Kdy se akce zaplatí</h2><div class="chart" id="chart"></div>
+    <div class="legend"><span><i class="dot in-a"></i>Příjmy</span><span><i class="dot out-a"></i>Náklady</span></div></section>`;
+}
+function drawSim(e){
+  const {n,price}=e.sim,rev=n*price,cost=costs(e,n),res=rev-cost,be=breakEven(e,price),now=expected(e)-costs(e),d=res-now;
+  set("simstats",`<div class="card stat"><span class="label">Výsledek scénáře</span><span class="big ${tone(res)}">${kc(res)}</span><span class="sub">${kc(rev)} − ${kc(cost)}</span></div>
+    <div class="card stat"><span class="label">Bod zvratu</span><span class="big">${be===null?"–":be}</span><span class="sub">${be===null?"Cena nepokryje náklady na účastníka":be>e.capacity?"Nad kapacitou: "+e.capacity:n>=be?"Rezerva: "+(n-be):"Chybí: "+(be-n)}</span></div>
+    <div class="card stat"><span class="label">Rozdíl proti očekávání</span><span class="big ${d?tone(d):""}">${signed(d)}</span><span class="sub">Očekávání: ${e.confirmed} × ${kc(e.price)}</span></div>`);
+  const box=$("#chart");if(!box)return;
+  const W=Math.max(280,box.clientWidth),H=W<500?240:340,L=64,R=14,T=22,B=44;
+  const xm=Math.max(e.capacity,n,1);
+  const raw=Math.max(xm*price,costs(e,xm),1),mag=10**Math.floor(Math.log10(raw/4)),step=[1,2,2.5,5,10].map(k=>k*mag).find(s=>s*4>=raw),ym=step*4;
+  const X=v=>L+v/xm*(W-L-R),Y=v=>H-B-v/ym*(H-T-B);
+  const pts=f=>{let a=[];for(let k=0;k<=xm;k++)a.push(X(k).toFixed(1)+","+Y(f(k)).toFixed(1));return a.join(" ")};
+  const short=v=>v===0?"0":v>=1e6?(v/1e6).toLocaleString("cs-CZ")+" mil.":(v/1e3).toLocaleString("cs-CZ")+" tis.";
+  let g="";
+  for(let k=0;k<=4;k++){const v=step*k;g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--border)"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${short(v)}</text>`}
+  const xs=Math.max(1,Math.ceil(xm/(W<500?4:8)/5)*5);
+  for(let k=0;k<=xm;k+=xs)g+=`<text x="${X(k)}" y="${H-B+18}" text-anchor="middle">${k}</text>`;
+  g+=`<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle">Počet účastníků</text>`;
+  g+=`<line x1="${X(n)}" x2="${X(n)}" y1="${T}" y2="${H-B}" stroke="var(--foreground)" stroke-dasharray="4 4" opacity=".5"/>
+    <text x="${Math.min(W-R-24,Math.max(L+24,X(n)))}" y="${T-8}" text-anchor="middle" style="fill:var(--foreground);font-weight:600">Počet: ${n}</text>
+    <polyline points="${pts(k=>costs(e,k))}" fill="none" stroke="var(--cost)" stroke-width="3" stroke-linejoin="round"/>
+    <polyline points="${pts(k=>k*price)}" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linejoin="round"/>
+    <line x1="${X(n)}" x2="${X(n)}" y1="${Y(rev)}" y2="${Y(cost)}" stroke="var(--${res<0?"danger":"success"})" stroke-width="5"/>
+    <circle cx="${X(n)}" cy="${Y(rev)}" r="5" fill="var(--primary)"/><circle cx="${X(n)}" cy="${Y(cost)}" r="5" fill="var(--cost)"/>`;
+  if(be!==null&&be>0&&be<=xm){const y=Y(costs(e,be));g+=`<circle cx="${X(be)}" cy="${y}" r="7" fill="var(--card)" stroke="var(--foreground)" stroke-width="2.5"/>`}
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Počet účastníků: ${n}. Příjmy: ${kc(rev)}. Náklady: ${kc(cost)}.">${g}</svg>`;
+}
+
+/* ---------- router and events ---------- */
+let cur={key:null,view:null};
+function vList(){
+  return `<h1>Akce</h1><div class="events">${Object.entries(EVENTS).map(([k,e])=>`<a class="card event" href="#${k}-vysledek"><div><h2>${e.name}</h2><p class="sub">${e.dates} · Potvrzení: ${e.confirmed} / ${e.capacity}</p></div>${badge(e)}</a>`).join("")}</div>`;
+}
+function render(){
+  const page=$("#page"),h=location.hash.slice(1)||"letni-vysledek";
+  if(h==="akce"){cur={key:null,view:"akce"};$("#crumb").textContent="Kempy Lipno / Akce";page.innerHTML=vList();return}
+  const [rawKey,rawView]=h.split("-");
+  // Only known names go further: the address is user input.
+  const key=Object.keys(EVENTS).find(k=>k===rawKey)||"letni",view=(VIEWS.find(v=>v[0]===rawView)||VIEWS[0])[0];
+  const e=EVENTS[key];cur={key,view};
+  $("#crumb").textContent="Kempy Lipno / "+e.name;
+  page.innerHTML=header(e,key,view)+(view==="naklady"?vCosts(e,key):view==="scenare"?vSim(e):vOverview(e));
+  if(view==="scenare")drawSim(e);
+}
+let timer;
+function toast(title,text){const t=$("#toast");t.innerHTML=`<strong>${title}</strong><span>${text}</span>`;t.hidden=false;clearTimeout(timer);timer=setTimeout(()=>t.hidden=true,4000)}
+
+document.addEventListener("input",ev=>{
+  const t=ev.target,e=EVENTS[cur.key];if(!e)return;
+  if(t.dataset.item&&t.dataset.f!=="mode"){
+    e.items.find(i=>i.id===t.dataset.item)[t.dataset.f]=parse(t.value);
+    e.items.forEach(i=>{set("plan-"+i.id,"= "+kc(estimate(i,e.confirmed)));set("paid-"+i.id,paidCell(e,i));set("res-"+i.id,resultCell(e,i))});set("totals",totalsRow(e));set("strip",strip(e));set("catchart",catChart(e));
+  }
+  if(["s-n","s-p","s-nv","s-pv"].includes(t.id)){
+    const isN=t.id.startsWith("s-n"),v=isN?Math.min(1000,parse(t.value)):parse(t.value);
+    e.sim[isN?"n":"price"]=v;
+    const other=$("#"+(isN?"s-n":"s-p")+(t.type==="range"?"v":""));
+    if(isN&&t.type!=="range"&&v>+other.max)other.max=v;
+    if(!isN&&t.type!=="range"&&v>+other.max)other.max=v;
+    other.value=t.type==="range"?num(v):v;
+    drawSim(e);
+  }
+});
+document.addEventListener("focusout",ev=>{const t=ev.target;if(t.matches?.("input.num")&&t.id!=="s-nv"&&t.value!=="")t.value=num(parse(t.value))});
+document.addEventListener("change",ev=>{
+  const t=ev.target,e=EVENTS[cur.key];
+  if(e&&t.dataset.f==="mode"){e.items.find(i=>i.id===t.dataset.item).mode=t.value;render();document.getElementById(t.id)?.focus()}
+});
+let adding="";
+const redraw=focusId=>{const y=scrollY;render();scrollTo(0,y);if(focusId)document.getElementById(focusId)?.focus({preventScroll:true})};
+document.addEventListener("click",ev=>{
+  const e=EVENTS[cur.key];if(!e)return;
+  const b=ev.target.closest("button");if(!b)return;
+  if(b.dataset.expand!==undefined){const k=b.dataset.expand;opened.has(k)?opened.delete(k):opened.add(k);redraw(b.id)}
+  if(b.dataset.add!==undefined){adding=b.dataset.add;$("#form").reset();$("#f-err").hidden=true;
+    $("#dlg-item").textContent=e.items.find(i=>i.id===adding)?.name??"Bez položky";$("#dlg").showModal();$("#f-amount").focus()}
+  if(b.id==="f-cancel")$("#dlg").close();
+  if(b.dataset.toggle){const i=e.items.find(x=>x.id===b.dataset.toggle),before=result(e);i.closed=!i.closed;redraw("x-"+cur.key+":"+i.id);
+    const d=result(e)-before;toast(i.closed?"Položka uzavřena":"Položka otevřena",d?"Výsledek akce "+signed(d):"Výsledek akce beze změny")}
+  if(b.id==="reset"){e.sim={n:e.confirmed,price:e.price};render()}
+});
+document.addEventListener("submit",ev=>{
+  ev.preventDefault();const e=EVENTS[cur.key];
+  const amount=parse($("#f-amount").value);
+  if(!amount){$("#f-err").hidden=false;$("#f-amount").focus();return}
+  const before=result(e);
+  e.expenses.unshift(ex($("#f-date").value||"2026-11-25",adding,$("#f-note").value.trim(),amount));
+  opened.add(cur.key+":"+adding);
+  $("#dlg").close();redraw();
+  const d=result(e)-before;
+  toast("Výdaj zapsán",d?"Výsledek akce "+signed(d):"Výsledek akce beze změny");
+});
+let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(cur.view==="scenare")drawSim(EVENTS[cur.key])},100)});
+addEventListener("hashchange",()=>{$("#toast").hidden=true;$("#dlg").close();render();scrollTo(0,0)});
+render();
+</script>
+
+</body></html>

@@ -4313,3 +4313,122 @@ rozhodnuti:
   - D-177
   z_otazek: []
   dokumentace: []
+- id: D-210
+  nazev: 'Výsledek akce se počítá ze skutečně zaplacených peněz'
+  text: 'Hlavní výsledek akce jsou peníze, které účastníci skutečně zaplatili, minus náklady akce. Za přihlášku v termínu se počítají platby minus vratky nejvýše do částky k úhradě; přeplatky se do příjmu nepočítají. Ručně zapsané příjmové položky se k výsledku přičítají. Očekávaný příjem od potvrzených je jen doplňkový pohled a podklad pro bod zvratu a scénář Co kdyby.'
+  typ: byznys
+  oblast: ekonomika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu'
+    soubor: docs/prototypy/ekonomika/index.html
+  - popis: zápis ze statusu s PO 25. 11. 2026
+    soubor: docs/zapisy/2026-11-25-sprint-5-planning.md
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-211
+  nazev: 'Nákladová položka: výpočet plánu a započtení do výsledku'
+  text: 'Plán nákladové položky je pevná částka, cena × účastníci, nebo cena × vlastní počet. Otevřená položka se do výsledku počítá vyšší částkou z plánu a součtu svých výdajů, a to po položkách, ne ze součtů. Výdaj bez položky se počítá celý.'
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu'
+    soubor: docs/prototypy/ekonomika/index.html
+  - popis: zápis ze statusu s PO 25. 11. 2026
+    soubor: docs/zapisy/2026-11-25-sprint-5-planning.md
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-212
+  nazev: 'Uzavřená nákladová položka se počítá jen zaplacenou částkou'
+  text: 'Organizátor může nákladovou položku uzavřít a znovu otevřít. Uzavřená se do výsledku počítá jen součtem svých výdajů, takže se projeví i úspora proti plánu.'
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu'
+    soubor: docs/prototypy/ekonomika/index.html
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-213
+  nazev: 'Výchozí kategorie nákladů a vlastní kategorie'
+  text: 'Systém nabídne výchozí kategorie Prostory, Doprava, Strava, Lidé, Materiál a program a Ostatní. Organizátor si má moci kategorie přidávat, upravovat a odebírat; to je navazující ticket s nižší prioritou.'
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu'
+    soubor: docs/prototypy/ekonomika/index.html
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-214
+  nazev: 'Ekonomický přehled je manažerský a za celou akci'
+  text: 'Ekonomický přehled ukazuje souhrn za celou akci, ne po termínech. Pro MVP stačí manažerský přehled; pokladny, cash flow a účetní evidence nejsou součástí.'
+  typ: byznys
+  oblast: ekonomika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: zápis ze statusu s PO 25. 11. 2026
+    soubor: docs/zapisy/2026-11-25-sprint-5-planning.md
+  rozhodl:
+  - po
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-215
+  nazev: 'Cena × účastníci počítá každou účast'
+  text: 'Počet pro výpočet cena × účastníci jsou potvrzené a archivované přihlášky v termínu přes všechny termíny akce. Kdo jede na dva termíny, počítá se dvakrát.'
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu'
+    soubor: docs/prototypy/ekonomika/index.html
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-216
+  nazev: 'Bod zvratu a scénáře počítají s průměrnou cenou'
+  text: 'Pro bod zvratu, náklad na účastníka a scénář Co kdyby se použije průměr částek k úhradě potvrzených a archivovaných přihlášek v termínu. Bez nich průměr cen termínů.'
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu'
+    soubor: docs/prototypy/ekonomika/index.html
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-217
+  nazev: 'Náklady podle délky pobytu se zadávají jako cena × počet'
+  text: 'Pro náklady závislé na délce pobytu (např. porce × dny) nevzniká zvláštní výpočet; organizátor použije cenu × vlastní počet.'
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu'
+    soubor: docs/prototypy/ekonomika/index.html
+  - popis: zápis ze statusu s PO 25. 11. 2026
+    soubor: docs/zapisy/2026-11-25-sprint-5-planning.md
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
