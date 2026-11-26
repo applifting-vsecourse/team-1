@@ -217,8 +217,6 @@
   "request": {
     "cancelTitle": "Požadované odhlášení",
     "changeTitle": "Požadovaná změna termínu",
-    "confirmedPaid": "Potvrzená a zaplacená",
-    "confirmedWithDebt": "Potvrzená s dluhem",
     "createdDate": "Podáno {{date}}",
     "current": "Původní termín",
     "currentAttendance": "Aktuální účast",

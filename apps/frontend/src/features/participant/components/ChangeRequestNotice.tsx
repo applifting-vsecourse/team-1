@@ -6,9 +6,9 @@ import { ErrorState } from "@/components/molecules/ErrorState"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
-import { termDates, termLine } from "@/lib/term-label"
+import { termDatesLine, termLine } from "@/lib/term-label"
 
-import type { MyApplicationTerm, TermPayment } from "@/features/participant/api/applications"
+import type { MyApplicationTerm } from "@/features/participant/api/applications"
 import { participantChangeRequestsQueryOptions } from "@/features/participant/api/changeRequests"
 
 // Figma (Design system v2): #408 Detail · žádost odeslána · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-39109 (mobile: 22640-39243)
@@ -19,11 +19,9 @@ import { participantChangeRequestsQueryOptions } from "@/features/participant/ap
 export function ChangeRequestNotice({
   applicationId,
   terms,
-  payments,
 }: {
   applicationId: string
   terms: Pick<MyApplicationTerm, "termId" | "status">[]
-  payments: Pick<TermPayment, "termId" | "owedCzk">[]
 }) {
   const { t } = useTranslation(["participant", "notifications"])
   const query = useQuery(participantChangeRequestsQueryOptions(applicationId))
@@ -59,17 +57,17 @@ export function ChangeRequestNotice({
       .filter((term) => currentIds.includes(term.id))
       .map((term) => {
         const attendance = terms.find((item) => item.termId === term.id)
-        if (!attendance) return termDates(term)
-        const payment = payments.find((item) => item.termId === term.id)
-        const status =
-          attendance.status === "CONFIRMED" && payment
-            ? t(payment.owedCzk > 0 ? "request.confirmedWithDebt" : "request.confirmedPaid")
-            : t(`notifications:status.${attendance.status}`)
-        return `${termDates(term)} · ${status}`
+        const label = termDatesLine(term)
+        return attendance ? `${label} · ${t(`notifications:status.${attendance.status}`)}` : label
       })
+    const hasConfirmedAttendance =
+      currentIds.length > 0 &&
+      currentIds.every((id) =>
+        terms.some((term) => term.termId === id && term.status === "CONFIRMED"),
+      )
     return (
       <Card
-        className="gap-4 rounded-xl p-4 shadow-none"
+        className="gap-4 p-4 sm:p-6"
         aria-live="polite"
       >
         <h2 className="text-2xl font-bold tracking-tight">
@@ -82,14 +80,16 @@ export function ChangeRequestNotice({
           {t("request.status.PENDING")}
         </Badge>
         {!isCancel && (
-          <DetailItem label={t("request.requestedTerm")}>{labels(addedIds, termDates)}</DetailItem>
+          <DetailItem label={t("request.requestedTerm")}>
+            {labels(addedIds, termDatesLine)}
+          </DetailItem>
         )}
         {currentAttendance.length > 0 && (
           <DetailItem label={t("request.currentAttendance")}>
             {currentAttendance.join(", ")}
           </DetailItem>
         )}
-        <p>{t("request.pendingAttendance")}</p>
+        {hasConfirmedAttendance && <p>{t("request.pendingAttendance")}</p>}
       </Card>
     )
   }

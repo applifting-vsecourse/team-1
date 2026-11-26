@@ -217,8 +217,6 @@
   "request": {
     "cancelTitle": "Requested cancellation",
     "changeTitle": "Requested term change",
-    "confirmedPaid": "Confirmed and paid",
-    "confirmedWithDebt": "Confirmed with balance due",
     "createdDate": "Submitted {{date}}",
     "current": "Original term",
     "currentAttendance": "Current participation",

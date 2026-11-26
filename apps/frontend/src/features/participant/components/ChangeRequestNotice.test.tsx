@@ -2,9 +2,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { termDates } from "@/lib/term-label"
+import { termDatesLine } from "@/lib/term-label"
 
-import type { MyApplicationTerm, TermPayment } from "@/features/participant/api/applications"
+import type { MyApplicationTerm } from "@/features/participant/api/applications"
 import { ChangeRequestNotice } from "@/features/participant/components/ChangeRequestNotice"
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
@@ -35,7 +35,6 @@ const renderNotice = (
     { termId: "t1", status: "CONFIRMED" },
     { termId: "t2", status: "CONFIRMED" },
   ],
-  payments: Pick<TermPayment, "termId" | "owedCzk">[] = [],
 ) => {
   get.mockReturnValue({ json: () => Promise.resolve(data) })
   render(
@@ -45,7 +44,6 @@ const renderNotice = (
       <ChangeRequestNotice
         applicationId="a1"
         terms={terms}
-        payments={payments}
       />
     </QueryClientProvider>,
   )
@@ -62,7 +60,7 @@ describe("ChangeRequestNotice", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
     expect(screen.getByText("Current participation")).toBeVisible()
     const attendance = request()
-      .terms.map((term) => `${termDates(term)} · Confirmed`)
+      .terms.map((term) => `${termDatesLine(term)} · Confirmed`)
       .join(", ")
     expect(screen.getByText(attendance)).toBeVisible()
     expect(screen.getByText("Your original participation remains valid for now.")).toBeVisible()
@@ -78,34 +76,44 @@ describe("ChangeRequestNotice", () => {
     )
 
     expect(await screen.findByRole("heading", { name: "Term cancellation" })).toBeVisible()
-    expect(screen.getByText(`${termDates(request().terms[0])} · Waitlisted`)).toBeVisible()
+    expect(screen.getByText(`${termDatesLine(request().terms[0])} · Waitlisted`)).toBeVisible()
     expect(
-      screen.queryByText(termDates(request().terms[1]), { exact: false }),
+      screen.queryByText(termDatesLine(request().terms[1]), { exact: false }),
     ).not.toBeInTheDocument()
     expect(screen.queryByText("Requested term")).not.toBeInTheDocument()
   })
 
-  it.each([
-    [4900, "Confirmed with balance due"],
-    [0, "Confirmed and paid"],
-  ] as const)(
-    "shows the requested term and the current attendance for a pending change with balance %i",
-    async (owedCzk, label) => {
-      renderNotice(
-        [request({ currentTermIds: ["t1"], requestedTermIds: ["t2"] })],
-        [{ termId: "t1", status: "CONFIRMED" }],
-        [{ termId: "t1", owedCzk }],
-      )
+  it("distinguishes named terms with the same dates in a pending change", async () => {
+    const [current, next] = request().terms
+    const requested = { ...next, startsOn: current.startsOn, endsOn: current.endsOn }
+    renderNotice(
+      [request({ currentTermIds: ["t1"], requestedTermIds: ["t2"], terms: [current, requested] })],
+      [{ termId: "t1", status: "CONFIRMED" }],
+    )
 
-      expect(await screen.findByRole("heading", { name: "Term change" })).toBeVisible()
-      expect(screen.getByText("Awaiting approval")).toHaveAttribute("data-variant", "warning")
-      expect(screen.queryByRole("alert")).not.toBeInTheDocument()
-      expect(screen.getByText("Requested term")).toBeVisible()
-      expect(screen.getByText(termDates(request().terms[1]))).toBeVisible()
-      expect(screen.getByText("Current participation")).toBeVisible()
-      expect(screen.getByText(`${termDates(request().terms[0])} · ${label}`)).toBeVisible()
-    },
-  )
+    expect(await screen.findByRole("heading", { name: "Term change" })).toBeVisible()
+    expect(screen.getByText("Awaiting approval")).toHaveAttribute("data-variant", "warning")
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    expect(screen.getByText("Requested term")).toBeVisible()
+    expect(screen.getByText(termDatesLine(requested))).toBeVisible()
+    expect(screen.getByText("Current participation")).toBeVisible()
+    expect(screen.getByText(`${termDatesLine(current)} · Confirmed`)).toBeVisible()
+  })
+
+  it("omits the participation reassurance when any affected term is unconfirmed", async () => {
+    renderNotice(
+      [request()],
+      [
+        { termId: "t1", status: "CONFIRMED" },
+        { termId: "t2", status: "WAITLISTED" },
+      ],
+    )
+
+    expect(await screen.findByRole("heading", { name: "Term cancellation" })).toBeVisible()
+    expect(
+      screen.queryByText("Your original participation remains valid for now."),
+    ).not.toBeInTheDocument()
+  })
 
   it("keeps the status and the reason of a declined request", async () => {
     renderNotice([request({ status: "REJECTED", rejectionReason: "Full" })])
