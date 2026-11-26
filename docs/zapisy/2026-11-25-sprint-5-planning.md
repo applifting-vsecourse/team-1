@@ -26,7 +26,6 @@ Ekonomický modul, jak jsme se bavili na refinementu. Zapíšu náklady a vidím
   > - S účastníkem počítá po zaplacení, ideálně do 10 dnů od přihlášky.
   > - Proto jsou pro něj důležité upomínky.
   > - K otázce „Vyplatila se mi akce?“ Tomáš popsal, že průběžně doplňuje skutečné výdaje do rozpočtu.
-
   - Jak po akci uzavírá a vyhodnocuje celkový výsledek, na schůzce nerozvedl.
 
 ##### Náklady
@@ -79,7 +78,7 @@ Ekonomický modul, jak jsme se bavili na refinementu. Zapíšu náklady a vidím
 
 #### Design
 
-Projít aplikaci podle vlastních návrhů  - co zkompaktnit a zpřehlednit, hlavně na mobilu. Honza nabízel, že vám ukáže UI chyby, které se v aplikaci opakují. Jestli se s ním spojíte, nechám na vás.
+Projít aplikaci podle vlastních návrhů - co zkompaktnit a zpřehlednit, hlavně na mobilu. Honza nabízel, že vám ukáže UI chyby, které se v aplikaci opakují. Jestli se s ním spojíte, nechám na vás.
 
 Pracujeme na tom průběžně, ladíme a zjednodušujeme design, zjednodušeujeme texty, s Honzou se spojíme.
 
@@ -111,7 +110,7 @@ Máme v backlogu:
 - Požadované úpravy
 - Vylepšení přiřazovacího algoritmu (opakované navrhování rozložení v průběhu přihlašování, kombinace typů pokojů pro větší flexibilitu)
 
-***
+---
 
 ## Schůzka s Honzou Černým ohledně designu - před nebo po hodině.
 
