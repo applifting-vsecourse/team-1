@@ -336,7 +336,7 @@ describe("designed status states", () => {
     await user.click(await screen.findByRole("button", { name: "Change status" }))
     expect(screen.getByRole("button", { name: "Save status" })).toBeDisabled()
     expect(patch).not.toHaveBeenCalled()
-    expect(screen.getByText(/After confirmation it will be 51\/50/)).toBeVisible()
+    expect(screen.getByText(/Occupancy: 50\/50 → 51\/50/)).toBeVisible()
     await user.click(
       screen.getByRole("checkbox", { name: "I knowingly confirm the application over capacity." }),
     )

@@ -148,16 +148,12 @@
     "empty": "There are no events yet.",
     "errorTitle": "Couldn't load the events",
     "eventAndOrganization": "Event and organization",
-    "manyTerms_few": "{{organization}} · {{count}} terms · {{months}}",
-    "manyTerms_many": "{{organization}} · {{count}} terms · {{months}}",
-    "manyTerms_one": "{{organization}} · {{count}} term · {{months}}",
-    "manyTerms_other": "{{organization}} · {{count}} terms · {{months}}",
     "noCapacity": "—",
     "noMatch": "No event matches the search and filters.",
     "noTerms": "{{organization}} · No term yet",
     "occupancy": "Occupancy",
-    "occupancyConfirmed": "Places: {{confirmed}} / {{capacity}} · Terms: {{terms}}",
-    "oneTerm": "{{organization}} · {{dates}}",
+    "occupancyConfirmed": "Beds: {{confirmed}} / {{capacity}}",
+    "termsSummary": "{{organization}} · Terms: {{count}} · {{months}}",
     "organizationAll": "All organizations",
     "organizationFilter": "Organization",
     "organizations_few": "{{count}} organizations",
@@ -805,7 +801,7 @@
       "added": "The term {{name}} was added.",
       "edited": "Changes to the term {{name}} were saved."
     },
-    "occupancy": "Places: {{confirmed}} / {{capacity}}",
+    "occupancy": "Beds: {{confirmed}} / {{capacity}}",
     "priceLabel": "Price:",
     "title": "Terms"
   }

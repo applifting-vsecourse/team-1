@@ -110,10 +110,10 @@ describe("EventList", () => {
       "a",
     ) as HTMLElement
     expect(within(card).getByText("Published")).toBeInTheDocument()
-    expect(within(card).getByText("Kemp Lipno · 2 terms · July 2027")).toBeInTheDocument()
-    expect(within(card).getByText("Places: 79 / 120 · Terms: 2")).toBeInTheDocument()
+    expect(within(card).getByText("Kemp Lipno · Terms: 2 · July 2027")).toBeInTheDocument()
+    expect(within(card).getByText("Beds: 79 / 120")).toBeInTheDocument()
     expect(
-      within(card).getByRole("progressbar", { name: "Places: 79 / 120 · Terms: 2" }),
+      within(card).getByRole("progressbar", { name: "Beds: 79 / 120" }),
     ).toBeInTheDocument()
   })
 

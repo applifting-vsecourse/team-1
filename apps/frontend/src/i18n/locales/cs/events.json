@@ -148,16 +148,12 @@
     "empty": "Zatím tu nejsou žádné akce.",
     "errorTitle": "Akce se nepodařilo načíst",
     "eventAndOrganization": "Akce a organizace",
-    "manyTerms_few": "{{organization}} · {{count}} termíny · {{months}}",
-    "manyTerms_many": "{{organization}} · {{count}} termínů · {{months}}",
-    "manyTerms_one": "{{organization}} · {{count}} termín · {{months}}",
-    "manyTerms_other": "{{organization}} · {{count}} termínů · {{months}}",
     "noCapacity": "—",
     "noMatch": "Hledání ani filtrům neodpovídá žádná akce.",
     "noTerms": "{{organization}} · Zatím bez termínu",
     "occupancy": "Obsazenost",
-    "occupancyConfirmed": "Místa: {{confirmed}} / {{capacity}} · Termíny: {{terms}}",
-    "oneTerm": "{{organization}} · {{dates}}",
+    "occupancyConfirmed": "Lůžka: {{confirmed}} / {{capacity}}",
+    "termsSummary": "{{organization}} · Termíny: {{count}} · {{months}}",
     "organizationAll": "Všechny organizace",
     "organizationFilter": "Organizace",
     "organizations_few": "{{count}} organizace",
@@ -805,7 +801,7 @@
       "added": "Termín {{name}} byl přidán.",
       "edited": "Změny termínu {{name}} byly uloženy."
     },
-    "occupancy": "Místa: {{confirmed}} / {{capacity}}",
+    "occupancy": "Lůžka: {{confirmed}} / {{capacity}}",
     "priceLabel": "Cena:",
     "title": "Termíny"
   }

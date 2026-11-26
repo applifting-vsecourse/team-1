@@ -14,13 +14,18 @@ export function termsSummary(
   if (event.termCount === 0 || !event.startsOn || !event.endsOn) {
     return t(`${section}.noTerms`, { organization })
   }
-  if (event.termCount === 1) {
-    return t(`${section}.oneTerm`, {
-      dates: formatDateRange(event.startsOn, event.endsOn, { shouldShowYear: true }),
+  const dates = formatDateRange(event.startsOn, event.endsOn, { shouldShowYear: true })
+  if (section === "list") {
+    return t("list.termsSummary", {
+      count: event.termCount,
+      months: event.termCount === 1 ? dates : formatMonthRange(event.startsOn, event.endsOn),
       organization,
     })
   }
-  return t(`${section}.manyTerms`, {
+  if (event.termCount === 1) {
+    return t("header.oneTerm", { dates, organization })
+  }
+  return t("header.manyTerms", {
     count: event.termCount,
     months: formatMonthRange(event.startsOn, event.endsOn),
     organization,

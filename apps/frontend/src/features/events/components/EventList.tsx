@@ -240,15 +240,11 @@ function EventRow({ event }: { event: OrganizerEvent }) {
       params={{ eventId: event.id }}
       className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 px-3 py-3 transition-colors hover:bg-accent/40 focus-visible:outline-2 focus-visible:outline-ring lg:grid-cols-[minmax(0,1fr)_9rem_minmax(8rem,1fr)_1.25rem] lg:items-center lg:px-4"
     >
-      {/* Phone: organization above the name, then the dates; from `lg` the row reads name, then
-          "organization · dates". */}
       <div className="col-span-2 flex min-w-0 flex-col gap-0.5 lg:col-span-1">
-        <p className="text-sm text-muted-foreground lg:hidden">{event.organizationName}</p>
         <h3 className="text-base font-semibold wrap-anywhere lg:font-medium">{event.name}</h3>
-        <p className="text-sm text-muted-foreground lg:hidden">
-          {termsSummary(event, t, "header")}
+        <p className="text-sm text-muted-foreground lg:font-medium lg:text-foreground">
+          {termsSummary(event, t)}
         </p>
-        <p className="hidden text-sm font-medium lg:block">{termsSummary(event, t)}</p>
         {event.location ? <p className="text-sm text-muted-foreground">{event.location}</p> : null}
       </div>
       <ChevronRight
@@ -270,7 +266,7 @@ function EventRow({ event }: { event: OrganizerEvent }) {
   )
 }
 
-/** Occupancy and term count, with a bar when rooms have been configured. */
+/** Occupancy, with a bar when rooms have been configured. */
 function Occupancy({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
   const confirmed = event.terms.reduce((sum, term) => sum + term.confirmedCount, 0)
@@ -279,7 +275,7 @@ function Occupancy({ event }: { event: OrganizerEvent }) {
   if (capacity === 0) {
     return <span className="text-sm font-medium">{t("list.noCapacity")}</span>
   }
-  const label = t("list.occupancyConfirmed", { confirmed, capacity, terms: event.termCount })
+  const label = t("list.occupancyConfirmed", { confirmed, capacity })
 
   return (
     <>

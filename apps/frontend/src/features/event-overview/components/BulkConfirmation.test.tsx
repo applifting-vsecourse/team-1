@@ -190,7 +190,7 @@ describe("bulk decisions on the queue (US-107, US-108)", () => {
     ).toEqual(["Adam Test", "Jana Test"])
     expect(within(dialog).getByText("Free beds after the confirmation")).toBeInTheDocument()
     expect(
-      within(dialog).getByText("Free beds – men: 1, women: 1 → Free beds – men: 0, women: 0"),
+      within(dialog).getByText("Men: 1 → 0 · Women: 1 → 0"),
     ).toBeInTheDocument()
     expect(within(dialog).getByText("Selected: 3 · to confirm: 2")).toBeInTheDocument()
 
