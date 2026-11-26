@@ -1192,7 +1192,7 @@ otazky:
   us:
   - label: US-59
     url: https://github.com/applifting-vsecourse/team-1/issues/59
-  stav: otevreno
+  stav: uzavreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
   ceka_na: po
@@ -1201,13 +1201,17 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/59
     citace: „**Otevřená otázka na PO:** F-40 – stačí ti přehled za celou akci, nebo ho potřebuješ i po
       termínech?“
+  - popis: zápis ze statusu s PO 25. 11.
+    url: https://github.com/applifting-vsecourse/team-1/blob/e7e7abb7395722e04486e374f1b6bb5d0442c0cd/docs/zapisy/2026-11-25-sprint-5-planning.md
+    citace: '„Ano, pro Tomášovy akce stačí souhrn za celou akci.“'
+  uzavreno_duvod: 'PO 25. 11.: stačí souhrn za celou akci. Výpočet nákladů závislých na počtu účastníků a délce pobytu u akcí s více termíny zůstal na schůzce otevřený.'
 - id: Q-EKO-02
   otazka: Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete?
   epic: ekonomika
   us:
   - label: US-61
     url: https://github.com/applifting-vsecourse/team-1/issues/61
-  stav: otevreno
+  stav: uzavreno
   priorita: P3
   priorita_duvod: Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
   ceka_na: po
@@ -1216,6 +1220,10 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/issues/61
     citace: „**Otevřená otázka na PO:** F-41 – které proměnné chceš měnit (počet lidí, cena, náklady)?
       Kdy v roce se takhle rozhodujete?“
+  - popis: zápis ze statusu s PO 25. 11.
+    url: https://github.com/applifting-vsecourse/team-1/blob/e7e7abb7395722e04486e374f1b6bb5d0442c0cd/docs/zapisy/2026-11-25-sprint-5-planning.md
+    citace: '„Scénář „Co kdyby“ má pro Tomáše vysokou hodnotu při nastavování ceny a ověřování bodu zvratu.“'
+  uzavreno_duvod: 'PO 25. 11.: před otevřením přihlášek nastavuje cenu a hledá bod zvratu, po otevření sleduje počet přihlášených a rezervu. Proměnné jsou cena a počet účastníků; o změně nákladů ve scénáři řeč nebyla.'
 - id: Q-PLT-01
   otazka: Které části má mít každá akce vždy (přihláška, platby) a které si má organizátor zapínat podle
     potřeby?
