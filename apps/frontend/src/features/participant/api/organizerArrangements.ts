@@ -9,6 +9,8 @@ const termSchema = z.object({
   startsOn: z.string(),
   endsOn: z.string(),
   status: z.string(),
+  /** The term is not over: wishes and stay can still be changed. */
+  editable: z.boolean(),
   /** Only for a confirmed term of a participant without individual accommodation (US-146). */
   roomWishes: z
     .object({

@@ -11,13 +11,20 @@ vi.mock("@/features/health/api/health", async (importOriginal) => {
   return { ...original, saveOrganizerHealth }
 })
 
+const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }))
+vi.mock("@tanstack/react-router", () => ({ useNavigate: () => navigate }))
+
 const CONSENT = /I confirm that I have the applicant’s explicit consent/
 const SAVE = "Save for the participant"
 
-function setup() {
+function setup(hasConfirmedNone = false) {
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <OrganizerHealthForm applicationId="a1" />
+      <OrganizerHealthForm
+        eventId="e1"
+        applicationId="a1"
+        hasConfirmedNone={hasConfirmedNone}
+      />
     </QueryClientProvider>,
   )
 }
@@ -56,6 +63,26 @@ describe("OrganizerHealthForm (#789)", () => {
         consentConfirmed: true,
       }),
     )
+  })
+
+  it("returns to the application once saved", async () => {
+    setup()
+    await userEvent.click(screen.getByRole("checkbox", { name: "I have no health restriction" }))
+    await userEvent.click(screen.getByRole("checkbox", { name: CONSENT }))
+    await userEvent.click(screen.getByRole("button", { name: SAVE }))
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith({
+        to: "/organizer/events/$eventId/applications/$applicationId",
+        params: { eventId: "e1", applicationId: "a1" },
+      }),
+    )
+  })
+
+  it("has no consent to give while the stored „no restriction“ stays selected", async () => {
+    setup(true)
+    expect(screen.getByRole("checkbox", { name: CONSENT })).toBeDisabled()
+    await userEvent.click(screen.getByRole("checkbox", { name: "I have no health restriction" }))
+    expect(screen.getByRole("checkbox", { name: CONSENT })).toBeEnabled()
   })
 
   it("has nothing to save while nothing is entered", () => {

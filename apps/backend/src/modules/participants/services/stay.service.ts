@@ -1,4 +1,6 @@
 import { ApplicationScope, editorOf } from "@/modules/applications/domain/application-scope"
+import { isEditWindowOpen } from "@/modules/applications/domain/edit-window"
+import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 import { decideStay, StayInput } from "@/modules/participants/domain/stay"
 import { StayRepository } from "@/modules/participants/repositories/stay.repository"
 import { Identity } from "@/shared/auth/domain/identity"
@@ -51,6 +53,9 @@ export class StayService {
     }
     if (target.kind === "NOT_AVAILABLE") {
       throw new AppException(HttpStatus.CONFLICT, "STAY_NOT_AVAILABLE")
+    }
+    if (!isEditWindowOpen(target.endsOn, todayInPrague(new Date()))) {
+      throw new AppException(HttpStatus.CONFLICT, "TERM_EDIT_CLOSED")
     }
     const decision = decideStay(input, target)
     switch (decision.kind) {

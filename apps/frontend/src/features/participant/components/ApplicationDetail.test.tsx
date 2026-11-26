@@ -37,7 +37,7 @@ const confirmed = {
   priceCzk: 4500,
   transportOffered: false,
   transportDecided: false,
-  transportEditable: true,
+  termEditable: true,
 }
 const waitlisted = {
   termId: "t2",
@@ -48,7 +48,7 @@ const waitlisted = {
   priceCzk: 4900,
   transportOffered: false,
   transportDecided: false,
-  transportEditable: true,
+  termEditable: true,
 }
 
 const application = (overrides: Partial<MyApplication> = {}): MyApplication => ({
@@ -1016,7 +1016,7 @@ describe("ApplicationDetail", () => {
               ...confirmed,
               transportOffered: true,
               transportDecided: false,
-              transportEditable: false,
+              termEditable: false,
             },
           ],
         }),

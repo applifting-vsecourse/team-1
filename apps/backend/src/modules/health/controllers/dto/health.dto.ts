@@ -65,6 +65,9 @@ export class HealthResponseDto {
   @ApiProperty({ type: String, nullable: true })
   note!: string | null
 
+  @ApiProperty({ description: "The first entry is possible: a term is not over or cancelled." })
+  editable!: boolean
+
   @ApiProperty({ description: "The participant confirmed having no health restriction." })
   noRestriction!: boolean
 

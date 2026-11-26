@@ -35,7 +35,7 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
       priceCzk: 4500,
       transportOffered: false,
       transportDecided: false,
-      transportEditable: true,
+      termEditable: true,
     },
     {
       termId: "t2",
@@ -46,7 +46,7 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
       priceCzk: 4900,
       transportOffered: false,
       transportDecided: false,
-      transportEditable: true,
+      termEditable: true,
     },
   ],
   mealsDecided: false,

@@ -10,6 +10,8 @@ export const healthSchema = z.object({
   lastName: z.string(),
   /** `null` while the participant has not filled it in. */
   note: z.string().nullable(),
+  /** The first entry is possible: a term is not over or cancelled. */
+  editable: z.boolean(),
   /** The participant confirmed having no health restriction (US-150); never with a note. */
   noRestriction: z.boolean(),
   /** When the explicit consent was given (ISO datetime); `null` together with the note. */

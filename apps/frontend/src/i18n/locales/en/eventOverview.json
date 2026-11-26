@@ -631,6 +631,7 @@
     "newShort": "New",
     "nothingDueDescription": "The application has no confirmed term, so nothing is due yet. Record a payment once a place is confirmed.",
     "nothingDueTitle": "Nothing due yet",
+    "onBehalf": "Entries for the participant",
     "originalShort": "Original",
     "originalValue": "Original record",
     "overpaid": "Overpayment",

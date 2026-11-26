@@ -74,7 +74,14 @@ export function OrganizerHealth({
           </>
         )}
       </Card>
-      {data.note === null ? <OrganizerHealthForm applicationId={applicationId} /> : null}
+      {data.note === null ? (
+        <OrganizerHealthForm
+          eventId={eventId}
+          applicationId={applicationId}
+          hasConfirmedNone={data.noRestriction}
+          isClosed={!data.editable}
+        />
+      ) : null}
       <Alert
         role="note"
         className="bg-muted"

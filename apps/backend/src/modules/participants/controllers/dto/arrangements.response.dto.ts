@@ -24,6 +24,8 @@ class TermArrangementDto {
   @ApiProperty({ example: "2027-07-12" }) startsOn!: string
   @ApiProperty({ example: "2027-07-19" }) endsOn!: string
   @ApiProperty() status!: string
+  @ApiProperty({ description: "The term is not over: wishes and stay can still be changed." })
+  editable!: boolean
   @ApiProperty({
     required: false,
     type: RoomWishesArrangementDto,

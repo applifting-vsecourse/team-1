@@ -182,7 +182,10 @@ export function ApplicationDetail({ applicationId, boardEntry }: ApplicationDeta
           <RoomSection terms={data.terms} />
           <RoomWishesSection
             applicationId={applicationId}
-            terms={data.terms}
+            terms={data.terms.map((term) => ({
+              ...term,
+              canDecline: term.noRoomWishes !== true && term.room === undefined,
+            }))}
             editingTermId={editRoomWishesTerm}
             onStartEditing={setEditRoomWishesTerm}
             onStopEditing={(termId) =>

@@ -1,4 +1,6 @@
 import { ApplicationScope, editorOf } from "@/modules/applications/domain/application-scope"
+import { isEditWindowOpen } from "@/modules/applications/domain/edit-window"
+import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 import { RoomWishesRepository } from "@/modules/participants/repositories/room-wishes.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import { cleanRoomWishes } from "@/shared/domain/room-wishes"
@@ -57,6 +59,9 @@ export class RoomWishesService {
     }
     if (target.kind === "NOT_AVAILABLE") {
       throw new AppException(HttpStatus.CONFLICT, "ROOM_WISHES_NOT_AVAILABLE")
+    }
+    if (!isEditWindowOpen(target.endsOn, todayInPrague(new Date()))) {
+      throw new AppException(HttpStatus.CONFLICT, "TERM_EDIT_CLOSED")
     }
     const cleanedNames = cleanRoomWishes(names)
     if (noRoomWishes) {

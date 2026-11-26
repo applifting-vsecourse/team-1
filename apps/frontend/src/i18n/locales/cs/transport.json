@@ -55,6 +55,7 @@
   "loadFailed": "Dopravu se nepodařilo načíst",
   "nameColumn": "Název",
   "nameLabel": "Název *",
+  "noOffer": "Pro termíny této přihlášky není nabízená žádná doprava.",
   "noParticipants": "Tuto dopravu zatím nikdo nevybral.",
   "noSearchResults": "Hledání neodpovídá žádný účastník.",
   "noTerms": "Akce zatím nemá žádný termín, takže není pro co zadat dopravu.",

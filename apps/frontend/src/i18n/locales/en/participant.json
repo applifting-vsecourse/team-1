@@ -188,6 +188,7 @@
   "organizerArrangements": {
     "back": "Back to the application",
     "declined": "Confirmed: the participant has no roommate wishes.",
+    "empty": "No wishes have been entered for this term yet.",
     "errorTitle": "Could not load the participant’s data",
     "nothing": "No roommate wishes or stay can be entered for this application: no term is confirmed or open.",
     "title": "Roommate wishes and stay"
@@ -307,5 +308,6 @@
       "deleted": "Arrival and departure deleted.",
       "saved": "Arrival and departure saved."
     }
-  }
+  },
+  "termClosed": "The term is over, the details can no longer be changed."
 }

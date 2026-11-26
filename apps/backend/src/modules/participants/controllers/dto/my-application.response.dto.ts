@@ -42,8 +42,10 @@ export class MyApplicationTermDto {
   @ApiProperty({ description: "The participant chose a transport or their own transport." })
   transportDecided!: boolean
 
-  @ApiProperty({ description: "The transport can still be chosen: the term is not over (D-192)." })
-  transportEditable!: boolean
+  @ApiProperty({
+    description: "The term is not over: transport, wishes and stay can still be changed.",
+  })
+  termEditable!: boolean
 
   @ApiPropertyOptional({
     type: "object",

@@ -1,6 +1,8 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { OrganizerEditor } from "@/modules/applications/domain/application-scope"
+import { isMealsEditable } from "@/modules/applications/domain/edit-window"
+import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 import { logOrganizerEdit } from "@/modules/applications/repositories/application-edit-log"
 import { HealthRecord } from "@/modules/health/domain/health"
 import { AppException } from "@/shared/errors/app.exception"
@@ -13,6 +15,7 @@ const select = {
   lastName: true,
   event: { select: { name: true } },
   noHealthRestriction: true,
+  terms: { select: { status: true, term: { select: { endsOn: true, cancelledAt: true } } } },
   health: { select: { note: true, consentAt: true } },
   changeRequests: {
     where: { kind: "HEALTH", status: "PENDING" },
@@ -163,6 +166,7 @@ function toRecord(row: {
   lastName: string
   event: { name: string }
   noHealthRestriction: boolean
+  terms: { status: string; term: { endsOn: Date; cancelledAt: Date | null } }[]
   health: { note: string; consentAt: Date } | null
   changeRequests: { healthNote: string | null; createdAt: Date }[]
 }): HealthRecord {
@@ -175,6 +179,10 @@ function toRecord(row: {
     // Never reported next to a note, even if the two were ever stored together.
     noRestriction: row.noHealthRestriction && row.health === null,
     consentAt: row.health?.consentAt ?? null,
+    editable: isMealsEditable(
+      row.terms.map(({ status, term }) => ({ status, ...term })),
+      todayInPrague(new Date()),
+    ),
     pendingRequest: row.changeRequests[0]
       ? { note: row.changeRequests[0].healthNote ?? "", createdAt: row.changeRequests[0].createdAt }
       : null,

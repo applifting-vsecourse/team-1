@@ -1,17 +1,14 @@
 import { useState } from "react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
-import { PendingButton } from "@/components/atoms/PendingButton"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { SectionHeader } from "@/components/molecules/SectionHeader"
 import { Card } from "@/components/ui/card"
-import { notify } from "@/lib/notify"
 
-import { saveRoomWishes } from "@/features/participant/api/applications"
 import { organizerArrangementsQueryOptions } from "@/features/participant/api/organizerArrangements"
 import { RoomWishesSection } from "@/features/participant/components/RoomWishes"
 import { TermStaySection } from "@/features/participant/components/TermStay"
@@ -71,17 +68,15 @@ export function OrganizerArrangements({
       <RoomWishesSection
         applicationId={applicationId}
         writer="organizer"
-        terms={withWishes.map((term) => ({ ...term, roomWishes: term.roomWishes?.names }))}
+        terms={withWishes.map((term) => ({
+          ...term,
+          termEditable: term.editable,
+          roomWishes: term.roomWishes?.names,
+          noRoomWishes: term.roomWishes?.noRoomWishes,
+          canDecline: term.roomWishes?.canDecline,
+        }))}
         editingTermId={editingTermId}
         onStartEditing={setEditingTermId}
-        emptyExtra={(termId) =>
-          withWishes.find((term) => term.termId === termId)?.roomWishes?.canDecline ? (
-            <DeclineWishes
-              applicationId={applicationId}
-              termId={termId}
-            />
-          ) : null
-        }
         onStopEditing={(termId) =>
           setEditingTermId((current) => (current === termId ? null : current))
         }
@@ -89,34 +84,8 @@ export function OrganizerArrangements({
       <TermStaySection
         applicationId={applicationId}
         writer="organizer"
-        terms={withStay}
+        terms={withStay.map((term) => ({ ...term, termEditable: term.editable }))}
       />
     </div>
-  )
-}
-
-/** „No wishes“ for the participant: only before the rooms are published and without names (US-146). */
-function DeclineWishes({ applicationId, termId }: { applicationId: string; termId: string }) {
-  const { t } = useTranslation("participant")
-  const client = useQueryClient()
-  const mutation = useMutation({
-    mutationFn: () => saveRoomWishes(applicationId, termId, [], true, "organizer"),
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ["organizer", "applications"] })
-      await client.invalidateQueries({ queryKey: ["participant", "applications"] })
-      notify.success(t("organizerArrangements.declined"))
-    },
-    onError: () => notify.error(t("detail.steps.wishesSaveFailed")),
-  })
-  return (
-    <PendingButton
-      type="button"
-      variant="outline"
-      size="lg"
-      isPending={mutation.isPending}
-      onClick={() => mutation.mutate()}
-    >
-      {t("detail.steps.wishesDecline")}
-    </PendingButton>
   )
 }

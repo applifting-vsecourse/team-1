@@ -51,21 +51,22 @@ export function ApplicationTransport({
     if (query.isSuccess && termHash) document.getElementById(termHash.slice(1))?.focus()
   }, [query.isSuccess, termHash])
   const close = async () => {
+    // Back to the application the dialog lies above, without moving the page.
+    const back = { replace: true, resetScroll: false } as const
     if (writer === "organizer") {
       await navigate({
         to: ROUTES.organizer.application,
         params: { eventId: eventId ?? "", applicationId },
-        replace: true,
+        ...back,
       })
-      return
+    } else {
+      await navigate({ to: ROUTES.participant.application, params: { applicationId }, ...back })
     }
-    await navigate({ to: ROUTES.participant.application, params: { applicationId }, replace: true })
     // The trigger is a link on the previous route, so Radix cannot restore focus to it.
     requestAnimationFrame(() => {
-      const href = ROUTES.participant.applicationTransport.replace(
-        "$applicationId",
-        encodeURIComponent(applicationId),
-      )
+      const href = ROUTES[writer].applicationTransport
+        .replace("$eventId", encodeURIComponent(eventId ?? ""))
+        .replace("$applicationId", encodeURIComponent(applicationId))
       Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"))
         .find((link) => link.pathname === href && (!termHash || link.hash === termHash))
         ?.focus()
@@ -135,6 +136,10 @@ export function ApplicationTransport({
             error={query.error}
             onRetry={() => void query.refetch()}
           />
+        ) : null}
+        {/* The organizer opens the dialog from every application, also one with nothing on offer. */}
+        {query.isSuccess && terms.length === 0 ? (
+          <p className="text-muted-foreground">{t("noOffer")}</p>
         ) : null}
         {terms.map((term) => {
           const value = changes[term.termId] ?? term.selectedTransportId ?? ""

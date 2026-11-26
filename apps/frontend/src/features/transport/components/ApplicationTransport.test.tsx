@@ -134,6 +134,11 @@ describe("ApplicationTransport", () => {
     expect(urls.some((url) => url.includes("/participant/"))).toBe(false)
   })
 
+  it("says so when no term of the application offers transport", async () => {
+    renderPage({ ...offer, terms: [{ ...offer.terms[0]!, options: [] }] })
+    expect(await screen.findByText(/No transport is offered/)).toBeVisible()
+  })
+
   it("drops a transport deleted meanwhile from the choices and still saves the others", async () => {
     const twoTerms = {
       ...offer,

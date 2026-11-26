@@ -16,8 +16,8 @@ const termSchema = z.object({
   transportOffered: z.boolean(),
   /** The participant chose a transport or their own transport for this term. */
   transportDecided: z.boolean(),
-  /** The transport can still be chosen: the term is not over or cancelled (D-192). */
-  transportEditable: z.boolean(),
+  /** The term is not over or cancelled: transport, wishes and stay can still be changed. */
+  termEditable: z.boolean(),
   /**
    * Only for a confirmed term whose room assignment is published; `name` is `null` while the
    * participant has no room yet (US-144).

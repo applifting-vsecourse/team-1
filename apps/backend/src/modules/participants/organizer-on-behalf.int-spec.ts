@@ -335,15 +335,69 @@ describe("organizer writes for the participant (integration)", () => {
       const applicationId = await makeApplication([{ termId: pastTermId }])
       const detail = (await (
         await call("GET", `/participant/applications/${applicationId}`, participant)
-      ).json()) as { mealsEditable: boolean; terms: { transportEditable: boolean }[] }
+      ).json()) as { mealsEditable: boolean; terms: { termEditable: boolean }[] }
       expect(detail.mealsEditable).toBe(false)
-      expect(detail.terms[0].transportEditable).toBe(false)
+      expect(detail.terms[0].termEditable).toBe(false)
       const open = await makeApplication([{ termId: futureTermId }])
       const current = (await (
         await call("GET", `/participant/applications/${open}`, participant)
-      ).json()) as { mealsEditable: boolean; terms: { transportEditable: boolean }[] }
+      ).json()) as { mealsEditable: boolean; terms: { termEditable: boolean }[] }
       expect(current.mealsEditable).toBe(true)
-      expect(current.terms[0].transportEditable).toBe(true)
+      expect(current.terms[0].termEditable).toBe(true)
+    })
+  })
+
+  describe("after the term is over nothing of it can be written", () => {
+    const attempts = (applicationId: string) => [
+      ...[organizer, participant].flatMap((cookie) => {
+        const base = `/${cookie === participant ? "participant" : "organizer"}/applications/${applicationId}`
+        return [
+          {
+            cookie,
+            path: `${base}/terms/${pastTermId}/room-wishes`,
+            body: { names: ["Eva"] },
+            code: "TERM_EDIT_CLOSED",
+          },
+          {
+            cookie,
+            path: `${base}/terms/${pastTermId}/stay`,
+            body: { lateArrival: "2020-07-13T10:00", earlyDeparture: null },
+            code: "TERM_EDIT_CLOSED",
+          },
+          {
+            cookie,
+            path: `${base}/health`,
+            body:
+              cookie === participant
+                ? { note: "Astma", consent: true }
+                : { note: "Astma", consentConfirmed: true },
+            code: "HEALTH_EDIT_CLOSED",
+          },
+        ]
+      }),
+    ]
+
+    it("refuses wishes, stay and the first health entry for both roles", async () => {
+      const applicationId = await makeApplication([{ termId: pastTermId }])
+      for (const { cookie, path, body, code } of attempts(applicationId)) {
+        const response = await call("PUT", path, cookie, body)
+        expect(response.status).toBe(409)
+        expect(await response.json()).toMatchObject({ code })
+      }
+    })
+
+    it("still takes the request to change a stored health note (D-122)", async () => {
+      const applicationId = await makeApplication([{ termId: pastTermId }])
+      await prisma.applicationHealth.create({
+        data: { organizationId, applicationId, note: "Astma", consentAt: new Date() },
+      })
+      const response = await call(
+        "POST",
+        `/participant/applications/${applicationId}/health-change-requests`,
+        participant,
+        { note: "", consent: false },
+      )
+      expect(response.status).toBeLessThan(300)
     })
   })
 

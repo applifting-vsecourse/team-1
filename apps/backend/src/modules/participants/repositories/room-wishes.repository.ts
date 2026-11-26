@@ -16,6 +16,7 @@ export type RoomWishesTarget =
       termId: string
       names: string[]
       noRoomWishes: boolean
+      endsOn: Date
     }
 
 type Target = Extract<RoomWishesTarget, { kind: "OK" }>
@@ -46,7 +47,7 @@ export class RoomWishesRepository {
         roomWishes: true,
         noRoomWishes: true,
         application: { select: { individualAccommodation: true } },
-        term: { select: { cancelledAt: true } },
+        term: { select: { cancelledAt: true, endsOn: true } },
       },
     })
     if (!row) return { kind: "NOT_FOUND" }
@@ -67,6 +68,7 @@ export class RoomWishesRepository {
       termId,
       names: row.roomWishes,
       noRoomWishes: row.noRoomWishes,
+      endsOn: row.term.endsOn,
     }
   }
 

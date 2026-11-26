@@ -104,8 +104,8 @@ export type MyApplicationTerm = {
   transportOffered: boolean
   /** The participant has told how they get there. */
   transportDecided: boolean
-  /** The transport can still be chosen: the term is not over or cancelled (D-192). */
-  transportEditable: boolean
+  /** The term is not over or cancelled: transport, wishes and stay can still be changed. */
+  termEditable: boolean
   /**
    * Present for a confirmed term after publication. An individually accommodated participant
    * only gets the card if the organizer has assigned them to a room.
@@ -246,7 +246,7 @@ export function buildMyApplication(
           : {}),
         transportOffered: term.transportOffered,
         transportDecided: term.transportDecided,
-        transportEditable: isTermEditable(
+        termEditable: isTermEditable(
           {
             status: term.status,
             endsOn: term.endsOn,

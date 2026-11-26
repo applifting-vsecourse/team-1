@@ -55,6 +55,7 @@
   "loadFailed": "Couldn't load the transport",
   "nameColumn": "Name",
   "nameLabel": "Name *",
+  "noOffer": "No transport is offered for the terms of this application.",
   "noParticipants": "Nobody has chosen this transport yet.",
   "noSearchResults": "No participant matches the search.",
   "noTerms": "The event has no term yet, so there is nothing to set transport for.",

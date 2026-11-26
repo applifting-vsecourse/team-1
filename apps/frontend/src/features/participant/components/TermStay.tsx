@@ -31,7 +31,13 @@ import {
 } from "@/features/participant/api/applications"
 
 /** What the card needs of a term: the participant's application and the organizer's one both have it. */
-export type StayTerm = Pick<MyApplicationTerm, "termId" | "name" | "startsOn" | "endsOn" | "stay">
+export type StayTerm = Pick<
+  MyApplicationTerm,
+  "termId" | "name" | "startsOn" | "endsOn" | "stay"
+> & {
+  /** `false` once the term is over: the values stay visible, nothing can be changed. */
+  termEditable?: boolean
+}
 
 type Fields = {
   arrivalDate: string
@@ -99,6 +105,7 @@ function TermStayCard({
   const hasSaved = saved.lateArrival !== null || saved.earlyDeparture !== null
   const actionRef = useRef<HTMLButtonElement>(null)
   const headingId = `term-stay-${term.termId}`
+  const isClosed = term.termEditable === false
 
   return (
     <section
@@ -147,7 +154,8 @@ function TermStayCard({
             ) : null}
           </div>
         ) : null}
-        <div>
+        {isClosed ? <p className="text-sm text-muted-foreground">{t("termClosed")}</p> : null}
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Button
             type="button"
             variant="outline"
@@ -155,11 +163,24 @@ function TermStayCard({
             className="w-full whitespace-nowrap sm:w-auto"
             aria-label={t(hasSaved ? "stay.editLabel" : "stay.addLabel", { term: termLine(term) })}
             ref={actionRef}
+            disabled={isClosed}
             onClick={() => setMode("edit")}
           >
             {hasSaved ? <Pencil aria-hidden /> : <Plus aria-hidden />}
             {t(hasSaved ? "stay.edit" : "stay.add")}
           </Button>
+          {hasSaved ? (
+            <Button
+              type="button"
+              variant="destructive"
+              size="lg"
+              className="w-full sm:w-auto"
+              disabled={isClosed}
+              onClick={() => setMode("confirmDelete")}
+            >
+              {t("stay.delete")}
+            </Button>
+          ) : null}
         </div>
       </Card>
       {mode !== "view" ? (
@@ -168,7 +189,6 @@ function TermStayCard({
           term={term}
           writer={writer}
           saved={saved}
-          hasSaved={hasSaved}
           mode={mode}
           onMode={setMode}
           restoreFocus={() => actionRef.current?.focus()}
@@ -186,7 +206,6 @@ function StayDialog({
   term,
   writer,
   saved,
-  hasSaved,
   mode,
   onMode,
   restoreFocus,
@@ -195,7 +214,6 @@ function StayDialog({
   term: StayTerm
   writer: WriterRole
   saved: Stay
-  hasSaved: boolean
   mode: "edit" | "confirmDelete"
   onMode: (mode: "view" | "edit" | "confirmDelete") => void
   restoreFocus: () => void
@@ -298,7 +316,7 @@ function StayDialog({
                 size="lg"
                 className="flex-1"
                 disabled={mutation.isPending}
-                onClick={() => onMode("edit")}
+                onClick={() => onMode("view")}
               >
                 {t("stay.cancel")}
               </Button>
@@ -377,18 +395,6 @@ function StayDialog({
                 {t("stay.save")}
               </PendingButton>
             </DialogFooter>
-            {hasSaved ? (
-              <Button
-                type="button"
-                variant="destructive"
-                size="lg"
-                className="self-start"
-                disabled={mutation.isPending}
-                onClick={() => onMode("confirmDelete")}
-              >
-                {t("stay.delete")}
-              </Button>
-            ) : null}
           </form>
         )}
       </DialogContent>

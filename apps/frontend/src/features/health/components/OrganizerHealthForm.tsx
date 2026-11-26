@@ -1,7 +1,9 @@
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -21,11 +23,24 @@ const NOTE_MAX_LENGTH = 2000
  * applicant's explicit consent; a stored note changes only through a request (D-122).
  * The fields are those of the participant's form; there is no Figma frame for the organizer.
  */
-export function OrganizerHealthForm({ applicationId }: { applicationId: string }) {
+export function OrganizerHealthForm({
+  eventId,
+  applicationId,
+  hasConfirmedNone,
+  isClosed = false,
+}: {
+  eventId: string
+  applicationId: string
+  /** „No restriction“ is already stored: only a note changes anything. */
+  hasConfirmedNone: boolean
+  /** Every term is over or cancelled: nothing can be entered any more. */
+  isClosed?: boolean
+}) {
   const { t } = useTranslation("health")
   const client = useQueryClient()
+  const navigate = useNavigate()
   const [note, setNote] = useState("")
-  const [hasNone, setHasNone] = useState(false)
+  const [hasNone, setHasNone] = useState(hasConfirmedNone)
   const [hasConsent, setHasConsent] = useState(false)
 
   const mutation = useMutation({
@@ -35,15 +50,17 @@ export function OrganizerHealthForm({ applicationId }: { applicationId: string }
         noRestriction: hasNone,
         consentConfirmed: hasConsent,
       }),
-    onSuccess: (saved) => {
+    onSuccess: async (saved) => {
       client.setQueryData(organizerHealthQueryOptions(applicationId).queryKey, saved)
       void client.invalidateQueries({ queryKey: ["participant", "applications"] })
       void client.invalidateQueries({ queryKey: ["organizer", "applications", applicationId] })
+      void client.invalidateQueries({ queryKey: ["eventOverview"] })
       notify.success(t("organizerSaved"))
+      await navigate({ to: ROUTES.organizer.application, params: { eventId, applicationId } })
     },
   })
 
-  const hasContent = hasNone || note.trim() !== ""
+  const hasContent = hasNone ? !hasConfirmedNone : note.trim() !== ""
   const noteId = "organizer-health-note"
 
   return (
@@ -57,10 +74,12 @@ export function OrganizerHealthForm({ applicationId }: { applicationId: string }
       >
         <h3 className="text-xl font-bold tracking-tight md:text-2xl">{t("organizerWriteTitle")}</h3>
         <p className="text-sm text-muted-foreground">{t("organizerWriteHint")}</p>
+        {isClosed ? <p className="text-sm text-muted-foreground">{t("closed")}</p> : null}
         <CheckboxRow
           id="organizer-health-none"
           label={t("noRestriction")}
           checked={hasNone}
+          disabled={isClosed}
           onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
         />
         <div className="flex flex-col gap-2">
@@ -69,7 +88,7 @@ export function OrganizerHealthForm({ applicationId }: { applicationId: string }
             id={noteId}
             className="min-h-32"
             maxLength={NOTE_MAX_LENGTH}
-            disabled={hasNone}
+            disabled={hasNone || isClosed}
             value={note}
             onChange={(event) => setNote(event.target.value)}
           />
@@ -78,6 +97,8 @@ export function OrganizerHealthForm({ applicationId }: { applicationId: string }
           id="organizer-health-consent"
           label={t("organizerConsent")}
           checked={hasConsent}
+          // The stored „no restriction“ leaves nothing to consent to.
+          disabled={isClosed || (hasConfirmedNone && hasNone)}
           onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
         />
         {mutation.error ? (
@@ -91,7 +112,7 @@ export function OrganizerHealthForm({ applicationId }: { applicationId: string }
           size="lg"
           className="self-start"
           isPending={mutation.isPending}
-          disabled={!hasContent || !hasConsent}
+          disabled={isClosed || !hasContent || !hasConsent}
         >
           {t("organizerSave")}
         </PendingButton>

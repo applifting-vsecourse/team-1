@@ -27,6 +27,7 @@ const confirmed = {
   startsOn: "2027-07-12",
   endsOn: "2027-07-19",
   status: "CONFIRMED",
+  editable: true,
   roomWishes: { names: [], noRoomWishes: false, canDecline: true },
   stay: { lateArrival: null, earlyDeparture: null },
 }
@@ -84,6 +85,34 @@ describe("OrganizerArrangements (#787, #788)", () => {
     setup([{ ...confirmed, status: "WAITLISTED", roomWishes: undefined }])
     await screen.findByText("Adam Dvořák · Letní kemp")
     expect(screen.queryByRole("heading", { name: "Roommate wishes" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "I have no wishes" })).not.toBeInTheDocument()
+  })
+
+  it("says in the organizer's words that no wishes are entered, or that none were confirmed (D-203)", async () => {
+    setup([
+      confirmed,
+      {
+        ...confirmed,
+        termId: "t2",
+        name: "Druhý týden",
+        roomWishes: { names: [], noRoomWishes: true, canDecline: false },
+      },
+    ])
+    expect(await screen.findByText("No wishes have been entered for this term yet.")).toBeVisible()
+    expect(screen.getByText("Confirmed: the participant has no roommate wishes.")).toBeVisible()
+    expect(screen.queryByText(/You haven't entered/)).not.toBeInTheDocument()
+  })
+
+  it("disables wishes and stay once the term is over", async () => {
+    setup([
+      {
+        ...confirmed,
+        editable: false,
+        roomWishes: { names: [], noRoomWishes: false, canDecline: false },
+      },
+    ])
+    expect(await screen.findByRole("button", { name: "Enter wishes" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: /^Add late arrival/ })).toBeDisabled()
     expect(screen.queryByRole("button", { name: "I have no wishes" })).not.toBeInTheDocument()
   })
 

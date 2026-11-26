@@ -42,6 +42,7 @@ export class HealthService {
         "Filled-in health data changes only through a request to the organizer",
       )
     }
+    if (!stored?.editable) throw this.closed()
     const decision = decideHealth(input)
     if (decision.kind === "invalid") {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", "Invalid health input")
@@ -86,6 +87,7 @@ export class HealthService {
     if (healthWriteRoute(stored.note != null) === "request") {
       throw new AppException(HttpStatus.CONFLICT, "HEALTH_CHANGE_REQUEST_REQUIRED")
     }
+    if (!stored.editable) throw this.closed()
     // The organizer has the consent confirmed, so the participant's rule runs with `consent`.
     const decision = decideHealth({ ...input, consent: true })
     if (decision.kind === "invalid" || decision.kind === "clear") {
@@ -98,6 +100,11 @@ export class HealthService {
       await this.health.save(organizationId, applicationId, decision.note, new Date(), editor)
     }
     return this.getForOrganizer(user, applicationId)
+  }
+
+  /** No first entry once every term is over or cancelled; the change request stays open. */
+  private closed(): AppException {
+    return new AppException(HttpStatus.CONFLICT, "HEALTH_EDIT_CLOSED")
   }
 
   async getForOrganizer(user: Identity, applicationId: string): Promise<HealthRecord> {

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react"
+import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { notify } from "@/lib/notify"
 import { termLine } from "@/lib/term-label"
 
 import {
@@ -19,8 +20,13 @@ import {
 /** What the card needs of a term: the participant's application and the organizer's one both have it. */
 export type WishesTerm = Pick<
   MyApplicationTerm,
-  "termId" | "name" | "startsOn" | "endsOn" | "roomWishes"
->
+  "termId" | "name" | "startsOn" | "endsOn" | "roomWishes" | "noRoomWishes"
+> & {
+  /** `false` once the term is over: the wishes stay visible, nothing can be changed. */
+  termEditable?: boolean
+  /** „No wishes“ can still be confirmed: nothing entered and the rooms are not published. */
+  canDecline?: boolean
+}
 
 const MAX_WISHES = 3
 const MAX_NAME_LENGTH = 100
@@ -33,7 +39,6 @@ export function RoomWishesSection({
   editingTermId,
   onStartEditing,
   onStopEditing,
-  emptyExtra,
 }: {
   applicationId: string
   terms: WishesTerm[]
@@ -41,8 +46,6 @@ export function RoomWishesSection({
   editingTermId: string | null
   onStartEditing: (termId: string) => void
   onStopEditing: (termId: string) => void
-  /** Stands next to the add button while no wishes are given, e.g. the organizer's „no wishes“. */
-  emptyExtra?: (termId: string) => ReactNode
 }) {
   const withWishes = terms.filter((term) => term.roomWishes !== undefined)
   if (withWishes.length === 0) return null
@@ -57,7 +60,6 @@ export function RoomWishesSection({
           isEditing={editingTermId === term.termId}
           onStartEditing={() => onStartEditing(term.termId)}
           onStopEditing={() => onStopEditing(term.termId)}
-          extra={emptyExtra?.(term.termId)}
         />
       ))}
     </>
@@ -75,7 +77,6 @@ function RoomWishesCard({
   isEditing,
   onStartEditing,
   onStopEditing,
-  extra,
 }: {
   applicationId: string
   term: WishesTerm
@@ -83,7 +84,6 @@ function RoomWishesCard({
   isEditing: boolean
   onStartEditing: () => void
   onStopEditing: () => void
-  extra?: ReactNode
 }) {
   const { t } = useTranslation("participant")
   const client = useQueryClient()
@@ -119,6 +119,9 @@ function RoomWishesCard({
         </h2>
         <p className="text-sm text-muted-foreground">{termLine(term)}</p>
         <Separator />
+        {term.termEditable === false ? (
+          <p className="text-sm text-muted-foreground">{t("termClosed")}</p>
+        ) : null}
         {isEditing ? (
           <form
             className="flex flex-col gap-4"
@@ -192,15 +195,33 @@ function RoomWishesCard({
           </div>
         ) : saved.length === 0 ? (
           <div className="flex flex-col items-start gap-4">
-            <p>{t("roomWishes.empty")}</p>
-            <Button
-              type="button"
-              size="lg"
-              onClick={onStartEditing}
-            >
-              {t("roomWishes.add")}
-            </Button>
-            {extra}
+            <p>
+              {/* The organizer reads about the participant, not about themselves (D-203). */}
+              {writer === "organizer"
+                ? t(
+                    term.noRoomWishes
+                      ? "organizerArrangements.declined"
+                      : "organizerArrangements.empty",
+                  )
+                : t("roomWishes.empty")}
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                type="button"
+                size="lg"
+                disabled={term.termEditable === false}
+                onClick={onStartEditing}
+              >
+                {t("roomWishes.add")}
+              </Button>
+              {term.canDecline && term.termEditable !== false ? (
+                <DeclineWishes
+                  applicationId={applicationId}
+                  termId={term.termId}
+                  writer={writer}
+                />
+              ) : null}
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-start gap-4">
@@ -210,6 +231,7 @@ function RoomWishesCard({
                 type="button"
                 variant="outline"
                 size="lg"
+                disabled={term.termEditable === false}
                 onClick={onStartEditing}
               >
                 {t("roomWishes.edit")}
@@ -218,6 +240,7 @@ function RoomWishesCard({
                 type="button"
                 variant="destructive"
                 size="lg"
+                disabled={term.termEditable === false}
                 onClick={() => setIsConfirmingDelete(true)}
               >
                 {t("roomWishes.delete")}
@@ -227,5 +250,35 @@ function RoomWishesCard({
         )}
       </Card>
     </section>
+  )
+}
+
+/** „No wishes“ next to the add button: only before the rooms are published and without names (US-146). */
+function DeclineWishes({
+  applicationId,
+  termId,
+  writer,
+}: {
+  applicationId: string
+  termId: string
+  writer: WriterRole
+}) {
+  const { t } = useTranslation("participant")
+  const client = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: () => saveRoomWishes(applicationId, termId, [], true, writer),
+    onSuccess: () => client.invalidateQueries({ queryKey: [writer, "applications"] }),
+    onError: () => notify.error(t("detail.steps.wishesSaveFailed")),
+  })
+  return (
+    <PendingButton
+      type="button"
+      variant="outline"
+      size="lg"
+      isPending={mutation.isPending}
+      onClick={() => mutation.mutate()}
+    >
+      {t("detail.steps.wishesDecline")}
+    </PendingButton>
   )
 }

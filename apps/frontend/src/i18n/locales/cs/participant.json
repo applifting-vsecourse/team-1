@@ -188,6 +188,7 @@
   "organizerArrangements": {
     "back": "Zpět na přihlášku",
     "declined": "Potvrzeno: účastník nemá přání spolubydlení.",
+    "empty": "Pro tento termín zatím není zadané žádné přání.",
     "errorTitle": "Údaje účastníka se nepodařilo načíst",
     "nothing": "U této přihlášky se přání spolubydlení ani pobyt nezadávají: žádný termín není potvrzený ani otevřený.",
     "title": "Přání spolubydlení a pobyt"
@@ -307,5 +308,6 @@
       "deleted": "Údaje o příjezdu a odjezdu byly smazány.",
       "saved": "Příjezd a odjezd byly uloženy."
     }
-  }
+  },
+  "termClosed": "Termín skončil, údaje už nelze změnit."
 }

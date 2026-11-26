@@ -1,6 +1,5 @@
 import { useState, type ReactNode } from "react"
 import type { UseQueryResult } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -115,45 +114,6 @@ export function PaymentDetail({
             <p>
               {data.eventName} · {t("payment.applicationCode", { code: data.code })}
             </p>
-          </div>
-          {/* The organizer writes for the participant what the participant can write (D-191). */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-            >
-              <Link
-                to={ROUTES.organizer.applicationTransport}
-                params={{ eventId: data.eventId, applicationId }}
-              >
-                {t("payment.transportLink")}
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-            >
-              <Link
-                to={ROUTES.organizer.applicationArrangements}
-                params={{ eventId: data.eventId, applicationId }}
-              >
-                {t("payment.arrangementsLink")}
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-            >
-              <Link
-                to={ROUTES.organizer.applicationHealth}
-                params={{ eventId: data.eventId, applicationId }}
-              >
-                {t("payment.health")}
-              </Link>
-            </Button>
           </div>
         </div>
       </div>
