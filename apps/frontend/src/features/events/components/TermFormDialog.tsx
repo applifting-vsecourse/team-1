@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { isIsoDate } from "@/lib/date-input"
-import { cn } from "@/lib/utils"
 
 import type { EventTerm } from "@/features/events/api/terms"
 import { TermRangeCalendar } from "@/features/events/components/TermRangeCalendar"
@@ -123,13 +122,17 @@ export function TermFormDialog({
   return (
     <Dialog
       open
-      onOpenChange={(isOpen) => (isOpen ? undefined : onClose())}
+      onOpenChange={(isOpen) => {
+        if (!isOpen && !mutation.isPending) onClose()
+      }}
     >
       <DialogContent
-        className={cn(
-          "gap-4 p-4 sm:max-w-200 sm:p-6",
-          !term && "max-h-dvh max-w-full sm:max-h-[calc(100dvh-2rem)]",
-        )}
+        className="gap-4 p-4 max-sm:px-3 sm:max-w-200 sm:p-6"
+        closeButtonDisabled={mutation.isPending}
+        onInteractOutside={(event) => event.preventDefault()}
+        onEscapeKeyDown={(event) => {
+          if (mutation.isPending) event.preventDefault()
+        }}
       >
         <DialogHeader>
           <p className="text-xs font-medium text-muted-foreground uppercase">{eventName}</p>
@@ -257,6 +260,7 @@ export function TermFormDialog({
                   variant="ghost"
                   size="lg"
                   className="text-destructive hover:text-destructive sm:mr-auto"
+                  disabled={mutation.isPending}
                   onClick={() => onCancelTerm(term)}
                 >
                   {t("terms.cancel")}
@@ -266,6 +270,7 @@ export function TermFormDialog({
                 type="button"
                 variant="outline"
                 size="lg"
+                disabled={mutation.isPending}
                 onClick={onClose}
               >
                 {t("terms.form.close")}

@@ -88,7 +88,7 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
         className="flex flex-col gap-3"
         onSubmit={submit}
       >
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Switch
             id="cancellation-start-enabled"
             checked={isEnabled}
@@ -101,11 +101,11 @@ export function CancellationStartForm({ event }: { event: OrganizerEvent }) {
           />
           <Label
             htmlFor="cancellation-start-enabled"
-            className="text-base leading-6 font-normal"
+            className="min-w-0 text-base leading-6 font-normal"
           >
             {t("cancellationStart.enable")}
           </Label>
-          <Badge variant={isEnabled ? "success" : "secondary"}>
+          <Badge className="shrink-0" variant={isEnabled ? "success" : "secondary"}>
             {t(isEnabled ? "cancellationStart.on" : "cancellationStart.off")}
           </Badge>
         </div>

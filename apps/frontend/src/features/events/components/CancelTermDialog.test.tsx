@@ -22,10 +22,11 @@ const term = {
   cancelReason: null,
 }
 
-function renderDialog(answer: () => Response) {
+function renderDialog(answer: (input: RequestInfo | URL, init?: RequestInit) => Response | Promise<Response>) {
+  const onClose = vi.fn()
   const fetchMock = vi
     .spyOn(globalThis, "fetch")
-    .mockImplementation(() => Promise.resolve(answer()))
+    .mockImplementation((input, init) => Promise.resolve(answer(input, init)))
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -34,12 +35,12 @@ function renderDialog(answer: () => Response) {
         eventId="e1"
         eventName="Letní kemp Lipno 2027"
         term={term}
-        onClose={vi.fn()}
+        onClose={onClose}
         onCancelled={vi.fn()}
       />
     </QueryClientProvider>,
   )
-  return fetchMock
+  return { fetchMock, onClose }
 }
 
 const json = (body: unknown) =>
@@ -47,6 +48,24 @@ const json = (body: unknown) =>
 
 describe("CancelTermDialog", () => {
   afterEach(() => vi.restoreAllMocks())
+
+  it("ignores outside clicks and blocks closing while cancellation is pending", async () => {
+    const { promise, resolve } = Promise.withResolvers<Response>()
+    const { onClose } = renderDialog((input, init) => {
+      const method = input instanceof Request ? input.method : init?.method
+      return method === "POST" ? promise : json([term])
+    })
+    await userEvent.click(await screen.findByRole("checkbox"))
+    await userEvent.click(document.querySelector("[data-slot=dialog-overlay]")!)
+    expect(onClose).not.toHaveBeenCalled()
+    await userEvent.click(screen.getByRole("button", { name: "Cancel term" }))
+    expect(screen.getByRole("button", { name: "Close" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Back" })).toBeDisabled()
+    await userEvent.keyboard("{Escape}")
+    expect(onClose).not.toHaveBeenCalled()
+    resolve(new Response("{}", { status: 400 }))
+    expect(await screen.findByRole("alert", { name: "" })).toBeVisible()
+  })
 
   it("blocks the cancellation while the counts cannot be refreshed, until a retry succeeds", async () => {
     let isFailing = true

@@ -89,12 +89,23 @@ export function CancelTermDialog({
     }
   }
 
+  const isBusy = cancel.isPending || isVerifying
+
   return (
     <Dialog
       open
-      onOpenChange={(isOpen) => (isOpen ? undefined : onClose())}
+      onOpenChange={(isOpen) => {
+        if (!isOpen && !isBusy) onClose()
+      }}
     >
-      <DialogContent className="gap-4 p-4 sm:max-w-160 sm:p-6">
+      <DialogContent
+        className="gap-4 p-4 sm:max-w-160 sm:p-6"
+        closeButtonDisabled={isBusy}
+        onInteractOutside={(event) => event.preventDefault()}
+        onEscapeKeyDown={(event) => {
+          if (isBusy) event.preventDefault()
+        }}
+      >
         <DialogHeader>
           <p className="text-xs font-medium text-muted-foreground uppercase">{eventName}</p>
           <DialogTitle className="text-2xl font-bold tracking-tight">
@@ -177,7 +188,7 @@ export function CancelTermDialog({
         )}
 
         <DialogFooter>
-          <BackButton onClick={onClose}>{t("terms.cancelDialog.back")}</BackButton>
+          <BackButton disabled={isBusy} onClick={onClose}>{t("terms.cancelDialog.back")}</BackButton>
           {isUnverified ? (
             <PendingButton
               isPending={isVerifying}
