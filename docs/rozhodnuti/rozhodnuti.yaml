@@ -3969,6 +3969,8 @@ rozhodnuti:
   meni:
   - D-122
   - D-159
+  zmeneno_v:
+  - D-196
   z_otazek: []
   dokumentace: []
 - id: D-192
@@ -4042,3 +4044,113 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/emaily/TEXTY.md
     stav: ceka
+- id: D-196
+  nazev: 'Organizátor nemění e-mail přihlášky'
+  text: 'D-191 se na e-mail přihlášky nevztahuje, dál platí D-141. E-mail je navázaný na účet přihlašovatele a mění ho jen přihlašovatel v nastavení účtu (D-128). Překlep v ručně přidané přihlášce se řeší zrušením termínů a novým přidáním přihlášky.'
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k review PR #782'
+    url: https://github.com/applifting-vsecourse/team-1/pull/782#pullrequestreview-6073431348
+  us:
+  - label: '#662'
+    url: https://github.com/applifting-vsecourse/team-1/issues/662
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-191
+  z_otazek: []
+  dokumentace: []
+- id: D-197
+  nazev: 'Ubytování: výběr termínu je nad záložkami'
+  text: 'V Ubytování je pořadí shora: výběr termínu → záložky pohledů → zveřejnění → režim pokojů. Termín je nad záložkami, protože platí pro všechny pohledy.'
+  typ: design
+  oblast: ubytování
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k review PR #771'
+    url: https://github.com/applifting-vsecourse/team-1/pull/771#pullrequestreview-6073430626
+  us:
+  - label: '#651'
+    url: https://github.com/applifting-vsecourse/team-1/issues/651
+  - label: '#706'
+    url: https://github.com/applifting-vsecourse/team-1/issues/706
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Mění pořadí z kritéria #706.'
+- id: D-198
+  nazev: 'Zkrácený výpis účastníků jako „Jméno +N“'
+  text: 'Zkrácený výpis v Ubytování má tvar „Jana Nováková +1“, bez slov, která se skloňují. Číslo v obou pohledech (Rozřazování i Pokoje) počítá jen další lidi, ne volná lůžka. Prázdný pokoj v pohledu Pokoje ukazuje „Volná lůžka: 5“.'
+  typ: design
+  oblast: ubytování
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k review PR #775'
+    url: https://github.com/applifting-vsecourse/team-1/pull/775#pullrequestreview-6073429567
+  us:
+  - label: '#759'
+    url: https://github.com/applifting-vsecourse/team-1/issues/759
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Mění znění kritéria #759 („a další N“).'
+- id: D-199
+  nazev: 'Dialogy termínu na mobilu jsou modál s okraji'
+  text: 'Přidání, úprava i zrušení termínu se na mobilu otevírají jako modál s okraji, ne přes celou obrazovku.'
+  typ: design
+  oblast: nastavení akce
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k review PR #773'
+    url: https://github.com/applifting-vsecourse/team-1/pull/773#pullrequestreview-6073429076
+  us:
+  - label: '#761'
+    url: https://github.com/applifting-vsecourse/team-1/issues/761
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Mění mobilní rámce Figmy a rozšiřuje kritérium #761 i na přidání termínu.'
+- id: D-200
+  nazev: 'Návrh rozdělení nepřidává nikoho k lidem s individuálním ubytováním'
+  text: 'Automatický návrh rozdělení vynechá běžný pokoj, ve kterém je přiřazený účastník s požadavkem na individuální ubytování. Takový pokoj zůstává jen pro takové účastníky (např. rodinu), i když má volná lůžka. Kdo se jinam nevejde, zůstane v návrhu bez volného lůžka a organizátor situaci řeší ručně podle vlastního rozhodnutí. Ruční přiřazení se nemění.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k review PR #781'
+    url: https://github.com/applifting-vsecourse/team-1/pull/781#pullrequestreview-6073427428
+  us:
+  - label: '#622'
+    url: https://github.com/applifting-vsecourse/team-1/issues/622
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Doplňuje D-161 a D-194.'
+- id: D-201
+  nazev: 'Tlačítko „Nesplněná přání“ zahrnuje i nesplnitelná'
+  text: 'Číslo na tlačítku „Nesplněná přání“ v Ubytování počítá přání ve stavu „Nesplněno“ i „Nelze splnit“. Přehled se otevírá na filtru „Vše“ s nesplnitelnými nahoře.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-26'
+  zdroj:
+  - popis: 'rozhodnutí PM 26. 11. 2026 v chatu k review PR #771'
+    url: https://github.com/applifting-vsecourse/team-1/pull/771#pullrequestreview-6073430626
+  us:
+  - label: '#651'
+    url: https://github.com/applifting-vsecourse/team-1/issues/651
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []

@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**191 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**197 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -43,6 +43,7 @@ _Nic._
 | [D-168](#d-168) | Jednokrokové vyhodnocení: o přihláškách, které se nevejdou, rozhoduje organizátor | 2026-11-18 | mění [D-142](#d-142) |
 | [D-179](#d-179) | Při kopírování pokojů mezi termíny se vždy kopírují přistýlky | 2026-11-22 | mění [D-115](#d-115), mění [D-139](#d-139) |
 | [D-191](#d-191) | Organizátor umí zapsat všechno, co účastník | 2026-11-25 | mění [D-122](#d-122), mění [D-159](#d-159) |
+| [D-196](#d-196) | Organizátor nemění e-mail přihlášky | 2026-11-26 | mění [D-191](#d-191) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -97,6 +98,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-199](#d-199) | Dialogy termínu na mobilu jsou modál s okraji | 2026-11-26 | `pm` | design |
 | [D-115](#d-115) | Kopírování pokojů mezi termíny: přidat, nebo nahradit | 2026-11-07 | `pm` | produkt |
 | [D-116](#d-116) | Veřejná stránka akce má stálou adresu a pevný obsah | 2026-11-04 | `pm` | produkt |
 | [D-152](#d-152) | Zrušený termín se do podmínky funkčního odkazu nepočítá | 2026-11-02 | `pm` | produkt |
@@ -173,6 +175,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-196](#d-196) | Organizátor nemění e-mail přihlášky | 2026-11-26 | `pm` | produkt |
 | [D-191](#d-191) | Organizátor umí zapsat všechno, co účastník | 2026-11-25 | `pm` | produkt |
 | [D-188](#d-188) | Karta přihlášky se zrušeným nebo archivovaným termínem beze změny | 2026-11-25 | `pm` | produkt |
 | [D-184](#d-184) | Zavřený odkaz akce dál vrací 404 | 2026-11-25 | `pm` | produkt |
@@ -257,6 +260,10 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-201](#d-201) | Tlačítko „Nesplněná přání“ zahrnuje i nesplnitelná | 2026-11-26 | `pm` | produkt |
+| [D-200](#d-200) | Návrh rozdělení nepřidává nikoho k lidem s individuálním ubytováním | 2026-11-26 | `pm` | produkt |
+| [D-198](#d-198) | Zkrácený výpis účastníků jako „Jméno +N“ | 2026-11-26 | `pm` | design |
+| [D-197](#d-197) | Ubytování: výběr termínu je nad záložkami | 2026-11-26 | `pm` | design |
 | [D-194](#d-194) | Individuální pokoje: kapacita, režimy, zrušení příznaku a tisk | 2026-11-25 | `pm` | produkt |
 | [D-193](#d-193) | Krok „Kapacita“ nejmenuje konkrétní režimy pokojů | 2026-11-25 | `pm` | produkt |
 | [D-183](#d-183) | Seznam individuálních požadavků na ubytování: stavy a požadavek bez textu | 2026-11-23 | `pm` | produkt |
@@ -2417,6 +2424,7 @@ _Nic._
 - **Dotčené US:** [#662](https://github.com/applifting-vsecourse/team-1/issues/662), [#786](https://github.com/applifting-vsecourse/team-1/issues/786), [#787](https://github.com/applifting-vsecourse/team-1/issues/787), [#788](https://github.com/applifting-vsecourse/team-1/issues/788), [#789](https://github.com/applifting-vsecourse/team-1/issues/789)
 - **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k auditu #662 (PR #782)](https://github.com/applifting-vsecourse/team-1/pull/782)
 - **Mění:** [D-122](#d-122), [D-159](#d-159)
+- **Změněno v:** [D-196](#d-196)
 
 <a id="d-192"></a>
 
@@ -2459,3 +2467,68 @@ _Nic._
 - **Dotčené US:** [#608](https://github.com/applifting-vsecourse/team-1/issues/608)
 - **Zdroj:** [rozhodnutí PM 25. 11. 2026 v chatu k PR #641](https://github.com/applifting-vsecourse/team-1/pull/641#issuecomment-7024949825)
 - **Dokumentace:** `docs/emaily/TEXTY.md`: ceka
+
+<a id="d-196"></a>
+
+### D-196 – Organizátor nemění e-mail přihlášky
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** D-191 se na e-mail přihlášky nevztahuje, dál platí D-141. E-mail je navázaný na účet přihlašovatele a mění ho jen přihlašovatel v nastavení účtu (D-128). Překlep v ručně přidané přihlášce se řeší zrušením termínů a novým přidáním přihlášky.
+- **Dotčené US:** [#662](https://github.com/applifting-vsecourse/team-1/issues/662)
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k review PR #782](https://github.com/applifting-vsecourse/team-1/pull/782#pullrequestreview-6073431348)
+- **Mění:** [D-191](#d-191)
+
+<a id="d-197"></a>
+
+### D-197 – Ubytování: výběr termínu je nad záložkami
+
+- **Stav:** platné · **Typ:** design · **Oblast:** ubytování
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** V Ubytování je pořadí shora: výběr termínu → záložky pohledů → zveřejnění → režim pokojů. Termín je nad záložkami, protože platí pro všechny pohledy.
+- **Dotčené US:** [#651](https://github.com/applifting-vsecourse/team-1/issues/651), [#706](https://github.com/applifting-vsecourse/team-1/issues/706)
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k review PR #771](https://github.com/applifting-vsecourse/team-1/pull/771#pullrequestreview-6073430626)
+- **Poznámka:** Mění pořadí z kritéria #706.
+
+<a id="d-198"></a>
+
+### D-198 – Zkrácený výpis účastníků jako „Jméno +N“
+
+- **Stav:** platné · **Typ:** design · **Oblast:** ubytování
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Zkrácený výpis v Ubytování má tvar „Jana Nováková +1“, bez slov, která se skloňují. Číslo v obou pohledech (Rozřazování i Pokoje) počítá jen další lidi, ne volná lůžka. Prázdný pokoj v pohledu Pokoje ukazuje „Volná lůžka: 5“.
+- **Dotčené US:** [#759](https://github.com/applifting-vsecourse/team-1/issues/759)
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k review PR #775](https://github.com/applifting-vsecourse/team-1/pull/775#pullrequestreview-6073429567)
+- **Poznámka:** Mění znění kritéria #759 („a další N“).
+
+<a id="d-199"></a>
+
+### D-199 – Dialogy termínu na mobilu jsou modál s okraji
+
+- **Stav:** platné · **Typ:** design · **Oblast:** nastavení akce
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Přidání, úprava i zrušení termínu se na mobilu otevírají jako modál s okraji, ne přes celou obrazovku.
+- **Dotčené US:** [#761](https://github.com/applifting-vsecourse/team-1/issues/761)
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k review PR #773](https://github.com/applifting-vsecourse/team-1/pull/773#pullrequestreview-6073429076)
+- **Poznámka:** Mění mobilní rámce Figmy a rozšiřuje kritérium #761 i na přidání termínu.
+
+<a id="d-200"></a>
+
+### D-200 – Návrh rozdělení nepřidává nikoho k lidem s individuálním ubytováním
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Automatický návrh rozdělení vynechá běžný pokoj, ve kterém je přiřazený účastník s požadavkem na individuální ubytování. Takový pokoj zůstává jen pro takové účastníky (např. rodinu), i když má volná lůžka. Kdo se jinam nevejde, zůstane v návrhu bez volného lůžka a organizátor situaci řeší ručně podle vlastního rozhodnutí. Ruční přiřazení se nemění.
+- **Dotčené US:** [#622](https://github.com/applifting-vsecourse/team-1/issues/622)
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k review PR #781](https://github.com/applifting-vsecourse/team-1/pull/781#pullrequestreview-6073427428)
+- **Poznámka:** Doplňuje D-161 a D-194.
+
+<a id="d-201"></a>
+
+### D-201 – Tlačítko „Nesplněná přání“ zahrnuje i nesplnitelná
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-26 · **Rozhodl:** `pm`
+- **Text:** Číslo na tlačítku „Nesplněná přání“ v Ubytování počítá přání ve stavu „Nesplněno“ i „Nelze splnit“. Přehled se otevírá na filtru „Vše“ s nesplnitelnými nahoře.
+- **Dotčené US:** [#651](https://github.com/applifting-vsecourse/team-1/issues/651)
+- **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k review PR #771](https://github.com/applifting-vsecourse/team-1/pull/771#pullrequestreview-6073430626)
