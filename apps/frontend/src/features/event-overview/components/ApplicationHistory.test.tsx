@@ -154,7 +154,7 @@ describe("ApplicationHistory", () => {
             startsOn: "2027-07-12",
             endsOn: "2027-07-19",
             from: null,
-            to: "|2027-07-18T14:00:00.000Z",
+            to: "|2027-07-18T16:00",
           },
           entries[3],
         ]),
@@ -168,7 +168,7 @@ describe("ApplicationHistory", () => {
     expect(health).toHaveTextContent("Health restriction: entered by the organiser")
     expect(health).toHaveTextContent("Eva Malá")
     expect(transport).toHaveTextContent("Transport (Letní týden): — → Autobus z Prahy")
-    expect(stay).toHaveTextContent("departure")
+    expect(stay).toHaveTextContent("departure 18 Jul 2027 16:00")
     expect(stay).toHaveTextContent("arrival —")
   })
 })

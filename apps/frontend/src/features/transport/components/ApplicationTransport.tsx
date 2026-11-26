@@ -32,6 +32,7 @@ import { departureText } from "@/features/transport/lib/departure"
 // The applicant chooses, for each term, how the participant gets to the event and sees where and
 // when it leaves.
 // Figma (Design system v2): #402 / Výběr způsobu dopravy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-39327 (360 px: node-id=22640-39416)
+// Figma (Design system v2): #786 / Organizátor · Doprava účastníka · Dialog · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27488-124075
 export function ApplicationTransport({
   applicationId,
   writer = "participant",

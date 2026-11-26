@@ -16,8 +16,10 @@ import { TermStaySection } from "@/features/participant/components/TermStay"
 /**
  * The organizer writes roommate wishes and the later arrival / earlier departure for a participant
  * who does not use the application (D-191). The cards are the participant's own, only the data
- * and the API they write to are the organizer's. There is no Figma frame for the organizer.
+ * and the API they write to are the organizer's.
  */
+// Figma (Design system v2): #787–788 / Organizátor · Přání spolubydlení a pobyt · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27488-124611 (360 px: node-id=27488-124746)
+// Figma (Design system v2): #790 / Organizátor · Přání a pobyt po skončení termínu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27488-124815
 export function OrganizerArrangements({
   eventId,
   applicationId,

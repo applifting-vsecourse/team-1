@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button"
 
 /**
  * The organizer writes for the participant what the participant can write (D-191); they open it
- * with these buttons in the application (D-203). There is no Figma frame for the organizer.
+ * with these buttons in the application (D-203).
  */
+// Figma (Design system v2): #786–790 / Detail přihlášky · zápis za účastníka · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27488-123765 (360 px: node-id=27488-123928)
 export function OnBehalfLinks({
   eventId,
   applicationId,

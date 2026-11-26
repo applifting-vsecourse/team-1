@@ -2,6 +2,7 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { ApplicationScope, OrganizerEditor } from "@/modules/applications/domain/application-scope"
 import { logOrganizerEdit } from "@/modules/applications/repositories/application-edit-log"
 import { canWriteStay } from "@/modules/participants/domain/arrangement-rules"
+import { toPragueWallTime } from "@/shared/domain/prague-wall-time"
 import { Injectable } from "@nestjs/common"
 
 export type StayTarget =
@@ -20,9 +21,14 @@ export type StayTarget =
       current: { lateArrivalAt: Date | null; earlyDepartureAt: Date | null }
     }
 
-/** What is written to the history of the application when an organizer writes the stay. */
+/**
+ * What is written to the history of the application when an organizer writes the stay: Prague wall
+ * time, as typed, so the screen shows the same time in any time zone of the browser.
+ */
 const historyValue = (arrival: Date | null, departure: Date | null): string | null =>
-  arrival || departure ? `${arrival?.toISOString() ?? ""}|${departure?.toISOString() ?? ""}` : null
+  arrival || departure
+    ? [arrival, departure].map((value) => (value ? toPragueWallTime(value) : "")).join("|")
+    : null
 
 /** The only place that reads or writes the arrival and departure of a participant's term. */
 @Injectable()

@@ -21,8 +21,9 @@ const NOTE_MAX_LENGTH = 2000
  * The organizer writes the first health restriction (or "no restriction") for a participant who
  * does not use the application (D-191). Nothing is saved until the organizer confirms having the
  * applicant's explicit consent; a stored note changes only through a request (D-122).
- * The fields are those of the participant's form; there is no Figma frame for the organizer.
+ * The fields are those of the participant's form.
  */
+// Figma (Design system v2): #789 / Organizátor · Zdravotní omezení · zápis se souhlasem · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27488-124172 (360 px: node-id=27488-124304)
 export function OrganizerHealthForm({
   eventId,
   applicationId,

@@ -90,6 +90,7 @@ export function TermStaySection({
 
 // Figma (Design system v2): US-143 Přihlašovatel · Termín bez údajů · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-9124 (mobile 24969-11093)
 // Figma (Design system v2): US-143 Přihlašovatel · Příjezd i odjezd uložen · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-10098 (mobile 24969-11807)
+// Figma (Design system v2): #788 / Příjezd a odjezd, smazání vedle úpravy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27488-124950 (360 px: node-id=27488-125121)
 function TermStayCard({
   applicationId,
   term,

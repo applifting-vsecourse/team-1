@@ -267,6 +267,10 @@ describe("organizer writes for the participant (integration)", () => {
       const applicationId = await makeApplication([{ termId: futureTermId }])
       const body = { lateArrival: "2037-07-13T10:30", earlyDeparture: "2037-07-18T16:00" }
       expect((await stay(applicationId, organizer, body)).status).toBe(204)
+      // The history keeps the Prague wall time as typed, not a UTC instant.
+      expect((await history(applicationId)).find(({ field }) => field === "stay")?.to).toBe(
+        `${body.lateArrival}|${body.earlyDeparture}`,
+      )
       const response = await call("GET", `/participant/applications/${applicationId}`, participant)
       const detail = (await response.json()) as {
         terms: { stay?: unknown; priceCzk?: number; status: string }[]
