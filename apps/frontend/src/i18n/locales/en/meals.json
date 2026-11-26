@@ -61,14 +61,12 @@
   },
   "own": {
     "allergiesLabel": "Allergies and other dietary requirements",
-    "back": "Back to application",
     "multiple": "You can select more than one option.",
     "noRestrictions": "I have no dietary restriction",
     "pageTitle": "Meals",
     "restrictions": "Dietary restrictions",
     "save": "Save meals",
     "saved": "Meals saved",
-    "specialRequestLabel": "Special request",
-    "title": "Meals · {{name}}"
+    "specialRequestLabel": "Special request"
   }
 }

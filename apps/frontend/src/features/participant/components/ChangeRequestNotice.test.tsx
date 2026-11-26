@@ -137,7 +137,9 @@ describe("ChangeRequestNotice", () => {
     renderNotice([request({ status: "REJECTED", rejectionReason: "Full" })])
 
     expect(await screen.findByText("Declined")).toBeInTheDocument()
-    expect(screen.getByText("Reason: Full")).toBeInTheDocument()
+    const reason = screen.getByText("Reason")
+    expect(reason.parentElement).toHaveTextContent("Full")
+    expect(reason.parentElement?.parentElement).toContainElement(screen.getByText("Request"))
     expect(screen.queryByText("Request awaiting the organizer's decision")).not.toBeInTheDocument()
   })
 

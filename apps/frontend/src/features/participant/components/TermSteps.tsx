@@ -99,6 +99,7 @@ function termSteps(
       link: (
         <Link
           to={ROUTES.participant.applicationMeals}
+          hash={`meals-${term.termId}`}
           params={{ applicationId }}
           className={stepLinkClass}
         >
@@ -117,6 +118,7 @@ function termSteps(
       link: (
         <Link
           to={ROUTES.participant.applicationHealth}
+          hash={`health-${term.termId}`}
           params={{ applicationId }}
           className={stepLinkClass}
         >

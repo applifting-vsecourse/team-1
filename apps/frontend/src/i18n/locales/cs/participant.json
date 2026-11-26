@@ -234,7 +234,7 @@
     "pendingDescription": "Odesláno {{date}}. Do schválení se termíny, lůžko ani platby nemění.",
     "pendingDescriptionWithoutBed": "Odesláno {{date}}. Do schválení se termíny ani platby nemění.",
     "pendingTitle": "Žádost čeká na rozhodnutí organizátora",
-    "reason": "Důvod: {{reason}}",
+    "reason": "Důvod",
     "request": "Žádost",
     "requested": "Nový termín",
     "reviewedDate": "Vyřízeno {{date}}",

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link, useNavigate } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -30,7 +30,13 @@ const NOTE_MAX_LENGTH = 2000
  */
 // Figma (Design system v2): US-68 / Před udělením souhlasu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21218-17181 (360 px: node-id=21218-17327)
 // Figma (Design system v2): US-68 / Souhlas udělen · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21218-17423 (360 px: node-id=21218-17559)
-export function ParticipantHealthForm({ applicationId }: { applicationId: string }) {
+export function ParticipantHealthForm({
+  applicationId,
+  onClose,
+}: {
+  applicationId: string
+  onClose: () => Promise<void>
+}) {
   const { t } = useTranslation("health")
   const { data, isPending, error, refetch } = useQuery(ownHealthQueryOptions(applicationId))
 
@@ -48,14 +54,22 @@ export function ParticipantHealthForm({ applicationId }: { applicationId: string
     <HealthFields
       applicationId={applicationId}
       health={data}
+      onClose={onClose}
     />
   )
 }
 
-function HealthFields({ applicationId, health }: { applicationId: string; health: Health }) {
+function HealthFields({
+  applicationId,
+  health,
+  onClose,
+}: {
+  applicationId: string
+  health: Health
+  onClose: () => Promise<void>
+}) {
   const { t } = useTranslation("health")
   const client = useQueryClient()
-  const navigate = useNavigate()
   // Filled-in data is read-only; changing it goes through a request to the organizer.
   const isStored = health.note !== null
   const [isEditing, setIsEditing] = useState(false)
@@ -64,6 +78,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
   const [hasNone, setHasNone] = useState(health.noRestriction && !isStored)
 
   const mutation = useMutation({
+    mutationKey: ownHealthQueryOptions(applicationId).queryKey,
     mutationFn: async () => {
       if (isStored) {
         await requestHealthChange(applicationId, { note, consent: hasConsent })
@@ -88,7 +103,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         queryKey: ["organizer", "applications", applicationId, "health"],
       })
       notify.success(t(isStored ? "requestSent" : "saved"))
-      await navigate({ to: ROUTES.participant.application, params: { applicationId } })
+      await onClose()
     },
   })
 
@@ -121,17 +136,23 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         <AlertDescription>{t("audienceText")}</AlertDescription>
       </Alert>
       <Button
-        asChild
+        asChild={!mutation.isPending}
         variant="outline"
         size="lg"
         className="w-full sm:w-auto sm:self-start"
+        type="button"
+        disabled={mutation.isPending}
       >
-        <Link
-          to={ROUTES.participant.applicationMeals}
-          params={{ applicationId }}
-        >
-          {t("goMeals")}
-        </Link>
+        {mutation.isPending ? (
+          t("goMeals")
+        ) : (
+          <Link
+            to={ROUTES.participant.applicationMeals}
+            params={{ applicationId }}
+          >
+            {t("goMeals")}
+          </Link>
+        )}
       </Button>
       {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
       {isStored ? null : (
@@ -203,16 +224,13 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
           </PendingButton>
         )}
         <Button
-          asChild
+          type="button"
           variant="outline"
           size="lg"
+          disabled={mutation.isPending}
+          onClick={() => void onClose()}
         >
-          <Link
-            to={ROUTES.participant.application}
-            params={{ applicationId }}
-          >
-            {t("cancelChanges")}
-          </Link>
+          {t("cancelChanges")}
         </Button>
       </div>
     </form>

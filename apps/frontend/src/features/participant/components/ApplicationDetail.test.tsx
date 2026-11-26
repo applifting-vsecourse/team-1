@@ -1018,13 +1018,13 @@ describe("ApplicationDetail", () => {
       expect(within(meals).getByText("Done")).toBeVisible()
       expect(within(meals).getByRole("link", { name: "View meals" })).toHaveAttribute(
         "href",
-        "/participant/applications/a1/meals",
+        `/participant/applications/a1/meals#meals-${confirmed.termId}`,
       )
       const health = await stepRow(/^1\. týden$/, "Health restriction")
       expect(within(health).getByText("To do")).toBeVisible()
       expect(within(health).getByRole("link", { name: "Fill in details" })).toHaveAttribute(
         "href",
-        "/participant/applications/a1/health",
+        `/participant/applications/a1/health#health-${confirmed.termId}`,
       )
     })
 

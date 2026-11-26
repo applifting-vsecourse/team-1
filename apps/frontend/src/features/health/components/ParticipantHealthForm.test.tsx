@@ -6,9 +6,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { Health } from "@/features/health/api/health"
 import { ParticipantHealthForm } from "@/features/health/components/ParticipantHealthForm"
 
-const { navigate, success } = vi.hoisted(() => ({ navigate: vi.fn(), success: vi.fn() }))
+const { close, success } = vi.hoisted(() => ({ close: vi.fn(), success: vi.fn() }))
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => navigate,
   Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
     <a href={to}>{children}</a>
   ),
@@ -55,7 +54,10 @@ function setup(health: Health = empty) {
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <ParticipantHealthForm applicationId="a1" />
+      <ParticipantHealthForm
+        applicationId="a1"
+        onClose={close}
+      />
     </QueryClientProvider>,
   )
 }
@@ -116,12 +118,7 @@ describe("ParticipantHealthForm", () => {
     await user.type(await screen.findByLabelText("Participant's health restriction"), "Astma")
     await user.click(screen.getByRole("checkbox", { name: /explicitly consent/ }))
     await user.click(screen.getByRole("button", { name: "Save health information" }))
-    await waitFor(() =>
-      expect(navigate).toHaveBeenCalledWith({
-        to: "/participant/applications/$applicationId",
-        params: { applicationId: "a1" },
-      }),
-    )
+    await waitFor(() => expect(close).toHaveBeenCalledOnce())
     expect(success).toHaveBeenCalledWith("Health restriction saved")
   })
 
@@ -133,7 +130,7 @@ describe("ParticipantHealthForm", () => {
     await user.click(screen.getByRole("checkbox", { name: /explicitly consent/ }))
     await user.click(screen.getByRole("button", { name: "Save health information" }))
     expect(await screen.findByText("Server said no")).toBeVisible()
-    expect(navigate).not.toHaveBeenCalled()
+    expect(close).not.toHaveBeenCalled()
   })
 
   it("shows filled-in data read-only and sends a change as a request, not a save", async () => {
@@ -161,7 +158,7 @@ describe("ParticipantHealthForm", () => {
     )
     expect(saveHealth).not.toHaveBeenCalled()
     expect(success).toHaveBeenCalledWith("Request sent")
-    expect(navigate).toHaveBeenCalled()
+    expect(close).toHaveBeenCalled()
     // After sending, the stored data is shown again, not the unapproved wording.
     await waitFor(() =>
       expect(screen.getByLabelText("Participant's health restriction")).toHaveValue("Astma"),

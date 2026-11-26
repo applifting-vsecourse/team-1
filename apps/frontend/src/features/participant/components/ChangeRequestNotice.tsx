@@ -62,8 +62,8 @@ export function ChangeRequestNotice({
   const outcome = (
     <>
       {messageKey ? <p>{t(messageKey)}</p> : null}
-      {request.rejectionReason ? (
-        <p>{t("request.reason", { reason: request.rejectionReason })}</p>
+      {request.status === "REJECTED" && request.rejectionReason ? (
+        <DetailItem label={t("request.reason")}>{request.rejectionReason}</DetailItem>
       ) : null}
     </>
   )
@@ -107,7 +107,7 @@ export function ChangeRequestNotice({
           </div>
         )}
         {isCancel ? (
-          <div className="flex flex-col gap-3 border-t pt-4">
+          <div className={isPending ? "contents" : "flex flex-col gap-3 border-t pt-4"}>
             <DetailItem label={t("request.request")}>
               {isWholeApplication
                 ? t("request.wholeApplication", { count: request.currentTermIds.length })

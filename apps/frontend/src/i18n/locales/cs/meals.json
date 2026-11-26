@@ -61,14 +61,12 @@
   },
   "own": {
     "allergiesLabel": "Alergie a další požadavky na stravu",
-    "back": "Zpět na přihlášku",
     "multiple": "Můžete vybrat více možností.",
     "noRestrictions": "Nemám žádné stravovací omezení",
     "pageTitle": "Stravování",
     "restrictions": "Stravovací omezení",
     "save": "Uložit stravování",
     "saved": "Stravování uloženo",
-    "specialRequestLabel": "Speciální požadavek",
-    "title": "Stravování · {{name}}"
+    "specialRequestLabel": "Speciální požadavek"
   }
 }

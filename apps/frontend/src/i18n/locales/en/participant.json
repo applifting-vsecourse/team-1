@@ -234,7 +234,7 @@
     "pendingDescription": "Sent {{date}}. Until approval, terms, bed and payments do not change.",
     "pendingDescriptionWithoutBed": "Sent {{date}}. Until approval, terms and payments do not change.",
     "pendingTitle": "Request awaiting the organizer's decision",
-    "reason": "Reason: {{reason}}",
+    "reason": "Reason",
     "request": "Request",
     "requested": "New term",
     "reviewedDate": "Reviewed {{date}}",
