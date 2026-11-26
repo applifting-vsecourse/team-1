@@ -479,7 +479,9 @@ function vList(){
 function render(){
   const page=$("#page"),h=location.hash.slice(1)||"letni-vysledek";
   if(h==="akce"){cur={key:null,view:"akce"};$("#crumb").textContent="Kempy Lipno / Akce";page.innerHTML=vList();return}
-  let [key,view]=h.split("-");if(!EVENTS[key])key="letni";if(!VIEWS.some(v=>v[0]===view))view="vysledek";
+  const [rawKey,rawView]=h.split("-");
+  // Only known names go further: the address is user input.
+  const key=Object.keys(EVENTS).find(k=>k===rawKey)||"letni",view=(VIEWS.find(v=>v[0]===rawView)||VIEWS[0])[0];
   const e=EVENTS[key];cur={key,view};
   $("#crumb").textContent="Kempy Lipno / "+e.name;
   page.innerHTML=header(e,key,view)+(view==="naklady"?vCosts(e,key):view==="scenare"?vSim(e):vOverview(e));
