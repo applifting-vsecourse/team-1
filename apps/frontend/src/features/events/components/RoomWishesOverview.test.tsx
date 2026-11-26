@@ -87,15 +87,9 @@ describe("RoomWishesOverview", () => {
         ]),
     })
     renderOverview()
-    const open = await screen.findByRole("button", { name: "Unfulfilled wishes (1)" })
+    const open = await screen.findByRole("button", { name: "Unfulfilled wishes (2)" })
     expect(open).toHaveAttribute("aria-expanded", "false")
     await userEvent.click(open)
-    expect(screen.getByRole("button", { name: "Not fulfilled · 1" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    )
-    expect(screen.getAllByRole("listitem")).toHaveLength(1)
-    await userEvent.click(screen.getByRole("button", { name: "All · 3" }))
     expect(screen.getByRole("button", { name: "All · 3" })).toHaveAttribute("aria-pressed", "true")
     const rows = screen.getAllByRole("listitem")
     expect(within(rows[0]!).getByText("Cannot be fulfilled")).toBeVisible()

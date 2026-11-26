@@ -498,6 +498,7 @@
     "openApplication": "Otevřít přihlášku: {{name}}",
     "participant": "Účastník",
     "showUnfulfilled": "Nesplněná přání ({{count}})",
+    "showUnfulfilledWithoutCount": "Nesplněná přání",
     "status": "Stav",
     "title": "Přání spolubydlení",
     "unfulfilled": "Nesplněno",

@@ -63,6 +63,7 @@ export function RoomsOverview({
   onShowAssignment,
   onEditExtraBeds,
   isPrintOnly = false,
+  draftView,
 }: {
   term: TermRooms
   /** To the room assignment (Rozřazování): from a term without rooms. */
@@ -71,6 +72,7 @@ export function RoomsOverview({
   onEditExtraBeds: (roomId: string) => void
   /** The sheet for the print button of the other view: invisible on screen, no controls. */
   isPrintOnly?: boolean
+  draftView?: ReactNode
 }) {
   const { t } = useTranslation("events")
   const query = useQuery(roomAssignmentsQueryOptions(term.eventId, term.termId))
@@ -161,6 +163,8 @@ export function RoomsOverview({
               </Card>
             ))}
           </dl>
+          {draftView}
+          <div className={draftView ? "hidden print:contents" : "contents"}>
           <ul className="grid items-start gap-3 md:grid-cols-2 print:block print:columns-2 print:gap-4">
             {data.rooms.map((room) => (
               <li
@@ -176,7 +180,7 @@ export function RoomsOverview({
                 <RoomOverviewCard
                   room={room}
                   controls={
-                    isPrintOnly
+                    isPrintOnly || draftView
                       ? undefined
                       : {
                           isEligible: dnd.isEligible(room),
@@ -196,7 +200,7 @@ export function RoomsOverview({
               </li>
             ))}
           </ul>
-          {isPrintOnly ? null : (
+          {isPrintOnly || draftView ? null : (
             <UnassignedPanel
               className="print:hidden"
               isFullWidth
@@ -210,6 +214,7 @@ export function RoomsOverview({
           )}
           {/* The paper lists the confirmed people without a room as before. */}
           {withoutRoom.length > 0 ? <WithoutRoomCard people={withoutRoom} /> : null}
+          </div>
         </>
       ) : (
         <div className="rounded-lg border border-border px-6 print:hidden">
@@ -226,7 +231,7 @@ export function RoomsOverview({
           />
         </div>
       )}
-      {isPrintOnly ? null : actions.dialogs(data.rooms)}
+      {isPrintOnly || draftView ? null : actions.dialogs(data.rooms)}
     </section>
   )
   return isPrintOnly ? body : <RoomDndLayer dnd={dnd}>{body}</RoomDndLayer>

@@ -498,6 +498,7 @@
     "openApplication": "Open application: {{name}}",
     "participant": "Participant",
     "showUnfulfilled": "Unfulfilled wishes ({{count}})",
+    "showUnfulfilledWithoutCount": "Unfulfilled wishes",
     "status": "Status",
     "title": "Roommate wishes",
     "unfulfilled": "Not fulfilled",

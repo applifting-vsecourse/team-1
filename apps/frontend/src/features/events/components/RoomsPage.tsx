@@ -44,6 +44,7 @@ import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignment
 import { RoomDialog } from "@/features/events/components/RoomDialog"
 import { RoomExtraBedsDialog } from "@/features/events/components/RoomExtraBedsDialog"
 import { RoomModeDialog } from "@/features/events/components/RoomModeDialog"
+import type { RoomDraft } from "@/features/events/components/room-proposal"
 import { RoomProposal } from "@/features/events/components/RoomProposal"
 import { RoomsOverview } from "@/features/events/components/RoomsOverview"
 import { RoomsPublicationCard } from "@/features/events/components/RoomsPublicationCard"
@@ -107,6 +108,7 @@ export function RoomsPage({
   const [pendingMode, setPendingMode] = useState<RoomMode | null>(null)
   const [isCopying, setIsCopying] = useState(false)
   const [isBulk, setIsBulk] = useState(false)
+  const [proposal, setProposal] = useState<{ termId: string; draft: RoomDraft } | null>(null)
   const refresh = async () => {
     if (selected) client.removeQueries({ queryKey: roomCapacityIncreaseKey(eventId, selected.id) })
     await Promise.all([
@@ -129,7 +131,10 @@ export function RoomsPage({
       <Label htmlFor="accommodation-term">{t("rooms.termLabel")}</Label>
       <Select
         value={selected.id}
-        onValueChange={onSelectTerm}
+        onValueChange={(next) => {
+          setProposal(null)
+          onSelectTerm(next)
+        }}
       >
         <SelectTrigger
           id="accommodation-term"
@@ -314,9 +319,10 @@ export function RoomsPage({
       <RoomProposal
         key={term.termId}
         term={term}
-        printView={view === "overview" ? printView : undefined}
+        draft={proposal?.termId === term.termId ? proposal.draft : null}
+        onDraftChange={(draft) => setProposal(draft ? { termId: term.termId, draft } : null)}
       >
-        {({ action, notices }) => (
+        {({ action, notices, draftView }) => (
           <>
             <RoomWishesOverview
               eventId={term.eventId}
@@ -340,6 +346,7 @@ export function RoomsPage({
             {view === "overview" ? (
               <RoomsOverview
                 term={term}
+                draftView={draftView}
                 onShowAssignment={() => onSelectView("assignment")}
                 onEditExtraBeds={openExtraBeds}
               />
@@ -403,8 +410,9 @@ export function RoomsPage({
                     </Card>
                   ))}
                 </div>
+                {draftView ?? (
                 <Card>
-                  <CardHeader className="flex flex-col gap-3 max-md:order-last max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                  <CardHeader className="flex flex-col gap-3 max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     <CardTitle>
                       <h3>{t("roomAssignments.cardTitle")}</h3>
                     </CardTitle>
@@ -443,6 +451,7 @@ export function RoomsPage({
                       <Button
                         size="lg"
                         className="max-sm:w-full"
+                        variant="outline"
                         onClick={() => setEditor("new")}
                       >
                         {t("rooms.add")}
@@ -493,6 +502,7 @@ export function RoomsPage({
                     </TooltipProvider>
                   </CardContent>
                 </Card>
+                )}
               </>
             )}
           </>

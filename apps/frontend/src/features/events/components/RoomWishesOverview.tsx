@@ -56,8 +56,8 @@ export function RoomWishesOverview({
   children: (action: ReactNode) => ReactNode
 }) {
   const { t } = useTranslation("events")
-  const { data } = useQuery(roomAssignmentsQueryOptions(eventId, termId))
-  const [filter, setFilter] = useState<(typeof filters)[number]>("unfulfilled")
+  const { data, isError } = useQuery(roomAssignmentsQueryOptions(eventId, termId))
+  const [filter, setFilter] = useState<(typeof filters)[number]>("all")
   const [isOpen, setIsOpen] = useState(false)
   const panelId = useId()
 
@@ -78,6 +78,7 @@ export function RoomWishesOverview({
   const allRows = statuses.flatMap((status) => byStatus[status])
 
   const rows = filter === "all" ? allRows : byStatus[filter]
+  const canOpen = Boolean(data) && !isError && allRows.length > 0
 
   const panel = (
     <Card className="gap-0 overflow-hidden p-0">
@@ -170,20 +171,24 @@ export function RoomWishesOverview({
           variant="ghost"
           size="lg"
           className="w-55 max-w-full"
-          disabled={allRows.length === 0}
-          aria-expanded={isOpen && allRows.length > 0}
+          disabled={!canOpen}
+          aria-expanded={isOpen && canOpen}
           aria-controls={panelId}
           onClick={() => {
-            if (!isOpen) setFilter(byStatus.unfulfilled.length > 0 ? "unfulfilled" : "all")
+            if (!isOpen) setFilter("all")
             setIsOpen(!isOpen)
           }}
         >
-          {t("roomWishes.showUnfulfilled", { count: byStatus.unfulfilled.length })}
+          {data && !isError
+            ? t("roomWishes.showUnfulfilled", {
+                count: byStatus.unfulfilled.length + byStatus.impossible.length,
+              })
+            : t("roomWishes.showUnfulfilledWithoutCount")}
         </Button>,
       )}
       <div
         id={panelId}
-        hidden={!isOpen || allRows.length === 0}
+        hidden={!isOpen || !canOpen}
         className="print:hidden"
       >
         {isOpen ? panel : null}
