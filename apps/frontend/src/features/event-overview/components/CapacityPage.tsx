@@ -201,7 +201,7 @@ export function TermList({ eventId, terms }: { eventId: string; terms: TermOccup
                 params={{ eventId }}
                 search={{ termId: term.id }}
                 className={cn(
-                  "relative grid grid-cols-1 gap-x-4 gap-y-2 rounded-md py-3 outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring lg:grid-cols-none lg:items-center lg:px-3 lg:py-2.5",
+                  "relative -mx-3 grid grid-cols-1 gap-x-4 gap-y-2 rounded-md px-3 py-3 outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring lg:grid-cols-none lg:mx-0 lg:items-center lg:py-2.5",
                   columns,
                 )}
               >

@@ -270,13 +270,11 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
   const beds = overviewBeds(room)
   const chunks = chunkBeds(beds)
   const first = beds[0]
-  const firstLabel =
-    first?.kind === "taken" ? participantName(first.participant) : t("roomOverview.freeBed")
-  const preview =
-    beds.length > 1
-      ? t("roomAssignments.listPreview", { first: firstLabel, count: beds.length - 1 })
-      : firstLabel
-  const summary = beds.length ? preview : t("roomOverview.beds")
+  let summary = t("roomOverview.freeBedsSummary", { count: room.beds })
+  if (first?.kind === "taken") {
+    const name = participantName(first.participant)
+    summary = count > 1 ? t("roomAssignments.listPreview", { first: name, count: count - 1 }) : name
+  }
   const bedsId = useId()
   const [isBedListOpen, setIsBedListOpen] = useState(false)
   return (

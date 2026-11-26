@@ -193,9 +193,9 @@ describe("room assignment", () => {
     const table = screen.getByRole("table")
     const roomA = within(table).getByRole("row", { name: /Room A/ })
     const preview = within(roomA).getByRole("button", {
-      name: "Participants · Jana Nováková and 1 more",
+      name: "Participants · Jana Nováková +1",
     })
-    expect(preview).toHaveTextContent("Jana Nováková and 1 more")
+    expect(preview).toHaveTextContent("Jana Nováková +1")
     expect(within(roomA).queryByText("Marie Malá")).not.toBeInTheDocument()
     await user.click(preview)
     expect(within(roomA).getByText("Marie Malá")).toBeVisible()
