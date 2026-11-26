@@ -18,6 +18,7 @@ const term = (overrides: Partial<MyApplicationTerm> = {}): MyApplicationTerm => 
   priceCzk: 4500,
   transportOffered: false,
   transportDecided: false,
+  transportEditable: true,
   stay: { lateArrival: null, earlyDeparture: null },
   ...overrides,
 })
@@ -49,6 +50,29 @@ describe("TermStaySection", () => {
     const button = screen.getByRole("button", { name: ADD })
     expect(button).toHaveTextContent(/^Add$/)
     expect(button).not.toHaveClass("whitespace-normal")
+  })
+
+  it("writes to the organizer's endpoint when the organizer enters it for the participant (D-191)", async () => {
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <TermStaySection
+          applicationId="a1"
+          writer="organizer"
+          terms={[term()]}
+        />
+      </QueryClientProvider>,
+    )
+    await open()
+    const [arrivalDate] = screen.getAllByLabelText("Date", { selector: "input" })
+    await userEvent.type(arrivalDate!, "13. 7. 2027")
+    const [arrivalTime] = screen.getAllByLabelText("Time", { selector: "input" })
+    await userEvent.type(arrivalTime!, "10:30")
+    await userEvent.click(screen.getByRole("button", { name: "Save" }))
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith("organizer/applications/a1/terms/t1/stay", {
+        json: { lateArrival: "2027-07-13T10:30", earlyDeparture: null },
+      }),
+    )
   })
 
   it("shows no arrival or departure while none is given", () => {

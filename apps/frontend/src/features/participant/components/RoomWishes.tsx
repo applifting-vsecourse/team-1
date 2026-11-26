@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +10,17 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { termLine } from "@/lib/term-label"
 
-import { saveRoomWishes, type MyApplicationTerm } from "@/features/participant/api/applications"
+import {
+  saveRoomWishes,
+  type MyApplicationTerm,
+  type WriterRole,
+} from "@/features/participant/api/applications"
+
+/** What the card needs of a term: the participant's application and the organizer's one both have it. */
+export type WishesTerm = Pick<
+  MyApplicationTerm,
+  "termId" | "name" | "startsOn" | "endsOn" | "roomWishes"
+>
 
 const MAX_WISHES = 3
 const MAX_NAME_LENGTH = 100
@@ -19,15 +29,20 @@ const MAX_NAME_LENGTH = 100
 export function RoomWishesSection({
   applicationId,
   terms,
+  writer = "participant",
   editingTermId,
   onStartEditing,
   onStopEditing,
+  emptyExtra,
 }: {
   applicationId: string
-  terms: MyApplicationTerm[]
+  terms: WishesTerm[]
+  writer?: WriterRole
   editingTermId: string | null
   onStartEditing: (termId: string) => void
   onStopEditing: (termId: string) => void
+  /** Stands next to the add button while no wishes are given, e.g. the organizer's „no wishes“. */
+  emptyExtra?: (termId: string) => ReactNode
 }) {
   const withWishes = terms.filter((term) => term.roomWishes !== undefined)
   if (withWishes.length === 0) return null
@@ -38,9 +53,11 @@ export function RoomWishesSection({
           key={JSON.stringify([term.termId, term.roomWishes, editingTermId === term.termId])}
           applicationId={applicationId}
           term={term}
+          writer={writer}
           isEditing={editingTermId === term.termId}
           onStartEditing={() => onStartEditing(term.termId)}
           onStopEditing={() => onStopEditing(term.termId)}
+          extra={emptyExtra?.(term.termId)}
         />
       ))}
     </>
@@ -54,15 +71,19 @@ export function RoomWishesSection({
 function RoomWishesCard({
   applicationId,
   term,
+  writer,
   isEditing,
   onStartEditing,
   onStopEditing,
+  extra,
 }: {
   applicationId: string
-  term: MyApplicationTerm
+  term: WishesTerm
+  writer: WriterRole
   isEditing: boolean
   onStartEditing: () => void
   onStopEditing: () => void
+  extra?: ReactNode
 }) {
   const { t } = useTranslation("participant")
   const client = useQueryClient()
@@ -73,9 +94,9 @@ function RoomWishesCard({
   )
 
   const mutation = useMutation({
-    mutationFn: (next: string[]) => saveRoomWishes(applicationId, term.termId, next),
+    mutationFn: (next: string[]) => saveRoomWishes(applicationId, term.termId, next, false, writer),
     onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ["participant", "applications"] })
+      await client.invalidateQueries({ queryKey: [writer, "applications"] })
       setIsConfirmingDelete(false)
       onStopEditing()
     },
@@ -179,6 +200,7 @@ function RoomWishesCard({
             >
               {t("roomWishes.add")}
             </Button>
+            {extra}
           </div>
         ) : (
           <div className="flex flex-col items-start gap-4">

@@ -16,6 +16,8 @@ const termSchema = z.object({
   transportOffered: z.boolean(),
   /** The participant chose a transport or their own transport for this term. */
   transportDecided: z.boolean(),
+  /** The transport can still be chosen: the term is not over or cancelled (D-192). */
+  transportEditable: z.boolean(),
   /**
    * Only for a confirmed term whose room assignment is published; `name` is `null` while the
    * participant has no room yet (US-144).
@@ -90,6 +92,8 @@ export const myApplicationSchema = z.object({
   terms: z.array(termSchema),
   /** Meal restrictions entered; application-wide. */
   mealsDecided: z.boolean(),
+  /** The meals can still be changed: a term that is not cancelled is not over (D-192). */
+  mealsEditable: z.boolean(),
   /** Health restriction entered; application-wide. */
   healthDecided: z.boolean(),
   amountDueCzk: z.number().int(),
@@ -190,14 +194,18 @@ export async function changeParticipantTerms(id: string, termIds: string[]) {
   )
 }
 
+/** The organizer writes what the participant can write, with the same rules (D-191). */
+export type WriterRole = "participant" | "organizer"
+
 /** `PUT …/terms/:termId/room-wishes` — writes the wishes of a confirmed term; no names delete them (US-146). */
 export async function saveRoomWishes(
   applicationId: string,
   termId: string,
   names: string[],
   shouldDecline = false,
+  writer: WriterRole = "participant",
 ): Promise<void> {
-  await api.put(`participant/applications/${applicationId}/terms/${termId}/room-wishes`, {
+  await api.put(`${writer}/applications/${applicationId}/terms/${termId}/room-wishes`, {
     json: shouldDecline ? { names, noRoomWishes: true } : { names },
   })
 }
@@ -205,6 +213,11 @@ export async function saveRoomWishes(
 export type Stay = NonNullable<MyApplicationTerm["stay"]>
 
 /** `PUT …/terms/:termId/stay` — sets, changes or (both `null`) deletes arrival and departure (US-143). */
-export async function saveStay(applicationId: string, termId: string, stay: Stay): Promise<void> {
-  await api.put(`participant/applications/${applicationId}/terms/${termId}/stay`, { json: stay })
+export async function saveStay(
+  applicationId: string,
+  termId: string,
+  stay: Stay,
+  writer: WriterRole = "participant",
+): Promise<void> {
+  await api.put(`${writer}/applications/${applicationId}/terms/${termId}/stay`, { json: stay })
 }

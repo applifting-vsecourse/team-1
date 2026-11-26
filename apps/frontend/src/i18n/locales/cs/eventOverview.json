@@ -471,6 +471,20 @@
       "lastName": "Příjmení",
       "phone": "Telefon"
     },
+    "logistics": {
+      "arrival": "příjezd {{value}}",
+      "departure": "odjezd {{value}}",
+      "field": {
+        "health": "Zdravotní omezení",
+        "roomWishes": "Přání spolubydlení",
+        "stay": "Pozdější příjezd a dřívější odjezd",
+        "transport": "Doprava"
+      },
+      "noRestriction": "Nemá žádné omezení (zapsal organizátor)",
+      "noWishes": "Nemám přání",
+      "own": "Vlastní doprava",
+      "written": "zapsáno organizátorem"
+    },
     "no": "ne",
     "noteChanged": "Poznámka k ubytování: změněna",
     "payment": "Platba {{amount}}",
@@ -552,6 +566,7 @@
     "amountRequired": "Částka *",
     "applicant": "Přihlašovatel",
     "applicationCode": "přihláška {{code}}",
+    "arrangementsLink": "Přání spolubydlení a pobyt",
     "back": "Zpět na přihlášky",
     "backToPayments": "Zpět na platby",
     "cancelAllAllocations": "Pokud je příjem rozdělený mezi více termínů, zruší se všechny jeho řádky.",
@@ -662,6 +677,7 @@
     "termLabel": "Termín",
     "termRequired": "Termín *",
     "title": "Detail platby a přihlášky",
+    "transportLink": "Doprava účastníka",
     "typeChoice": "Typ záznamu",
     "typePayment": "Platba",
     "typeRefund": "Vratka",

@@ -69,7 +69,8 @@ function termSteps(
     })
   }
 
-  if (term.transportOffered) {
+  // After the term is over the choice can no longer be changed, so the step is gone (D-192).
+  if (term.transportOffered && term.transportEditable) {
     steps.push({
       key: "transport",
       title: t("detail.steps.transport"),
@@ -91,7 +92,7 @@ function termSteps(
     })
   }
 
-  steps.push(
+  const mealsAndHealth: Step[] = [
     {
       key: "meals",
       title: t("detail.steps.meals"),
@@ -128,7 +129,9 @@ function termSteps(
         </Link>
       ),
     },
-  )
+  ]
+  // The meals can be changed until the last term that is not cancelled is over (D-192).
+  steps.push(...mealsAndHealth.filter(({ key }) => key !== "meals" || application.mealsEditable))
   if (term.roomWishes !== undefined && term.room === undefined) {
     const isDone = term.roomWishes.length > 0 || term.noRoomWishes === true
     steps.push({

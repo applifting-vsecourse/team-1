@@ -471,6 +471,20 @@
       "lastName": "Last name",
       "phone": "Phone"
     },
+    "logistics": {
+      "arrival": "arrival {{value}}",
+      "departure": "departure {{value}}",
+      "field": {
+        "health": "Health restriction",
+        "roomWishes": "Roommate wishes",
+        "stay": "Later arrival and earlier departure",
+        "transport": "Transport"
+      },
+      "noRestriction": "No restriction (entered by the organiser)",
+      "noWishes": "No wishes",
+      "own": "Own transport",
+      "written": "entered by the organiser"
+    },
     "no": "no",
     "noteChanged": "Accommodation note: changed",
     "payment": "Payment {{amount}}",
@@ -552,6 +566,7 @@
     "amountRequired": "Amount *",
     "applicant": "Applicant",
     "applicationCode": "application {{code}}",
+    "arrangementsLink": "Roommate wishes and stay",
     "back": "Back to applications",
     "backToPayments": "Back to payments",
     "cancelAllAllocations": "If the receipt is split across several terms, all its rows are cancelled.",
@@ -662,6 +677,7 @@
     "termLabel": "Term",
     "termRequired": "Term *",
     "title": "Payment and application details",
+    "transportLink": "Participant’s transport",
     "typeChoice": "Record type",
     "typePayment": "Payment",
     "typeRefund": "Refund",

@@ -17,6 +17,7 @@
   "chosenBy_many": "Zvolená doprava · {{count}} účastníků",
   "chosenBy_one": "Zvolená doprava · {{count}} účastník",
   "chosenBy_other": "Zvolená doprava · {{count}} účastníků",
+  "closed": "Termín skončil, dopravu už nelze změnit.",
   "collapseAllContacts": "Sbalit všechny kontakty",
   "contactColumn": "Kontakt přihlašovatele",
   "copyHint": "Zkopíruje název a místo odjezdu; datum a čas vyplňte.",

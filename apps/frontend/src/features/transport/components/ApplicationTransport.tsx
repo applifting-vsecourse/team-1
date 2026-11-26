@@ -25,15 +25,25 @@ import {
   applicationTransportQueryOptions,
   chooseTransport,
   transportKeys,
+  type TransportRole,
 } from "@/features/transport/api/transport"
 import { departureText } from "@/features/transport/lib/departure"
 
 // The applicant chooses, for each term, how the participant gets to the event and sees where and
 // when it leaves.
 // Figma (Design system v2): #402 / Výběr způsobu dopravy · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-39327 (360 px: node-id=22640-39416)
-export function ApplicationTransport({ applicationId }: { applicationId: string }) {
+export function ApplicationTransport({
+  applicationId,
+  writer = "participant",
+  eventId,
+}: {
+  applicationId: string
+  /** The organizer chooses for the participant with the same dialog (D-191); needs the event to go back. */
+  writer?: TransportRole
+  eventId?: string
+}) {
   const { t } = useTranslation(["transport", "common"])
-  const query = useQuery(applicationTransportQueryOptions(applicationId))
+  const query = useQuery(applicationTransportQueryOptions(applicationId, writer))
   const client = useQueryClient()
   const navigate = useNavigate()
   const termHash = window.location.hash
@@ -41,6 +51,14 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
     if (query.isSuccess && termHash) document.getElementById(termHash.slice(1))?.focus()
   }, [query.isSuccess, termHash])
   const close = async () => {
+    if (writer === "organizer") {
+      await navigate({
+        to: ROUTES.organizer.application,
+        params: { eventId: eventId ?? "", applicationId },
+        replace: true,
+      })
+      return
+    }
     await navigate({ to: ROUTES.participant.application, params: { applicationId }, replace: true })
     // The trigger is a link on the previous route, so Radix cannot restore focus to it.
     requestAnimationFrame(() => {
@@ -58,14 +76,18 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
   const mutation = useMutation({
     mutationFn: async () => {
       await Promise.all(
-        Object.entries(changes).map(([termId, id]) => chooseTransport(applicationId, termId, id)),
+        Object.entries(changes).map(([termId, id]) =>
+          chooseTransport(applicationId, termId, id, writer),
+        ),
       )
     },
     onError: async () => {
       // A transport may have been deleted meanwhile: show what is still on offer.
-      await client.invalidateQueries({ queryKey: transportKeys.application(applicationId) })
+      await client.invalidateQueries({ queryKey: transportKeys.application(applicationId, writer) })
       // Drop choices that are no longer on offer, keep the valid ones.
-      const fresh = client.getQueryData(applicationTransportQueryOptions(applicationId).queryKey)
+      const fresh = client.getQueryData(
+        applicationTransportQueryOptions(applicationId, writer).queryKey,
+      )
       if (!fresh) return
       setChanges((current) =>
         Object.fromEntries(
@@ -80,8 +102,9 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
     onSuccess: async () => {
       setChanges({})
       notify.success(t("saved"))
-      void client.invalidateQueries({ queryKey: transportKeys.application(applicationId) })
+      void client.invalidateQueries({ queryKey: transportKeys.application(applicationId, writer) })
       void client.invalidateQueries({ queryKey: ["participant"] })
+      void client.invalidateQueries({ queryKey: ["organizer"] })
       // Saved and confirmed: back to the application, there is nothing more to do here.
       await close()
     },
@@ -130,6 +153,7 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
               <div className="flex flex-col gap-2">
                 <Label htmlFor={`transport-${term.termId}`}>{t("choiceLabel")}</Label>
                 <Select
+                  disabled={!term.isEditable}
                   value={value}
                   onValueChange={(next) => {
                     setChanges((current) => ({ ...current, [term.termId]: next }))
@@ -153,6 +177,9 @@ export function ApplicationTransport({ applicationId }: { applicationId: string 
                   </SelectContent>
                 </Select>
               </div>
+              {term.isEditable ? null : (
+                <p className="text-sm text-muted-foreground">{t("closed")}</p>
+              )}
               {selected && (selected.departureAt || selected.instructions) ? (
                 <Card className="gap-4 p-4">
                   {selected.departureAt ? (

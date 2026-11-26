@@ -1,0 +1,96 @@
+import { PrismaService } from "@/core/prisma/prisma.service"
+import { Injectable } from "@nestjs/common"
+
+export type TermArrangement = {
+  termId: string
+  name: string | null
+  startsOn: Date
+  endsOn: Date
+  status: string
+  /** Only for a confirmed term of a participant without individual accommodation (US-146). */
+  roomWishes?: { names: string[]; noRoomWishes: boolean; canDecline: boolean }
+  /** Prague wall time or `null`; absent for a cancelled or archived term (US-143). */
+  stay?: { lateArrivalAt: Date | null; earlyDepartureAt: Date | null }
+}
+
+export type Arrangements = {
+  applicationId: string
+  eventName: string
+  firstName: string
+  lastName: string
+  terms: TermArrangement[]
+}
+
+/** What the participant writes in each term, read for the organizer who can write it too (D-191). */
+@Injectable()
+export class ArrangementsRepository {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async find(organizationId: string, applicationId: string): Promise<Arrangements | null> {
+    const application = await this.prisma.application.findFirst({
+      where: { id: applicationId, organizationId },
+      select: {
+        firstName: true,
+        lastName: true,
+        individualAccommodation: true,
+        event: { select: { name: true } },
+        terms: {
+          orderBy: { term: { startsOn: "asc" } },
+          select: {
+            status: true,
+            roomWishes: true,
+            noRoomWishes: true,
+            lateArrivalAt: true,
+            earlyDepartureAt: true,
+            term: {
+              select: {
+                id: true,
+                name: true,
+                startsOn: true,
+                endsOn: true,
+                cancelledAt: true,
+                roomsPublishedAt: true,
+              },
+            },
+          },
+        },
+      },
+    })
+    if (!application) return null
+    return {
+      applicationId,
+      eventName: application.event.name,
+      firstName: application.firstName,
+      lastName: application.lastName,
+      terms: application.terms.map((row) => {
+        const isOpen =
+          row.status !== "CANCELLED" && row.status !== "ARCHIVED" && row.term.cancelledAt === null
+        const hasWishes =
+          row.status === "CONFIRMED" &&
+          row.term.cancelledAt === null &&
+          !application.individualAccommodation
+        const names = row.roomWishes
+        return {
+          termId: row.term.id,
+          name: row.term.name,
+          startsOn: row.term.startsOn,
+          endsOn: row.term.endsOn,
+          status: row.status,
+          ...(hasWishes
+            ? {
+                roomWishes: {
+                  names,
+                  noRoomWishes: row.noRoomWishes,
+                  canDecline:
+                    names.length === 0 && !row.noRoomWishes && row.term.roomsPublishedAt === null,
+                },
+              }
+            : {}),
+          ...(isOpen
+            ? { stay: { lateArrivalAt: row.lateArrivalAt, earlyDepartureAt: row.earlyDepartureAt } }
+            : {}),
+        }
+      }),
+    }
+  }
+}

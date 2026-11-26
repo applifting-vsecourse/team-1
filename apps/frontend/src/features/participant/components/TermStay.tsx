@@ -27,7 +27,11 @@ import {
   saveStay,
   type MyApplicationTerm,
   type Stay,
+  type WriterRole,
 } from "@/features/participant/api/applications"
+
+/** What the card needs of a term: the participant's application and the organizer's one both have it. */
+export type StayTerm = Pick<MyApplicationTerm, "termId" | "name" | "startsOn" | "endsOn" | "stay">
 
 type Fields = {
   arrivalDate: string
@@ -56,9 +60,11 @@ const formatWall = (label: string, wall: string, at: string) =>
 export function TermStaySection({
   applicationId,
   terms,
+  writer = "participant",
 }: {
   applicationId: string
-  terms: MyApplicationTerm[]
+  terms: StayTerm[]
+  writer?: WriterRole
 }) {
   const withStay = terms.filter((term) => term.stay !== undefined)
   if (withStay.length === 0) return null
@@ -69,6 +75,7 @@ export function TermStaySection({
           key={term.termId}
           applicationId={applicationId}
           term={term}
+          writer={writer}
         />
       ))}
     </>
@@ -77,7 +84,15 @@ export function TermStaySection({
 
 // Figma (Design system v2): US-143 Přihlašovatel · Termín bez údajů · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-9124 (mobile 24969-11093)
 // Figma (Design system v2): US-143 Přihlašovatel · Příjezd i odjezd uložen · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24969-10098 (mobile 24969-11807)
-function TermStayCard({ applicationId, term }: { applicationId: string; term: MyApplicationTerm }) {
+function TermStayCard({
+  applicationId,
+  term,
+  writer,
+}: {
+  applicationId: string
+  term: StayTerm
+  writer: WriterRole
+}) {
   const { t } = useTranslation("participant")
   const [mode, setMode] = useState<"view" | "edit" | "confirmDelete">("view")
   const saved: Stay = term.stay ?? { lateArrival: null, earlyDeparture: null }
@@ -151,6 +166,7 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
         <StayDialog
           applicationId={applicationId}
           term={term}
+          writer={writer}
           saved={saved}
           hasSaved={hasSaved}
           mode={mode}
@@ -168,6 +184,7 @@ function TermStayCard({ applicationId, term }: { applicationId: string; term: My
 function StayDialog({
   applicationId,
   term,
+  writer,
   saved,
   hasSaved,
   mode,
@@ -175,7 +192,8 @@ function StayDialog({
   restoreFocus,
 }: {
   applicationId: string
-  term: MyApplicationTerm
+  term: StayTerm
+  writer: WriterRole
   saved: Stay
   hasSaved: boolean
   mode: "edit" | "confirmDelete"
@@ -189,7 +207,7 @@ function StayDialog({
   const set = (patch: Partial<Fields>) => setFields({ ...fields, ...patch })
 
   const mutation = useMutation({
-    mutationFn: (next: Stay) => saveStay(applicationId, term.termId, next),
+    mutationFn: (next: Stay) => saveStay(applicationId, term.termId, next, writer),
     onSuccess: async (_data, next) => {
       onMode("view")
       notify.success(
@@ -199,7 +217,7 @@ function StayDialog({
             : "stay.toast.saved",
         ),
       )
-      await client.invalidateQueries({ queryKey: ["participant", "applications"] })
+      await client.invalidateQueries({ queryKey: [writer, "applications"] })
     },
   })
 
@@ -395,7 +413,7 @@ function StayFields({
   date: string
   time: string
   error?: string
-  term: MyApplicationTerm
+  term: StayTerm
   removeLabel: string
   onRemove: () => void
   onDate: (value: string) => void

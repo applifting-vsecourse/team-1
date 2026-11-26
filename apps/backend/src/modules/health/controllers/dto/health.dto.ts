@@ -24,6 +24,31 @@ export class SaveHealthRequestDto {
   noRestriction?: boolean
 }
 
+export class SaveOrganizerHealthRequestDto {
+  @ApiProperty({
+    maxLength: HEALTH_NOTE_MAX_LENGTH,
+    description: "Health restriction of the participant. Required unless noRestriction is set.",
+  })
+  @IsString()
+  @MaxLength(HEALTH_NOTE_MAX_LENGTH)
+  note!: string
+
+  @ApiProperty({
+    required: false,
+    description: "Confirms that the participant has no health restriction; refused with a note.",
+  })
+  @IsOptional()
+  @IsBoolean()
+  noRestriction?: boolean
+
+  @ApiProperty({
+    description:
+      "The organizer confirms having the explicit consent of the applicant. Without true nothing is saved.",
+  })
+  @IsBoolean()
+  consentConfirmed!: boolean
+}
+
 export class HealthResponseDto {
   @ApiProperty()
   applicationId!: string

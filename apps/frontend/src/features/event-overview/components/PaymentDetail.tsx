@@ -116,18 +116,45 @@ export function PaymentDetail({
               {data.eventName} · {t("payment.applicationCode", { code: data.code })}
             </p>
           </div>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-          >
-            <Link
-              to={ROUTES.organizer.applicationHealth}
-              params={{ eventId: data.eventId, applicationId }}
+          {/* The organizer writes for the participant what the participant can write (D-191). */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
             >
-              {t("payment.health")}
-            </Link>
-          </Button>
+              <Link
+                to={ROUTES.organizer.applicationTransport}
+                params={{ eventId: data.eventId, applicationId }}
+              >
+                {t("payment.transportLink")}
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+            >
+              <Link
+                to={ROUTES.organizer.applicationArrangements}
+                params={{ eventId: data.eventId, applicationId }}
+              >
+                {t("payment.arrangementsLink")}
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+            >
+              <Link
+                to={ROUTES.organizer.applicationHealth}
+                params={{ eventId: data.eventId, applicationId }}
+              >
+                {t("payment.health")}
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
       <AutoConfirmedNotice

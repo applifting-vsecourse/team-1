@@ -185,6 +185,14 @@
     },
     "title": "Upozornění"
   },
+  "organizerArrangements": {
+    "back": "Zpět na přihlášku",
+    "declineHint": "Účastník nemá žádné přání spolubydlení. Jde to potvrdit jen před zveřejněním pokojů a bez zadaných jmen.",
+    "declined": "Potvrzeno: účastník nemá přání spolubydlení.",
+    "errorTitle": "Údaje účastníka se nepodařilo načíst",
+    "nothing": "U této přihlášky se přání spolubydlení ani pobyt nezadávají: žádný termín není potvrzený ani otevřený.",
+    "title": "Přání spolubydlení a pobyt"
+  },
   "payment": {
     "account": "Bankovní účet",
     "amount": "Částka",

@@ -1,5 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
+import { OrganizerEditor } from "@/modules/applications/domain/application-scope"
+import { logOrganizerEdit } from "@/modules/applications/repositories/application-edit-log"
 import { HealthRecord } from "@/modules/health/domain/health"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
@@ -18,6 +20,10 @@ const select = {
     select: { healthNote: true, createdAt: true },
   },
 } as const
+
+/** What the history says: the screen translates the tokens, the note itself is never stored there. */
+export const HEALTH_WRITTEN = "WRITTEN"
+export const HEALTH_NO_RESTRICTION = "NO_RESTRICTION"
 
 /** The only place of the health restriction that touches the database. */
 @Injectable()
@@ -50,6 +56,7 @@ export class HealthRepository {
     applicationId: string,
     note: string,
     consentAt: Date,
+    editor?: OrganizerEditor,
   ): Promise<void> {
     // The unique `applicationId` makes the first fill atomic: a concurrent second write fails
     // instead of overwriting data that is already filled in. The application row is locked first,
@@ -65,6 +72,7 @@ export class HealthRepository {
           where: { id: applicationId },
           data: { noHealthRestriction: false },
         })
+        if (editor) await this.logWritten(tx, organizationId, applicationId, editor, HEALTH_WRITTEN)
       })
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -91,7 +99,10 @@ export class HealthRepository {
    * so a note saved meanwhile (another tab) wins and the confirmation is refused, never kept
    * next to a note.
    */
-  async confirmNoRestriction(applicationId: string): Promise<void> {
+  async confirmNoRestriction(
+    applicationId: string,
+    editor?: { organizationId: string; editor: OrganizerEditor },
+  ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       await lockApplication(tx, applicationId)
       if ((await tx.applicationHealth.count({ where: { applicationId } })) > 0) {
@@ -101,6 +112,34 @@ export class HealthRepository {
         where: { id: applicationId },
         data: { noHealthRestriction: true },
       })
+      if (editor) {
+        await this.logWritten(
+          tx,
+          editor.organizationId,
+          applicationId,
+          editor.editor,
+          HEALTH_NO_RESTRICTION,
+        )
+      }
+    })
+  }
+
+  /** The history says that the organizer wrote it, never what (the note is sensitive, D-122). */
+  private logWritten(
+    tx: Prisma.TransactionClient,
+    organizationId: string,
+    applicationId: string,
+    editor: OrganizerEditor,
+    to: string,
+  ) {
+    return logOrganizerEdit(tx, {
+      organizationId,
+      applicationId,
+      editor,
+      field: "health",
+      termId: null,
+      from: null,
+      to,
     })
   }
 

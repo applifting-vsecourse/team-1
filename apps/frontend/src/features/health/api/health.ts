@@ -60,3 +60,18 @@ export const organizerHealthQueryOptions = (applicationId: string) =>
         await api.get(`organizer/applications/${encodeURIComponent(applicationId)}/health`).json(),
       ),
   })
+
+/**
+ * `PUT /api/organizer/applications/:id/health` — the organizer writes the first restriction (or
+ * "no restriction") for the participant, only with the applicant's consent confirmed (D-191).
+ */
+export async function saveOrganizerHealth(
+  applicationId: string,
+  values: { note: string; noRestriction: boolean; consentConfirmed: boolean },
+): Promise<Health> {
+  return healthSchema.parse(
+    await api
+      .put(`organizer/applications/${encodeURIComponent(applicationId)}/health`, { json: values })
+      .json(),
+  )
+}
