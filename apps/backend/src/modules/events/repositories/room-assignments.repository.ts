@@ -284,6 +284,7 @@ export class RoomAssignmentsRepository {
             applicationTermId: applicationTerm.id,
             firstName: applicationTerm.application.firstName,
             lastName: applicationTerm.application.lastName,
+            individualAccommodation: applicationTerm.application.individualAccommodation,
           })),
         })),
       participants: waiting.map((row) => ({
@@ -322,7 +323,17 @@ export class RoomAssignmentsRepository {
       }
       const rooms = await tx.room.findMany({
         where: { id: { in: items.map((item) => item.roomId) }, organizationId },
-        include: { _count: { select: { assignments: true } } },
+        include: {
+          _count: { select: { assignments: true } },
+          assignments: {
+            where: {
+              organizationId,
+              applicationTerm: { application: { individualAccommodation: true } },
+            },
+            select: { id: true },
+            take: 1,
+          },
+        },
       })
       const placed = new Map<string, number>()
       for (const item of items) {
@@ -332,9 +343,11 @@ export class RoomAssignmentsRepository {
         if (room.termId !== termId) throw new AppException(HttpStatus.CONFLICT, "ROOM_NOT_IN_TERM")
         // A proposal never contains people with individual accommodation (US-38, US-147).
         const isWrongGender = room.gender !== null && room.gender !== application.application.gender
-        // An individual room is filled by hand only (US-145), also when it became one after the proposal.
+        // Individual rooms and rooms with an individual accommodation request stay manual
+        // even if their occupants or properties changed after the proposal was created.
         if (
           room.individual ||
+          room.assignments.length > 0 ||
           application.roomAssignment ||
           application.application.individualAccommodation ||
           isWrongGender

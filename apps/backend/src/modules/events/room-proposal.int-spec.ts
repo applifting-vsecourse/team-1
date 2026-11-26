@@ -20,15 +20,16 @@ describe("room proposal (integration)", () => {
   let boysRoom: string
   let counter = 0
 
-  const base = (): string => `/organizer/events/${eventId}/terms/${termId}/room-assignments`
+  const base = (targetTermId = termId): string =>
+    `/organizer/events/${eventId}/terms/${targetTermId}/room-assignments`
   const call = (path: string, method = "GET", body?: unknown, session = cookie) =>
     fetch(api(path), {
       method,
       headers: { Cookie: session, "Content-Type": "application/json" },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     })
-  const propose = async (): Promise<Proposal> =>
-    (await call(`${base()}/proposal`, "POST")).json() as Promise<Proposal>
+  const propose = async (targetTermId = termId): Promise<Proposal> =>
+    (await call(`${base(targetTermId)}/proposal`, "POST")).json() as Promise<Proposal>
   const makePerson = async (
     firstName: string,
     lastName: string,
@@ -37,6 +38,7 @@ describe("room proposal (integration)", () => {
       status?: "CONFIRMED" | "TO_EVALUATE" | "WAITLISTED"
       individualAccommodation?: boolean
       roomWishes?: string[]
+      targetTermId?: string
     } = {},
   ): Promise<string> => {
     counter += 1
@@ -56,7 +58,7 @@ describe("room proposal (integration)", () => {
           create: [
             {
               organizationId,
-              termId,
+              termId: extra.targetTermId ?? termId,
               status: extra.status ?? "CONFIRMED",
               priceCzk: 1000,
               roomWishes: extra.roomWishes ?? [],
@@ -212,4 +214,50 @@ describe("room proposal (integration)", () => {
     expect(await prisma.roomAssignment.count({ where: { roomId: family.id } })).toBe(0)
     await prisma.room.delete({ where: { id: family.id } })
   })
+
+  it.each(["GENDERED", "SHARED"] as const)(
+    "keeps a regular room with an individual accommodation request manual in %s mode",
+    async (roomMode) => {
+      const { id: targetTermId } = await prisma.term.create({
+        data: {
+          organizationId,
+          eventId,
+          number: roomMode === "GENDERED" ? 2 : 3,
+          startsOn: new Date("2027-07-01"),
+          endsOn: new Date("2027-07-08"),
+          priceCzk: 1000,
+          roomMode,
+        },
+      })
+      const room = await prisma.room.create({
+        data: {
+          organizationId,
+          termId: targetTermId,
+          name: "A",
+          capacity: 3,
+          gender: roomMode === "GENDERED" ? "FEMALE" : null,
+        },
+      })
+      const candidate = await makePerson("Eva", "Černá", "FEMALE", { targetTermId })
+      const resident = await makePerson("Jana", "Nováková", "FEMALE", {
+        targetTermId,
+        individualAccommodation: true,
+      })
+      const initial = await propose(targetTermId)
+      expect(initial.placements).toEqual([{ applicationTermId: candidate, roomId: room.id }])
+
+      // Manual placement remains possible. It makes the outstanding automatic proposal stale.
+      const path = base(targetTermId)
+      expect((await call(`${path}/${resident}`, "PUT", { roomId: room.id })).status).toBe(204)
+      const fresh = await propose(targetTermId)
+      expect(fresh.placements).toEqual([])
+      expect(fresh.unplaced).toEqual([{ applicationTermId: candidate, reason: "NO_FREE_BED" }])
+
+      const stale = await call(`${path}/bulk`, "POST", { assignments: initial.placements })
+      expect(stale.status).toBe(409)
+      expect(((await stale.json()) as { code: string }).code).toBe("ROOM_PROPOSAL_OUTDATED")
+      expect(await prisma.roomAssignment.count({ where: { roomId: room.id } })).toBe(1)
+      expect((await call(`${path}/${candidate}`, "PUT", { roomId: room.id })).status).toBe(204)
+    },
+  )
 })
