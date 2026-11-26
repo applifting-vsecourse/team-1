@@ -8,6 +8,11 @@
     "contact": "Kontakt organizace",
     "copyLink": "Zkopírovat odkaz",
     "priceNote": "Uvedené ceny jsou za jednoho účastníka.",
+    "showFewerTerms": "Zobrazit méně",
+    "showMoreTerms_few": "Zobrazit další {{count}} termíny",
+    "showMoreTerms_many": "Zobrazit dalších {{count}} termínů",
+    "showMoreTerms_one": "Zobrazit další {{count}} termín",
+    "showMoreTerms_other": "Zobrazit dalších {{count}} termínů",
     "terms": "Termíny a ceny",
     "write": "Napsat e-mail"
   },
@@ -26,6 +31,10 @@
     "eventCount_one": "{{count}} akce",
     "eventCount_other": "{{count}} akcí",
     "loading": "Načítám akce…",
+    "moreTerms_few": "a další {{count}} termíny",
+    "moreTerms_many": "a dalších {{count}} termínů",
+    "moreTerms_one": "a další {{count}} termín",
+    "moreTerms_other": "a dalších {{count}} termínů",
     "organization": "Organizace",
     "retry": "Zkusit znovu",
     "summaryFrom_few": "{{count}} termíny · od {{price}}",
@@ -40,7 +49,7 @@
   },
   "notFound": {
     "action": "Na úvodní stránku",
-    "description": "Odkaz může být nesprávný nebo akce ještě není připravená k přihlašování. Ověřte odkaz u organizátora.",
+    "description": "Odkaz neexistuje, nebo akce nepřijímá přihlášky.",
     "title": "Tato stránka akce není dostupná."
   }
 }
