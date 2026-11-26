@@ -116,7 +116,7 @@ function KitchenSection({
   return (
     <Card
       className={cn(
-        "gap-0 p-0 [&_[data-slot=accordion-content][data-state=closed]]:hidden print:[&_[data-slot=accordion-content][data-state=closed]]:block print:[&_[data-slot=accordion-trigger]>svg]:hidden",
+        "gap-0 p-0 [&:has([data-slot=accordion-content][data-state=closed])]:self-start print:[&:has([data-slot=accordion-content][data-state=closed])]:self-stretch [&_[data-slot=accordion-content][data-state=closed]]:hidden print:[&_[data-slot=accordion-content][data-state=closed]]:block print:[&_[data-slot=accordion-trigger]>svg]:hidden",
         className,
       )}
     >
