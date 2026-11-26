@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
   createMemoryHistory,
@@ -66,13 +67,13 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   ...overrides,
 })
 
-const renderList = () => {
+const renderList = (renderBoardBadge?: (applicationId: string) => ReactNode) => {
   const root = createRootRoute({
     component: () => (
       <QueryClientProvider
         client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
       >
-        <ApplicationList />
+        <ApplicationList renderBoardBadge={renderBoardBadge} />
       </QueryClientProvider>
     ),
   })
@@ -91,6 +92,25 @@ const respondWith = (value: unknown) => get.mockReturnValue({ json: () => Promis
 
 describe("ApplicationList", () => {
   beforeEach(() => get.mockReset())
+
+  it("puts the badge of the board under the participant's data, not beside the name (360 px)", async () => {
+    respondWith([application()])
+    renderList(() => <span>Nové příspěvky</span>)
+
+    const badge = await screen.findByText("Nové příspěvky")
+    const heading = screen.getByRole("heading", { level: 3, name: /Jana Nováková/ })
+    // In the column of the name it can never take width away from it (Figma C5).
+    expect(heading.parentElement).toContainElement(badge)
+    expect(heading.parentElement).not.toContainElement(screen.getByText("Unpaid"))
+  })
+
+  it("puts the badge of the board on each application", async () => {
+    respondWith([application({ id: "a1" }), application({ id: "a2", firstName: "Adam" })])
+    renderList((id) => <span>Nové příspěvky {id}</span>)
+
+    expect(await screen.findByText("Nové příspěvky a1")).toBeVisible()
+    expect(screen.getByText("Nové příspěvky a2")).toBeVisible()
+  })
 
   it("shows a loading state first", async () => {
     get.mockReturnValue({ json: () => new Promise(() => undefined) })

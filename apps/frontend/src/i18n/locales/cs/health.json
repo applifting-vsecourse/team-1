@@ -12,7 +12,7 @@
   "noRestriction": "Nemám žádné zdravotní omezení",
   "notFilled": "Přihlašovatel zatím žádné zdravotní omezení neposkytl.",
   "notFilledHint": "Chybějící údaj neznamená, že účastník nemá žádná zdravotní omezení.",
-  "noteLabel": "Zdravotní omezení účastníka (nepovinné)",
+  "noteLabel": "Zdravotní omezení účastníka",
   "organizerAccessText": "Zdravotní omezení není dostupné ostatním uživatelům. Potravinové alergie jsou uvedené ve stravování.",
   "organizerAccessTitle": "Přístup pouze pro organizátora",
   "organizerCardTitle": "Zdravotní omezení účastníka",

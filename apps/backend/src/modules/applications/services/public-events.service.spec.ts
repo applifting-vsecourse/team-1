@@ -80,4 +80,20 @@ describe("PublicEventsService", () => {
       status: 404,
     })
   })
+
+  it("answers every reason the link is closed exactly like an unknown link (#738)", async () => {
+    const reasons = [
+      { event, termsWithoutRooms: 1, evaluationModePending: false },
+      { event, termsWithoutRooms: 0, evaluationModePending: true },
+      { event: { ...event, terms: [] }, termsWithoutRooms: 0, evaluationModePending: false },
+    ]
+    repository.findByPublicToken.mockResolvedValueOnce(null)
+    const unknown = await service.getByPublicToken("nope").catch((error: unknown) => error)
+
+    for (const reason of reasons) {
+      repository.findByPublicToken.mockResolvedValueOnce(reason)
+      const closed = await service.getByPublicToken("token").catch((error: unknown) => error)
+      expect(closed).toEqual(unknown)
+    }
+  })
 })

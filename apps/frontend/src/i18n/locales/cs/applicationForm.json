@@ -94,10 +94,19 @@
     "individualAccommodationHint": "Pokud vám dělení pokojů podle pohlaví nevyhovuje. Uvidí to jen organizátoři.",
     "intro": "Přihlášku vyplníte bez registrace. Pro každého účastníka můžete vybrat jeden nebo více termínů.",
     "lastName": "Příjmení *",
+    "moreTerms_few": "a další {{count}} termíny",
+    "moreTerms_many": "a dalších {{count}} termínů",
+    "moreTerms_one": "a další {{count}} termín",
+    "moreTerms_other": "a dalších {{count}} termínů",
     "participantTitle": "Účastník {{number}}",
     "participantTitleNamed": "Účastník {{number}} · {{name}}",
     "removeParticipantAria": "Odebrat účastníka {{number}}",
     "requiredNote": "* Povinná pole",
+    "showFewerTerms": "Zobrazit méně",
+    "showMoreTerms_few": "Zobrazit další {{count}} termíny",
+    "showMoreTerms_many": "Zobrazit dalších {{count}} termínů",
+    "showMoreTerms_one": "Zobrazit další {{count}} termín",
+    "showMoreTerms_other": "Zobrazit dalších {{count}} termínů",
     "submit": "Odeslat přihlášku",
     "submitting": "Odesílání…",
     "submittingHint": "Přihlášku odesíláme. Vyčkejte na potvrzení.",
@@ -106,7 +115,7 @@
   },
   "notFound": {
     "action": "Na úvodní stránku",
-    "description": "Odkaz může být nesprávný nebo akce ještě není připravená k přihlašování. Ověřte odkaz u organizátora.",
+    "description": "Odkaz neexistuje, nebo akce nepřijímá přihlášky.",
     "title": "Tato stránka není dostupná."
   },
   "price": {

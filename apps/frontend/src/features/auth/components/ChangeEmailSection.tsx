@@ -14,6 +14,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -201,13 +202,11 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
                   </Alert>
                 ) : null}
 
-                {/* Desktop: secondary left, primary right; phone: primary on top (Togena / Dialog actions). */}
-                <div className="flex flex-col-reverse gap-3 md:flex-row">
+                <DialogFooter>
                   <Button
                     type="button"
                     variant="ghost"
                     size="lg"
-                    className="h-12 w-full rounded-lg md:flex-1"
                     onClick={() => setOpen(false)}
                   >
                     {t("changeEmail.cancel")}
@@ -215,14 +214,13 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
                   <PendingButton
                     type="submit"
                     size="lg"
-                    className="h-12 w-full rounded-lg md:flex-1"
                     isPending={request.isPending}
                   >
                     {request.isPending
                       ? t("state.saving", { ns: "common" })
                       : t("changeEmail.submit")}
                   </PendingButton>
-                </div>
+                </DialogFooter>
               </form>
             </Form>
           )}

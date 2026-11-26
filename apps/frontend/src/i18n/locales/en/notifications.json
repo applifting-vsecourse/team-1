@@ -10,6 +10,7 @@
     "markRead": "Mark as read",
     "new": "New",
     "open": "Application detail",
+    "openPost": "Open post",
     "read": "Read"
   },
   "note": {
@@ -35,6 +36,7 @@
   },
   "title": {
     "APPLICATION_EDITED": "The applicant edited an application",
+    "BOARD_POST_PUBLISHED": "New post on the board",
     "CANCELLED": "Your cancellation is confirmed",
     "CANCELLED_BY_ORGANIZER": "The organizer cancelled the application",
     "CONFIRMED": "Application confirmed",
