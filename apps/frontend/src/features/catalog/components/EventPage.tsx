@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Link } from "@tanstack/react-router"
 import { MapPin } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -10,14 +11,22 @@ import { BackLink } from "@/components/molecules/BackLink"
 import { TermLabel } from "@/components/molecules/TermLabel"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { COMPACT_LIMITS, compactList, SINGLE_COLUMN_TERMS } from "@/lib/compact-list"
+import { cn } from "@/lib/utils"
 
 import { catalogEventPhotoUrl, type CatalogEventDetail } from "@/features/catalog/api/catalog"
 
+// Figma v2 #732 event with 12 / 100 terms: https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27413-17449 (mobile 27413-17719; 100 terms 27413-17584 / 27413-17826)
 // Figma v2: US-22 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20188-6594 (mobile 20188-6692).
 export function EventPage({ event }: { event: CatalogEventDetail }) {
   const { t } = useTranslation("catalog")
   const paragraphs = event.description?.split(/\n{2,}/).filter(Boolean) ?? []
   const hasContact = Boolean(event.contactEmail) || Boolean(event.contactPhone)
+  // Up to three terms the card stays in the right column; more terms get the full width (#732).
+  const isWide = event.terms.length > SINGLE_COLUMN_TERMS
+  const [isExpanded, setIsExpanded] = useState(false)
+  const { visible, hiddenCount } = compactList(event.terms, COMPACT_LIMITS.eventPage)
+  const shownTerms = isWide && !isExpanded ? visible : event.terms
 
   return (
     <article className="flex flex-col gap-6">
@@ -38,7 +47,9 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
         />
       </header>
       <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)]">
-        <div className="flex min-w-0 flex-col gap-6">
+        <div
+          className={cn("flex min-w-0 flex-col gap-6", isWide && "md:col-start-1 md:row-start-1")}
+        >
           {event.hasPhoto ? (
             <img
               src={catalogEventPhotoUrl(event.publicToken)}
@@ -70,11 +81,18 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
             {t(event.terms.length === 2 ? "event.applicationHintTwo" : "event.applicationHint")}
           </p>
         </div>
-        <div className="flex min-w-0 flex-col gap-6">
-          <Card className="gap-4 rounded-xl border-0 p-4 shadow-none">
+        <div className={cn("flex min-w-0 flex-col gap-6", isWide && "contents")}>
+          <Card
+            className={cn(
+              "gap-4 rounded-xl border-0 p-4 shadow-none",
+              isWide && "relative md:col-span-2 md:row-start-2",
+            )}
+          >
             <h2 className="text-xl font-semibold md:text-2xl">{t("event.terms")}</h2>
-            <ul className="flex flex-col gap-5">
-              {event.terms.map((term) => (
+            <ul
+              className={isWide ? "grid grid-cols-2 gap-4 md:grid-cols-3" : "flex flex-col gap-5"}
+            >
+              {shownTerms.map((term) => (
                 <li
                   key={term.id}
                   className="flex flex-col items-start gap-1"
@@ -90,10 +108,24 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
                 </li>
               ))}
             </ul>
+            {isWide && hiddenCount > 0 ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full md:w-fit"
+                aria-expanded={isExpanded}
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                {isExpanded
+                  ? t("event.showFewerTerms")
+                  : t("event.showMoreTerms", { count: hiddenCount })}
+              </Button>
+            ) : null}
             <p className="text-sm">{t("event.priceNote")}</p>
             <Button
               asChild
-              className="w-full"
+              className={cn("w-full", isWide && "md:absolute md:top-4 md:right-4 md:w-auto")}
             >
               <Link
                 to={ROUTES.applicationForm}
@@ -104,7 +136,12 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
             </Button>
           </Card>
           {hasContact ? (
-            <Card className="gap-3 rounded-xl p-4 shadow-none">
+            <Card
+              className={cn(
+                "gap-3 rounded-xl p-4 shadow-none",
+                isWide && "md:col-start-2 md:row-start-1",
+              )}
+            >
               <h2 className="text-xl font-semibold md:text-2xl">{t("event.contact")}</h2>
               <p className="text-lg font-semibold">{event.organizationName}</p>
               {event.contactEmail ? (

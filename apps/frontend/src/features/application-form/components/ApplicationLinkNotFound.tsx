@@ -7,6 +7,7 @@ import { SystemStatusLayout } from "@/components/templates/SystemStatusLayout"
 import { Button } from "@/components/ui/button"
 
 // Figma: Veřejná stránka nedostupná · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15399-10068
+// Figma (Design system v2): #738 Varianta B · Srozumitelnější 404 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27413-18070 (mobile 27413-18128)
 export function ApplicationLinkNotFound() {
   const { t } = useTranslation("applicationForm")
   return (

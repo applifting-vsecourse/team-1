@@ -16,7 +16,11 @@ export class PublicCatalogService {
     return { organizations: organizationsOf(events), events }
   }
 
-  /** An unknown event and one without a working application link are a 404 with nothing to tell them apart. */
+  /**
+   * An unknown event and one without a working application link are the same 404 with nothing to
+   * tell them apart, whatever the reason: the system must not reveal that an event is being
+   * prepared (PO, #738; D-116).
+   */
   async getEvent(publicToken: string): Promise<CatalogEventDetail> {
     const event = await this.repository.findAccessible(publicToken)
     if (!event) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
