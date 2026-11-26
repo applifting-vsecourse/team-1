@@ -1,36 +1,11 @@
-<svg
-  preserveAspectRatio="none"
-  overflow="visible"
-  style="display: block"
-  width="308"
-  height="30"
-  viewBox="0 0 308 30"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <g
-    id="HF11 / Title motif"
-    clip-path="url(#clip0_0_39)"
-  >
-    <path
-      id="Vector"
-      d="M0 22L308 10V30H0V22Z"
-      fill="#C3ECDF"
-    />
-    <path
-      id="Vector_2"
-      d="M0 22L308 10"
-      stroke-width="2"
-      stroke="#007F72"
-    />
-  </g>
-  <defs>
-    <clipPath id="clip0_0_39">
-      <rect
-        width="308"
-        height="30"
-        fill="white"
-      />
-    </clipPath>
-  </defs>
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="308" height="30" viewBox="0 0 308 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="HF11 / Title motif" clip-path="url(#clip0_0_39)">
+<path id="Vector" d="M0 22L308 10V30H0V22Z" fill="#C3ECDF"/>
+<path id="Vector_2" d="M0 22L308 10" stroke-width="2" stroke="#007F72"/>
+</g>
+<defs>
+<clipPath id="clip0_0_39">
+<rect width="308" height="30" fill="white"/>
+</clipPath>
+</defs>
 </svg>

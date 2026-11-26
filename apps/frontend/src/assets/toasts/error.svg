@@ -1,49 +1,12 @@
-<svg
-  preserveAspectRatio="none"
-  overflow="visible"
-  style="display: block"
-  width="20"
-  height="20"
-  viewBox="0 0 20 20"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <g
-    id="Frame"
-    clip-path="url(#clip0_0_32)"
-  >
-    <path
-      id="Vector"
-      d="M12.5 7.5L7.5 12.5"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke="#B34640"
-    />
-    <path
-      id="Vector_2"
-      d="M2.155 13.9383C1.84242 13.6258 1.66676 13.202 1.66667 12.76V7.24C1.66676 6.79801 1.84242 6.37415 2.155 6.06167L6.06167 2.155C6.37415 1.84242 6.79801 1.66676 7.24 1.66667H12.76C13.202 1.66676 13.6258 1.84242 13.9383 2.155L17.845 6.06167C18.1576 6.37415 18.3332 6.79801 18.3333 7.24V12.76C18.3332 13.202 18.1576 13.6258 17.845 13.9383L13.9383 17.845C13.6258 18.1576 13.202 18.3332 12.76 18.3333H7.24C6.79801 18.3332 6.37415 18.1576 6.06167 17.845L2.155 13.9383Z"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke="#B34640"
-    />
-    <path
-      id="Vector_3"
-      d="M7.5 7.5L12.5 12.5"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke="#B34640"
-    />
-  </g>
-  <defs>
-    <clipPath id="clip0_0_32">
-      <rect
-        width="20"
-        height="20"
-        fill="white"
-      />
-    </clipPath>
-  </defs>
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame" clip-path="url(#clip0_0_32)">
+<path id="Vector" d="M12.5 7.5L7.5 12.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#B34640"/>
+<path id="Vector_2" d="M2.155 13.9383C1.84242 13.6258 1.66676 13.202 1.66667 12.76V7.24C1.66676 6.79801 1.84242 6.37415 2.155 6.06167L6.06167 2.155C6.37415 1.84242 6.79801 1.66676 7.24 1.66667H12.76C13.202 1.66676 13.6258 1.84242 13.9383 2.155L17.845 6.06167C18.1576 6.37415 18.3332 6.79801 18.3333 7.24V12.76C18.3332 13.202 18.1576 13.6258 17.845 13.9383L13.9383 17.845C13.6258 18.1576 13.202 18.3332 12.76 18.3333H7.24C6.79801 18.3332 6.37415 18.1576 6.06167 17.845L2.155 13.9383Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#B34640"/>
+<path id="Vector_3" d="M7.5 7.5L12.5 12.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#B34640"/>
+</g>
+<defs>
+<clipPath id="clip0_0_32">
+<rect width="20" height="20" fill="white"/>
+</clipPath>
+</defs>
 </svg>
