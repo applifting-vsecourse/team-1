@@ -157,7 +157,7 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
         asChild
         variant="outline"
         size="lg"
-        className="w-full"
+        className="h-12 w-full"
       >
         <Link to={ROUTES.organizer.register}>{t("registration.correctEmail")}</Link>
       </Button>
