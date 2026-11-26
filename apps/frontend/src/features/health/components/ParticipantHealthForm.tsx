@@ -149,6 +149,8 @@ function HealthFields({
           <Link
             to={ROUTES.participant.applicationMeals}
             params={{ applicationId }}
+            hash={(hash) => (hash?.startsWith("health-") ? hash.replace(/^health-/, "meals-") : "")}
+            replace
           >
             {t("goMeals")}
           </Link>
