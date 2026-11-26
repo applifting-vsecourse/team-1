@@ -93,7 +93,11 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
   return (
     <div className={cn(CONTENT, "flex flex-col gap-6 pt-6 pb-12 md:pt-8")}>
       <header className="flex flex-col items-start gap-3">
-        {selectedOrganization ? <BackLink to={ROUTES.catalog}>{t("event.back")}</BackLink> : null}
+        {selectedOrganization ? (
+          <BackLink to={ROUTES.catalog}>{t("event.back")}</BackLink>
+        ) : (
+          <BackLink to={ROUTES.home}>{t("list.back")}</BackLink>
+        )}
         <h1 className="text-2xl font-bold tracking-tight wrap-anywhere md:text-[32px]/10">
           {selectedOrganization?.name ?? t("list.title")}
         </h1>

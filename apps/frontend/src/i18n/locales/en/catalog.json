@@ -15,6 +15,7 @@
   },
   "list": {
     "allOrganizations": "All organizations",
+    "back": "Back to home page",
     "emptyDescription": "As soon as an organization publishes events, you will find them in the catalog.",
     "emptyTitle": "No published events yet",
     "errorTitle": "The catalog couldn't be loaded",

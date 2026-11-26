@@ -103,11 +103,17 @@ beforeAll(() => {
 afterEach(() => vi.restoreAllMocks())
 
 describe("CatalogPage", () => {
-  it("has one heading and no way back to the landing page", async () => {
+  it("has one heading and a way back to the home page", async () => {
     renderPage(() => json(catalog))
 
     expect(await screen.findByRole("heading", { level: 1, name: "Event catalog" })).toBeVisible()
-    expect(screen.queryByRole("link", { name: "Back to home" })).not.toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Back to home page" })).toHaveAttribute("href", "/")
+  })
+
+  it("keeps the way back to the home page while loading", async () => {
+    renderPage(() => new Promise(() => undefined))
+
+    expect(await screen.findByRole("link", { name: "Back to home page" })).toBeInTheDocument()
   })
 
   it("lists the events as cards with the summary of the terms, the place and the price", async () => {

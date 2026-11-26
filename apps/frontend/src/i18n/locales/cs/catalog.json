@@ -15,6 +15,7 @@
   },
   "list": {
     "allOrganizations": "Všechny organizace",
+    "back": "Zpět na úvodní stránku",
     "emptyDescription": "Jakmile organizace zveřejní akce, najdete je v katalogu.",
     "emptyTitle": "Zatím žádné zveřejněné akce",
     "errorTitle": "Katalog se nepodařilo načíst",
