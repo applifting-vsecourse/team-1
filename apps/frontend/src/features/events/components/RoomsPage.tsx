@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { BedSingle, Pencil, Trash2 } from "lucide-react"
+import { BedSingle, ChevronsDownUp, ChevronsUpDown, Pencil, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -207,6 +207,7 @@ export function RoomsPage({
               setBeds({ key: bedsKey, openIds: new Set(isAnyBedListOpen ? [] : roomIds) })
             }
           >
+            {isAnyBedListOpen ? <ChevronsDownUp aria-hidden /> : <ChevronsUpDown aria-hidden />}
             {t(isAnyBedListOpen ? "roomOverview.collapseAll" : "roomOverview.expandAll")}
           </Button>
         ) : null}
