@@ -493,6 +493,12 @@
   }
 }
 
+/* Below lg the price of the application form is a bar fixed to the bottom of the screen
+   (Figma 27443:16659); the end of the page, footer included, stays above its collapsed height. */
+body:has([data-price-bar]) {
+  padding-bottom: calc(var(--spacing) * 20);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .copy-confirmation {
     position: absolute;

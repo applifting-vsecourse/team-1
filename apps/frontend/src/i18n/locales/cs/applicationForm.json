@@ -3,30 +3,28 @@
     "account": {
       "existingAccount": "Účet pro {{email}} už máte. Přihlášku jsme k němu přiřadili a v e-mailu poslali odkaz na přihlášení. Nové heslo neposíláme.",
       "existingAccountAction": "Přihlásit se k přihlášce",
-      "firstAccessText": "Otevřete odkaz z e-mailu a nastavte si heslo. Odkaz platí 7 dní.",
-      "firstAccessTitle": "První přístup k účtu",
-      "newAccount": "Účet jsme vytvořili automaticky. Odkaz pro první přístup najdete v e-mailu. Přihlášku bylo možné odeslat bez registrace.",
+      "newAccount": "Vytvořili jsme vám účet – odkaz pro první přihlášení najdete v e-mailu, platí 7 dní.",
       "newAccountAction": "Přejít na přihlášení",
-      "noEmail": "E-mail nepřišel? Zkontrolujte také spam a hromadné zprávy.",
+      "noEmail": "E-mail nepřišel? Zkontrolujte spam.",
       "setPassword": "Nastavit heslo",
       "title": "Jak se k přihlášce vrátíte",
       "viewApplication": "Zobrazit přihlášku",
       "viewApplications": "Zobrazit přihlášky"
     },
-    "applicationCode": "Přihláška č. {{code}}",
-    "doNotPayYet": "Nyní neplaťte",
-    "payment": {
-      "account": "Bankovní účet organizace",
-      "note": "Uhraďte částku za potvrzené termíny pod uvedeným variabilním symbolem.",
-      "payEachItem": "{{name}} {{amount}} / VS {{variableSymbol}}",
-      "payEachSeparately": "Každou přihlášku uhraďte zvlášť: {{list}}.",
-      "title": "Platba za potvrzené termíny",
-      "total": "K úhradě celkem",
-      "variableSymbol": "Variabilní symbol",
-      "variableSymbolOf": "{{name}} · {{amount}} · variabilní symbol"
+    "state": {
+      "confirmed": {
+        "text": "Zaplaťte částku k úhradě podle platebních údajů níže.",
+        "title": "Účast je potvrzená"
+      },
+      "toEvaluate": {
+        "text": "Až organizátor rozhodne, pošleme vám výsledek e-mailem – do té doby nic neplaťte.",
+        "title": "Čeká na vyhodnocení"
+      },
+      "waitlisted": {
+        "text": "Pokud účast potvrdíme, pošleme vám e-mail – do té doby za ni nic neplaťte.",
+        "title": "Zařazeno mezi náhradníky"
+      }
     },
-    "pricePerConfirmedTerm": "{{price}} za potvrzený termín",
-    "sentTo": "Potvrzení a stav termínů jsme poslali na {{email}}.",
     "status": {
       "archived": "Archivováno",
       "cancelled": "Zrušeno",
@@ -34,32 +32,32 @@
       "toEvaluate": "Čeká na vyhodnocení",
       "waitlisted": "Náhradník"
     },
-    "subtitleToEvaluate": "{{event}} · účast ještě není potvrzená",
-    "title": "Přihlášku jsme přijali",
-    "toEvaluate": {
-      "alertText": "Organizátor posoudí každý termín zvlášť. Výsledek dostanete e-mailem a najdete ho v sekci Moje přihlášky. Zatím nic neplaťte.",
-      "alertTitle": "Co bude následovat",
-      "note": "O účasti v tomto termínu rozhodne organizátor."
+    "sticker": "Potvrzeno",
+    "subtitle": "{{event}} · potvrzení jsme poslali na {{email}}",
+    "summary": {
+      "amountDue": "Částka k úhradě",
+      "bankAccount": "Bankovní účet",
+      "participant": "Účastník",
+      "participantValue": "{{name}} · přihláška č. {{code}}",
+      "qr": "QR platba",
+      "term": "Termín",
+      "variableSymbol": "Variabilní symbol"
     },
-    "waitlist": {
-      "description": "Ve všech vybraných termínech jste náhradník. Platební údaje dostanete až po potvrzení místa.",
-      "title": "Zatím nic neplaťte"
-    }
+    "title": "Přihlášku jsme přijali"
   },
   "form": {
-    "accommodationRequest": "Poznámka pro organizátora",
-    "accommodationRequestHint": "Napište, co by vám vyhovovalo. Důvody uvádět nemusíte.",
+    "accommodationRequest": "Poznámka pro organizátora (nepovinné)",
     "addParticipant": "Přidat dalšího účastníka",
     "birthDate": "Datum narození *",
-    "clear": "Smazat",
+    "clear": "Začít znovu",
     "clearCancel": "Ponechat",
-    "clearConfirm": "Smazat formulář",
-    "clearDescription": "Vše, co jste vyplnili, včetně všech účastníků a vybraných termínů, bude odstraněno. Tuto akci nelze vrátit zpět.",
-    "clearTitle": "Smazat vyplněné údaje?",
+    "clearConfirm": "Začít znovu",
+    "clearDescription": "Smažou se všichni účastníci i vybrané termíny. Nelze vrátit zpět.",
+    "clearTitle": "Začít znovu?",
     "consent": "Souhlasím se zpracováním osobních údajů pro účely přihlášky. *",
     "contactHeading": "Kontakt pro celou přihlášku",
+    "draftSaved": "Koncept uložen",
     "email": "Kontaktní e-mail *",
-    "emailHint": "Na tento e-mail pošleme potvrzení a přístup k přihláškám.",
     "errorSummary": {
       "description": "Opravte označená pole. Podrobnosti jsou u jednotlivých polí.",
       "goToFirst": "Přejít k první chybě",
@@ -90,17 +88,13 @@
     "genderPlaceholder": "Vyberte pohlaví",
     "heading": "Přihláška na {{event}}",
     "individualAccommodation": "Chci individuální ubytování",
-    "individualAccommodationFriends": "Přání bydlet s kamarády zadáte později v Moje přihláška.",
     "individualAccommodationHint": "Pokud vám dělení pokojů podle pohlaví nevyhovuje. Uvidí to jen organizátoři.",
-    "intro": "Přihlášku vyplníte bez registrace. Pro každého účastníka můžete vybrat jeden nebo více termínů.",
     "lastName": "Příjmení *",
     "participantTitle": "Účastník {{number}}",
     "participantTitleNamed": "Účastník {{number}} · {{name}}",
     "removeParticipantAria": "Odebrat účastníka {{number}}",
-    "requiredNote": "* Povinná pole",
     "submit": "Odeslat přihlášku",
     "submitting": "Odesílání…",
-    "submittingHint": "Přihlášku odesíláme. Vyčkejte na potvrzení.",
     "terms": "Vyberte alespoň jeden termín *",
     "title": "Přihláška"
   },
@@ -112,23 +106,13 @@
   "price": {
     "heading": "Cena vybraných termínů",
     "noTerms": "Bez termínu",
-    "note": "K úhradě budou jen termíny, ve kterých bude účast potvrzená.",
-    "participants_few": "{{count}} účastníci",
-    "participants_many": "{{count}} účastníků",
-    "participants_one": "{{count}} účastník",
-    "participants_other": "{{count}} účastníků",
-    "terms_few": "{{count}} termíny",
-    "terms_many": "{{count}} termínů",
-    "terms_one": "{{count}} termín",
-    "terms_other": "{{count}} termínů",
     "total": "Celkem"
   },
   "review": {
     "accommodation": "Ubytování",
-    "agreed": "Souhlas potvrzený",
     "backToEditing": "Zpět k úpravám",
     "birthGender": "Datum narození a pohlaví",
-    "consent": "Souhlas",
+    "consentGiven": "Souhlasíte se zpracováním osobních údajů.",
     "contact": "Kontakt přihlašovatele",
     "continue": "Pokračovat na kontrolu",
     "detailsStep": "1. Údaje",
@@ -136,7 +120,6 @@
     "editDetails": "Upravit údaje",
     "email": "Potvrzení a přístup pošleme na",
     "individual": "Individuální řešení",
-    "intro": "Zkontrolujte účastníky, termíny a cenu. Před odesláním můžete údaje upravit.",
     "removed": "Účastník {{number}} byl odebrán z přihlášky.",
     "removedFemale": "{{name}} byla odebrána z přihlášky.",
     "removedMale": "{{name}} byl odebrán z přihlášky.",

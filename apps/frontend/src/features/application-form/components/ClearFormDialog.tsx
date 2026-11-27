@@ -10,7 +10,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 
-// Confirmation before the applicant's entries are thrown away (US-179). Not in Figma yet.
+// Confirmation before the applicant's entries are thrown away (US-179): „Začít znovu“ asks first
+// (Google Forms „Clear form“). The dialog itself is not drawn in Figma; the button is 27443-16693.
 export function ClearFormDialog({
   isOpen,
   onOpenChange,

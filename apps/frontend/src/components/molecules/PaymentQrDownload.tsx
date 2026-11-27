@@ -8,13 +8,18 @@ import { Button } from "@/components/ui/button"
 import { usePaymentQr } from "@/hooks/usePaymentQr"
 
 // Figma: #259 · Chyba stažení QR · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=22515-10865
+// `inline` (a summary row after sending the application, 27439-16621): a small code next to the
+// button from `sm`, below it only the button.
 export function PaymentQrDownload({
   spayd,
   variableSymbol,
+  layout = "stacked",
 }: {
   spayd: string | null
   variableSymbol: string
+  layout?: "stacked" | "inline"
 }) {
+  const isInline = layout === "inline"
   const { t } = useTranslation("common")
   const image = usePaymentQr(spayd)
   const [isSaving, setSaving] = useState(false)
@@ -35,13 +40,19 @@ export function PaymentQrDownload({
     }
   }
   return (
-    <div className="flex min-w-0 flex-col items-center gap-2">
+    <div
+      className={
+        isInline
+          ? "flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2"
+          : "flex min-w-0 flex-col items-center gap-2"
+      }
+    >
       {image && (
         <img
           src={image}
           width={200}
           height={200}
-          className="size-40"
+          className={isInline ? "hidden size-28 sm:block" : "size-40"}
           alt={t("termPayment.summaryQrAlt")}
         />
       )}
