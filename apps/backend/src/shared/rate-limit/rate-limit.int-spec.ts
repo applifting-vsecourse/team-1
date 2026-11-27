@@ -59,12 +59,17 @@ async function statuses(count: number, send: () => Promise<Response>): Promise<n
 }
 
 describe("rate limits (integration)", () => {
-  const apply = (client: string): Promise<Response> =>
-    post("/public/events/no-such-link/applications", client)
+  // Without an e-mail only the limits per IP count.
+  const apply = (client: string, email?: string): Promise<Response> =>
+    post("/public/events/no-such-link/applications", client, { email })
 
-  it("let 20 applications a minute from one address through, refuse the 21st with TOO_MANY_REQUESTS", async () => {
-    const first = await statuses(20, () => apply("203.0.113.10"))
-    const over = await apply("203.0.113.10")
+  it("let 100 applications a minute from one address through, refuse the 101st with TOO_MANY_REQUESTS", async () => {
+    // Different applicants behind one shared address, as in a school or a company (#739).
+    let applicant = 0
+    const first = await statuses(100, () =>
+      apply("203.0.113.10", `person${applicant++}@example.com`),
+    )
+    const over = await apply("203.0.113.10", "late@example.com")
 
     expect(first).not.toContain(429)
     expect(over.status).toBe(429)
@@ -76,16 +81,27 @@ describe("rate limits (integration)", () => {
   })
 
   it("count the client behind the proxy, not the proxy: another address still applies", async () => {
-    await statuses(21, () => apply("203.0.113.20"))
+    await statuses(101, () => apply("203.0.113.20"))
 
     expect((await apply("203.0.113.21")).status).not.toBe(429)
   })
 
   it("ignore an address the client writes into X-Forwarded-For itself", async () => {
-    await statuses(21, () => apply("203.0.113.30"))
+    await statuses(101, () => apply("203.0.113.30"))
 
     // Traefik appends the real client; whatever the client sent stays on the left.
     expect((await apply("198.51.100.7, 203.0.113.30")).status).toBe(429)
+  })
+
+  it("let 10 applications an hour with one e-mail through from any address, refuse the 11th", async () => {
+    let client = 0
+    const first = await statuses(10, () => apply(`198.51.100.${++client}`, "flooded@example.com"))
+    const over = await apply("198.51.100.200", " Flooded@Example.com ")
+
+    expect(first).not.toContain(429)
+    expect(over.status).toBe(429)
+    expect(await over.json()).toMatchObject({ code: "TOO_MANY_REQUESTS" })
+    expect((await apply("198.51.100.200", "other@example.com")).status).not.toBe(429)
   })
 
   it("allow 5 password sign-ins a minute, then answer 429", async () => {
@@ -123,6 +139,18 @@ describe("rate limits (integration)", () => {
     // The bypass is off on this server, so the allowed tries are answered 404.
     expect(first).toEqual([404, 404, 404])
     expect(over.status).toBe(429)
+  })
+
+  it("do not count the account e-mail of the verification bypass as an applicant", async () => {
+    let client = 0
+    const tries = await statuses(11, () =>
+      post("/email-verification-bypass", `192.0.2.${++client}`, {
+        email: "organizer@example.com",
+        password: "password1",
+      }),
+    )
+
+    expect(tries).not.toContain(429)
   })
 })
 
