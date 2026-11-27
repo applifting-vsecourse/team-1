@@ -56,7 +56,7 @@ export function ParticipantSignIn({ from }: { from?: string }) {
       <h1
         ref={headingRef}
         tabIndex={-1}
-        className="text-2xl font-bold outline-none"
+        className="text-center text-2xl font-bold outline-none"
       >
         {t("participantLogin.title")}
       </h1>

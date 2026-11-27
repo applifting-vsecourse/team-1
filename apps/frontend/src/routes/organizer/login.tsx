@@ -35,7 +35,7 @@ function OrganizerLoginPage() {
     <>
       <Seo title={t("organizerLogin.title")} />
       <AuthLayout>
-        <h1 className="text-2xl font-bold">{t("organizerLogin.title")}</h1>
+        <h1 className="text-center text-2xl font-bold">{t("organizerLogin.title")}</h1>
         <SignInWithRedirect
           from={from}
           accountType="ORGANIZER"

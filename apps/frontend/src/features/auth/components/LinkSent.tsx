@@ -51,7 +51,7 @@ export function LinkSent({ email, back }: Props) {
 
   return (
     <>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col items-center gap-4 text-center">
         <EmailSent className="h-24 w-32" />
         <h1
           ref={headingRef}

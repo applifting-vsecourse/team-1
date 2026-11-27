@@ -45,7 +45,7 @@ export function OrganizationOnboarding() {
       >
         <h1
           role="status"
-          className="text-2xl font-bold"
+          className="text-center text-2xl font-bold"
         >
           {t("registration.loading")}
         </h1>
@@ -58,7 +58,7 @@ export function OrganizationOnboarding() {
         isSignedIn
         step={null}
       >
-        <h1 className="text-2xl font-bold">{t("registration.loadFailed")}</h1>
+        <h1 className="text-center text-2xl font-bold">{t("registration.loadFailed")}</h1>
         <Button
           size="lg"
           onClick={() => {
@@ -121,7 +121,9 @@ function CreateOrganizationForm({
       step="organizationStep"
     >
       <Seo title={t("registration.createOrganizationTitle")} />
-      <h1 className="text-2xl font-bold">{t("registration.createOrganizationTitle")}</h1>
+      <h1 className="text-center text-2xl font-bold">
+        {t("registration.createOrganizationTitle")}
+      </h1>
       <form
         noValidate
         onSubmit={(event) => void submit(event)}
@@ -209,7 +211,7 @@ function OrganizationProfileForm({
       step="profileStep"
     >
       <Seo title={t("registration.profileTitle")} />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 text-center">
         <h1 className="text-2xl font-bold">{t("registration.profileTitle")}</h1>
         <p className="text-muted-foreground">{t("registration.profileIntro")}</p>
       </div>
@@ -298,8 +300,8 @@ function OrganizationReady() {
       step={null}
     >
       <Seo title={t("registration.readyTitle")} />
-      <Camp className="h-24 w-32" />
-      <h1 className="text-2xl font-bold">{t("registration.readyTitle")}</h1>
+      <Camp className="h-24 w-32 self-center" />
+      <h1 className="text-center text-2xl font-bold">{t("registration.readyTitle")}</h1>
       <Button
         asChild
         size="lg"

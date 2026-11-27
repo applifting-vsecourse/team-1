@@ -68,7 +68,7 @@ export function OrganizerRegistration() {
   return (
     <RegistrationLayout>
       <Seo title={title} />
-      <h1 className="text-2xl font-bold">{title}</h1>
+      <h1 className="text-center text-2xl font-bold">{title}</h1>
       <form
         noValidate
         onSubmit={(event) => void submit(event)}

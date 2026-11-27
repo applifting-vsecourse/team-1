@@ -80,7 +80,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
                 icon={Unlink}
                 tone="error"
               />
-              <h1 className="text-2xl font-bold">{t("magicLink.invalidTitle")}</h1>
+              <h1 className="text-center text-2xl font-bold">{t("magicLink.invalidTitle")}</h1>
               <RequestMagicLinkForm
                 submitLabel={t("magicLink.sendNew")}
                 onSent={setSentTo}
@@ -102,8 +102,8 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
             icon={WifiOff}
             tone="muted"
           />
-          <h1 className="text-2xl font-bold">{t("magicLink.interruptedTitle")}</h1>
-          <p className="text-muted-foreground">{t("magicLink.checkConnection")}</p>
+          <h1 className="text-center text-2xl font-bold">{t("magicLink.interruptedTitle")}</h1>
+          <p className="text-center text-muted-foreground">{t("magicLink.checkConnection")}</p>
           <Button
             size="lg"
             onClick={verify}
@@ -144,7 +144,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
     <>
       <Seo title={t("magicLink.title")} />
       <AuthLayout>
-        <h1 className="text-2xl font-bold">{t("magicLink.title")}</h1>
+        <h1 className="text-center text-2xl font-bold">{t("magicLink.title")}</h1>
         <Button
           size="lg"
           onClick={verify}

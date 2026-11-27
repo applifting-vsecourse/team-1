@@ -30,7 +30,7 @@ export function EmailChangeLinkInvalid() {
           icon={Unlink}
           tone="error"
         />
-        <h1 className="text-2xl font-bold">{t("emailChangeInvalid.title")}</h1>
+        <h1 className="text-center text-2xl font-bold">{t("emailChangeInvalid.title")}</h1>
         <Button
           asChild
           size="lg"

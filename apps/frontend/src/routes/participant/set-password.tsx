@@ -23,7 +23,7 @@ function SetPasswordPage() {
     <>
       <Seo title={t("setPassword.title")} />
       <AuthLayout>
-        <h1 className="text-2xl font-bold">{t("setPassword.title")}</h1>
+        <h1 className="text-center text-2xl font-bold">{t("setPassword.title")}</h1>
         <SetPasswordForm email={user?.email ?? ""} />
       </AuthLayout>
     </>
