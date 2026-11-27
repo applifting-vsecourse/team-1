@@ -25,7 +25,8 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     const terms = page
       .getByRole("group", { name: /Choose at least one term/ })
       .getByRole("checkbox")
-    const total = page.locator("p", { hasText: "Total" })
+    // A panel next to the form on a desktop, a bar at the bottom on a phone: the same region.
+    const total = page.getByRole("region", { name: "Price of selected terms" })
 
     await terms.nth(0).check()
     await expect(total).toContainText("4,500")
@@ -68,10 +69,10 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
       page.getByRole("heading", { level: 1, name: "We've received your application" }),
     ).toBeVisible()
     // US-25: the term status and where to pay.
-    await expect(page.getByText("Confirmed", { exact: true })).toBeVisible()
     await expect(
-      page.getByRole("heading", { name: "Payment for the confirmed terms" }),
+      page.getByRole("heading", { level: 2, name: "Your place is confirmed" }),
     ).toBeVisible()
+    await expect(page.getByText("Amount due", { exact: true })).toBeVisible()
     await expect(page.getByText("2900123456/2010")).toBeVisible()
 
     // The applicant has no password yet: the e-mailed link leads to setting one, then to the application.

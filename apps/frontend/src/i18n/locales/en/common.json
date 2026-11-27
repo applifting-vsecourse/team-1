@@ -35,7 +35,6 @@
   "characterCounter": "{{count}} / {{max}}",
   "clipboard": {
     "copied": "Copied to the clipboard",
-    "copiedField": "The value was copied.",
     "copyAccount": "Copy account number",
     "copyAmount": "Copy amount",
     "copyVariableSymbol": "Copy variable symbol",
