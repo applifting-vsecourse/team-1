@@ -22,6 +22,8 @@ export class EmailQueueWorker {
     private readonly email: EmailService,
     private readonly render: EmailJobRenderer,
     private readonly pauseMs = SEND_PAUSE_MS,
+    /** Whether a newer change overtook what the message announces. */
+    private readonly isOutdated: (job: ClaimedEmailJob) => Promise<boolean> = async () => false,
   ) {}
 
   /** Works until nothing is due. */
@@ -46,6 +48,15 @@ export class EmailQueueWorker {
 
     let content = job.content
     try {
+      if (await this.isOutdated(job)) {
+        await this.jobs.giveUp(
+          job.id,
+          mayHaveBeenSent ? "UNCERTAIN" : "FAILED",
+          "Outdated: a newer change overtook the message",
+        )
+        this.logger.warn(`Not sending an outdated e-mail to ${job.recipient}`)
+        return
+      }
       if (!content) {
         content = await this.render(job)
         await this.jobs.saveContent(job.id, content)

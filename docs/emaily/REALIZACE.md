@@ -11,6 +11,7 @@ Aktuální mapu rámců E01–E20, šablon a odesílatelů uvádí [katalog](KAT
 - Úloha v tabulce `email_job` vzniká v transakci se změnou (`TermStatusRepository.changeStatus` a `cancelTerm`, `PaymentsRepository.record` u importu z banky). Klíč `dedupeKey` je jedinečný pro událost a zprávu a slouží i jako idempotenční klíč pro Resend.
 - Odesílá `QueuedEmailDispatcher` hned po akci a každých `EMAIL_QUEUE_INTERVAL_MS` (výchozí 30 s), jednu zprávu po druhé.
 - Nejvýš 5 pokusů (po 1 min, 15 min, 2 h a 12 h). Stav `FAILED` = jistě nedoručeno, `UNCERTAIN` = mohlo být doručeno, proto se neopakuje. Po odeslání se z úlohy mažou data i obsah zprávy; u nedoručených zůstávají.
+- Zprávu, kterou mezitím překonala novější změna (jiný stav v termínu, zrušená nebo vrácená platba), worker neodešle a zapíše k úloze důvod (`QueuedEmailRepository.isOutdated`). Oznámení o zrušeném termínu se posílá vždy.
 - Jednotlivé akce, potvrzení po podání přihlášky a e-maily k účtu se odesílají hned jako dřív.
 - Nedoručené e-maily jsou vidět jen v databázi a v logu serveru.
 

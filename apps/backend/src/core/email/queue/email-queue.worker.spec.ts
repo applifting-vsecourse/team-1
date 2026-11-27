@@ -172,4 +172,20 @@ describe("EmailQueueWorker", () => {
     expect(sendEmail).not.toHaveBeenCalled()
     expect(jobs.rows[0]).toMatchObject({ status: "PENDING", error: "broken data" })
   })
+
+  it("does not send a message a newer change has overtaken (#737)", async () => {
+    jest.spyOn(Logger.prototype, "warn").mockImplementation(() => undefined)
+    const jobs = new FakeJobs(["a@example.com", "b@example.com"])
+    const email = { isIdempotent: true, sendEmail } as EmailService
+
+    await new EmailQueueWorker(jobs, email, render, 0, async (job) => job.id === "job-0").drain(
+      () => START,
+    )
+
+    expect(recipients()).toEqual(["b@example.com"])
+    expect(jobs.rows[0]).toMatchObject({
+      status: "FAILED",
+      error: expect.stringContaining("Outdated"),
+    })
+  })
 })

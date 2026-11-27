@@ -4,6 +4,11 @@ import { EmailService } from "@/core/email/interfaces/email-service.interface"
 import { EmailQueueWorker } from "@/core/email/queue/email-queue.worker"
 import { LEASE_MS, PrismaEmailJobRepository } from "@/core/email/queue/prisma-email-job.repository"
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
+import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
+import { QueuedEmail } from "@/modules/participants/domain/queued-email"
+import { QueuedEmailRepository } from "@/modules/participants/repositories/queued-email.repository"
+import { PaymentsRepository } from "@/modules/payments/repositories/payments.repository"
 import {
   allEmailsTo,
   api,
@@ -227,6 +232,103 @@ describe("e-mail queue (integration)", () => {
 
       expect(email.sent).toEqual([])
       expect((await jobsOf([application]))[0].status).toBe("UNCERTAIN")
+    })
+  })
+
+  describe("a message overtaken by a newer change", () => {
+    // The real repositories in this process: the server does not look at the queue by itself.
+    const jobs = () => new PrismaEmailJobRepository(prisma)
+    const statuses = () =>
+      new TermStatusRepository(prisma, new NotificationsRepository(prisma), jobs())
+    const payments = () =>
+      new PaymentsRepository(prisma, new NotificationsRepository(prisma), jobs())
+    const drain = async () => {
+      const sent: string[] = []
+      const outdated = new QueuedEmailRepository(prisma)
+      await new EmailQueueWorker(
+        jobs(),
+        { sendEmail: async (_to, subject) => void sent.push(subject) },
+        async (job) => ({ subject: (job.payload as QueuedEmail).template, html: "" }),
+        0,
+        (job) => outdated.isOutdated(job.payload as QueuedEmail),
+      ).drain()
+      return sent
+    }
+    let actorId: string
+    const change = (applicationId: string, to: "CONFIRMED" | "CANCELLED") =>
+      statuses().changeStatus(
+        {
+          organizationId,
+          applicationId,
+          termId,
+          to,
+          actorId,
+          isOverCapacityConfirmed: false,
+          isEmailQueued: true,
+        },
+        () => undefined,
+      )
+    let freshTerm = 1
+
+    beforeAll(async () => {
+      actorId = (
+        await prisma.user.findUniqueOrThrow({ where: { email: "organizator@example.com" } })
+      ).id
+    })
+    // The earlier tests cancelled the term.
+    beforeEach(async () => {
+      await prisma.emailJob.deleteMany()
+      const term = await prisma.term.create({
+        data: {
+          organizationId,
+          eventId,
+          number: ++freshTerm,
+          startsOn: new Date("2027-08-01"),
+          endsOn: new Date("2027-08-08"),
+          priceCzk: 1000,
+        },
+      })
+      termId = term.id
+    })
+
+    it("sends only the newest status of the application", async () => {
+      const [application] = await addApplications(1)
+      await change(application.id, "CONFIRMED")
+      await change(application.id, "CANCELLED")
+
+      expect(await drain()).toHaveLength(1)
+
+      const [confirmation, cancellation] = await jobsOf([application])
+      expect(confirmation).toMatchObject({ status: "FAILED" })
+      expect(confirmation.lastError).toContain("Outdated")
+      expect(cancellation.status).toBe("SENT")
+    })
+
+    it.each([
+      ["sends the confirmation of a payment that still stands", false, "SENT"],
+      ["drops the confirmation of a payment cancelled meanwhile", true, "FAILED"],
+    ])("%s", async (_name, isRemoved, status) => {
+      const [application] = await addApplications(1)
+      await prisma.applicationTerm.updateMany({
+        where: { applicationId: application.id },
+        data: { status: "CONFIRMED" },
+      })
+      const receiptId = `queue-receipt-${application.id}`
+      await payments().record({
+        applicationId: application.id,
+        organizationId,
+        recordedById: actorId,
+        requestId: receiptId,
+        source: "BANK_IMPORT",
+      })
+      if (isRemoved) await payments().remove(application.id, organizationId, receiptId)
+
+      await drain()
+
+      expect((await jobsOf([application]))[0]).toMatchObject({
+        template: "PAYMENT_RECEIVED",
+        status,
+      })
     })
   })
 })

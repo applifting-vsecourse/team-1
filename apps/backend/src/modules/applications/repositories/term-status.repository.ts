@@ -1097,7 +1097,11 @@ export class TermStatusRepository {
               applicationId: application.id,
             },
             `status-change:${change.id}`,
-            { template: "APPLICATION_CHANGE", data: statusChangeEmail(result, command.actorId) },
+            {
+              template: "APPLICATION_CHANGE",
+              data: statusChangeEmail(result, command.actorId),
+              basis: { statusChangeId: change.id },
+            },
           ),
         ])
       }

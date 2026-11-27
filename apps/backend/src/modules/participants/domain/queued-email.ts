@@ -11,23 +11,35 @@ export type PaymentReceivedMessage = { email: string; accessToken: string } & Om
   "confirmationUrl"
 >
 
-/** The e-mails a bulk action puts in the queue instead of sending them in the request (#737). */
+/**
+ * The e-mails a bulk action puts in the queue instead of sending them in the request (#737).
+ * `basis` is what the message announces: when it no longer holds, the message is not sent.
+ */
 export type QueuedEmail =
-  | { template: "APPLICATION_CHANGE"; data: ApplicationChange }
+  | {
+      template: "APPLICATION_CHANGE"
+      data: ApplicationChange
+      basis: { statusChangeId: string }
+    }
   | { template: "TERM_CANCELLED"; data: TermCancelledNotice }
-  | { template: "PAYMENT_RECEIVED"; data: PaymentReceivedMessage }
+  | {
+      template: "PAYMENT_RECEIVED"
+      data: PaymentReceivedMessage
+      /** `settledTermIds` are application terms. */
+      basis: { receiptId: string; settledTermIds: string[] }
+    }
 
 export function queuedEmailJob(
   about: { organizationId: string; eventId: string; applicationId: string },
   dedupeKey: string,
-  email: QueuedEmail,
+  { template, ...payload }: QueuedEmail,
 ): NewEmailJob {
   return {
     ...about,
     dedupeKey,
-    template: email.template,
-    recipient: email.data.email,
-    locale: email.data.locale,
-    data: email.data,
+    template,
+    recipient: payload.data.email,
+    locale: payload.data.locale,
+    data: payload,
   }
 }

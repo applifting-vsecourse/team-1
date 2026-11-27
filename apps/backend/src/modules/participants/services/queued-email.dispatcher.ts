@@ -1,7 +1,9 @@
 import { EmailService } from "@/core/email/interfaces/email-service.interface"
+import { ClaimedEmailJob } from "@/core/email/queue/email-job.repository"
 import { EmailQueueWorker } from "@/core/email/queue/email-queue.worker"
 import { PrismaEmailJobRepository } from "@/core/email/queue/prisma-email-job.repository"
 import { QueuedEmail } from "@/modules/participants/domain/queued-email"
+import { QueuedEmailRepository } from "@/modules/participants/repositories/queued-email.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
 import { Config } from "@/shared/config/config.service"
 import {
@@ -29,11 +31,17 @@ export class QueuedEmailDispatcher implements OnApplicationBootstrap, OnApplicat
     @Inject("EmailService") email: EmailService,
     jobs: PrismaEmailJobRepository,
     mailer: ApplicationConfirmationMailer,
+    outdated: QueuedEmailRepository,
     private readonly config: Config,
   ) {
     // The payload was written by `queuedEmailJob`.
-    this.worker = new EmailQueueWorker(jobs, email, (job) =>
-      mailer.renderQueued(job.payload as QueuedEmail),
+    const read = (job: ClaimedEmailJob) => job.payload as QueuedEmail
+    this.worker = new EmailQueueWorker(
+      jobs,
+      email,
+      (job) => mailer.renderQueued(read(job)),
+      undefined,
+      (job) => outdated.isOutdated(read(job)),
     )
   }
 

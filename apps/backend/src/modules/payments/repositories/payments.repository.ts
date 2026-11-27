@@ -211,12 +211,20 @@ export class PaymentsRepository {
       where: { id: applicationId },
       select: { eventId: true },
     })
+    const covered = await tx.applicationTerm.findMany({
+      where: { applicationId, status: "CONFIRMED", payments: { some: { receiptId: requestId } } },
+      include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
+    })
+    const settledTermIds = covered
+      .filter((term) => computeTermOwed(term, term.payments) === 0)
+      .map((term) => term.id)
     // Hashed: a receipt id of a bank row can be longer than a provider's idempotency key.
     const receipt = createHash("sha256").update(`${applicationId}:${requestId}`).digest("hex")
     await this.emailJobs.enqueue(tx, [
       queuedEmailJob({ organizationId, eventId, applicationId }, `payment-received:${receipt}`, {
         template: "PAYMENT_RECEIVED",
         data: paymentReceivedMessage(context, paid),
+        basis: { receiptId: requestId, settledTermIds },
       }),
     ])
   }

@@ -14,6 +14,7 @@ import { ApplicationEditRepository } from "./repositories/application-edit.repos
 import { ArrangementsRepository } from "./repositories/arrangements.repository"
 import { MyApplicationsRepository } from "./repositories/my-applications.repository"
 import { ParticipantAccountsRepository } from "./repositories/participant-accounts.repository"
+import { QueuedEmailRepository } from "./repositories/queued-email.repository"
 import { RoomWishesRepository } from "./repositories/room-wishes.repository"
 import { StayRepository } from "./repositories/stay.repository"
 import { ApplicationConfirmationMailer } from "./services/application-confirmation-mailer.service"
@@ -52,6 +53,7 @@ import { StayService } from "./services/stay.service"
     ParticipantAccountsRepository,
     ApplicationConfirmationMailer,
     QueuedEmailDispatcher,
+    QueuedEmailRepository,
     RoomWishesService,
     RoomWishesRepository,
     StayService,

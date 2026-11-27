@@ -52,7 +52,8 @@ export class PrismaEmailJobRepository extends EmailJobRepository {
         id: next.id,
         dedupeKey: next.dedupeKey,
         recipient: next.recipient,
-        payload: { template: next.template, data: next.payload },
+        // `enqueue` stored an object; the template has a column of its own.
+        payload: { ...(next.payload as Prisma.JsonObject), template: next.template },
         content:
           next.subject !== null && next.html !== null
             ? { subject: next.subject, html: next.html }
