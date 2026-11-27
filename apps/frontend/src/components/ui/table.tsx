@@ -18,13 +18,14 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
 }
 
 // Brand look A (specimen, Řádek tabulky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27538-3898):
-// the header ends with an ink line, rows are divided by hairlines and stay flat — hover is a surface
-// change only (calm organizer layer), a selected row is `accent`. The edge around belongs to the container.
+// inner structure, so the header line and the rows are grey hairlines (never ink inside ink); rows stay
+// flat — hover is a surface change only (calm organizer layer), a selected row is `accent`. The ink edge
+// around belongs to the container.
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b [&_tr]:border-border-strong", className)}
+      className={cn("[&_tr]:border-b", className)}
       {...props}
     />
   )

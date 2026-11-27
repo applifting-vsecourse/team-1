@@ -3,13 +3,14 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 // Brand look A (specimen, Karta · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27536-3708):
-// an ink edge and no shadow; only a clickable card lifts (CardLink).
+// an outer card on the canvas has an ink edge, r12 and no shadow; only a clickable card lifts (CardLink).
+// A card nested in a card or a dialog is inner structure and keeps the grey hairline: never ink inside ink.
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "flex flex-col gap-6 rounded-lg border border-border-strong bg-card py-6 text-card-foreground",
+        "flex flex-col gap-6 rounded-lg border border-border-strong bg-card py-6 text-card-foreground in-data-[slot=card]:border-border in-data-[slot=dialog-content]:border-border",
         className,
       )}
       {...props}
