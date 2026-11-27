@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
 import { summaryPaymentSpayd } from "@/lib/payment-qr"
-import { termName } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
@@ -228,7 +227,6 @@ function ApplicationSummary({
               aside={<Badge variant={badge.variant}>{t(badge.label)}</Badge>}
             >
               {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-              {termName(term) ? <span className="sr-only"> · {termName(term)}</span> : null}
             </SummaryRow>
           )
         })}
@@ -290,7 +288,7 @@ function SummaryRow({
   children,
 }: {
   label: string
-  /** The next term under the first one: the label is read, not shown. */
+  /** The next term under the first one: the label is read, not shown; the value keeps its column. */
   isLabelHidden?: boolean
   /** A state badge or the copy action at the end of the row. */
   aside?: ReactNode
@@ -306,7 +304,13 @@ function SummaryRow({
       >
         {label}
       </dt>
-      <dd className="flex min-h-8 w-full min-w-0 items-center gap-3">
+      <dd
+        className={cn(
+          "flex min-h-8 w-full min-w-0 items-center gap-3",
+          // w-44 of the label + gap-4
+          isLabelHidden && "sm:pl-48",
+        )}
+      >
         <span className="min-w-0 flex-1 break-words">{children}</span>
         {aside}
       </dd>
