@@ -11,7 +11,8 @@ type NotificationBellProps = {
 
 /**
  * The header entry to the notifications: a bell and the number of unread ones. Shared by the
- * areas; the organizer's bell (US-86) reuses it.
+ * areas; the organizer's bell (US-86) reuses it. The count is system B „this is yours“: orange
+ * with the number in ink, no edge.
  */
 // Figma (Design system): US-118 / Moje přihlášky · Panel: Upozornění · 3 nepřečtená upozornění / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16047-1567
 export function NotificationBell({ unreadCount, onClick }: NotificationBellProps) {
@@ -35,7 +36,7 @@ export function NotificationBell({ unreadCount, onClick }: NotificationBellProps
       {unreadCount > 0 ? (
         <span
           aria-hidden="true"
-          className="absolute top-0 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground md:static"
+          className="absolute top-0 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-warm px-1.5 text-xs font-semibold text-brand-warm-foreground md:static"
         >
           {unreadCount}
         </span>

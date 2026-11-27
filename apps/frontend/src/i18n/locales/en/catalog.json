@@ -28,6 +28,7 @@
     "eventCount_many": "{{count}} events",
     "eventCount_one": "{{count}} event",
     "eventCount_other": "{{count}} events",
+    "firstTermStart": "First term starts {{date}}",
     "loading": "Loading events…",
     "organization": "Organization",
     "retry": "Try again",

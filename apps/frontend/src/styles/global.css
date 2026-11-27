@@ -69,12 +69,13 @@
   --color-tooltip-foreground: #e9f6f0;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-nav-active: var(--nav-active);
+  --color-nav-indicator: var(--nav-indicator);
   --color-sidebar-border: var(--sidebar-border);
   --color-brand-warm: var(--brand-warm);
   --color-brand-warm-subtle: var(--brand-warm-subtle);
   --color-brand-warm-foreground: var(--brand-warm-foreground);
+  --color-logo-symbol: var(--logo-symbol);
   --color-sticker-edge: var(--sticker-edge);
   --color-sticker-shadow: var(--sticker-shadow);
   --color-border-strong: var(--border-strong);
@@ -167,13 +168,18 @@
   --status-waitlist-bg: #f4efff; /* color/status/waitlist-bg */
   --sidebar: #f5f9fa; /* color/bg/subtle */
   --sidebar-foreground: #031a1e; /* color/text/primary */
-  --sidebar-accent: #c3ecdf; /* color/bg/selected */
-  --sidebar-accent-foreground: #031a1e; /* color/text/primary */
   --sidebar-border: #dae3e4; /* color/border/default */
-  /* Togena / Color brand (Figma 27360:3600): warm accent is a fill only, never text. */
+  /* Active sidebar item, system B nav A (Figma 27751:33229, kit Nav item 15219:4340): a neutral
+     grey surface, ink Semi Bold text and a 4 × 24 px warm bar at the left edge. */
+  --nav-active: #e6eced; /* color/nav/active: 1.13:1 on the sidebar, ink text 15:1 */
+  --nav-indicator: #c4621f; /* color/nav/indicator → color/brand/warm-lip: 3.4:1 on nav-active */
+  /* Togena / Color brand (Figma 27360:3600), system B (2026-11-27): orange is a fill with ink content
+     that says „you are here / this is yours“, never text, a state or an action. */
   --brand-warm: #f08a3c; /* color/brand/warm */
   --brand-warm-subtle: #fde8d7; /* color/brand/warm-subtle */
   --brand-warm-foreground: #031a1e; /* color/text/on-warm */
+  /* The arcs of the logo symbol (Figma color/logo/symbol, the same as favicon.svg); the dot is brand-warm. */
+  --logo-symbol: #007f72;
   --illustration-primary: #007f72; /* color/illustration/primary */
   --illustration-subtle: #c3ecdf; /* color/illustration/subtle */
   --illustration-ink: #031a1e; /* color/illustration/ink */
@@ -249,11 +255,14 @@
   --wash: var(--secondary);
   --sidebar: #031011;
   --sidebar-foreground: #e4edee;
-  --sidebar-accent: #005f5a;
-  --sidebar-accent-foreground: #e4edee;
   --sidebar-border: #142223;
+  /* color/nav/active and color/nav/indicator, dark: against the code sidebar #031011 the surface is
+     1.72:1, text 9.4:1, the bar in brand-warm 5.4:1 (warm-lip would be 2.6:1). */
+  --nav-active: #22403f;
+  --nav-indicator: var(--brand-warm);
   --brand-warm: #f5a05f;
   --brand-warm-subtle: #3d2a1d;
+  --logo-symbol: #b4e7d3; /* color/logo/symbol, dark: the favicon's dark arcs */
   --illustration-primary: #8bdfc4;
   --illustration-subtle: #244f47;
   --illustration-ink: #e9f6f0;

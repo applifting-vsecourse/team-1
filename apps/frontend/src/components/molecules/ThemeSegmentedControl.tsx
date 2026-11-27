@@ -10,7 +10,10 @@ const MODES = [
   { value: "system", icon: Monitor },
 ] as const
 
-/** Light / dark / system as three icon segments; the chosen one has the ink edge (it is what you act on). */
+/**
+ * Light / dark / system as three icon segments. The chosen one is system B's selected segment, like
+ * `ViewToggleGroup`: orange fill, ink icon and the ink edge (it is a control you act on).
+ */
 // Figma (Design system v2): Togena / Navigation / Theme segmented control · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27609-4327
 export function ThemeSegmentedControl({ labelledBy }: { labelledBy?: string }) {
   const { t } = useTranslation()
@@ -34,7 +37,7 @@ export function ThemeSegmentedControl({ labelledBy }: { labelledBy?: string }) {
           key={value}
           value={value}
           aria-label={t(`theme.${value}`)}
-          className="h-9.5 w-10 rounded-md border border-transparent px-0 text-foreground hover:bg-muted hover:text-foreground focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring data-[state=on]:border-border-strong data-[state=on]:bg-accent"
+          className="h-9.5 w-10 rounded-md border border-transparent px-0 text-foreground hover:bg-muted hover:text-foreground focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring data-[state=on]:border-border-strong data-[state=on]:bg-brand-warm data-[state=on]:text-brand-warm-foreground"
         >
           <Icon
             aria-hidden

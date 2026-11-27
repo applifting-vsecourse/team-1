@@ -181,6 +181,27 @@ describe("ApplicationForm", () => {
     )
   })
 
+  // System B: what the applicant owes is a white ink-edged card with the 4 px orange strip, never peach.
+  it("puts the price in a white card with the orange task strip on top", () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+
+    expect(priceCard()).toHaveClass(
+      "bg-card",
+      "border-border-strong",
+      "border-t-brand-warm",
+      "overflow-hidden",
+    )
+    expect(priceCard().className).not.toMatch(/brand-warm-subtle/)
+    const strip = priceCard().querySelector('[data-slot="task-strip"]')
+    expect(strip).toHaveClass("absolute", "top-0", "h-0.75", "bg-brand-warm")
+    expect(strip).toHaveAttribute("aria-hidden", "true")
+  })
+
   it("shows a row per ticked term and updates the total with every change", async () => {
     render(
       <ApplicationForm

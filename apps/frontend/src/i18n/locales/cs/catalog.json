@@ -28,6 +28,7 @@
     "eventCount_many": "{{count}} akcí",
     "eventCount_one": "{{count}} akce",
     "eventCount_other": "{{count}} akcí",
+    "firstTermStart": "Začátek prvního termínu {{date}}",
     "loading": "Načítám akce…",
     "organization": "Organizace",
     "retry": "Zkusit znovu",

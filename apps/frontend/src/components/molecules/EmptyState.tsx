@@ -38,7 +38,7 @@ export function EmptyState({
       role={role}
       className={cn("flex flex-col items-center gap-4 py-8 text-center", className)}
     >
-      {illustration ?? <LogoSymbol className="empty-state-symbol size-14 text-primary" />}
+      {illustration ?? <LogoSymbol className="empty-state-symbol size-14 text-logo-symbol" />}
       {title ? <TitleTag className="text-2xl/8 font-bold">{title}</TitleTag> : null}
       {message ? (
         <p className={cn("text-muted-foreground", !title && "text-sm")}>{message}</p>
