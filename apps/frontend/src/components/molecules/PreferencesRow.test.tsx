@@ -1,8 +1,8 @@
-import { act, render, screen } from "@testing-library/react"
+import { act, render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, expect, it, vi } from "vitest"
 
-import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
+import { PreferencesRow } from "@/components/molecules/PreferencesRow"
 import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
 import { i18n } from "@/i18n"
 
@@ -16,15 +16,25 @@ afterEach(async () => {
 
 it("marks the current language and updates the selection when the visitor chooses another", async () => {
   const user = userEvent.setup()
-  render(<LanguageSwitcher />)
-  await user.click(screen.getByRole("button"))
+  render(<PreferencesRow />)
+  await user.click(screen.getByRole("button", { name: "Change language" }))
   expect(screen.getByRole("menuitemradio", { name: "English" })).toBeChecked()
   await user.click(screen.getByRole("menuitemradio", { name: "Čeština" }))
-  await user.click(screen.getByRole("button"))
+  await user.click(screen.getByRole("button", { name: "Změnit jazyk" }))
   expect(screen.getByRole("menuitemradio", { name: "Čeština" })).toBeChecked()
 })
 
-it("identifies system mode even when the operating system uses a light palette", async () => {
+it("shows the theme as three segments with the current one pressed, and switches on a click", async () => {
+  const user = userEvent.setup()
+  render(<PreferencesRow />)
+  const theme = screen.getByRole("radiogroup", { name: "Appearance" })
+
+  expect(within(theme).getByRole("radio", { name: "System" })).toBeChecked()
+  await user.click(within(theme).getByRole("radio", { name: "Dark" }))
+  expect(setTheme).toHaveBeenCalledWith("dark")
+})
+
+it("identifies system mode in the header theme menu even when the system palette is light", async () => {
   const user = userEvent.setup()
   render(<ThemeSwitcher />)
   const button = screen.getByRole("button")

@@ -10,7 +10,7 @@ type EmptyStateProps = {
   title?: string
   /** `h1` when the state is the whole page (a link that does not work). */
   titleAs?: "h1" | "h2"
-  /** A brand illustration from `assets/illustrations` instead of the logo symbol (public pages only). */
+  /** A brand illustration from `assets/illustrations` instead of the logo symbol (public pages and system pages only). */
   illustration?: ReactNode
   /** One action: the retry of an error, the way out of a dead end. */
   action?: ReactNode
@@ -21,7 +21,9 @@ type EmptyStateProps = {
 // Figma (Design system v2): Togena / Feedback / Empty state · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15207-1977
 // With an illustration: public catalog empty 27422:16549 / 27422:16581, error 27422:16611 / 27422:16644, link not found 27426:16460 / 27426:16493.
 // Motion M10: the symbol nudges once (120 ms); the message is readable from the start.
-// The one component for empty, error and dead-end states; organizer screens stay with the symbol.
+// The one component for empty, error and dead-end states; organizer screens stay with the symbol,
+// except the system pages (404, 403, error — `SystemPageLayout`), which keep their illustration
+// in the organizer area too (Figma 27525:7237).
 export function EmptyState({
   message,
   title,
@@ -37,7 +39,7 @@ export function EmptyState({
       className={cn("flex flex-col items-center gap-4 py-8 text-center", className)}
     >
       {illustration ?? <LogoSymbol className="empty-state-symbol size-14 text-primary" />}
-      {title ? <TitleTag className="text-2xl/8 font-bold tracking-tight">{title}</TitleTag> : null}
+      {title ? <TitleTag className="text-2xl/8 font-bold">{title}</TitleTag> : null}
       {message ? (
         <p className={cn("text-muted-foreground", !title && "text-sm")}>{message}</p>
       ) : null}

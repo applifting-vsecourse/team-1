@@ -4,7 +4,6 @@ import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
-import { PublicSignInButton } from "@/components/molecules/PublicSignInButton"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 
 import { CatalogPage } from "@/features/catalog/components/CatalogPage"
@@ -29,7 +28,8 @@ function CatalogRoute() {
       <Seo title={t("list.title")} />
       <PublicLayout
         isFullWidth
-        headerAction={<PublicSignInButton />}
+        hasFullFooter
+        headerContentClassName="max-w-275"
       >
         <CatalogPage
           organizationId={organization}
