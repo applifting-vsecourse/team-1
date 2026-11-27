@@ -284,6 +284,37 @@ describe("SubmissionStatus", () => {
     expect(screen.queryByText("123456789/0800")).not.toBeInTheDocument()
   })
 
+  // Centred like the empty, error and system pages (the user's wish); the summary stays a table.
+  it("centres the hero, the state blocks and the account block, not the summary", async () => {
+    await renderStatus(data())
+
+    const heading = screen.getByRole("heading", {
+      level: 1,
+      name: "We've received your application",
+    })
+    const hero = heading.parentElement?.parentElement
+    expect(hero).toHaveClass("items-center", "text-center")
+    expect(heading.parentElement).toHaveClass("max-w-140")
+    // The illustration sits above the heading, on a phone and on a desktop alike.
+    const sticker = document.querySelector(".sticker")
+    expect(sticker).not.toBeNull()
+    if (!sticker) return
+    expect(sticker.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(hero).not.toHaveClass("sm:flex-row")
+
+    const state = screen.getByRole("heading", { level: 2, name: "Your place is confirmed" })
+    expect(state.closest("section")).toHaveClass("items-center", "text-center")
+    const account = screen.getByRole("heading", {
+      level: 2,
+      name: "How to get back to your application",
+    })
+    expect(account.closest("section")).toHaveClass("items-center", "text-center")
+    expect(summaryOf("Jana")).not.toHaveClass("text-center")
+    expect(within(summaryOf("Jana")).getByText("Participant").parentElement).not.toHaveClass(
+      "text-center",
+    )
+  })
+
   describe("celebration", () => {
     it("assembles the camp and sticks the sticker only when a term is confirmed", async () => {
       await renderStatus(data())

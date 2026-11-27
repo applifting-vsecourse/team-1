@@ -100,16 +100,17 @@ export function SubmissionStatus({
   return (
     <div className="px-4 pt-6 pb-16 md:px-6 md:pt-12">
       <div className="mx-auto flex w-full max-w-200 flex-col gap-6">
-        <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:gap-6">
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <h1 className="text-2xl font-bold tracking-tight md:text-[32px]/10">
+        {/* Centred like the empty, error and system pages: the illustration above the heading. */}
+        <div className="flex flex-col items-center gap-4 text-center sm:gap-6">
+          <Celebration hasConfirmedTerm={hasConfirmedTerm} />
+          <div className="flex w-full max-w-140 flex-col gap-2">
+            <h1 className="text-2xl font-bold tracking-tight text-balance md:text-[32px]/10">
               {t("confirmation.title")}
             </h1>
             <p className="text-muted-foreground">
               {t("confirmation.subtitle", { event: data.eventName, email: data.email })}
             </p>
           </div>
-          <Celebration hasConfirmedTerm={hasConfirmedTerm} />
         </div>
 
         {states.map((status) => (
@@ -163,14 +164,14 @@ function SubmissionState({ status }: { status: keyof typeof STATES }) {
   const { t } = useTranslation("applicationForm")
   const { key, surface, mark, Icon } = STATES[status]
   return (
-    <section className={cn("flex items-start gap-3 rounded-lg p-4", surface)}>
+    <section className={cn("flex flex-col items-center gap-3 rounded-lg p-4 text-center", surface)}>
       <span className={cn("grid size-10 shrink-0 place-items-center rounded-full", mark)}>
         <Icon
           aria-hidden
           className="size-5"
         />
       </span>
-      <div className="flex min-w-0 flex-col gap-1">
+      <div className="flex max-w-140 min-w-0 flex-col gap-1">
         <h2 className="text-xl font-bold">{t(`confirmation.state.${key}.title`)}</h2>
         <p>{t(`confirmation.state.${key}.text`)}</p>
       </div>
@@ -325,7 +326,7 @@ function AccountBlock({
   const singleApplicationId = data.applications.length === 1 ? onlyApplication?.id : undefined
 
   return (
-    <section className="flex flex-col items-start gap-2 rounded-lg border border-border-strong bg-wash p-4">
+    <section className="flex flex-col items-center gap-2 rounded-lg border border-border-strong bg-wash p-4 text-center">
       <h2 className="text-xl font-bold">{t("confirmation.account.title")}</h2>
       <p>{t(`confirmation.account.${kind}`, { email: data.email })}</p>
       <p className="text-sm text-muted-foreground">{t("confirmation.account.noEmail")}</p>

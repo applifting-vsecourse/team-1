@@ -31,15 +31,24 @@ describe("PaymentQrDownload", () => {
   })
 
   // The summary row after sending the application (Figma 27439-16621).
-  it("puts a small code next to the button from sm and only the button below it when inline", async () => {
+  it("centres the code above the button on a phone and next to it from sm when inline", async () => {
     renderQr("inline")
 
     const image = await screen.findByRole("img", { name: "QR code for the combined payment" })
-    expect(image).toHaveClass("hidden", "sm:block", "size-28")
-    expect(image.parentElement).not.toHaveClass("flex-col")
-    expect(image.parentElement).toHaveClass("flex-wrap", "items-center", "gap-x-4")
-    // Text only, at the width of the other actions on the page (Figma 27439:16627).
+    // Shown on a phone too (the user's wish), smaller next to the button from sm.
+    expect(image).not.toHaveClass("hidden")
+    expect(image).toHaveClass("size-40", "sm:size-28")
+    const row = image.parentElement
+    expect(row).toHaveClass(
+      "flex-col",
+      "items-center",
+      "sm:flex-row",
+      "sm:justify-center",
+      "sm:gap-4",
+    )
     const button = screen.getByRole("button", { name: "Download QR code" })
+    expect(image.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    // Text only, at the width of the other actions on the page (Figma 27439:16627).
     expect(button).toBeEnabled()
     expect(button).toHaveClass("min-w-55")
     expect(button.querySelector("svg")).toBeNull()
