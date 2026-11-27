@@ -328,7 +328,7 @@ function AccountBlock({
   return (
     <section className="flex flex-col items-center gap-2 rounded-lg border border-border-strong bg-wash p-4 text-center">
       <h2 className="text-xl font-bold">{t("confirmation.account.title")}</h2>
-      <p>{t(`confirmation.account.${kind}`, { email: data.email })}</p>
+      <p className="max-w-140">{t(`confirmation.account.${kind}`, { email: data.email })}</p>
       <p className="text-sm text-muted-foreground">{t("confirmation.account.noEmail")}</p>
       {isSessionLoading ? null : (
         <Button

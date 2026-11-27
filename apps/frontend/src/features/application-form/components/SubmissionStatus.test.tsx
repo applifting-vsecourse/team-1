@@ -309,6 +309,7 @@ describe("SubmissionStatus", () => {
       name: "How to get back to your application",
     })
     expect(account.closest("section")).toHaveClass("items-center", "text-center")
+    expect(screen.getByText(/We created an account for you/)).toHaveClass("max-w-140")
     expect(summaryOf("Jana")).not.toHaveClass("text-center")
     expect(within(summaryOf("Jana")).getByText("Participant").parentElement).not.toHaveClass(
       "text-center",
