@@ -24,13 +24,6 @@
     }
   },
   "findEvent": "Find an event",
-  "footerLinks": {
-    "myApplications": "My applications"
-  },
-  "nav": {
-    "catalog": "Event catalog",
-    "organizers": "For organizers"
-  },
   "noSignUp": "You apply without creating an account.",
   "preview": {
     "confirmed": "Confirmed",

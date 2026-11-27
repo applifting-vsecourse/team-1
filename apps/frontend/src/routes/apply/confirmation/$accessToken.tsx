@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { Seo } from "@/components/atoms/Seo"
-import { LinkNotFoundPage } from "@/components/pages/LinkNotFoundPage"
+import { NotFoundPage } from "@/components/pages/NotFoundPage"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { HTTPError } from "@/lib/api-client"
 
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/apply/confirmation/$accessToken")({
       throw error
     }
   },
-  notFoundComponent: LinkNotFoundPage,
+  notFoundComponent: NotFoundPage,
   component: ApplicationConfirmationPage,
 })
 
@@ -33,10 +33,7 @@ function ApplicationConfirmationPage() {
   return (
     <>
       <Seo title={t("confirmation.title")} />
-      <PublicLayout
-        isFullWidth
-        headerContentClassName="md:min-h-[115px]"
-      >
+      <PublicLayout isFullWidth>
         <SubmissionStatus
           accessToken={accessToken}
           signedInParticipant={

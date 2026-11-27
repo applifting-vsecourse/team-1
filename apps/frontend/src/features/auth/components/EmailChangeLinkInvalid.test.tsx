@@ -1,40 +1,71 @@
 import type { ReactNode } from "react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { i18n } from "@/i18n"
+import { authKeys } from "@/lib/auth-keys"
 
+import type { SessionUser } from "@/features/auth/api/authSessionQueryOptions"
 import { EmailChangeLinkInvalid } from "@/features/auth/components/EmailChangeLinkInvalid"
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ to, children }: { to: string; children: ReactNode }) => <a href={to}>{children}</a>,
 }))
-vi.mock("@/components/organisms/Header", () => ({ Header: () => <header /> }))
+vi.mock("@/components/templates/AuthLayout", () => ({
+  AuthLayout: ({ children }: { children: ReactNode }) => <main>{children}</main>,
+}))
+vi.mock("@/features/auth/lib/auth-client", () => ({ authClient: {} }))
+
+const user = (accountType: SessionUser["accountType"]): SessionUser => ({
+  id: "u1",
+  email: "kuba@example.com",
+  name: "Kuba",
+  accountType,
+  mustSetPassword: false,
+  locale: "en",
+})
+
+const renderPage = (session: SessionUser | null) => {
+  const queryClient = new QueryClient()
+  queryClient.setQueryData(authKeys.session(), session && { user: session })
+  render(
+    <QueryClientProvider client={queryClient}>
+      <EmailChangeLinkInvalid />
+    </QueryClientProvider>,
+  )
+}
 
 describe("EmailChangeLinkInvalid", () => {
-  beforeEach(async () => {
-    await i18n.changeLanguage("en")
+  afterEach(() => i18n.changeLanguage("en"))
+
+  it("says the link doesn't work and leads to the account settings to change the e-mail again", () => {
+    renderPage(user("ORGANIZER"))
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "This link doesn't work" }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Change e-mail again" })).toHaveAttribute(
+      "href",
+      "/organizer/account",
+    )
   })
 
-  it("says the e-mail stays as it is and offers to sign in and start again", () => {
-    render(<EmailChangeLinkInvalid />)
+  it("leads a participant, or someone signed out, to the participant's settings", () => {
+    renderPage(null)
 
-    expect(screen.getByRole("heading", { name: "The link is no longer valid" })).toBeInTheDocument()
-    expect(screen.getByRole("alert")).toHaveTextContent("We couldn't verify the e-mail change.")
-    expect(screen.getByRole("alert")).toHaveTextContent("current e-mail is unchanged")
-    expect(screen.getByRole("link", { name: "Sign in and change e-mail" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Change e-mail again" })).toHaveAttribute(
       "href",
-      "/",
+      "/participant/account",
     )
   })
 
   it("is written in formal Czech", async () => {
     await i18n.changeLanguage("cs")
-    render(<EmailChangeLinkInvalid />)
+    renderPage(user("PARTICIPANT"))
 
-    expect(screen.getByRole("heading", { name: "Odkaz už není platný" })).toBeInTheDocument()
-    expect(screen.getByRole("alert")).toHaveTextContent("Změnu e-mailu se nepodařilo ověřit.")
-    expect(screen.getByRole("alert")).toHaveTextContent("Změnu můžete znovu zahájit")
-    expect(screen.getByRole("link", { name: "Přihlásit se a změnit e-mail" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Tento odkaz nefunguje" })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Změnit e-mail znovu" })).toBeInTheDocument()
   })
 })

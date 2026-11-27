@@ -24,13 +24,6 @@
     }
   },
   "findEvent": "Najít akci",
-  "footerLinks": {
-    "myApplications": "Moje přihlášky"
-  },
-  "nav": {
-    "catalog": "Katalog akcí",
-    "organizers": "Pro organizátory"
-  },
   "noSignUp": "Přihlásíte se bez registrace.",
   "preview": {
     "confirmed": "Potvrzeno",
