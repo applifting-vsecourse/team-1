@@ -31,6 +31,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { COMPACT_LIMITS, compactList, FORM_SINGLE_COLUMN_TERMS } from "@/lib/compact-list"
 import { formatDateRange } from "@/lib/date"
+import { MAX_PRONOUNS_LENGTH } from "@/lib/pronouns"
 import { termName } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
@@ -57,6 +58,7 @@ type ParticipantFieldsProps = {
 }
 
 /** One participant: own personal data and own choice of terms. */
+// Figma (Design system v2): #516 Nepovinná zájmena účastníka · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27282-126717 (360 px: node-id=27282-126763)
 export function ParticipantFields({ index, terms, onRemove, isDisabled }: ParticipantFieldsProps) {
   const { t } = useTranslation("applicationForm")
   const { control } = useFormContext<ApplicationFormDraft>()
@@ -187,6 +189,25 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
           )}
         />
       </div>
+
+      <FormField
+        control={control}
+        name={`participants.${index}.pronouns`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t("form.pronouns")}</FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                value={field.value ?? ""}
+                maxLength={MAX_PRONOUNS_LENGTH}
+                placeholder={t("form.pronounsPlaceholder")}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <FormField
         control={control}

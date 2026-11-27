@@ -29,6 +29,7 @@ const application: PaymentApplication = {
   gender: "MALE",
   email: "eva.mala@example.cz",
   phone: "+420777123456",
+  pronouns: null,
   isEditable: true,
   terms: [
     {

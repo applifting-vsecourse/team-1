@@ -61,6 +61,7 @@ export class PaymentApplicationResponseDto {
   bankAccount!: string
   @ApiProperty() firstName!: string
   @ApiProperty() lastName!: string
+  @ApiProperty({ nullable: true, type: String }) pronouns!: string | null
   @ApiProperty() individualAccommodation!: boolean
   @ApiProperty({ nullable: true, type: String }) accommodationRequest!: string | null
   @ApiProperty() code!: string
@@ -107,6 +108,7 @@ export class PaymentApplicationResponseDto {
       bankAccount: application.bankAccount,
       firstName: application.firstName,
       lastName: application.lastName,
+      pronouns: application.pronouns,
       individualAccommodation: application.individualAccommodation,
       accommodationRequest: application.accommodationRequest,
       code: toApplicationCode(application.eventName, application.number),

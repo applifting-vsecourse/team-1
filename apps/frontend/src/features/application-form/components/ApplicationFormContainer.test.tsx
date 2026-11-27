@@ -158,6 +158,41 @@ describe("ApplicationFormContainer", () => {
     expect(navigate).not.toHaveBeenCalled()
   })
 
+  it("shows the rate limit as a warning with an icon", async () => {
+    const limited = api.extend({
+      fetch: vi
+        .fn()
+        .mockResolvedValue(Response.json({ code: "TOO_MANY_REQUESTS" }, { status: 429 })),
+    })
+    submitApplication.mockImplementation(() => limited.post("public/events/a/applications").json())
+    window.sessionStorage.setItem(
+      keyOf("a"),
+      JSON.stringify({
+        email: "rodic@example.com",
+        participants: [
+          {
+            firstName: "Anna",
+            lastName: "Nováková",
+            birthDate: "2010-05-17",
+            gender: "FEMALE",
+            individualAccommodation: false,
+            accommodationRequest: "",
+            termIds: ["t1"],
+          },
+        ],
+      }),
+    )
+    renderContainer("a")
+    await userEvent.click(screen.getByRole("checkbox", { name: /I agree to the processing/ }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
+    await userEvent.click(screen.getByRole("button", { name: "Submit application" }))
+
+    const alert = await screen.findByRole("alert")
+    expect(alert).toHaveTextContent("Too many attempts")
+    expect(alert).toHaveClass("bg-status-warning-bg")
+    expect(alert.querySelector("svg")).not.toBeNull()
+  })
+
   it("marks the rejected term of the second participant and submits the corrected group once", async () => {
     const person = {
       firstName: "Jana",

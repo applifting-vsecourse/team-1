@@ -160,6 +160,7 @@ export class ApplicationsRepository {
             accessToken: application.accessToken,
             firstName: application.firstName,
             lastName: application.lastName,
+            pronouns: application.pronouns ?? null,
             birthDate: new Date(`${application.birthDate}T00:00:00Z`),
             gender: application.gender,
             email: application.email,

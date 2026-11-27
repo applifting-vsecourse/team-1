@@ -108,6 +108,7 @@ describe("OverpaymentsPage", () => {
       code: "C-0023",
       birthDate: "1990-05-04",
       gender: "MALE",
+      pronouns: null,
       email: "adam@example.com",
       phone: null,
       isEditable: false,

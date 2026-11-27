@@ -1,3 +1,5 @@
+import { isMealsEditable } from "./edit-window"
+
 /**
  * Whether the details of an application can still be edited (D-141): while it has a term that is
  * not cancelled and has not ended (its last day still counts as running). An application whose
@@ -9,5 +11,5 @@ export function isApplicationEditable(
   /** The calendar day in Prague at UTC midnight, see `todayInPrague`. */
   today: Date,
 ): boolean {
-  return terms.some((term) => term.status !== "CANCELLED" && term.endsOn >= today)
+  return isMealsEditable(terms, today)
 }

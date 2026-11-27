@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Card } from "@/components/ui/card"
-import { formatDate, formatDateTime } from "@/lib/date"
+import { formatDate, formatDateTime, formatTime } from "@/lib/date"
 import { formatCzk } from "@/lib/money"
 import { termTitle } from "@/lib/term-label"
 
@@ -46,18 +46,45 @@ export function ApplicationHistory({
       }
       return t("history.edit", {
         changes: entry.changes
-          .map(({ field, from, to }) =>
-            // The note is long free text: the history only says that it changed.
-            field === "accommodationRequest"
-              ? t("history.noteChanged")
-              : t("history.change", {
-                  field: t(`history.field.${field}`),
-                  from: value(field, from),
-                  to: value(field, to),
-                }),
-          )
+          .map(({ field, from, to }) => {
+            if (field === "accommodationRequest") return t("history.noteChanged")
+            return t("history.change", {
+              field: t(`history.field.${field}`),
+              from: value(field, from),
+              to: value(field, to),
+            })
+          })
           .join("; "),
       })
+    }
+    if (entry.kind === "LOGISTICS") {
+      const empty = t("history.emptyValue")
+      // The values are tokens, names or instants: the screen says them in the language of the user.
+      const wall = (value: string) => `${formatDate(value)} ${formatTime(value)}`
+      const value = (text: string | null | undefined): string => {
+        if (!text) return empty
+        if (text === "@own") return t("history.logistics.own")
+        if (text === "NO_WISHES") return t("history.logistics.noWishes")
+        if (text === "NO_RESTRICTION") return t("history.logistics.noRestriction")
+        if (text === "WRITTEN") return t("history.logistics.written")
+        if (entry.field === "stay") {
+          const [arrival, departure] = text.split("|")
+          return [
+            t("history.logistics.arrival", { value: arrival ? wall(arrival) : empty }),
+            t("history.logistics.departure", { value: departure ? wall(departure) : empty }),
+          ].join(", ")
+        }
+        return text
+      }
+      const term =
+        entry.startsOn && entry.endsOn
+          ? ` (${termTitle({ name: entry.termName ?? null, startsOn: entry.startsOn, endsOn: entry.endsOn })})`
+          : ""
+      const field = `${t(`history.logistics.field.${entry.field}`)}${term}`
+      // The health note is never listed: only that it was written.
+      return entry.field === "health"
+        ? `${field}: ${value(entry.to)}`
+        : t("history.change", { field, from: value(entry.from), to: value(entry.to) })
     }
     if (entry.kind === "STATUS_CHANGE") {
       return t("history.status", {

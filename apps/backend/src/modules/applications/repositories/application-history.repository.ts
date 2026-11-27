@@ -59,6 +59,7 @@ export class ApplicationHistoryRepository {
           changedAt: change.createdAt,
         })),
       ),
+      terms: application.terms.map(({ term }) => term),
       edits: application.edits.map((edit) => ({
         id: edit.id,
         authorName: edit.authorName,

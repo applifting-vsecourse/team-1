@@ -62,6 +62,7 @@
   "own": {
     "allergiesLabel": "Alergie a další požadavky na stravu",
     "back": "Zpět na přihlášku",
+    "closed": "Všechny termíny přihlášky skončily nebo byly zrušeny, stravování už nelze změnit.",
     "multiple": "Můžete vybrat více možností.",
     "noRestrictions": "Nemám žádné stravovací omezení",
     "pageTitle": "Stravování",
