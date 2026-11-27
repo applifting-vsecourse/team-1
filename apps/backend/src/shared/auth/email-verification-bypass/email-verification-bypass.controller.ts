@@ -2,7 +2,10 @@ import { InjectBetterAuth, type BetterAuth } from "@/shared/auth/providers/bette
 import { Config } from "@/shared/config/config.service"
 import { AppException } from "@/shared/errors/app.exception"
 import { RateLimitGuard } from "@/shared/rate-limit/rate-limit.guard"
-import { EMAIL_VERIFICATION_BYPASS_LIMIT } from "@/shared/rate-limit/rate-limits"
+import {
+  APPLICANT_EMAIL_LIMIT,
+  EMAIL_VERIFICATION_BYPASS_LIMIT,
+} from "@/shared/rate-limit/rate-limits"
 import {
   Body,
   Controller,
@@ -16,7 +19,7 @@ import {
   ValidationPipe,
 } from "@nestjs/common"
 import { ApiOperation, ApiTags } from "@nestjs/swagger"
-import { Throttle } from "@nestjs/throttler"
+import { SkipThrottle, Throttle } from "@nestjs/throttler"
 import { IsEmail, IsOptional, IsString, MinLength, ValidateIf } from "class-validator"
 import { Response } from "express"
 import type { BypassOutcome } from "./email-verification-bypass.plugin"
@@ -73,6 +76,8 @@ export class EmailVerificationBypassController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(RateLimitGuard)
   @Throttle({ minute: EMAIL_VERIFICATION_BYPASS_LIMIT })
+  // The e-mail in this body is an account signing in, not an applicant.
+  @SkipThrottle({ [APPLICANT_EMAIL_LIMIT.name]: true })
   @ApiOperation({
     summary:
       "Verifies the registered account (one-time token, or e-mail and password) and signs in",

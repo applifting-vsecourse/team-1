@@ -29,7 +29,7 @@ export class ApplicationsController {
   @ApiResponse({
     status: 429,
     description:
-      "TOO_MANY_REQUESTS — over 20 submissions a minute or 100 an hour from one address.",
+      "TOO_MANY_REQUESTS — over 100 submissions a minute or 500 an hour from one IP address, or over 10 an hour with one applicant e-mail.",
   })
   async submit(
     @Param("publicToken") publicToken: string,
