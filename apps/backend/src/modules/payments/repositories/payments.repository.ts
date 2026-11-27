@@ -1,4 +1,6 @@
+import { createHash } from "node:crypto"
 import { Locale } from "@/core/email/locale"
+import { PrismaEmailJobRepository } from "@/core/email/queue/prisma-email-job.repository"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computePaymentDeadline } from "@/modules/applications/domain/payment-deadline"
@@ -15,8 +17,12 @@ import {
 } from "@/modules/applications/domain/pricing"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
+import { queuedEmailJob } from "@/modules/participants/domain/queued-email"
 import { PaymentApplication } from "@/modules/payments/domain/payment"
-import { planPaymentConfirmations } from "@/modules/payments/domain/payment-confirmation"
+import {
+  paymentReceivedMessage,
+  planPaymentConfirmations,
+} from "@/modules/payments/domain/payment-confirmation"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
@@ -122,6 +128,7 @@ export class PaymentsRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsRepository,
+    private readonly emailJobs: PrismaEmailJobRepository,
   ) {}
 
   async find(applicationId: string, organizationId: string): Promise<PaymentApplication | null> {
@@ -143,7 +150,8 @@ export class PaymentsRepository {
 
   /**
    * Each submission is one receipt of one or more rows. Balance resolution is serialized by a
-   * lock on the application and retries of the same `requestId` add nothing.
+   * lock on the application and retries of the same `requestId` add nothing. A payment of a bank
+   * import also queues e-mail no. 8 here; for the other sources the caller sends it.
    */
   async record(input: RecordPaymentInput): Promise<PaidTermNotice[]> {
     const { applicationId, organizationId, requestId, termId, isRefund = false } = input
@@ -185,8 +193,32 @@ export class PaymentsRepository {
 
       const owedBefore = await this.confirmedTermBalances(tx, applicationId)
       await this.createReceipt(tx, input)
-      return this.closedDebts(tx, applicationId, owedBefore)
+      const paid = await this.closedDebts(tx, applicationId, owedBefore)
+      if (input.source === "BANK_IMPORT") await this.queuePaymentReceived(tx, input, paid)
+      return paid
     })
+  }
+
+  private async queuePaymentReceived(
+    tx: Prisma.TransactionClient,
+    { applicationId, organizationId, requestId }: RecordPaymentInput,
+    paid: PaidTermNotice[],
+  ): Promise<void> {
+    if (!paid.length) return
+    const context = await this.findEmailContext(applicationId, organizationId, tx)
+    if (!context) return
+    const { eventId } = await tx.application.findUniqueOrThrow({
+      where: { id: applicationId },
+      select: { eventId: true },
+    })
+    // Hashed: a receipt id of a bank row can be longer than a provider's idempotency key.
+    const receipt = createHash("sha256").update(`${applicationId}:${requestId}`).digest("hex")
+    await this.emailJobs.enqueue(tx, [
+      queuedEmailJob({ organizationId, eventId, applicationId }, `payment-received:${receipt}`, {
+        template: "PAYMENT_RECEIVED",
+        data: paymentReceivedMessage(context, paid),
+      }),
+    ])
   }
 
   /** A correction cancels and replaces a whole receipt under the same application lock. */
@@ -332,6 +364,7 @@ export class PaymentsRepository {
   async findEmailContext(
     applicationId: string,
     organizationId: string,
+    client: Prisma.TransactionClient = this.prisma,
   ): Promise<{
     email: string
     locale: Locale
@@ -343,7 +376,7 @@ export class PaymentsRepository {
     firstName: string
     lastName: string
   } | null> {
-    const application = await this.prisma.application.findFirst({
+    const application = await client.application.findFirst({
       where: { id: applicationId, organizationId },
       include: {
         user: { select: { locale: true } },
@@ -352,7 +385,7 @@ export class PaymentsRepository {
     })
     if (!application) return null
     const first = application.userId
-      ? await this.prisma.application.findFirst({
+      ? await client.application.findFirst({
           where: { userId: application.userId },
           orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
           select: { locale: true },

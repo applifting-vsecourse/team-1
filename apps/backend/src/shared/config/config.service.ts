@@ -115,6 +115,11 @@ export class Config {
   @Env("WAITLIST_EXPIRY_INTERVAL_MS", { expose: true, defaultValue: 3_600_000 })
   readonly waitlistExpiryIntervalMs!: number
 
+  // How often the e-mail queue retries failed sends and picks up leftovers (#737); 0 = off.
+  // New jobs are sent right after the action that added them, whatever this says.
+  @Env("EMAIL_QUEUE_INTERVAL_MS", { expose: true, defaultValue: 30_000 })
+  readonly emailQueueIntervalMs!: number
+
   // Staging and demo only (US-115): lets a participant simulate paying a debt. Off unless set.
   @Env("PAYMENT_SIMULATION_ENABLED", { expose: true, defaultValue: false })
   @IsBoolean()

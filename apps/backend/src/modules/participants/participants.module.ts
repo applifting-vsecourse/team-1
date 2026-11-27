@@ -1,3 +1,4 @@
+import { EmailQueueModule } from "@/core/email/queue/email-queue.module"
 import { PrismaModule } from "@/core/prisma/prisma.module"
 import { NotificationsModule } from "@/modules/notifications/notifications.module"
 import { AuthModule } from "@/shared/auth/auth.module"
@@ -20,12 +21,19 @@ import { ApplicationEditService } from "./services/application-edit.service"
 import { MyApplicationsService } from "./services/my-applications.service"
 import { ParticipantAccountsService } from "./services/participant-accounts.service"
 import { ParticipantPasswordService } from "./services/participant-password.service"
+import { QueuedEmailDispatcher } from "./services/queued-email.dispatcher"
 import { RoomWishesService } from "./services/room-wishes.service"
 import { StayService } from "./services/stay.service"
 
 /** Imported by the applications module. */
 @Module({
-  imports: [AuthModule, PrismaModule, NotificationsModule, OrganizationAccessModule],
+  imports: [
+    AuthModule,
+    PrismaModule,
+    EmailQueueModule,
+    NotificationsModule,
+    OrganizationAccessModule,
+  ],
   controllers: [
     ParticipantPasswordController,
     MyApplicationsController,
@@ -43,12 +51,13 @@ import { StayService } from "./services/stay.service"
     ApplicationEditRepository,
     ParticipantAccountsRepository,
     ApplicationConfirmationMailer,
+    QueuedEmailDispatcher,
     RoomWishesService,
     RoomWishesRepository,
     StayService,
     StayRepository,
     ArrangementsRepository,
   ],
-  exports: [ParticipantAccountsService, ApplicationConfirmationMailer],
+  exports: [ParticipantAccountsService, ApplicationConfirmationMailer, QueuedEmailDispatcher],
 })
 export class ParticipantsModule {}

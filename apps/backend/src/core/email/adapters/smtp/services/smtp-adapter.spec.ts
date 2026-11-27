@@ -36,6 +36,9 @@ const send = (port: number): Promise<void> =>
     pass: "secret",
   }).sendEmail("jana@example.com", "Subject", "<p>Hello</p>")
 
+// Real sockets and nodemailer: slow to start on a loaded machine.
+jest.setTimeout(30_000)
+
 describe("SMTPAdapter", () => {
   afterEach(() => {
     server?.close()

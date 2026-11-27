@@ -1,3 +1,4 @@
+import { EmailQueueModule } from "@/core/email/queue/email-queue.module"
 import { PrismaModule } from "@/core/prisma/prisma.module"
 import { NotificationsModule } from "@/modules/notifications/notifications.module"
 import { ParticipantsModule } from "@/modules/participants/participants.module"
@@ -15,6 +16,7 @@ import { PaymentsService } from "./services/payments.service"
 @Module({
   imports: [
     PrismaModule,
+    EmailQueueModule,
     NotificationsModule,
     AuthModule,
     OrganizationAccessModule,
