@@ -96,6 +96,8 @@ export function SubmissionStatus({
     statuses.has(status),
   )
   const hasConfirmedTerm = statuses.has("CONFIRMED")
+  // A paid (or free) application still has its payment, with nothing left to pay.
+  const hasAmountDue = data.applications.some(hasPayableAmount)
 
   return (
     <div className="px-4 pt-6 pb-16 md:px-6 md:pt-12">
@@ -117,6 +119,7 @@ export function SubmissionStatus({
           <SubmissionState
             key={status}
             status={status}
+            isTextShown={status !== "CONFIRMED" || hasAmountDue}
           />
         ))}
 
@@ -160,7 +163,14 @@ function Celebration({ hasConfirmedTerm }: { hasConfirmedTerm: boolean }) {
 }
 
 // Figma (Design system v2): Togena / Registration / Submission state · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27437-3711
-function SubmissionState({ status }: { status: keyof typeof STATES }) {
+function SubmissionState({
+  status,
+  isTextShown,
+}: {
+  status: keyof typeof STATES
+  /** The confirmed state tells the applicant to pay, which is wrong once nothing is left to pay. */
+  isTextShown: boolean
+}) {
   const { t } = useTranslation("applicationForm")
   const { key, surface, mark, Icon } = STATES[status]
   return (
@@ -173,7 +183,7 @@ function SubmissionState({ status }: { status: keyof typeof STATES }) {
       </span>
       <div className="flex max-w-140 min-w-0 flex-col gap-1">
         <h2 className="text-xl font-bold">{t(`confirmation.state.${key}.title`)}</h2>
-        <p>{t(`confirmation.state.${key}.text`)}</p>
+        {isTextShown ? <p>{t(`confirmation.state.${key}.text`)}</p> : null}
       </div>
     </section>
   )
@@ -227,13 +237,15 @@ function ApplicationSummary({
           )
         })}
         {payment ? (
+          <SummaryRow label={t("confirmation.summary.amountDue")}>
+            <MoneyAmount
+              className="text-xl font-bold"
+              amountCzk={payment.summary.payableCzk}
+            />
+          </SummaryRow>
+        ) : null}
+        {payment && hasPayableAmount(application) ? (
           <>
-            <SummaryRow label={t("confirmation.summary.amountDue")}>
-              <MoneyAmount
-                className="text-xl font-bold"
-                amountCzk={payment.summary.payableCzk}
-              />
-            </SummaryRow>
             <SummaryRow
               label={t("confirmation.summary.variableSymbol")}
               aside={
@@ -273,6 +285,10 @@ function ApplicationSummary({
       </dl>
     </Card>
   )
+}
+
+function hasPayableAmount(application: SubmittedApplication) {
+  return (application.payment?.summary.payableCzk ?? 0) > 0
 }
 
 // Figma (Design system v2): Togena / Registration / Summary row · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27437-3740

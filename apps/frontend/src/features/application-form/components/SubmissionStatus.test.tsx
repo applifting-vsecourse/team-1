@@ -194,6 +194,39 @@ describe("SubmissionStatus", () => {
     expect(within(summary).getByRole("button", { name: "Download QR code" })).toBeVisible()
   })
 
+  it("asks for no payment once nothing is left to pay, e.g. on a later visit after paying", async () => {
+    await renderStatus(
+      data({
+        applications: [
+          person("Jana", "Nováková", "0048", "CONFIRMED", "2027-07-12", "2027-07-18", 0),
+        ],
+      }),
+    )
+
+    expect(screen.getByRole("heading", { level: 2, name: "Your place is confirmed" })).toBeVisible()
+    expect(screen.queryByText("Pay the amount due using the payment details below.")).toBeNull()
+    const summary = summaryOf("Jana")
+    expect(within(summary).getByText("CZK 0")).toBeVisible()
+    expect(within(summary).queryByText("48000")).toBeNull()
+    expect(within(summary).queryByText("123456789/0800")).toBeNull()
+    expect(within(summary).queryByRole("button", { name: "Download QR code" })).toBeNull()
+  })
+
+  it("keeps the payment instruction while one participant still owes, without details for the paid one", async () => {
+    await renderStatus(
+      data({
+        applications: [
+          person("Jana", "Nováková", "0048", "CONFIRMED", "2027-07-12", "2027-07-18", 0),
+          person("Karel", "Novák", "0049", "CONFIRMED", "2027-07-12", "2027-07-18"),
+        ],
+      }),
+    )
+
+    expect(screen.getByText("Pay the amount due using the payment details below.")).toBeVisible()
+    expect(within(summaryOf("Jana")).queryByText("48000")).toBeNull()
+    expect(within(summaryOf("Karel")).getByText("49000")).toBeVisible()
+  })
+
   it("labels the first of several terms and keeps the next ones in the value column", async () => {
     const twoTerms = {
       ...jana(),
