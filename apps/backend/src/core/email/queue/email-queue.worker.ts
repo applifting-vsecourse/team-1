@@ -35,7 +35,8 @@ export class EmailQueueWorker {
 
   private async deliver(job: ClaimedEmailJob, now: Date): Promise<void> {
     const isProviderIdempotent = this.email.isIdempotent === true
-    const mayHaveBeenSent = job.mayHaveBeenSent || job.isAbandoned
+    // Without stored content the previous worker stopped before it could send.
+    const mayHaveBeenSent = job.mayHaveBeenSent || (job.isAbandoned && job.content !== null)
     const { firstAttemptAt } = job
     if (!canSendSafely({ mayHaveBeenSent, firstAttemptAt, isProviderIdempotent, now })) {
       await this.jobs.giveUp(job.id, "UNCERTAIN", "The result of an earlier attempt is unknown")

@@ -4,7 +4,7 @@ import { AppException } from "@/shared/errors/app.exception"
 import { RateLimitGuard } from "@/shared/rate-limit/rate-limit.guard"
 import {
   APPLICANT_EMAIL_LIMIT,
-  EMAIL_VERIFICATION_BYPASS_LIMIT,
+  EMAIL_VERIFICATION_BYPASS_LIMITS,
 } from "@/shared/rate-limit/rate-limits"
 import {
   Body,
@@ -75,7 +75,7 @@ export class EmailVerificationBypassController {
   @Post()
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(RateLimitGuard)
-  @Throttle({ minute: EMAIL_VERIFICATION_BYPASS_LIMIT })
+  @Throttle(EMAIL_VERIFICATION_BYPASS_LIMITS)
   // The e-mail in this body is an account signing in, not an applicant.
   @SkipThrottle({ [APPLICANT_EMAIL_LIMIT.name]: true })
   @ApiOperation({
