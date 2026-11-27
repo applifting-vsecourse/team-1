@@ -85,6 +85,9 @@ export function ApplicationReview({ values, terms, isSubmitting, onEdit }: Props
               {formatDate(person.birthDate)} ·{" "}
               {t(person.gender === "FEMALE" ? "form.genderFemale" : "form.genderMale")}
             </DetailItem>
+            {person.pronouns?.trim() && (
+              <DetailItem label={t("form.pronouns")}>{person.pronouns.trim()}</DetailItem>
+            )}
             <DetailItem label={t("review.terms")}>
               {terms
                 .filter((term) => person.termIds.includes(term.id))

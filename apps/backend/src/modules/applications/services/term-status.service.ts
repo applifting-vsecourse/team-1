@@ -4,10 +4,8 @@ import {
   ParticipantChangeOptions,
   ParticipantTermChangeResult,
 } from "@/modules/applications/domain/participant-term-change"
-import {
-  changeEmailKind,
-  rejectStatusChange,
-} from "@/modules/applications/domain/status-transition"
+import { statusChangeEmail } from "@/modules/applications/domain/status-change-email"
+import { rejectStatusChange } from "@/modules/applications/domain/status-transition"
 import {
   FreedBed,
   substituteAfterWithdrawal,
@@ -27,6 +25,7 @@ import {
 } from "@/modules/applications/repositories/substitutes.repository"
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
+import { QueuedEmailDispatcher } from "@/modules/participants/services/queued-email.dispatcher"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
@@ -61,6 +60,7 @@ export class TermStatusService {
     private readonly substitutes: SubstitutesRepository,
     private readonly access: OrganizationAccessService,
     private readonly mailer: ApplicationConfirmationMailer,
+    private readonly emailQueue: QueuedEmailDispatcher,
   ) {}
 
   async participantChangeOptions(
@@ -216,9 +216,9 @@ export class TermStatusService {
 
   /**
    * US-131: cancels the term with every application in it that is not archived, logs each as the
-   * organizer's change and sends each applicant one e-mail (no. 15). Returns how many applications
-   * were cancelled; null when the term is not of the organization. A failed delivery never fails
-   * the cancellation, the mailer logs it. Refunds are the organizer's own work (D-080).
+   * organizer's change and queues one e-mail (no. 15) per applicant. Returns how many applications
+   * were cancelled. The e-mails go out after the request; a failed delivery never fails the
+   * cancellation, the queue records it. Refunds are the organizer's own work (D-080).
    */
   async cancelTerm(
     user: Identity,
@@ -235,8 +235,8 @@ export class TermStatusService {
       user.id,
     )
     if (!result) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-    for (const notice of result.notices) await this.mailer.sendTermCancelled(notice)
-    return result.notices.length
+    this.emailQueue.kick()
+    return result.cancelledCount
   }
 
   async getTerms(user: Identity, applicationId: string): Promise<TermStatusDetail[]> {
@@ -290,25 +290,9 @@ export class TermStatusService {
       if (rejection) throw new AppException(HttpStatus.CONFLICT, rejection)
     })
     if (!result) throw new AppException(HttpStatus.NOT_FOUND, "NOT_FOUND")
+    if (command.isEmailQueued) this.emailQueue.kick()
     // The mailer logs a failed delivery itself and never throws.
-    await this.mailer.sendApplicationChange({
-      email: result.email,
-      locale: result.locale,
-      eventName: result.eventName,
-      organizationName: result.organizationName,
-      termName: result.termName,
-      hadPayment: result.hadPayment,
-      gender: result.gender,
-      bankAccount: result.bankAccount,
-      kind: changeEmailKind(
-        result.to,
-        result.from,
-        command.actorId === null ? "SYSTEM" : "ORGANIZER",
-      ),
-      application: result.application,
-      // Payment details only where the application became confirmed (EMAILY.md, rows 2 and 5).
-      isAmountChanged: result.to === "CONFIRMED",
-    })
+    else await this.mailer.sendApplicationChange(statusChangeEmail(result, command.actorId))
     // A confirmed participant giving up the bed (cancelled, put on the waitlist) frees it (US-31).
     // The one moved to the waitlist does not take the bed it has just given up (organizer's decision).
     if (result.from === "CONFIRMED") {

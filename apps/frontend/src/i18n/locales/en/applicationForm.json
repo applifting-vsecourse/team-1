@@ -76,6 +76,7 @@
       "firstNameRequired": "Enter the first name.",
       "genderRequired": "Choose Woman or Man.",
       "lastNameRequired": "Enter the last name.",
+      "pronounsTooLong": "Pronouns must be at most {{max}} characters.",
       "termsRequired": "Choose at least one term."
     },
     "firstName": "First name *",
@@ -90,18 +91,24 @@
     "individualAccommodation": "I’d like individual accommodation",
     "individualAccommodationHint": "If room assignment by gender doesn’t suit you. Only the organizers will see it.",
     "lastName": "Last name *",
+    "moreTerms_few": "and {{count}} more terms",
+    "moreTerms_many": "and {{count}} more terms",
+    "moreTerms_one": "and {{count}} more term",
+    "moreTerms_other": "and {{count}} more terms",
     "participantTitle": "Participant {{number}}",
     "participantTitleNamed": "Participant {{number}} · {{name}}",
+    "pronouns": "Pronouns",
+    "pronounsPlaceholder": "E.g. she/her",
     "removeParticipantAria": "Remove participant {{number}}",
+    "showFewerTerms": "Show fewer",
+    "showMoreTerms_few": "Show {{count}} more terms",
+    "showMoreTerms_many": "Show {{count}} more terms",
+    "showMoreTerms_one": "Show {{count}} more term",
+    "showMoreTerms_other": "Show {{count}} more terms",
     "submit": "Submit application",
     "submitting": "Submitting…",
     "terms": "Choose at least one term *",
     "title": "Application"
-  },
-  "notFound": {
-    "action": "Go to homepage",
-    "description": "The link may be incorrect or the event may not be ready for applications yet. Check the link with the organizer.",
-    "title": "This page is unavailable."
   },
   "price": {
     "heading": "Price of selected terms",

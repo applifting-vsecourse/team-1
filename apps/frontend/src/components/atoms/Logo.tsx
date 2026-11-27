@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 
 import { ROUTES } from "@/app/routes"
+import { cn } from "@/lib/utils"
 
 /** Togena symbol (Figma DS / Brand / Togena symbol), drawn in the primary colour. */
 export function LogoSymbol({ className, fraction }: { className?: string; fraction?: number }) {
@@ -31,13 +32,23 @@ export function LogoSymbol({ className, fraction }: { className?: string; fracti
 }
 
 /** Symbol and the lowercase name. Sits in every header, centred on the sign-in pages. */
-export function Logo({ to = ROUTES.home }: { to?: string }) {
+export function Logo({
+  to = ROUTES.home,
+  isSmall = false,
+}: {
+  to?: string
+  /** The small lockup at every width (the footer); by default it grows from `md`. */
+  isSmall?: boolean
+}) {
   return (
     <Link
       to={to}
-      className="flex items-center gap-1.5 text-lg leading-none font-semibold tracking-tight md:gap-2.5 md:text-3xl"
+      className={cn(
+        "flex items-center gap-1.5 text-lg leading-none font-semibold tracking-tight",
+        !isSmall && "md:gap-2.5 md:text-3xl",
+      )}
     >
-      <LogoSymbol className="size-6 text-primary md:size-10" />
+      <LogoSymbol className={cn("size-6 text-primary", !isSmall && "md:size-10")} />
       <span>togena</span>
     </Link>
   )

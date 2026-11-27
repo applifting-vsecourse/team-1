@@ -4,13 +4,13 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
+import { LinkNotFoundPage } from "@/components/pages/LinkNotFoundPage"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { Button } from "@/components/ui/button"
 import { HTTPError } from "@/lib/api-client"
 
 import { publicEventQueryOptions } from "@/features/application-form/api/publicEvent"
 import { ApplicationFormContainer } from "@/features/application-form/components/ApplicationFormContainer"
-import { ApplicationLinkNotFound } from "@/features/application-form/components/ApplicationLinkNotFound"
 
 export const Route = createFileRoute("/apply/$token")({
   // An unknown link — or an event that has no term or room yet — is a 404.
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/apply/$token")({
       throw error
     }
   },
-  notFoundComponent: ApplicationLinkNotFound,
+  notFoundComponent: LinkNotFoundPage,
   component: ApplicationFormPage,
 })
 

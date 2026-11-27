@@ -20,6 +20,7 @@ const storedDraft = z.object({
         lastName: z.string(),
         birthDate: z.string(),
         gender: z.enum(GENDERS).optional(),
+        pronouns: z.string().optional(),
         // Drafts saved before US-38 have none of the two.
         individualAccommodation: z.boolean().default(false),
         accommodationRequest: z.string().default(""),
@@ -65,6 +66,7 @@ export const isEmptyApplicationDraft = (draft: ApplicationFormDraft) =>
       participant.lastName === "" &&
       participant.birthDate === "" &&
       participant.gender === undefined &&
+      !participant.pronouns &&
       !participant.individualAccommodation &&
       participant.accommodationRequest === "" &&
       participant.termIds.length === 0,

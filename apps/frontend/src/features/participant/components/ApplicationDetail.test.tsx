@@ -37,6 +37,7 @@ const confirmed = {
   priceCzk: 4500,
   transportOffered: false,
   transportDecided: false,
+  termEditable: true,
 }
 const waitlisted = {
   termId: "t2",
@@ -47,6 +48,7 @@ const waitlisted = {
   priceCzk: 4900,
   transportOffered: false,
   transportDecided: false,
+  termEditable: true,
 }
 
 const application = (overrides: Partial<MyApplication> = {}): MyApplication => ({
@@ -60,6 +62,7 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   simulatedPayments: [],
   terms: [confirmed],
   mealsDecided: false,
+  mealsEditable: true,
   healthDecided: false,
   amountDueCzk: 4500,
   amountPaidCzk: 2000,
@@ -158,6 +161,7 @@ const renderDetail = (
           lastName: data.lastName,
           birthDate: data.birthDate ?? "2011-05-04",
           phone: "+420 777 123 456",
+          pronouns: null,
           individualAccommodation: false,
           accommodationRequest: null,
           history: edits,
@@ -259,8 +263,8 @@ describe("ApplicationDetail", () => {
     expect(await screen.findByText("Archived")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Archived application" })).toBeInTheDocument()
     expect(
-      screen.getByText("The term has ended, there is nothing left to arrange."),
-    ).toBeInTheDocument()
+      screen.getAllByText("The term has ended, there is nothing left to arrange."),
+    ).toHaveLength(1)
     expect(screen.queryByRole("link", { name: "Edit application" })).not.toBeInTheDocument()
     expect(screen.queryByText("Steps before the event")).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: "Meals" })).not.toBeInTheDocument()
@@ -268,15 +272,38 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByText(/CZK|Kč/)).not.toBeInTheDocument()
   })
 
-  it("keeps the steps of a confirmed term next to an archived one", async () => {
+  it("keeps the steps of a confirmed term next to an archived one, which says it is over (#700)", async () => {
     renderDetail(
       application({
         terms: [confirmed, { ...waitlisted, status: "ARCHIVED" }],
       }),
     )
-    expect(await screen.findByText("Archived")).toBeInTheDocument()
-    expect(screen.getByText("Steps before the event")).toBeInTheDocument()
+    expect(await screen.findByText("Steps before the event")).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Edit application" })).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Archived application" })).not.toBeInTheDocument()
+    const card = screen
+      .getByText("The term has ended, there is nothing left to arrange.")
+      .closest("li") as HTMLElement
+    expect(within(card).getByText("Archived")).toBeInTheDocument()
+    expect(within(card).queryByText("Steps before the event")).not.toBeInTheDocument()
+    expect(within(card).queryByRole("link")).not.toBeInTheDocument()
+  })
+
+  it("gives an archived and a cancelled term each their own line (#700)", async () => {
+    renderDetail(
+      application({
+        terms: [
+          { ...confirmed, status: "ARCHIVED" },
+          { ...waitlisted, status: "CANCELLED" },
+        ],
+      }),
+    )
+    const archived = await screen.findByText(
+      "The term has ended, there is nothing left to arrange.",
+    )
+    // The two cards of the steps, in the order of the terms.
+    const cards = archived.closest("ul") as HTMLElement
+    expect(within(cards).getByText("You are not attending this term.")).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Archived application" })).not.toBeInTheDocument()
   })
 
@@ -1003,6 +1030,28 @@ describe("ApplicationDetail", () => {
         terms: [{ ...confirmed, transportOffered: true, transportDecided: false }],
         ...overrides,
       })
+
+    it("hides the transport and meals steps once the term is over (D-192)", async () => {
+      renderDetail(
+        withSteps({
+          mealsEditable: false,
+          terms: [
+            {
+              ...confirmed,
+              transportOffered: true,
+              transportDecided: false,
+              termEditable: false,
+            },
+          ],
+        }),
+      )
+
+      await screen.findByRole("heading", { name: "Steps before the event" })
+      expect(screen.queryByText("Transport")).not.toBeInTheDocument()
+      expect(screen.queryByRole("link", { name: /meals/i })).not.toBeInTheDocument()
+      // Health is not bound by the term: it stays.
+      expect(screen.getByText("Health restriction")).toBeVisible()
+    })
 
     it("lists each step of a confirmed term as to do or done, with a link to where it is arranged", async () => {
       renderDetail(withSteps({ mealsDecided: true }))

@@ -94,6 +94,10 @@
       "description": "Tato stránka patří jinému účtu nebo jiné organizaci.",
       "title": "K tomuto obsahu nemáte přístup."
     },
+    "linkNotFound": {
+      "action": "Prohlédnout akce",
+      "title": "Tento odkaz nefunguje"
+    },
     "notFound": {
       "action": "Na úvodní stránku",
       "description": "Odkaz může být chybný nebo už neplatí. Pokračujte z úvodní stránky.",
@@ -116,6 +120,18 @@
   },
   "price": {
     "free": "Zdarma"
+  },
+  "publicFooter": {
+    "catalog": "Katalog akcí",
+    "login": "Přihlásit se",
+    "myApplications": "Moje přihlášky",
+    "organizers": "Pro organizátory",
+    "participants": "Pro účastníky",
+    "register": "Založit účet",
+    "tagline": "Správa vícetermínových akcí"
+  },
+  "publicHeader": {
+    "signIn": "Přihlásit se"
   },
   "state": {
     "connectionRestored": "Připojení zařízení k síti bylo obnoveno.",

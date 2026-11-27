@@ -93,6 +93,8 @@ type ApplicationFormProps = {
   onSubmit: (values: ApplicationFormValues) => void | Promise<void | SubmissionConflict>
   /** Already translated message of a failed submission. */
   errorMessage?: string | null
+  /** The submission was refused by the rate limit: the message is a warning to try later, not an error. */
+  isRateLimited?: boolean
   onReview?: () => void
   /** The submission succeeded and the page is about to change. */
   isDone?: boolean
@@ -104,6 +106,7 @@ export function ApplicationForm({
   draftKey,
   onSubmit,
   errorMessage,
+  isRateLimited,
   onReview,
   isDone,
 }: ApplicationFormProps) {
@@ -207,9 +210,10 @@ export function ApplicationForm({
   const errorCount = invalidSubmitCount > 0 ? countErrors(errors) : 0
   const submissionAlert = errorMessage ? (
     <Alert
-      variant="destructive"
+      variant={isRateLimited ? "warning" : "destructive"}
       tabIndex={-1}
     >
+      {isRateLimited ? <TriangleAlert aria-hidden /> : null}
       <AlertDescription>{errorMessage}</AlertDescription>
     </Alert>
   ) : null

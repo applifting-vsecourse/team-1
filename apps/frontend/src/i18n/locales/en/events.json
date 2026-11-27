@@ -358,8 +358,10 @@
   "roomOverview": {
     "beds": "Beds",
     "born": "b. {{year}}",
+    "collapseAll": "Collapse all",
     "continued": "continued",
     "emptyAction": "Go to Assignment",
+    "expandAll": "Expand all",
     "extraBed": "Extra bed",
     "free": "Free beds",
     "freeBed": "Free bed",

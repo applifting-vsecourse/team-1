@@ -67,6 +67,34 @@ const anna = {
 } as const
 
 describe("ApplicationForm", () => {
+  it("submits each participant's pronouns independently and leaves a blank value optional", async () => {
+    const user = userEvent.setup()
+    const onSubmit = submitSpy()
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={onSubmit}
+      />,
+    )
+    await user.click(screen.getByRole("button", { name: "Add another participant" }))
+    await fillParticipant(1, anna)
+    await fillParticipant(2, { ...anna, first: "Adam", last: "Novák", gender: "Man" })
+    const first = within(participantCard(1)).getByRole("textbox", { name: "Pronouns" })
+    const second = within(participantCard(2)).getByRole("textbox", { name: "Pronouns" })
+    expect(first).toHaveAttribute("placeholder", "E.g. she/her")
+    expect(second).toHaveValue("")
+    await user.type(first, "  she/her  ")
+    await user.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
+    await user.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
+    await user.click(screen.getByRole("button", { name: "Continue to review" }))
+    expect(screen.getAllByText("Pronouns")).toHaveLength(1)
+    expect(screen.getByText("she/her")).toBeVisible()
+    await user.click(screen.getByRole("button", { name: "Submit application" }))
+    const participants = onSubmit.mock.lastCall?.[0].participants
+    expect(participants?.[0]?.pronouns).toBe("she/her")
+    expect(participants?.[1]?.pronouns).toBeUndefined()
+  })
+
   it("supports typing a date and links the error when the date is out of range", async () => {
     render(
       <ApplicationForm

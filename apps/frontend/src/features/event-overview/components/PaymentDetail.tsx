@@ -1,6 +1,5 @@
 import { useState, type ReactNode } from "react"
 import type { UseQueryResult } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -116,18 +115,6 @@ export function PaymentDetail({
               {data.eventName} · {t("payment.applicationCode", { code: data.code })}
             </p>
           </div>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-          >
-            <Link
-              to={ROUTES.organizer.applicationHealth}
-              params={{ eventId: data.eventId, applicationId }}
-            >
-              {t("payment.health")}
-            </Link>
-          </Button>
         </div>
       </div>
       <AutoConfirmedNotice
