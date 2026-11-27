@@ -74,6 +74,12 @@ export class Config {
   @IsNotEmpty()
   readonly emailFrom!: string
 
+  // Development only: the console mailer fails every send, as during a provider outage (#737).
+  // Has no effect with Resend or SMTP.
+  @Env("EMAIL_SIMULATE_FAILURE", { expose: true, defaultValue: false })
+  @IsBoolean()
+  readonly emailSimulateFailure!: boolean
+
   @Env("SMTP_HOST", { expose: true })
   @IsOptional()
   readonly smtpHost?: string
