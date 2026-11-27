@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router"
-import { ClipboardList } from "lucide-react"
+import { LayoutGrid, Users } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -8,6 +8,7 @@ import { SidebarLink } from "@/components/atoms/SidebarLink"
 import { AreaErrorPage } from "@/components/pages/AreaErrorPage"
 import { AreaLayout } from "@/components/templates/AreaLayout"
 
+import { AccountMenu, type AccountMenuItem } from "@/features/auth/components/AccountMenu"
 import { SidebarAccount } from "@/features/auth/components/SidebarAccount"
 import { requireAccount } from "@/features/auth/lib/require-account"
 import { NotificationCenter } from "@/features/notifications/components/NotificationCenter"
@@ -29,23 +30,38 @@ export const Route = createFileRoute("/participant/_app")({
 
 function ParticipantLayout() {
   const { t } = useTranslation()
+  // Figma F4: Moje přihlášky first, then the public catalog (the sidebar and the mobile account menu).
+  const nav: AccountMenuItem[] = [
+    {
+      to: ROUTES.participant.applications,
+      activeOptions: { exact: true },
+      icon: Users,
+      label: t("nav.myApplications"),
+    },
+    { to: ROUTES.catalog, icon: LayoutGrid, label: t("nav.catalog") },
+  ]
 
   return (
     <>
       <Seo title={t("area.participant")} />
       <AreaLayout
-        width="wide"
+        width="reading"
         roleLabel={t("accountRole.PARTICIPANT")}
-        nav={
+        nav={nav.map(({ label, ...link }) => (
           <SidebarLink
-            to={ROUTES.participant.applications}
-            activeOptions={{ exact: true }}
-            icon={ClipboardList}
+            key={label}
+            {...link}
           >
-            {t("nav.applications")}
+            {label}
           </SidebarLink>
+        ))}
+        account={
+          <SidebarAccount
+            subtitle={t("nav.applicantRole")}
+            hasPreferences={false}
+          />
         }
-        account={<SidebarAccount />}
+        mobileMenu={<AccountMenu items={nav} />}
         notifications={
           <ChangeRequestNotifications>
             {(feed) => <NotificationCenter additionalFeed={feed} />}

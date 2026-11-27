@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { SUMMER_CAMP_LINK } from "./support/accounts"
-import { expectCompactHeading, expectFitsViewport } from "./support/layout"
+import { expectFitsViewport } from "./support/layout"
 import { latestMagicLinkToken, requestSignInLink } from "./support/magic-link"
 
 // US-23 application from a link, US-40 price, US-25 / US-27 submit and status. Runs on a phone too (@mobile).
@@ -89,12 +89,15 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
 
     // US-121: the detail ends with who to call or write to; one tap dials or opens the mail.
     await page.getByRole("link", { name: /Letní kemp 2027/ }).click()
-    const applicationTitle = page.getByRole("heading", { level: 1, name: "Application details" })
+    const applicationTitle = page.getByRole("heading", {
+      level: 1,
+      name: `Karel Novotný ${unique}`,
+    })
     const terms = page.getByRole("region", { name: "Terms", exact: true })
     const termStatus = terms.getByText("Confirmed", { exact: true }).first()
     const termDates = terms.getByText(/4.*10 Jul/).first()
+    // The title is the participant's name (Figma F4), so a long one may wrap: only the fit is checked.
     await expectFitsViewport(page, applicationTitle, terms, termStatus, termDates)
-    await expectCompactHeading(applicationTitle)
     await expect(page.getByRole("heading", { name: "Organization contact" })).toBeVisible()
     await expect(page.getByRole("link", { name: "info@letni-kemp.example" })).toHaveAttribute(
       "href",

@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { PageHeader } from "@/components/molecules/PageHeader"
-import { Card } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { BrandPageHeader } from "@/components/molecules/BrandPageHeader"
+import { SettingsRow, SettingsSection } from "@/components/molecules/SettingsRows"
+import { Button } from "@/components/ui/button"
 import { useConnectionFeedback } from "@/hooks/useConnectionFeedback"
 
 import { ChangeEmailSection } from "@/features/auth/components/ChangeEmailSection"
@@ -13,79 +13,66 @@ import { ProfileForm } from "@/features/auth/components/ProfileForm"
 import { useEmailChangedNotice } from "@/features/auth/hooks/useEmailChangedNotice"
 import { useSession } from "@/features/auth/hooks/useSession"
 
-const SECTIONS = ["profile", "security"] as const
-
 /**
- * Account settings of every signed-in account: „Profil“ (name, e-mail), „Předvolby“
- * (language, theme) and „Zabezpečení“ (password). Signing out stays
- * in the account menu of the sidebar.
+ * Account settings of every signed-in account on one page, without tabs: „Profil“ (name, sign-in
+ * e-mail), „Předvolby“ (language, appearance) and „Zabezpečení“ (password). Each setting is a row
+ * with its value; the name and the password open an inline form, the e-mail its dialog. Signing out
+ * stays in the account menu.
  */
-// Figma (Design system v2): US-124 / Profil a jazyk · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19504-8672 (360 px: node-id=19504-8792)
+// Figma (Design system v2): US-124 / Nastavení účtu · výchozí · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19504-8672 (360 px: node-id=19504-8792)
 // Figma (Design system v2): US-124 / Změnit heslo · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=19504-9261 (360 px: node-id=19504-9400); US-125 / Změna e-mailu · node-id=22404-23993
 export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boolean }) {
-  const [isPointerFocus, setIsPointerFocus] = useState(false)
   useConnectionFeedback()
   const { t } = useTranslation("auth")
   const { user } = useSession()
   useEmailChangedNotice(isEmailChanged, user?.email)
+  const [editing, setEditing] = useState<"name" | "password" | null>(null)
 
   if (!user) return null
 
-  return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        hasBand
-        title={t("account.title")}
-        description={t("account.description")}
-      />
-
-      <Tabs
-        defaultValue="profile"
-        className="gap-6"
+  const editButton = (setting: "name" | "password", label: string) =>
+    editing === setting ? null : (
+      <Button
+        variant="ghost"
+        onClick={() => setEditing(setting)}
       >
-        {/* Figma v2: Sekce účtu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=27081-144433 (mobile 19504-9405) */}
-        <TabsList
-          aria-label={t("account.title")}
-          variant="line"
-          data-pointer-focus={isPointerFocus || undefined}
-          onPointerDownCapture={() => setIsPointerFocus(true)}
-          onKeyDownCapture={() => setIsPointerFocus(false)}
-          onBlurCapture={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget)) setIsPointerFocus(false)
-          }}
-          className="mx-auto grid w-[calc(100vw-36px)] max-w-full auto-cols-fr grid-flow-col gap-2 p-0 group-data-[orientation=horizontal]/tabs:h-12 md:mx-0 md:w-fit md:group-data-[orientation=horizontal]/tabs:h-15"
+        {label}
+      </Button>
+    )
+
+  return (
+    <div className="mx-auto flex w-full max-w-160 flex-col gap-8">
+      <BrandPageHeader title={t("account.title")} />
+      <SettingsSection
+        id="account-profile"
+        title={t("account.tabs.profile")}
+      >
+        <SettingsRow
+          label={t("profile.name")}
+          value={editing === "name" ? null : user.name}
+          action={editButton("name", t("account.edit"))}
         >
-          {SECTIONS.map((key) => (
-            <TabsTrigger
-              key={key}
-              value={key}
-              className="account-tab h-full rounded-control border-0 p-3 text-base leading-6 font-normal transition-colors md:min-w-[122px]"
-            >
-              {t(`account.tabs.${key}`)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        <TabsContent
-          value="profile"
-          className="mx-auto grid w-full max-w-[560px] gap-4"
+          {editing === "name" ? (
+            <ProfileForm
+              user={user}
+              onClose={() => setEditing(null)}
+            />
+          ) : null}
+        </SettingsRow>
+        <ChangeEmailSection user={user} />
+      </SettingsSection>
+      <PreferencesCard user={user} />
+      <SettingsSection
+        id="account-security"
+        title={t("account.tabs.security")}
+      >
+        <SettingsRow
+          label={t("account.password")}
+          action={editButton("password", t("changePassword.submit"))}
         >
-          <Card className="gap-4 p-4">
-            <h2 className="text-2xl font-bold">{t("profile.title")}</h2>
-            <ProfileForm user={user} />
-          </Card>
-          <PreferencesCard user={user} />
-          <ChangeEmailSection user={user} />
-        </TabsContent>
-        <TabsContent
-          value="security"
-          className="mx-auto w-full max-w-[560px]"
-        >
-          <Card className="gap-4 p-4">
-            <h2 className="text-2xl font-bold">{t("changePassword.title")}</h2>
-            <ChangePasswordForm />
-          </Card>
-        </TabsContent>
-      </Tabs>
+          {editing === "password" ? <ChangePasswordForm onClose={() => setEditing(null)} /> : null}
+        </SettingsRow>
+      </SettingsSection>
     </div>
   )
 }

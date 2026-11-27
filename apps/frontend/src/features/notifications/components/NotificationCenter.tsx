@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { currentLanguage } from "@/i18n"
+import { cn } from "@/lib/utils"
 
 import {
   useMarkRead,
@@ -129,9 +130,20 @@ export function NotificationCenter({
       >
         <DialogContent
           showCloseButton={false}
-          className="flex max-h-[calc(100svh-2rem)] flex-col content-start gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-110 md:top-0 md:right-0 md:left-auto md:h-svh md:max-h-svh md:translate-x-0 md:translate-y-0 md:rounded-l-2xl md:rounded-r-none"
+          className={cn(
+            "flex max-h-[calc(100svh-2rem)] flex-col content-start gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-110",
+            area === "participant"
+              ? // Figma F4: a card by the bell — under the 56 px header on a phone, next to the sidebar on a desktop.
+                "top-18 max-h-[calc(100svh-5.5rem)] translate-y-0 rounded-[20px] md:top-4 md:left-62 md:max-h-[calc(100svh-2rem)] md:translate-x-0"
+              : "md:top-0 md:right-0 md:left-auto md:h-svh md:max-h-svh md:translate-x-0 md:translate-y-0 md:rounded-l-2xl md:rounded-r-none",
+          )}
         >
-          <div className="flex shrink-0 items-center gap-4 p-4 pb-5 md:p-6 md:pb-5">
+          <div
+            className={cn(
+              "flex shrink-0 items-center gap-4",
+              area === "participant" ? "pt-6 pr-4 pb-1 pl-6" : "p-4 pb-5 md:p-6 md:pb-5",
+            )}
+          >
             <DialogTitle className="flex-1 text-2xl font-bold">{t("panel.title")}</DialogTitle>
             <DialogClose asChild>
               <Button
@@ -150,7 +162,7 @@ export function NotificationCenter({
           </div>
           <DialogDescription className="sr-only">{t("panel.title")}</DialogDescription>
           {/* Only the list scrolls, with its scrollbar at the edge of the panel; the padding is inside it. */}
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 md:px-6 md:pb-6">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <NotificationPanel
               state={
                 list.isPending || additionalFeed?.state === "loading"
@@ -166,7 +178,6 @@ export function NotificationCenter({
                 additionalFeed?.onRetry()
               }}
               onOpen={open}
-              onMarkRead={markOneRead}
               onMarkAllRead={() => {
                 markAllRead.mutate()
                 additionalFeed?.onMarkAllRead()

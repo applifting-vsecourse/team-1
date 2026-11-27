@@ -74,10 +74,13 @@
     "toggle": "Změnit jazyk"
   },
   "nav": {
+    "applicantRole": "Přihlašovatel",
     "applications": "Přihlášky",
+    "catalog": "Katalog akcí",
     "eventSections": "Části akce",
     "events": "Akce",
     "main": "Hlavní navigace",
+    "myApplications": "Moje přihlášky",
     "openMenu": "Otevřít navigaci",
     "overview": "Přehled"
   },

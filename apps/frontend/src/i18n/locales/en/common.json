@@ -74,10 +74,13 @@
     "toggle": "Change language"
   },
   "nav": {
+    "applicantRole": "Applicant",
     "applications": "Applications",
+    "catalog": "Event catalog",
     "eventSections": "Event sections",
     "events": "Events",
     "main": "Main navigation",
+    "myApplications": "My applications",
     "openMenu": "Open navigation",
     "overview": "Overview"
   },

@@ -15,12 +15,14 @@ import { AreaLayout } from "@/components/templates/AreaLayout"
 
 vi.mock("@/hooks/useTheme", () => ({ useTheme: () => ({ theme: "light", setTheme: vi.fn() }) }))
 
-function renderLayout() {
+function renderLayout(mobileMenu?: React.ReactNode) {
   const root = createRootRoute({
     component: () => (
       <AreaLayout
         roleLabel="Organizer"
         width="wide"
+        mobileMenu={mobileMenu}
+        notifications={<button type="button">Notifications</button>}
         account={<button type="button">Eva Malá</button>}
         nav={
           <SidebarLink
@@ -91,5 +93,30 @@ describe("AreaLayout sidebar", () => {
     expect(within(drawer).getByRole("link", { name: "Events" })).toBeInTheDocument()
     await user.keyboard("{Escape}")
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+  })
+})
+
+describe("AreaLayout with an account menu (participant area)", () => {
+  it("has no top bar or drawer: the bell is next to the logo and the menu in the mobile header", async () => {
+    renderLayout(<button type="button">Account menu</button>)
+
+    const sidebar = await screen.findByRole("complementary", { name: "Main navigation" })
+    expect(within(sidebar).getByRole("button", { name: "Notifications" })).toBeInTheDocument()
+    expect(within(sidebar).getByRole("link", { name: "Events" })).toBeInTheDocument()
+    expect(within(sidebar).getByRole("button", { name: "Eva Malá" })).toBeInTheDocument()
+    const header = screen.getByRole("banner")
+    expect(header).toHaveClass("md:hidden")
+    expect(within(header).getByRole("button", { name: "Account menu" })).toBeInTheDocument()
+    expect(within(header).getByRole("button", { name: "Notifications" })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Open navigation" })).not.toBeInTheDocument()
+    // The page heading is the only title: the role label is not repeated in a bar above it.
+    expect(screen.queryByText("Organizer")).not.toBeInTheDocument()
+  })
+
+  it("centres the content in one column", async () => {
+    renderLayout(<button type="button">Account menu</button>)
+
+    const heading = await screen.findByRole("heading", { name: "Event overview" })
+    expect(heading.parentElement).toHaveClass("mx-auto", "max-w-200")
   })
 })

@@ -27,7 +27,15 @@ import { initials } from "@/features/auth/lib/initials"
  */
 // Figma (Design system): N / Sidebar account · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43608
 // Figma (Design system): N / Sidebar account menu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43617
-export function SidebarAccount() {
+export function SidebarAccount({
+  subtitle,
+  hasPreferences = true,
+}: {
+  /** Shown under the name in place of the e-mail, which stays for screen readers (the participant's role, Figma F4). */
+  subtitle?: string
+  /** Language and theme above the account; the participant area keeps them in the account settings only. */
+  hasPreferences?: boolean
+} = {}) {
   const { t } = useTranslation("auth")
   const { user } = useSession()
   const { changeLanguage, isPending } = useAccountLanguage(user?.locale)
@@ -40,14 +48,16 @@ export function SidebarAccount() {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-col gap-2 border-b border-sidebar-border pb-2">
-        <LanguageSwitcher
-          value={currentLanguage()}
-          disabled={isPending}
-          onChange={(language) => void changeLanguage(language)}
-        />
-        <ThemeSwitcher isLabeled />
-      </div>
+      {hasPreferences ? (
+        <div className="flex flex-col gap-2 border-b border-sidebar-border pb-2">
+          <LanguageSwitcher
+            value={currentLanguage()}
+            disabled={isPending}
+            onChange={(language) => void changeLanguage(language)}
+          />
+          <ThemeSwitcher isLabeled />
+        </div>
+      ) : null}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
@@ -59,8 +69,17 @@ export function SidebarAccount() {
               <AvatarFallback>{initials(user.name)}</AvatarFallback>
             </Avatar>
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-sm font-medium">{user.name}</span>
-              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              <span className={subtitle ? "truncate text-base" : "truncate text-sm font-medium"}>
+                {user.name}
+              </span>
+              {subtitle ? (
+                <>
+                  <span className="truncate text-sm text-muted-foreground">{subtitle}</span>
+                  <span className="sr-only">{user.email}</span>
+                </>
+              ) : (
+                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              )}
             </span>
             <ChevronsUpDown
               aria-hidden
