@@ -53,7 +53,9 @@ test.describe("Sign-in", () => {
     await expect(page).toHaveURL(/\/organizer\/events\/[^/]+$/)
     expect((await remembered).status()).toBe(204)
     const eventUrl = page.url()
-    await expect(page.getByRole("heading", { level: 1, name: "Letní kemp 2027 – demo" })).toBeVisible()
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Letní kemp 2027 – demo" }),
+    ).toBeVisible()
 
     await signOut(page, ORGANIZER)
     await expect(page).toHaveURL(/\/$/)
