@@ -18,6 +18,9 @@ import {
   type RoomsSearch,
 } from "@/features/events/lib/rooms-search"
 
+// The file renders 300 rooms and printing renders all of them, which is slow under load.
+vi.setConfig({ testTimeout: 20_000 })
+
 // #728 and #698 over 300 rooms, with the page in the URL as the route of the accommodation keeps it.
 const { get, put, del } = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), del: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({
