@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { CopyButton } from "@/components/atoms/CopyButton"
+import { DateTile } from "@/components/atoms/DateTile"
 import { BackLink } from "@/components/molecules/BackLink"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -23,6 +24,7 @@ const STICKY_TERMS = 3
 // Figma (Design system v2): Stránka akce · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20188-6594 (mobile 20188-6692)
 // Header 27424-16425, contact 27424-16432 (expanded 27426-16389 / 27426-16419), application card 20188-6620 / 20188-6713, mobile bar 27425-16448.
 // Many terms (#732): first eight and „Zobrazit další…“ as in 27413-17449 / 27413-17584 (mobile 27413-17719 / 27413-17826), kept in this card.
+// System B (2026-11-27): each term row starts with its date tile (term 27424-16440, Datovka 27719-4271).
 export function EventPage({ event }: { event: CatalogEventDetail }) {
   const { t } = useTranslation("catalog")
   const [isContactOpen, setIsContactOpen] = useState(false)
@@ -147,9 +149,10 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
             {shownTerms.map((term) => (
               <li
                 key={term.id}
-                className="flex items-center justify-between gap-3 rounded-lg bg-wash p-3"
+                className="flex items-center gap-3 rounded-lg bg-wash p-3"
               >
-                <span className="flex flex-col">
+                <DateTile date={term.startsOn} />
+                <span className="flex min-w-0 flex-1 flex-col">
                   <span className="font-medium tabular-nums">{termDates(term)}</span>
                   {termName(term) ? (
                     <span className="text-muted-foreground">{termName(term)}</span>
