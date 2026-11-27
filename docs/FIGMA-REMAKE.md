@@ -14,7 +14,7 @@ Tento soubor popisuje, jak se obrazovky Togeny převádějí do nového vzhledu.
 **Mění se:**
 
 - písmo je všude Inter (DS / Display 60/64 Bold, H1 36/44 Bold, H2 24/32 Semi Bold, H3 18/26 Semi Bold, Lead 18/28),
-- karty mají stín `shadows/surface`, radius 12 (`radius/lg`) a odsazení 24; nadpis karty je H3,
+- karty mají 1px hranu `color/border/strong` (ink), radius 12 (`radius/lg`), žádný stín a odsazení 24; nadpis karty je H3,
 - kostra aplikace: sidebar bez rámečků u položek, horní lišta 64 px, záhlaví stránky s nadpisem a popisem vlevo a hlavní akcí vpravo,
 - tabulky z řádků mají šedé záhlaví sloupců a řádky oddělené hairline,
 - stavové panely vypadají jako DS / Alert: podklad `status/*-bg`, rámeček v barvě tónu na 30 %, radius 12,
@@ -37,7 +37,7 @@ Oblouky loga uvnitř značkové ilustrace jsou kresba, ne marker, a jsou povolen
 
 - Každý fill a stroke je navázaný na proměnnou z DS / Semantic. Paint vždy vytvoř s barvou získanou přes `variable.resolveForConsumer(node)`; s barvou `{0,0,0}` se náhled vykreslí černě.
 - Průhlednost rámečku (30 %) nastav až na navázaném paintu: zkopíruj `node.strokes`, změň `opacity` a přiřaď zpět. Když se opacity nastaví na čerstvém paintu z `setBoundVariableForPaint`, Figma ji zahodí.
-- Efekty: `shadows/surface` (karty), `shadows/popover` (menu, dialogy). Textové styly DS / *.
+- Hrany a stíny (vzhled A „Inkoust a tvrdý stín“, DESIGN.md): karty, panely, pole a ovládací prvky mají 1px hranu `color/border/strong` (ink) a žádný měkký stín. Tvrdý stín bez rozmazání jen na zvednutém prvku při najetí (`offset/hard`, 3 px), na toastu a nálepce (`offset/sticker`, 4 px) a na dialogu (6 px). `shadows/surface` ani `shadows/popover` se už nepoužívají. Textové styly DS / *.
 - Česká typografie: nezlomitelná mezera za jednopísmennými předložkami a spojkami.
 
 ## Vzory obrazovek

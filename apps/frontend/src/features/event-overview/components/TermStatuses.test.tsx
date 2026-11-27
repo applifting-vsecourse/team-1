@@ -161,7 +161,8 @@ describe("TermStatuses", () => {
     setup()
     const change = await screen.findByRole("button", { name: "Change status" })
     expect(change).not.toHaveClass("w-full")
-    expect(change.className).not.toContain("h-12")
+    // The kit's default button size (48 px since the direction A look), not a stretched CTA.
+    expect(change).toHaveAttribute("data-size", "default")
     expect(change.parentElement).toHaveClass("flex", "flex-wrap")
   })
 

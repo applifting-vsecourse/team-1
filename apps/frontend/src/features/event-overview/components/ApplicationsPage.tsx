@@ -719,11 +719,11 @@ function SelectRow({
 
 // Each status has its own colour; the waitlist and the cancelled ones use tokens the badge has no variant for.
 const STATUS_BADGE = {
-  TO_EVALUATE: { variant: "warning", className: undefined },
+  TO_EVALUATE: { variant: "neutral", className: undefined },
   CONFIRMED: { variant: "success", className: undefined },
-  WAITLISTED: { variant: "secondary", className: "bg-status-waitlist-bg text-status-waitlist" },
+  WAITLISTED: { variant: "waitlist", className: undefined },
   ARCHIVED: { variant: "secondary", className: undefined },
-  CANCELLED: { variant: "secondary", className: "bg-destructive/10 text-destructive" },
+  CANCELLED: { variant: "inactive", className: undefined },
 } as const
 
 const STATUS_LABEL = {

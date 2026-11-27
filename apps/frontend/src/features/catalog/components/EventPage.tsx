@@ -43,7 +43,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
             <img
               src={catalogEventPhotoUrl(event.publicToken)}
               alt=""
-              className="h-50 w-full rounded-2xl border border-border object-cover md:h-70"
+              className="h-50 w-full rounded-2xl border border-border-strong object-cover md:h-70"
             />
           ) : null}
           <div className="flex flex-col gap-1">

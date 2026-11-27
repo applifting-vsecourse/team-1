@@ -21,6 +21,9 @@ const badgeVariants = cva(
         success: "bg-status-success-bg [&>svg]:text-status-success",
         warning: "bg-status-warning-bg [&>svg]:text-status-warning",
         info: "bg-status-info-bg [&>svg]:text-status-info",
+        waitlist: "bg-status-waitlist-bg [&>svg]:text-status-waitlist",
+        // A cancelled / closed state: the disabled surface, ink text.
+        inactive: "bg-disabled [&>svg]:text-disabled-foreground",
       },
     },
     defaultVariants: {

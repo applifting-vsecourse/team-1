@@ -26,7 +26,7 @@ export function PriceSummary({ rows, totalCzk, children }: PriceSummaryProps) {
   const { t } = useTranslation("applicationForm")
 
   return (
-    <Card className="gap-4 p-[15px]">
+    <Card className="gap-4 bg-brand-warm-subtle p-[15px]">
       <h2 className="text-2xl font-semibold">{t("price.heading")}</h2>
       <p className="text-sm font-bold">{t("price.participants", { count: rows.length })}</p>
       <ul className="flex flex-col gap-2">

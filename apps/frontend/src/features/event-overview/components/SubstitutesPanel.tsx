@@ -380,10 +380,7 @@ function TermStatus({ item, range }: { item: Substitute; range: string }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span>{range}</span>
-      <Badge
-        variant="secondary"
-        className="bg-status-waitlist-bg text-status-waitlist"
-      >
+      <Badge variant="waitlist">
         {t("applications.waitlistedPosition", { position: item.position })}
       </Badge>
     </div>

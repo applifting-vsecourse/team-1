@@ -19,15 +19,15 @@ export function EventCard({ event }: { event: CatalogEvent }) {
     <Link
       to={ROUTES.event}
       params={{ publicToken: event.publicToken }}
-      className="group block rounded-lg outline-none"
+      className="group block lift rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid"
     >
-      <Card className="h-full min-h-[214px] gap-0 overflow-hidden p-0 shadow-none transition-colors group-hover:border-field-border group-focus-visible:min-h-[216px] group-focus-visible:border-2 group-focus-visible:border-ring">
+      <Card className="h-full min-h-[214px] gap-0 overflow-hidden p-0">
         {event.hasPhoto ? (
           <img
             src={catalogEventPhotoUrl(event.publicToken)}
             alt=""
             loading="lazy"
-            className="h-44 w-full border-b border-border object-cover"
+            className="h-44 w-full border-b border-border-strong object-cover"
           />
         ) : null}
         <div className="flex flex-1 flex-col gap-3 p-5">
