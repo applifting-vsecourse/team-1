@@ -199,7 +199,7 @@ export function ExtraBedConfirmDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-3 overflow-hidden bg-card p-4 shadow-md sm:max-h-[90dvh] sm:max-w-160 sm:gap-4 sm:p-6">
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-3 overflow-hidden bg-card p-4 sm:max-h-[90dvh] sm:max-w-160 sm:gap-4 sm:p-6">
         <DialogTitle>
           {hasTerms
             ? t("extraBedDialog.titleTerms", { room: room.name })

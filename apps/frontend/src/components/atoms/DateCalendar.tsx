@@ -180,7 +180,7 @@ export function DateCalendar({
       disabled={isDisabled}
       ref={root}
       data-slot="date-calendar"
-      className="relative flex w-81 max-w-full min-w-0 flex-col gap-4 rounded-2xl border border-border-strong bg-card p-6 text-card-foreground disabled:opacity-45 in-data-[slot=card]:border-border in-data-[slot=dialog-content]:border-border md:w-102"
+      className="relative flex w-81 max-w-full min-w-0 flex-col gap-4 rounded-2xl border border-border-strong bg-card p-6 text-card-foreground disabled:opacity-45 md:w-102 nested:border-border"
     >
       <div className="flex items-center gap-2">
         {navigationButton(-1)}

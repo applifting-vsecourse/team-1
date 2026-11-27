@@ -17,7 +17,8 @@ type PaginationProps = {
 const VISIBLE_PAGES = 5
 const NARROW_VISIBLE_PAGES = 3
 
-const control = "h-11 shrink-0 rounded-md hover:bg-transparent hover:text-primary"
+const control =
+  "h-11 shrink-0 rounded-md hover:bg-transparent hover:text-primary dark:hover:bg-transparent"
 // Brand look A (Togena / Navigation / Pagination · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15285-9292):
 // the arrows are ink-edged outline buttons that lift; the current page is ink-edged with the logo corners, r8.
 const arrow = "h-11 w-10 shrink-0 rounded-md [&_svg]:size-6"

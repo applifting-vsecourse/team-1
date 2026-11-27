@@ -67,7 +67,7 @@ export function UnassignedPanel({
       panelRef={panelRef}
       isDragActive={isDragActive}
       className={cn(
-        "flex shrink-0 flex-col rounded-lg border border-border-strong bg-card",
+        "flex shrink-0 flex-col rounded-lg border border-border-strong bg-card nested:border-border",
         className,
       )}
     >

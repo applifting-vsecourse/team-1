@@ -63,7 +63,7 @@ export function SubstitutesPanel({
     const hasFreeBeds = free.MALE > 0 || free.FEMALE > 0
     if (!hasFreeBeds && !hasWaitlistedParticipants) return null
     return (
-      <section className="flex flex-col gap-3 rounded-lg border border-border-strong bg-card p-4 md:p-6">
+      <section className="flex flex-col gap-3 rounded-lg border border-border-strong bg-card p-4 md:p-6 nested:border-border">
         <h2 className="text-lg font-semibold">
           {t(hasFreeBeds ? "substitutes.emptyTitle" : "substitutes.fullTitle")}
         </h2>
@@ -151,7 +151,7 @@ export function SubstitutesPanel({
       ))}
       <section
         aria-label={t("substitutes.list")}
-        className="flex flex-col gap-6 rounded-lg border border-border-strong bg-card p-4 md:p-6"
+        className="flex flex-col gap-6 rounded-lg border border-border-strong bg-card p-4 md:p-6 nested:border-border"
       >
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold">{t("substitutes.title")}</h2>
@@ -229,7 +229,7 @@ function SubstituteProposal({
   return (
     <section
       aria-label={t(`substitutes.proposal.title${kind}`)}
-      className="flex flex-col items-start gap-3 rounded-lg border border-border-strong bg-card p-4"
+      className="flex flex-col items-start gap-3 rounded-lg border border-border-strong bg-card p-4 nested:border-border"
     >
       <h2 className="text-lg font-semibold">{t(`substitutes.proposal.title${kind}`)}</h2>
       <p className="text-sm">

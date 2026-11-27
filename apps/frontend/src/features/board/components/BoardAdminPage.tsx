@@ -64,7 +64,7 @@ export function BoardAdminPage({ eventId }: { eventId: string }) {
       ) : posts.length === 0 ? (
         <EmptyState message={t("admin.empty")} />
       ) : (
-        <div className="rounded-lg border border-border-strong bg-card">
+        <div className="rounded-lg border border-border-strong bg-card nested:border-border">
           <Table className="min-w-160">
             <TableHeader className="bg-wash">
               <TableRow>

@@ -197,7 +197,7 @@ function UnmatchedTransactions({ eventId }: { eventId: string }) {
         <EmptyState message={t("bankStatement.unmatchedList.empty")} />
       ) : (
         // On a phone the table scrolls sideways, like the Platby list.
-        <div className="rounded-lg border border-border-strong bg-card">
+        <div className="rounded-lg border border-border-strong bg-card nested:border-border">
           <Table className="min-w-190">
             <caption className="sr-only">{t("bankStatement.unmatchedList.list")}</caption>
             <TableHeader className="bg-muted">

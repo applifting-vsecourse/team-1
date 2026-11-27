@@ -117,7 +117,7 @@ export function RoomAssignmentsCard({
   })
 
   const roomsEmpty = (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-border-strong p-10 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-lg border border-border-strong p-10 text-center nested:border-border">
       <EmptyState message={t("rooms.empty")} />
       <Button
         size="lg"
@@ -197,7 +197,7 @@ export function RoomAssignmentsCard({
                 {visibleRooms.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("roomAssignments.noMatch")}</p>
                 ) : null}
-                <div className="hidden overflow-hidden rounded-lg border border-border-strong lg:block">
+                <div className="hidden overflow-hidden rounded-lg border border-border-strong lg:block nested:border-border">
                   <Table>
                     <TableHeader>
                       <TableRow>

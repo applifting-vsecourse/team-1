@@ -212,7 +212,7 @@ export function RoomsOverview({
           {withoutRoom.length > 0 ? <WithoutRoomCard people={withoutRoom} /> : null}
         </>
       ) : (
-        <div className="rounded-lg border border-border-strong px-6 print:hidden">
+        <div className="rounded-lg border border-border-strong px-6 print:hidden nested:border-border">
           <EmptyState
             message={t("rooms.empty")}
             action={

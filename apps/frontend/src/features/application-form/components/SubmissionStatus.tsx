@@ -99,7 +99,7 @@ export function SubmissionStatus({
           <AlertDescription>{t("confirmation.toEvaluate.alertText")}</AlertDescription>
         </Alert>
       ) : (
-        <section className="flex flex-col gap-4 rounded-lg border border-border-strong bg-status-waitlist-bg p-4 sm:p-6">
+        <section className="flex flex-col gap-4 rounded-lg border border-border-strong bg-status-waitlist-bg p-4 sm:p-6 nested:border-border">
           <h2 className="text-2xl font-semibold text-status-waitlist">
             {t("confirmation.waitlist.title")}
           </h2>

@@ -304,7 +304,7 @@ export function ApplicationForm({
               </Button>
 
               {removed && (
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border-strong bg-secondary p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border-strong bg-secondary p-4 nested:border-border">
                   <p role="status">
                     {removed.person.firstName.trim() &&
                     removed.person.lastName.trim() &&

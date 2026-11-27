@@ -3,6 +3,9 @@
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
+/* Inner structure (DESIGN.md, Surfaces): inside a card or a dialog an outer container's ink edge turns grey,
+   so ink never sits inside ink. Use as `border-border-strong nested:border-border`. */
+@custom-variant nested (:where([data-slot="card"], [data-slot="dialog-content"]) &);
 
 @theme inline {
   /* Height makes it clear which item reveals the details and which one gives up space. */
@@ -93,6 +96,7 @@
   /* Togena / Brand components A: hard ink offset shadows, never blurred (DESIGN.md, Surfaces). */
   --shadow-hard: var(--offset-hard) var(--offset-hard) 0 var(--border-strong);
   --shadow-sticker: var(--offset-sticker) var(--offset-sticker) 0 var(--border-strong);
+  --shadow-dialog: var(--offset-dialog) var(--offset-dialog) 0 var(--border-strong);
 
   /* Figma DS / Metrics radius/* */
   --radius-sm: 4px;
@@ -255,6 +259,8 @@
   --disabled-foreground: #7a9596; /* color/text/secondary */
   /* No dark error surface in the DS: the error alert keeps the card surface and its red icon. */
   --status-error-bg: var(--card);
+  /* The ink scrim would not dim the near-black canvas; black at 75 % does. */
+  --overlay: rgb(0 0 0 / 0.75);
 }
 
 @layer base {
@@ -787,12 +793,6 @@
 }
 [data-slot="progress-indicator"] {
   border-radius: inherit;
-}
-
-/* Brand look A (specimen, Dialog 27538:3801): every dialog floats on the 6 px hard ink shadow, also
-   where a screen still passes a soft shadow class. */
-[data-slot="dialog-content"] {
-  box-shadow: var(--offset-dialog) var(--offset-dialog) 0 var(--border-strong);
 }
 
 /* Figma Dialog / Dialog actions: both actions share a 48 px target on either layout. */

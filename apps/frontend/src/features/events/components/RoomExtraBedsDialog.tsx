@@ -72,7 +72,7 @@ export function RoomExtraBedsDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto bg-card sm:max-w-170">
         <DialogTitle>{t("rooms.extraBedsTitle")}</DialogTitle>
         <DialogDescription className="text-base">
           {t("rooms.extraBedsContext", {

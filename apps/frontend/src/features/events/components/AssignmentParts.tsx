@@ -654,7 +654,7 @@ export function RoomCard({
     <li
       ref={setNodeRef}
       className={cn(
-        "flex flex-col overflow-hidden rounded-lg border border-border-strong bg-card",
+        "flex flex-col overflow-hidden rounded-lg border border-border-strong bg-card nested:border-border",
         isDropping
           ? "bg-accent outline-2 -outline-offset-2 outline-ring"
           : isEligible && isDragActive

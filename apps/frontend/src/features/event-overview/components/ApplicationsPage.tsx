@@ -541,7 +541,7 @@ export function ApplicationsPage({
                     <li
                       key={row.id}
                       className={cn(
-                        "flex flex-col gap-1 rounded-lg border border-border-strong bg-card px-3",
+                        "flex flex-col gap-1 rounded-lg border border-border-strong bg-card px-3 nested:border-border",
                         selectedIds.has(row.id) && "bg-accent",
                       )}
                     >
