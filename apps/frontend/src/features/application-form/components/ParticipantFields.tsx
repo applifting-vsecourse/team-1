@@ -244,10 +244,11 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                       key={term.id}
                       htmlFor={id}
                       className={cn(
-                        "min-h-20 cursor-pointer gap-2 rounded-lg border border-border bg-card p-4 text-sm leading-5 transition-colors hover:bg-accent",
-                        isSelected && "border-2 border-primary bg-accent",
-                        isInvalid && "border-2 border-action-destructive",
-                        isDisabled && "cursor-default opacity-65",
+                        "min-h-20 cursor-pointer gap-2 rounded-lg border border-border-strong bg-card p-4 text-sm leading-5",
+                        !isDisabled && "lift",
+                        isSelected && "border-2 bg-accent",
+                        isInvalid && "border-2 border-field-error",
+                        isDisabled && "cursor-default bg-disabled text-disabled-foreground",
                       )}
                     >
                       <Checkbox
@@ -267,9 +268,7 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                         aria-describedby={isInvalid ? termsMessageId : undefined}
                       />
                       <span className="flex min-w-0 flex-1 flex-col gap-1">
-                        <span
-                          className={cn("font-medium", isSelected && "text-primary dark:text-link")}
-                        >
+                        <span className="font-medium">
                           {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
                         </span>
                         {termName(term) ? (

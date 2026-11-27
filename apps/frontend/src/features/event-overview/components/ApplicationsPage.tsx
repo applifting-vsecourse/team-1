@@ -346,7 +346,7 @@ export function ApplicationsPage({
         ) : (
           <section
             aria-busy={query.isFetching}
-            className="flex flex-col gap-4 md:rounded-lg md:border md:bg-card md:p-6"
+            className="flex flex-col gap-4 md:rounded-lg md:border md:border-border-strong md:bg-card md:p-6"
           >
             <div className="flex flex-wrap justify-between gap-2">
               <h2 className="text-lg font-semibold">
@@ -517,7 +517,7 @@ export function ApplicationsPage({
                             <Button
                               asChild
                               variant="outline"
-                              size="lg"
+                              size="sm"
                             >
                               <Link
                                 to={ROUTES.organizer.application}
@@ -541,7 +541,7 @@ export function ApplicationsPage({
                     <li
                       key={row.id}
                       className={cn(
-                        "flex flex-col gap-1 rounded-lg border bg-card px-3",
+                        "flex flex-col gap-1 rounded-lg border border-border-strong bg-card px-3 nested:border-border",
                         selectedIds.has(row.id) && "bg-accent",
                       )}
                     >
@@ -569,7 +569,7 @@ export function ApplicationsPage({
                         <Button
                           asChild
                           variant="outline"
-                          size="lg"
+                          size="sm"
                           className="ms-auto h-auto min-h-11 max-w-full whitespace-normal"
                         >
                           <Link
@@ -719,11 +719,11 @@ function SelectRow({
 
 // Each status has its own colour; the waitlist and the cancelled ones use tokens the badge has no variant for.
 const STATUS_BADGE = {
-  TO_EVALUATE: { variant: "warning", className: undefined },
+  TO_EVALUATE: { variant: "neutral", className: undefined },
   CONFIRMED: { variant: "success", className: undefined },
-  WAITLISTED: { variant: "secondary", className: "bg-status-waitlist-bg text-status-waitlist" },
+  WAITLISTED: { variant: "waitlist", className: undefined },
   ARCHIVED: { variant: "secondary", className: undefined },
-  CANCELLED: { variant: "secondary", className: "bg-destructive/10 text-destructive" },
+  CANCELLED: { variant: "inactive", className: undefined },
 } as const
 
 const STATUS_LABEL = {

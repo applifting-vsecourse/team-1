@@ -136,7 +136,7 @@ export function RoomAssignmentsCard({
   })
 
   const roomsEmpty = (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-10 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-lg border border-border-strong p-10 text-center nested:border-border">
       <EmptyState message={t("rooms.empty")} />
       <Button
         size="lg"
@@ -162,7 +162,7 @@ export function RoomAssignmentsCard({
           <div
             role="status"
             aria-label={t("roomAssignments.unassignedTitle")}
-            className="sticky top-29 z-10 -mx-4 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 shadow-sm md:top-19 xl:hidden"
+            className="sticky top-29 z-10 -mx-4 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 md:top-19 xl:hidden"
           >
             <span className="flex-1 text-sm font-medium">
               {t("roomAssignments.unassignedTitle")}
@@ -219,7 +219,7 @@ export function RoomAssignmentsCard({
                 {matchingRooms.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("roomAssignments.noMatch")}</p>
                 ) : null}
-                <div className="hidden overflow-hidden rounded-lg border border-border lg:block">
+                <div className="hidden overflow-hidden rounded-lg border border-border-strong lg:block nested:border-border">
                   <Table>
                     <TableHeader>
                       <TableRow>

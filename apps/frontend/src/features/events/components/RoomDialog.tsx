@@ -111,7 +111,7 @@ export function RoomDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] max-w-full overflow-y-auto bg-card shadow-md sm:max-w-160">
+      <DialogContent className="max-h-[90dvh] max-w-full overflow-y-auto bg-card sm:max-w-160">
         <p className="text-xs font-medium text-muted-foreground uppercase">
           {term.eventName} · {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
         </p>

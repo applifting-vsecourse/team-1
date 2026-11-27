@@ -90,7 +90,7 @@ export function EventTerms({ eventId }: { eventId: string }) {
           result={cancelResult}
         />
       ) : null}
-      <Card className="grid grid-cols-1 items-center gap-4 rounded-xl p-4 md:grid-cols-[minmax(0,1fr)_auto] md:p-6">
+      <Card className="grid grid-cols-1 items-center gap-4 p-4 md:grid-cols-[minmax(0,1fr)_auto] md:p-6">
         <h3 className="text-lg font-semibold tracking-tight">{t("terms.listTitle")}</h3>
         <p className="col-span-full text-sm text-muted-foreground">{t("terms.listHelper")}</p>
         {active.length === 0 ? (
@@ -124,7 +124,7 @@ export function EventTerms({ eventId }: { eventId: string }) {
         </Button>
       </Card>
       {cancelled.length > 0 ? (
-        <section className="flex flex-col gap-3 rounded-lg border bg-muted p-6">
+        <section className="flex flex-col gap-3 rounded-lg border border-border-strong bg-muted p-6 nested:border-border">
           <h3 className="text-lg font-semibold tracking-tight">
             {t("terms.cancelledTitle", { count: cancelled.length })}
           </h3>
@@ -273,7 +273,7 @@ function CancelledResult({ eventId, result }: { eventId: string; result: CancelR
   return (
     <section
       role="status"
-      className="flex flex-col items-start gap-3 rounded-lg border bg-card p-4"
+      className="flex flex-col items-start gap-3 rounded-lg border border-border-strong bg-card p-4 nested:border-border"
     >
       <h3 className="text-2xl font-bold tracking-tight">{t("terms.cancelledResult.title")}</h3>
       <p className="text-lg font-semibold tracking-tight">{termLine(result.term)}</p>

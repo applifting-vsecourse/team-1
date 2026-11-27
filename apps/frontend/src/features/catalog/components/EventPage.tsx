@@ -125,7 +125,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
             <img
               src={catalogEventPhotoUrl(event.publicToken)}
               alt=""
-              className="h-50 w-full rounded-2xl border border-border object-cover md:h-70"
+              className="h-50 w-full rounded-2xl border border-border-strong object-cover md:h-70"
             />
           ) : null}
           {paragraphs.map((paragraph) => (
@@ -137,7 +137,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
             </p>
           ))}
         </div>
-        <Card className={cn("gap-3 rounded-xl p-4", isSticky && "md:sticky md:top-24")}>
+        <Card className={cn("gap-3 p-4", isSticky && "md:sticky md:top-24")}>
           <h2 className="text-lg/6.5 font-semibold tracking-tight">{t("event.terms")}</h2>
           <div className="flex justify-between px-3 text-xs font-medium text-muted-foreground">
             <span>{t("event.termColumn")}</span>

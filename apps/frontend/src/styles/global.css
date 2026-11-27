@@ -3,6 +3,9 @@
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
+/* Inner structure (DESIGN.md, Surfaces): inside a card or a dialog an outer container's ink edge turns grey,
+   so ink never sits inside ink. Use as `border-border-strong nested:border-border`. */
+@custom-variant nested (:where([data-slot="card"], [data-slot="dialog-content"]) &);
 
 @theme inline {
   /* Height makes it clear which item reveals the details and which one gives up space. */
@@ -54,10 +57,6 @@
   --color-ring: var(--ring);
   --color-link: var(--link);
   --color-wash: var(--wash);
-  --color-badge-neutral: var(--badge-neutral);
-  --color-badge-positive: var(--badge-positive);
-  --color-badge-danger: var(--badge-danger);
-  --color-badge-foreground: var(--badge-foreground);
   --color-status-success: var(--status-success);
   --color-status-success-bg: var(--status-success-bg);
   --color-status-warning: var(--status-warning);
@@ -78,6 +77,11 @@
   --color-brand-warm-foreground: var(--brand-warm-foreground);
   --color-sticker-edge: var(--sticker-edge);
   --color-sticker-shadow: var(--sticker-shadow);
+  --color-border-strong: var(--border-strong);
+  --color-disabled: var(--disabled);
+  --color-disabled-foreground: var(--disabled-foreground);
+  --color-status-error-bg: var(--status-error-bg);
+  --color-overlay: var(--overlay);
 
   --font-sans: var(--font-sans);
 
@@ -89,6 +93,10 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+  /* Togena / Brand components A: hard ink offset shadows, never blurred (DESIGN.md, Surfaces). */
+  --shadow-hard: var(--offset-hard) var(--offset-hard) 0 var(--shadow-ink);
+  --shadow-sticker: var(--offset-sticker) var(--offset-sticker) 0 var(--shadow-ink);
+  --shadow-dialog: var(--offset-dialog) var(--offset-dialog) 0 var(--shadow-ink);
 
   /* Figma DS / Metrics radius/* */
   --radius-sm: 4px;
@@ -128,7 +136,7 @@
   --popover-foreground: #031a1e; /* color/text/primary */
   --primary: #007f72; /* color/bg/accent */
   --primary-hover: #006f63;
-  --primary-pressed: #005f55;
+  --primary-pressed: #005f55; /* color/bg/accent-lip */
   --primary-foreground: #ffffff; /* color/text/inverse */
   --secondary: #f5f9fa; /* color/bg/subtle */
   --secondary-foreground: #031a1e; /* color/text/primary */
@@ -149,11 +157,6 @@
   --ring: #007f72; /* color/border/focus */
   --link: #006363; /* color/text/link */
   --wash: #edf6f5; /* Togena / Color / wash: info alert, read-only panels */
-  /* Togena / Color: solid badge tones (Togena / Badge 15189:163) */
-  --badge-neutral: #50686d; /* muted */
-  --badge-positive: #007f72; /* teal */
-  --badge-danger: #b34640; /* danger */
-  --badge-foreground: #ffffff; /* text-on-accent */
   --status-success: #16634a; /* color/status/success */
   --status-success-bg: #eaf6f0; /* color/status/success-bg */
   --status-warning: #8a4b0e; /* color/status/warning */
@@ -176,6 +179,22 @@
   --illustration-ink: #031a1e; /* color/illustration/ink */
   --sticker-edge: #ffffff; /* color/brand/sticker-edge */
   --sticker-shadow: #031a1e; /* color/brand/sticker-shadow */
+  /* Togena / Brand components, direction A „Ink and a hard shadow“ (Figma specimen 27535:3692):
+     an ink edge on every control and card; what you press lifts onto a hard ink offset shadow. */
+  /* Lines muted, shadows full dark (edge strength B for lines, A for shadows; Figma 27632:9575):
+     the edge is ink at about 70 % as a solid colour (6.7:1 on white, 6.5:1 on the canvas),
+     every hard shadow stays pure ink. */
+  --border-strong: #4f5f62; /* color/border/strong */
+  --shadow-ink: #031a1e; /* color/shadow/hard → color/ink */
+  --offset-hard: 3px; /* offset/hard: lift and its shadow */
+  /* How far `lift` moves on hover: the full offset on public pages, none in the work layer (below). */
+  --lift-offset: var(--offset-hard);
+  --offset-sticker: 4px; /* offset/sticker: toast and sticker */
+  --offset-dialog: 6px; /* dialog shadow (specimen A · Dialog 27538:3801) */
+  --disabled: #e6eced; /* color/bg/disabled */
+  --disabled-foreground: #5a6f73; /* color/text/disabled */
+  --status-error-bg: #fff0f1; /* color/status/error-bg */
+  --overlay: rgb(3 26 30 / 0.6); /* ink 60 %: dialog and sheet backdrop */
   /* Sonner reads --radius directly; matches radius/md. */
   --radius: 0.5rem;
   /* shadows/surface: cards and the other things that sit on the canvas */
@@ -228,10 +247,6 @@
   --link: #00bba7; /* color/text/link */
   /* Togena / Color Dark has no wash sample in the DS frames; reuse color/bg/subtle. */
   --wash: var(--secondary);
-  --badge-neutral: #b0c9c3;
-  --badge-positive: #8bdfc4;
-  --badge-danger: #ffaaa3;
-  --badge-foreground: #173438;
   --sidebar: #031011;
   --sidebar-foreground: #e4edee;
   --sidebar-accent: #005f5a;
@@ -243,6 +258,16 @@
   --illustration-subtle: #244f47;
   --illustration-ink: #e9f6f0;
   --sticker-edge: #f0fff7;
+  /* The ink edge and its shadow turn to the control border colour so they stay visible on the
+     dark canvas (6.2:1 on #030b0b); a dark shadow would vanish. */
+  --border-strong: #aabcb9; /* color/dark/ink-edge: dark ink at 70 % over the dark panel */
+  --shadow-ink: #e9f6f0; /* color/shadow/hard → color/dark/ink: a dark shadow would vanish */
+  --disabled: #142223; /* color/border/default */
+  --disabled-foreground: #7a9596; /* color/text/secondary */
+  /* No dark error surface in the DS: the error alert keeps the card surface and its red icon. */
+  --status-error-bg: var(--card);
+  /* The ink scrim would not dim the near-black canvas; black at 75 % does. */
+  --overlay: rgb(0 0 0 / 0.75);
 }
 
 @layer base {
@@ -267,50 +292,40 @@
   }
 }
 
-/* Figma's drawn controls are decorative layers on the Radix controls. Dark mode and
-   forced colours keep their theme-aware outlines, thumb and selection indicator. */
+/* Togena / Brand components A · lift (Figma specimen 27535:3692): on hover what you press moves up
+   and left onto its hard ink shadow and settles back when pressed (Gumroad). Only translate and
+   box-shadow move; with reduced motion the shadow shows without the move. Disabled never lifts. */
+/* Work layer (organizer and participant area; AreaLayout marks <body data-layer="work">, so dialogs opened
+   there count too): hover shows only the hard shadow or the surface change, nothing moves (DESIGN.md, Brand
+   layer and motion). Public pages keep the lift. */
+[data-layer="work"] {
+  --lift-offset: 0px;
+}
+
+@utility lift {
+  transition-property: translate, box-shadow, background-color, border-color, color;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-standard);
+  &:where(:not(:disabled, [aria-disabled="true"], [data-disabled])) {
+    @media (hover: hover) {
+      &:hover {
+        translate: calc(var(--lift-offset) * -1) calc(var(--lift-offset) * -1);
+        box-shadow: var(--offset-hard) var(--offset-hard) 0 var(--shadow-ink);
+      }
+    }
+    &:active {
+      translate: 0 0;
+      box-shadow: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:hover {
+      translate: none;
+    }
+  }
+}
+
 @media (forced-colors: none) {
-  .form-radio[data-state="checked"],
-  .form-switch[data-size="default"] {
-    &:not(.dark *) {
-      position: relative;
-      background: transparent;
-      border-color: transparent;
-      outline-color: transparent;
-
-      &::after {
-        content: "";
-        position: absolute;
-        inset: -5px;
-        background: var(--drawn-control) center / auto no-repeat;
-        pointer-events: none;
-      }
-
-      & > [data-slot="radio-group-indicator"],
-      & > [data-slot="switch-thumb"] {
-        opacity: 0;
-      }
-    }
-  }
-  .form-radio[data-state="checked"] {
-    --drawn-control: url("../assets/forms/radio-selected.svg");
-    &:focus-visible {
-      --drawn-control: url("../assets/forms/radio-selected-focus.svg");
-    }
-  }
-  .form-switch[data-state="unchecked"] {
-    --drawn-control: url("../assets/forms/switch-off.svg");
-    &:focus-visible {
-      --drawn-control: url("../assets/forms/switch-off-focus.svg");
-    }
-  }
-  .form-switch[data-state="checked"] {
-    --drawn-control: url("../assets/forms/switch-on.svg");
-    &:focus-visible {
-      --drawn-control: url("../assets/forms/switch-on-focus.svg");
-    }
-  }
-
   .form-textarea::-webkit-resizer {
     background: url("../assets/forms/resize.svg") right 4px bottom 4px / auto no-repeat;
   }
@@ -726,40 +741,11 @@
   outline: none;
 }
 
-/* Figma v2 action states. Keep the kit's sized hit areas and override only its semantic variants. */
-[data-slot="button"][data-variant="destructive"] {
-  background-color: var(--action-destructive);
-  color: var(--action-destructive-foreground);
-}
-@media (hover: hover) {
-  [data-slot="button"][data-variant="destructive"]:where(
-      :not(:disabled, [aria-disabled="true"])
-    ):hover {
-    opacity: 0.92;
-  }
-  [data-slot="button"][data-variant="ghost"]:where(:not(:disabled, [aria-disabled="true"])):hover {
-    background-color: var(--action-subtle);
-  }
-}
-[data-slot="button"][data-variant="destructive"]:where(
-    :not(:disabled, [aria-disabled="true"])
-  ):active {
-  background-color: var(--action-destructive-pressed);
-  opacity: 1;
-}
-[data-slot="button"][data-variant="ghost"]:where(:not(:disabled, [aria-disabled="true"])):active {
-  background-color: var(--accent);
-}
+/* Focus is the same 2 px teal outline, 2 px off the element, on every button (specimen A, Fokus). */
 [data-slot="button"]:focus-visible {
   --tw-ring-color: transparent;
   outline: 2px solid var(--ring);
   outline-offset: 2px;
-}
-[data-slot="button"][data-variant="destructive"]:focus-visible {
-  outline-color: var(--action-destructive);
-}
-[data-slot="button"][aria-busy="true"]:disabled {
-  opacity: 1;
 }
 
 /* The current language or theme uses the same trailing check as a selected menu option. */
@@ -845,11 +831,6 @@
   border-radius: inherit;
 }
 
-/* Figma Feedback / Badge, warning. */
-[data-slot="badge"][data-variant="warning"] {
-  border-width: 0;
-}
-
 /* Figma Dialog / Dialog actions: both actions share a 48 px target on either layout. */
 [data-slot="dialog-footer"] > [data-slot="button"][data-size="default"],
 [data-slot="sheet-footer"] > [data-slot="button"][data-size="default"] {
@@ -903,10 +884,10 @@
 
 /* Togena / Brand / Sticker: one hard offset shadow, never blurred. */
 .sticker {
-  box-shadow: 4px 4px 0 var(--sticker-shadow);
+  box-shadow: var(--offset-sticker) var(--offset-sticker) 0 var(--sticker-shadow);
 }
 .sticker[data-size="s"] {
-  box-shadow: 3px 3px 0 var(--sticker-shadow);
+  box-shadow: var(--offset-hard) var(--offset-hard) 0 var(--sticker-shadow);
 }
 
 /* M31 and M32 (Figma Motion 27363:3600) play once; with reduced motion the end state shows at once.

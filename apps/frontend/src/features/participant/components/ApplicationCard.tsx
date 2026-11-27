@@ -28,9 +28,9 @@ export function ApplicationCard({ application, boardBadge }: ApplicationCardProp
       to={ROUTES.participant.application}
       params={{ applicationId: application.id }}
       aria-label={`${application.eventName} · ${application.firstName} ${application.lastName} · ${application.code}`}
-      className="block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      className="block lift rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
-      <Card className="gap-0 rounded-xl p-0 shadow-none transition-colors hover:border-ring hover:bg-accent/40">
+      <Card className="gap-0 p-0">
         {/* On a phone the badges go under the participant's data: beside it they would squeeze the name away. */}
         <div className="flex items-start gap-3 p-4 md:px-6">
           <div className="flex min-w-0 flex-1 flex-col gap-2 md:flex-row md:items-start md:justify-between md:gap-4">

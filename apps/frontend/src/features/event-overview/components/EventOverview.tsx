@@ -212,9 +212,9 @@ function AttentionCard({
       to={ROUTES.organizer.eventApplications}
       params={{ eventId }}
       search={search}
-      className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="group block lift rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid"
     >
-      <Card className="gap-2 rounded-lg p-3 shadow-none transition-colors group-hover:border-primary group-hover:bg-muted md:p-4">
+      <Card className="gap-2 rounded-lg p-3 md:p-4">
         <div className="flex items-center gap-2">
           <Icon
             aria-hidden

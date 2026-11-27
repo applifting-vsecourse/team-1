@@ -61,6 +61,7 @@ describe("RequestMagicLinkForm", () => {
 
     const button = screen.getByRole("button", { name: "Send me a link" })
     expect(button).toHaveClass("w-full")
-    expect(button).not.toHaveClass("border")
+    // Every button has an ink edge now (DESIGN.md, direction A); the variant tells primary apart.
+    expect(button).toHaveAttribute("data-variant", "default")
   })
 })

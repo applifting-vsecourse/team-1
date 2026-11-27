@@ -47,6 +47,16 @@ beforeEach(() => {
   vi.restoreAllMocks()
 })
 
+describe("AreaLayout work layer", () => {
+  it("marks the page as the work layer while it is shown, so hover doesn't move anything", async () => {
+    const { unmount } = renderLayout()
+    await screen.findByRole("heading", { name: "Event overview" })
+    expect(document.body).toHaveAttribute("data-layer", "work")
+    unmount()
+    expect(document.body).not.toHaveAttribute("data-layer")
+  })
+})
+
 describe("AreaLayout sidebar", () => {
   it("keeps desktop navigation visible with a legacy preference or shortcut", async () => {
     localStorage.setItem("togena.sidebar.collapsed", "true")
