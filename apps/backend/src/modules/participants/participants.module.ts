@@ -5,10 +5,12 @@ import { OrganizationAccessModule } from "@/shared/organization-access/organizat
 import { Module } from "@nestjs/common"
 import { MyApplicationsController } from "./controllers/my-applications.controller"
 import { OrganizerApplicationEditController } from "./controllers/organizer-application-edit.controller"
+import { OrganizerParticipantDataController } from "./controllers/organizer-participant-data.controller"
 import { ParticipantPasswordController } from "./controllers/participant-password.controller"
 import { RoomWishesController } from "./controllers/room-wishes.controller"
 import { StayController } from "./controllers/stay.controller"
 import { ApplicationEditRepository } from "./repositories/application-edit.repository"
+import { ArrangementsRepository } from "./repositories/arrangements.repository"
 import { MyApplicationsRepository } from "./repositories/my-applications.repository"
 import { ParticipantAccountsRepository } from "./repositories/participant-accounts.repository"
 import { RoomWishesRepository } from "./repositories/room-wishes.repository"
@@ -28,6 +30,7 @@ import { StayService } from "./services/stay.service"
     ParticipantPasswordController,
     MyApplicationsController,
     OrganizerApplicationEditController,
+    OrganizerParticipantDataController,
     RoomWishesController,
     StayController,
   ],
@@ -44,6 +47,7 @@ import { StayService } from "./services/stay.service"
     RoomWishesRepository,
     StayService,
     StayRepository,
+    ArrangementsRepository,
   ],
   exports: [ParticipantAccountsService, ApplicationConfirmationMailer],
 })

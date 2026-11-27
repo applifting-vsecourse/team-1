@@ -42,6 +42,11 @@ export class MyApplicationTermDto {
   @ApiProperty({ description: "The participant chose a transport or their own transport." })
   transportDecided!: boolean
 
+  @ApiProperty({
+    description: "The term is not over: transport, wishes and stay can still be changed.",
+  })
+  termEditable!: boolean
+
   @ApiPropertyOptional({
     type: "object",
     properties: {
@@ -182,6 +187,9 @@ export class MyApplicationResponseDto {
 
   @ApiProperty({ description: "Meal restrictions entered; the same in every term." })
   mealsDecided!: boolean
+
+  @ApiProperty({ description: "The meals can still be changed: a term is not over (D-192)." })
+  mealsEditable!: boolean
 
   @ApiProperty({ description: "Health restriction entered; the same in every term." })
   healthDecided!: boolean

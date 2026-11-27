@@ -118,4 +118,57 @@ describe("ApplicationHistory", () => {
 
     expect(await screen.findByText("Could not load the history of changes")).toBeInTheDocument()
   })
+
+  it("shows what the organizer wrote for the participant, with the term and who (D-191)", async () => {
+    get.mockReturnValue({
+      json: () =>
+        Promise.resolve([
+          {
+            id: "edit-h",
+            kind: "LOGISTICS",
+            at: "2026-11-26T10:00:00Z",
+            author: "Eva Malá",
+            field: "health",
+            from: null,
+            to: "WRITTEN",
+          },
+          {
+            id: "edit-t",
+            kind: "LOGISTICS",
+            at: "2026-11-26T09:00:00Z",
+            author: "Eva Malá",
+            field: "transport",
+            termName: "Letní týden",
+            startsOn: "2027-07-12",
+            endsOn: "2027-07-19",
+            from: null,
+            to: "Autobus z Prahy",
+          },
+          {
+            id: "edit-s",
+            kind: "LOGISTICS",
+            at: "2026-11-26T08:00:00Z",
+            author: "Eva Malá",
+            field: "stay",
+            termName: "Letní týden",
+            startsOn: "2027-07-12",
+            endsOn: "2027-07-19",
+            from: null,
+            to: "|2027-07-18T16:00",
+          },
+          entries[3],
+        ]),
+    })
+    setup()
+
+    const [health, transport, stay] = within(await screen.findByRole("list")).getAllByRole(
+      "listitem",
+    )
+    // Only that the note was written, never its text.
+    expect(health).toHaveTextContent("Health restriction: entered by the organiser")
+    expect(health).toHaveTextContent("Eva Malá")
+    expect(transport).toHaveTextContent("Transport (Letní týden): — → Autobus z Prahy")
+    expect(stay).toHaveTextContent("departure 18 Jul 2027 16:00")
+    expect(stay).toHaveTextContent("arrival —")
+  })
 })

@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { isApplicationEditable } from "@/modules/applications/domain/application-editable"
+import { EDITABLE_FIELDS } from "@/modules/applications/domain/application-history"
 import { findDuplicate } from "@/modules/applications/domain/duplicate-application"
 import { termLabel } from "@/modules/applications/domain/term-label"
 import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
@@ -38,7 +39,12 @@ export type Editor = { id: string; name: string }
 
 const include = {
   event: { select: { name: true } },
-  edits: { orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 50 },
+  // Only edits of the details; what an organizer wrote for the participant (D-191) is history only.
+  edits: {
+    where: { changedFields: { hasSome: [...EDITABLE_FIELDS] } },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: 50,
+  },
 } as const satisfies Prisma.ApplicationInclude
 
 type Row = Prisma.ApplicationGetPayload<{ include: typeof include }>

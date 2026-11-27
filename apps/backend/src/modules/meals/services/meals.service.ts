@@ -88,6 +88,7 @@ export class MealsService {
 
   async saveOwn(user: Identity, applicationId: string, input: SelectionInput): Promise<OwnMeals> {
     const current = await this.getOwn(user, applicationId)
+    if (!current.editable) throw new AppException(HttpStatus.CONFLICT, "MEALS_EDIT_CLOSED")
     const decision = decideSelection(input, current.options)
     if (decision.kind === "invalid") {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", "Invalid meal selection")
