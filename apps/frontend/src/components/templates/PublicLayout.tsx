@@ -1,44 +1,36 @@
 import type { ReactNode } from "react"
 
 import { Header } from "@/components/organisms/Header"
+import { PublicFooter } from "@/components/organisms/PublicFooter"
 
 type PublicLayoutProps = {
   children: ReactNode
-  /** Navigation links in the header (landing). */
-  nav?: ReactNode
-  headerAction?: ReactNode
+  /** Width of the content column the header lines up with (Figma: the header's padding follows the page). */
   headerContentClassName?: string
-  /** Under the content, across the page (landing). */
-  footer?: ReactNode
+  /** The footer with the brand and the link groups (landing, catalog, event page); otherwise the minimal one. */
+  hasFullFooter?: boolean
   /** Full-width sections that manage their own width (landing). */
   isFullWidth?: boolean
 }
 
-/** Landing and the application form — no login, mobile first (360 px). */
+/** Every public page — no login, mobile first (360 px): the public header, content and the public footer. */
 export function PublicLayout({
   children,
-  nav,
-  headerAction,
   headerContentClassName,
-  footer,
+  hasFullFooter = false,
   isFullWidth = false,
 }: PublicLayoutProps) {
   return (
-    <>
-      <Header
-        nav={nav}
-        userMenu={headerAction}
-        contentClassName={headerContentClassName}
-        isWide={isFullWidth}
-      />
-      <main className="min-h-svh">
+    <div className="flex min-h-svh flex-col">
+      <Header contentClassName={headerContentClassName} />
+      <main className="flex-1">
         {isFullWidth ? (
           children
         ) : (
           <div className="mx-auto w-full max-w-200 px-4 py-8">{children}</div>
         )}
       </main>
-      {footer ? <footer className="border-t border-border">{footer}</footer> : null}
-    </>
+      <PublicFooter isMinimal={!hasFullFooter} />
+    </div>
   )
 }

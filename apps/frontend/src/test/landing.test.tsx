@@ -86,13 +86,24 @@ describe("landing", () => {
     expect(screen.getAllByText("You apply without creating an account.")).toHaveLength(2)
   })
 
-  it("keeps My applications in the header, not in the hero", async () => {
+  it("has the public header with Sign in, and no My applications anywhere", async () => {
     renderLanding()
-    const hero = await heroOf()
+    await heroOf()
 
-    expect(within(hero).queryByRole("link", { name: "My applications" })).not.toBeInTheDocument()
     expect(
-      within(screen.getByRole("banner")).getByRole("link", { name: "My applications" }),
+      within(screen.getByRole("banner")).getByRole("link", { name: "Sign in" }),
     ).toHaveAttribute("href", "/participant/login")
+    expect(screen.queryByRole("link", { name: "My applications" })).not.toBeInTheDocument()
+  })
+
+  it("ends with the full public footer", async () => {
+    renderLanding()
+    await heroOf()
+
+    expect(
+      within(screen.getByRole("contentinfo")).getByRole("navigation", {
+        name: "For participants",
+      }),
+    ).toBeInTheDocument()
   })
 })

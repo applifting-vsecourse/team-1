@@ -1,111 +1,41 @@
 import type { ReactNode } from "react"
-import { useTranslation } from "react-i18next"
 
-import { BandBackdrop } from "@/components/atoms/BandBackdrop"
-import { BrandDivider } from "@/components/atoms/BrandDivider"
-import { useIsEmbeddedPage } from "@/components/atoms/EmbeddedPage"
-import { HeadingBand } from "@/components/atoms/HeadingBand"
+import { Backdrop } from "@/components/atoms/Backdrop"
 import { Header } from "@/components/organisms/Header"
+import { PublicFooter } from "@/components/organisms/PublicFooter"
 import { Card } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
 
 type AuthLayoutProps = {
-  title: string
-  description: string
-  /** Round icon above the heading (403). */
-  isSingleCard?: boolean
-  hasBand?: boolean
-  showDivider?: boolean
-  icon?: ReactNode
-  /** Heading of the form card. Without it the children sit directly on the page. */
-  cardTitle?: string
-  /** Link back above the heading (sign-in pages). */
-  back?: ReactNode
+  /** The content of the one card: the heading, the form or the state, the card footer. */
   children: ReactNode
-  footer?: ReactNode
+  /** In place of „Přihlásit se“ in the header, e.g. „Odhlásit se“ in the registration wizard. */
+  headerAction?: ReactNode
+  /** Under the card, e.g. the step dots of the registration wizard. */
+  below?: ReactNode
 }
 
 /**
- * Sign-in, set-password and 403 pages: the public header, a centred heading
- * and the content in one card. The header keeps the language switcher,
- * because nobody can sign in in a language they cannot read.
+ * Entry pages — sign-in, magic link, set password, registration: the public header without
+ * „Přihlásit se“, one brand card on the Backdrop and the minimal footer. The page's `h1` is the
+ * card's heading.
  */
-// Figma (Design system): S01 Přihlášení organizátora · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11987-51
-// Figma (Design system): S10 Přihlášení účastníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11968-273
-export function AuthLayout({
-  title,
-  description,
-  icon,
-  cardTitle,
-  isSingleCard = false,
-  hasBand = false,
-  showDivider: shouldShowDivider = true,
-  back,
-  children,
-  footer,
-}: AuthLayoutProps) {
-  const { t } = useTranslation("auth")
-  const isEmbedded = useIsEmbeddedPage()
-  const heading = (
-    <div className="flex flex-col items-start gap-2">
-      {icon}
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-muted-foreground">{description}</p>
-    </div>
-  )
-  const content = (
-    <div
-      className={
-        isEmbedded
-          ? "mx-auto flex w-full max-w-128 flex-col gap-6 pt-10 pb-12"
-          : cn(
-              "mx-auto flex w-full max-w-[528px] flex-col gap-6 px-6 pb-12",
-              back ? "pt-4 md:pt-8" : "pt-8",
-            )
-      }
-    >
-      {back}
-      {isSingleCard ? (
-        <Card className="gap-4 rounded-2xl p-6 shadow-none md:p-8">
-          {heading}
-          {shouldShowDivider ? <BrandDivider /> : null}
-          {children}
-          {footer}
-        </Card>
-      ) : (
-        <>
-          {hasBand ? <HeadingBand>{heading}</HeadingBand> : heading}
-
-          {cardTitle ? (
-            <Card className="gap-5 p-6">
-              <h2 className="text-lg font-semibold">{cardTitle}</h2>
-              {children}
-            </Card>
-          ) : (
-            children
-          )}
-
-          {footer ? (
-            <div className="text-center text-sm text-muted-foreground">{footer}</div>
-          ) : null}
-        </>
-      )}
-    </div>
-  )
-
-  // Embedded: the area layout already provides the header and `<main>`.
-  if (isEmbedded) return content
-
+// Figma (Design system v2): US-02 / Přihlášení přihlašovatele · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-2 (mobile 15315-52)
+export function AuthLayout({ children, headerAction, below }: AuthLayoutProps) {
   return (
     <div className="flex min-h-svh flex-col">
-      <Header />
-      <main className="relative flex-1 overflow-hidden">
-        {isSingleCard ? <BandBackdrop className="h-40 lg:h-56" /> : null}
-        <div className="relative">{content}</div>
-      </main>
-      {isSingleCard ? (
-        <footer className="p-4 text-center text-sm text-muted-foreground">{t("signature")}</footer>
-      ) : null}
+      <Header
+        hasSignIn={false}
+        action={headerAction}
+        contentClassName="max-w-224"
+      />
+      <div className="relative flex flex-1 flex-col">
+        <Backdrop />
+        <main className="relative flex flex-1 flex-col items-center gap-4 px-4 pt-6 pb-12 md:px-6 md:pt-16">
+          <Card className="w-full max-w-110 gap-4 p-6">{children}</Card>
+          {below}
+        </main>
+        <PublicFooter isMinimal />
+      </div>
     </div>
   )
 }

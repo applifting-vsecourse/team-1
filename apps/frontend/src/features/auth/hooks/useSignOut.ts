@@ -8,7 +8,8 @@ import { notify } from "@/lib/notify"
 
 import { authClient } from "@/features/auth/lib/auth-client"
 
-export function useSignOut() {
+/** Signs out and leaves for the landing page, or for `to` (the 403 „Přihlásit se jiným účtem“ goes to the sign-in). */
+export function useSignOut({ to = ROUTES.home }: { to?: string } = {}) {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { t } = useTranslation("auth")
@@ -22,7 +23,7 @@ export function useSignOut() {
       // Nothing of the previous account may linger in the cache.
       queryClient.clear()
       queryClient.setQueryData(authKeys.session(), null)
-      await navigate({ to: ROUTES.home, ignoreBlocker: true })
+      await navigate({ to, ignoreBlocker: true })
     },
     // Sign-out is started from a menu, which has no form to show the error in.
     onError: () => notify.error(t("menu.signOutFailedTitle"), t("menu.signOutFailedDescription")),

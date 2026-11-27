@@ -1,8 +1,5 @@
 import type { ReactNode } from "react"
-import { Link } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
 
-import { ROUTES } from "@/app/routes"
 import wideMobileBand from "@/assets/status/band-mobile-390.svg"
 import mobileBand from "@/assets/status/band-mobile.svg"
 import band from "@/assets/status/band.svg"
@@ -12,7 +9,7 @@ import mark from "@/assets/status/mark.svg"
 import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { useIsEmbeddedPage } from "@/components/atoms/EmbeddedPage"
 import { Header } from "@/components/organisms/Header"
-import { Button } from "@/components/ui/button"
+import { PublicFooter } from "@/components/organisms/PublicFooter"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
@@ -24,6 +21,12 @@ type Props = {
   children: ReactNode
 }
 
+/**
+ * Legacy: the previous system-page design, kept only for `ApplicationLinkNotFound` and
+ * `EventNotFound`, which the routes no longer use (they show `NotFoundPage`). Their features belong
+ * to other design-pass branches (#795 deletes both); remove this file with them. New pages use
+ * `SystemPageLayout`.
+ */
 // Figma: #126 system errors, desktop and mobile · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20125-1810
 export function SystemStatusLayout({
   title,
@@ -32,7 +35,6 @@ export function SystemStatusLayout({
   variant = "band",
   children,
 }: Props) {
-  const { t } = useTranslation("auth")
   const isEmbedded = useIsEmbeddedPage()
   const isCompact = variant === "compact"
   const content = (
@@ -95,23 +97,13 @@ export function SystemStatusLayout({
   return (
     <div className="flex min-h-svh flex-col">
       <Header
-        contentClassName={cn("md:min-h-29", code !== 403 && "min-h-20")}
-        userMenu={
-          code !== 403 && (
-            <Button
-              asChild
-              variant="ghost"
-              size="lg"
-            >
-              <Link to={ROUTES.participant.login}>{t("form.submit")}</Link>
-            </Button>
-          )
-        }
+        hasSignIn={code !== 403}
+        contentClassName="max-w-224"
       />
       <main className={cn("flex flex-1 items-center p-4 md:p-12", isCompact && "items-start px-6")}>
         {content}
       </main>
-      <footer className="p-4 text-center text-sm text-muted-foreground">{t("signature")}</footer>
+      <PublicFooter isMinimal />
     </div>
   )
 }
