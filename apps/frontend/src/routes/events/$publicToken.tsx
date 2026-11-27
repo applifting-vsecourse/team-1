@@ -2,8 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, notFound } from "@tanstack/react-router"
 
 import { Seo } from "@/components/atoms/Seo"
-import { PublicSignInButton } from "@/components/molecules/PublicSignInButton"
-import { LinkNotFoundPage } from "@/components/pages/LinkNotFoundPage"
+import { NotFoundPage } from "@/components/pages/NotFoundPage"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { HTTPError } from "@/lib/api-client"
 
@@ -20,7 +19,7 @@ export const Route = createFileRoute("/events/$publicToken")({
       throw error
     }
   },
-  notFoundComponent: LinkNotFoundPage,
+  notFoundComponent: NotFoundPage,
   component: CatalogEventRoute,
 })
 
@@ -33,8 +32,9 @@ function CatalogEventRoute() {
       <Seo title={event.name} />
       <PublicLayout
         isFullWidth
+        hasFullFooter
+        headerContentClassName="max-w-275"
         hasBottomBar
-        headerAction={<PublicSignInButton />}
       >
         <div className="mx-auto w-full max-w-299 px-4 pt-4 pb-8 md:px-12 md:pt-8 md:pb-12">
           <EventPage event={event} />

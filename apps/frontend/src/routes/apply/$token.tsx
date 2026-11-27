@@ -1,12 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link, notFound } from "@tanstack/react-router"
+import { createFileRoute, notFound } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
-import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
-import { LinkNotFoundPage } from "@/components/pages/LinkNotFoundPage"
+import { NotFoundPage } from "@/components/pages/NotFoundPage"
 import { PublicLayout } from "@/components/templates/PublicLayout"
-import { Button } from "@/components/ui/button"
 import { HTTPError } from "@/lib/api-client"
 
 import { publicEventQueryOptions } from "@/features/application-form/api/publicEvent"
@@ -22,7 +20,7 @@ export const Route = createFileRoute("/apply/$token")({
       throw error
     }
   },
-  notFoundComponent: LinkNotFoundPage,
+  notFoundComponent: NotFoundPage,
   component: ApplicationFormPage,
 })
 
@@ -30,7 +28,7 @@ export const Route = createFileRoute("/apply/$token")({
 // Figma (Design system): V07 .../?node-id=12666-2538 (desktop), M02 .../?node-id=12666-18727 (360 px).
 function ApplicationFormPage() {
   const { token } = Route.useParams()
-  const { t } = useTranslation(["applicationForm", "auth"])
+  const { t } = useTranslation("applicationForm")
   const { data: event } = useSuspenseQuery(publicEventQueryOptions(token))
 
   return (
@@ -38,15 +36,7 @@ function ApplicationFormPage() {
       <Seo title={t("form.heading", { event: event.name })} />
       <PublicLayout
         isFullWidth
-        headerContentClassName="min-h-[79px] md:min-h-[115px]"
-        headerAction={
-          <Button
-            asChild
-            variant="ghost"
-          >
-            <Link to={ROUTES.participant.login}>{t("auth:form.submit")}</Link>
-          </Button>
-        }
+        headerContentClassName="max-w-288"
       >
         <div className="mx-auto w-full max-w-[1248px] px-4 py-4 md:p-12">
           <ApplicationFormContainer

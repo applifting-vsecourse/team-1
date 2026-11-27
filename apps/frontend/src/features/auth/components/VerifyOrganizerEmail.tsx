@@ -106,7 +106,7 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
   return (
     <RegistrationLayout>
       <Seo title={title} />
-      <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+      <h1 className="text-center text-2xl font-bold tracking-tight">{title}</h1>
       <BrandDivider />
       {isResent && (
         <p

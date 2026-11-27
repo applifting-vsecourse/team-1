@@ -84,25 +84,20 @@
   },
   "navigationPreferences": "Jazyk a vzhled",
   "pages": {
+    "actions": {
+      "applications": "Moje přihlášky",
+      "catalog": "Prohlédnout akce",
+      "events": "Na seznam akcí"
+    },
     "error": {
       "action": "Načíst znovu",
-      "description": "Stránku se nepodařilo zobrazit. Zkuste ji načíst znovu nebo se vraťte na úvodní stránku.",
-      "homeAction": "Na úvodní stránku",
       "title": "Něco se pokazilo"
     },
     "forbidden": {
-      "action": "Na úvodní stránku",
-      "description": "Tato stránka patří jinému účtu nebo jiné organizaci.",
-      "title": "K tomuto obsahu nemáte přístup."
-    },
-    "linkNotFound": {
-      "action": "Prohlédnout akce",
-      "title": "Tento odkaz nefunguje"
+      "title": "K tomuto obsahu nemáte přístup"
     },
     "notFound": {
-      "action": "Na úvodní stránku",
-      "description": "Odkaz může být chybný nebo už neplatí. Pokračujte z úvodní stránky.",
-      "title": "Tuhle stránku jsme nenašli."
+      "title": "Tento odkaz nefunguje"
     }
   },
   "pagination": {
@@ -119,19 +114,25 @@
     "hide": "Skrýt heslo",
     "show": "Zobrazit heslo"
   },
+  "preferences": {
+    "language": "Jazyk",
+    "theme": "Vzhled"
+  },
   "price": {
     "free": "Zdarma"
   },
   "publicFooter": {
     "catalog": "Katalog akcí",
     "login": "Přihlásit se",
-    "myApplications": "Moje přihlášky",
     "organizers": "Pro organizátory",
     "participants": "Pro účastníky",
     "register": "Založit účet",
+    "signature": "Togena · Správa vícetermínových akcí",
     "tagline": "Správa vícetermínových akcí"
   },
   "publicHeader": {
+    "catalog": "Katalog akcí",
+    "organizers": "Pro organizátory",
     "signIn": "Přihlásit se"
   },
   "state": {
