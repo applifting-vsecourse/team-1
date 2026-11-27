@@ -185,7 +185,7 @@
      the edge is ink at about 70 % as a solid colour (6.7:1 on white, 6.5:1 on the canvas),
      every hard shadow stays pure ink. */
   --border-strong: #4f5f62; /* color/border/strong */
-  --shadow-ink: #031a1e; /* color/shadow/ink */
+  --shadow-ink: #031a1e; /* color/shadow/hard → color/ink */
   --offset-hard: 3px; /* offset/hard: lift and its shadow */
   /* How far `lift` moves on hover: the full offset on public pages, none in the work layer (below). */
   --lift-offset: var(--offset-hard);
@@ -260,8 +260,8 @@
   --sticker-edge: #f0fff7;
   /* The ink edge and its shadow turn to the control border colour so they stay visible on the
      dark canvas (6.2:1 on #030b0b); a dark shadow would vanish. */
-  --border-strong: #6e959e; /* color/border/control */
-  --shadow-ink: #6e959e; /* a dark shadow would vanish on the dark canvas */
+  --border-strong: #aabcb9; /* color/dark/ink-edge: dark ink at 70 % over the dark panel */
+  --shadow-ink: #e9f6f0; /* color/shadow/hard → color/dark/ink: a dark shadow would vanish */
   --disabled: #142223; /* color/border/default */
   --disabled-foreground: #7a9596; /* color/text/secondary */
   /* No dark error surface in the DS: the error alert keeps the card surface and its red icon. */
