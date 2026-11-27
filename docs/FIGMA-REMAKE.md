@@ -18,9 +18,9 @@ Tento soubor popisuje, jak se obrazovky Togeny převádějí do nového vzhledu.
 - kostra aplikace: sidebar bez rámečků u položek, horní lišta 64 px, záhlaví stránky s nadpisem a popisem vlevo a hlavní akcí vpravo,
 - tabulky z řádků mají šedé záhlaví sloupců a řádky oddělené hairline,
 - stavové panely vypadají jako DS / Alert: podklad `status/*-bg`, rámeček v barvě tónu na 30 %, radius 12,
-- dekorativní kompozice z loga zmizely (landing, přihlášení, boční panel přihlášky).
+- dekorativní kompozice z loga zmizely (přihlášení, boční panel přihlášky); landing má od 25. 11. 2026 značkové ilustrace (viz Značka).
 
-**Nesmí se:** vymýšlet text, popisky ani prvky, které původní rámec nemá; přidávat ilustrace, gradienty, glow nebo sekce na vyplnění místa.
+**Nesmí se:** vymýšlet text, popisky ani prvky, které původní rámec nemá; přidávat ilustrace (kromě značkových na veřejných stránkách a milnících, viz Značka), gradienty, glow nebo sekce na vyplnění místa.
 
 ## Rohy loga jako značka aktivního stavu
 
@@ -29,7 +29,7 @@ Dva oblouky z loga (DS / Graphic / Active corners `13134:19498`) označují **je
 - **ano:** aktivní položka sidebaru, aktivní záložka, aktuální krok průvodce, vybraná nebo aktuální karta akce (O01),
 - **ne:** řádky tabulek, stránkování, ovládací prvky, štítky, tlačítka, hover, prázdné stavy, dekorace, seznamy bez výběru (U01).
 
-V sidebaru je jen jeden marker: když je otevřená konkrétní akce, nadřazená položka „Akce“ má jen podbarvení a rohy má aktivní podstránka.
+Oblouky loga uvnitř značkové ilustrace jsou kresba, ne marker, a jsou povolené. V sidebaru je jen jeden marker: když je otevřená konkrétní akce, nadřazená položka „Akce“ má jen podbarvení a rohy má aktivní podstránka.
 
 **Animace:** rohy přijedou z odsazení 6 px a zároveň se objeví (180 ms, ease-out). Při `prefers-reduced-motion` se jen objeví. V kódu je to atom `ActiveCorners`, který se zobrazí uvnitř prvku s `data-status="active"`.
 
@@ -44,7 +44,7 @@ V sidebaru je jen jeden marker: když je otevřená konkrétní akce, nadřazen�
 
 **Veřejné stránky:** hlavička přes celou šířku (fill surface, spodní hairline, logo, „Přihlásit se“, přepínač jazyka), obsah na `canvas`. Přihláška je sloupec 800 px, systémové stránky (přihlášení, 403, 404) vystředěný sloupec 440 px: dlaždice s ikonou, nadpis, popis a pod tím karta s vysvětlením a tlačítky přes celou šířku.
 
-**Landing (V08 / M07):** centrovaný hero (Display, „bez zmatku“ v `color/text/link`), Lead, dvě tlačítka 44 px „Jsem organizátor“ (primary) a „Jsem účastník“ (secondary), na desktopu 200 px, na mobilu přes celou šířku. Pak pás `bg/subtle` „Co v Togeně vyřídíte“ s mřížkou 2×2 karet DS / Landing / Feature a zápatí s horní hairline.
+**Landing (Landing page / CZ, `22640:10977` / `22640:11536`):** hero vlevo text (Display, „bez zmatku“ v ink se zvýrazňovačem `color/brand/warm`), jedna věta, „Vytvořit akci“ (primary) a vedle „Najít akci →“ (secondary, stejná výška) s mikrotextem „Přihlásíte se bez registrace.“, vpravo ilustrace Tábor s čipem termínu a nálepkou; na mobilu tlačítka pod sebou přes celou šířku. Pak pás `bg/subtle` „Co v Togeně vyřídíte“ s širokou kartou „Potvrzení a náhradníky“ a třemi kartami s motivy, závěr se stejnými tlačítky a statickým Táborem, zápatí s horní hairline.
 
 **Přihlášené části:** sidebar 240 px (`bg/subtle`, pravá hairline) jen s položkami Akce / Organizace (DS / App sidebar; dashboard se zrušil 25. 10.) a dole s účtem (N / Sidebar account, od 25. 10.), horní lišta 64 px (role, jazyk, vzhled; DS / App top bar), obsah s odsazením 32 / 32 / 48 a mezerami 24. Pod 768 px se sidebar schová do vysouvacího panelu (shadcn Sheet, 288 px, překryv černá 50 %; DS / Mobile drawer) otevíraného tlačítkem menu v horní liště: M08 (zavřeno) a M09 (otevřeno) na stránce 06 Mobil. Horní lišta na mobilu (DS / Mobile top bar, 56 px) má menu, logo, jazyk a vzhled (stejné komponenty jako na desktopu); účet je dole v draweru.
 
@@ -107,3 +107,12 @@ Návrh N1–N9 schválil tech lead; je na stránce **HF / 07 Návrh 25. 10.** (u
 - Přepínač sekcí zobrazuje pouze aktuální sekci a šipku; údaj o pořadí („1 z 5“) se odstraňuje. Nabídka dál obsahuje všechny sekce a označuje aktivní položku.
 - Kopírování odkazu je pouze v kartě pro sdílení; duplicitní tlačítko vedle nadpisu přehledu se odstraňuje na všech šířkách. Nadpis a popis mají dostupnou šířku. U nepřipravené akce zůstává checklist bez kopírování.
 - Návrh změny je odsouhlasený v #176. Ve Figmě je upravený N / Event section switcher (`14179:986`); změnu převzaly instance N8 / N9 a oba náhledy byly vizuálně zkontrolované. Tato úprava má pro implementaci přednost před starším zobrazením pořadí.
+
+## Značka (2026-11-25)
+
+Brand základ schválil uživatel 25. 11. 2026 (Komponenty, sekce `27355:3504`; Motion `27361:3600`). V kódu: tokeny v `global.css`, ilustrace v `apps/frontend/src/assets/illustrations`, atom `Sticker`, pravidla v [`DESIGN.md`](../DESIGN.md) („Brand layer and motion“).
+
+- **Teplá oranžová** `color/brand/warm` (`#f08a3c`, tmavý `#f5a05f`) je jen výplň: ilustrace, zvýrazňovač v nadpisu, plocha nálepky s ink obsahem. Nikdy text, tlačítko, odkaz ani jediný nositel stavu; s tealem se nedotýká.
+- **Ilustrace** (Togena / Brand / Illustration, 12 motivů) jsou jen z výplní a geometrie loga, s jednou zemní linkou; patří na veřejné stránky a milníky, ne na pracovní obrazovky organizátora.
+- **Nálepka** (Togena / Brand / Sticker): bílý okraj 4 px, tvrdý stín 3 / 4 px, −2° v aplikaci, −8° jen v ilustraci landingu.
+- **Pohyb:** tokeny `--ease-*` a `--duration-*`; M31 (oblouky se složí) jednou na landingu, M32 (nálepka se přilepí) jednou u milníku. Při omezeném pohybu rovnou konečný stav.

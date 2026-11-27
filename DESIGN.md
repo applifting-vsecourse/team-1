@@ -8,13 +8,13 @@ These are rules, not suggestions. When a rule and a "nicer looking" idea disagre
 
 ## Screens come from Figma
 
-Use the verified v2 frames under **Podklady** in the issue. Follow each screen’s interaction notes and the [Motion M01–M30 guide](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=26793-3466) for triggers, timing, results and reduced motion. Apply conditional effects only when their stated condition is met. Keep controls, results and errors available immediately. For interactions without a specified effect, update the state immediately.
+Use the verified v2 frames under **Podklady** in the issue. Follow each screen’s interaction notes and the [Motion M01–M30 guide](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=26793-3466) (brand motion M31 / M32: [`27363:3600`](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27363-3600)) for triggers, timing, results and reduced motion. Apply conditional effects only when their stated condition is met. Keep controls, results and errors available immediately. For interactions without a specified effect, update the state immediately.
 
 This file says how to build; **Figma says what to build.** Every UI story links its frames in the issue, every PR that changes UI links the same frames under „Design“ next to its screenshots, and the screen is implemented as drawn — structure, copy, control types, sizes, states. The rules below fill in only what a frame doesn't spell out (spacing scale, accessibility floor, three list states); they never license redesigning a screen or adding what the design doesn't contain. Process and the `design-reviewer` agent: [`CLAUDE.md`, "UI follows Figma"](CLAUDE.md#ui-follows-figma--dont-invent).
 
 When a frame contradicts a rule below, build the frame and report the conflict in the PR; the tech lead decides which one changes. Decided so far (US-23): public pages are 800 px wide, and type stays on the Tailwind scale even where a frame is a few px off it (the "404" is `text-6xl`, not 64 px).
 
-**Visual style: shadcn look on the original colours.** The current frames in [Design system v2](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15186-2) use the shadcn style ([`docs/FIGMA-REMAKE.md`](docs/FIGMA-REMAKE.md)): original DS colours, cards with a soft shadow, Inter for text and numbers. The two logo arcs (`ActiveCorners`) mark one active thing — the active sidebar item, the active tab, the current step, the current event card — and nothing else: never rows, controls, badges, buttons, hover or empty states.
+**Visual style: shadcn look on the original colours.** The current frames in [Design system v2](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15186-2) use the shadcn style ([`docs/FIGMA-REMAKE.md`](docs/FIGMA-REMAKE.md)): original DS colours, cards with a soft shadow, Inter for text and numbers. The two logo arcs (`ActiveCorners`) mark one active thing — the active sidebar item, the active tab, the current step, the current event card — and nothing else: never rows, controls, badges, buttons, hover or empty states. The same arcs inside a brand illustration are drawing, not a marker, and are allowed.
 
 **Tokens live in `apps/frontend/src/styles/global.css`.** That file is the only source of truth for colour, radius and shadows. This file says how to _use_ them.
 
@@ -25,6 +25,7 @@ When a frame contradicts a rule below, build the frame and report the conflict i
 - **`destructive` only for destructive actions and errors.** Never for emphasis.
 - **`accent` is a quiet teal tint, not a brand colour.** It marks badges, icon tiles, the active tab and hover surfaces. The brand colour is `primary`; `link` is the teal for text links and accented words.
 - Body text is `foreground`; supporting text is `muted-foreground`. There is no third level.
+- **`brand-warm` (warm orange) is a fill, never text.** Illustrations, the highlighter stripe under the key words of a public heading (the heading keeps its own colour) and the sticker surface, whose content is always ink (`brand-warm-foreground`). It never carries a state on its own, never colours a button or a link, and never touches primary teal (a white gap or an ink line between them).
 
 ## Layout
 
@@ -32,12 +33,21 @@ When a frame contradicts a rule below, build the frame and report the conflict i
 - **Never nest a card inside a card.** If content needs grouping inside a card, use spacing and a hairline divider (a top border on the row).
 - **A page is not a card.** Page content sits on `background` in a column (`max-w-196` = 784 px for forms and settings, full width for overviews, `max-w-200` = 800 px for the application form in `PublicLayout`); the cards sit in that column.
 - **Every page keeps the app chrome.** The header is present on every route, including login and sign-up. Pages never render as standalone islands.
-- The landing is a centred hero (primary words, two XL buttons) followed by a `muted` band with a 2x2 grid of feature cards; its two buttons are `lg`. The public pages (landing, event catalog, sign-in and sign-up) share its look: the slanted accent band (`BandBackdrop`) and unDraw illustrations from `assets/illustrations`; event cards in the catalog show the event's photo. Elsewhere, carousels, decorative illustrations or gradients, and any section whose only purpose is to look full are forbidden.
+- The landing has four parts and the footer: the hero (heading with the highlighted words, one sentence, `lg` primary „Create an event“ and secondary „Find an event“ with the no-account note, the camp illustration), a `muted` band with one wide and three feature cards with brand illustrations, and a closing section repeating the hero entries 1:1. Public pages use the brand illustrations from `assets/illustrations` (logo arcs, fills only); the event catalog, sign-in and sign-up still use the slanted accent band (`BandBackdrop`) until their redesign; event cards in the catalog show the event's photo. Elsewhere, carousels, decorative illustrations or gradients, and any section whose only purpose is to look full are forbidden.
 - Signed-in areas: sidebar 240 px (`sidebar` tokens, nav items 44 px without borders; the Figma support link waits until a support channel exists), the account (avatar, name, e-mail; its menu opens upwards) at the bottom of the sidebar, top bar 64 px (role label, language and theme switchers), content padding 32. Below `md` the sidebar moves into a sheet opened from the top bar (56 px: menu, logo, language and theme), the account stays at the bottom of the sheet.
+
+## Brand layer and motion
+
+Two layers ([Figma Komponenty, brand](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27355-3504)). The **expressive** layer — brand illustrations, the warm accent, the `Sticker` — belongs only to public pages and milestones (a confirmed place, a payment). Organizer work screens stay **calm**: no illustrations, no sticker, motion only `--duration-fast` / `--duration-base` with `--ease-standard`.
+
+- Motion uses the tokens in `global.css` (`--ease-standard`, `--ease-enter`, `--ease-overshoot`, `--ease-effect`, `--duration-fast` 120, `--duration-base` 180, `--duration-slow` 400, `--duration-mark` 650). Opacity and colour never overshoot; only scale, position and rotation may.
+- M31 (the logo arcs assemble the illustration) plays once per page load on the landing; M32 (the sticker sticks, then its check draws) once when the result is known. Neither loops.
+- Every animation is declared inside `@media (prefers-reduced-motion: no-preference)`; JavaScript that starts motion checks `matchMedia("(prefers-reduced-motion: reduce)")`. With reduced motion the end state shows at once, and text and controls never wait for motion.
+- The sticker is decoration (`aria-hidden`), tilted −2° in the app and up to −8° only inside a landing illustration; the state is always in text next to it.
 
 ## Spacing
 
-Use the scale only: `1, 2, 3, 4, 6, 8, 12, 16` (Tailwind units — 4px…64px). No arbitrary values like `p-[13px]`. Related things get `gap-2`/`gap-3`; separate blocks get `gap-6`/`gap-8`.
+Use the scale only: `1, 2, 3, 4, 5, 6, 8, 10, 12, 16` (Tailwind units — 4px…64px). No arbitrary values like `p-[13px]`. Related things get `gap-2`/`gap-3`; separate blocks get `gap-6`/`gap-8`. `5` (20px) is for compact padding and gaps (list items, cards and gaps at 360 px), `10` (40px) for the gap under a section heading on public pages. Page sections are at most `16` (64px) apart.
 
 ## Type
 
@@ -49,7 +59,7 @@ Use the scale only: `1, 2, 3, 4, 6, 8, 12, 16` (Tailwind units — 4px…64px). 
 ## Surfaces
 
 - **Borders are hairlines**: `border border-border`. One border, not two adjacent ones.
-- **Shadows are for cards and things that float** — `shadow-sm` on cards, `shadow-md` on dropdowns, dialogs and toasts. Inputs, buttons, badges and nav items do not get shadows.
+- **Shadows are for cards and things that float** — `shadow-sm` on cards, `shadow-md` on dropdowns, dialogs and toasts. Inputs, buttons, badges and nav items do not get shadows. The one exception is the brand `Sticker` with its hard offset shadow.
 - Radius comes from the token (DS scale 4 / 8 / 12 / 20): `rounded-lg` cards, alerts and floating menus, `rounded-md` buttons, inputs and nav items, `rounded-sm` menu items, `rounded-full` badges and avatars. Never mix radii in one component.
 
 ## Forms

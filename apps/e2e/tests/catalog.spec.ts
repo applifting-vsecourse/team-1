@@ -12,8 +12,8 @@ test.describe("Catalog of events", { tag: "@mobile" }, () => {
     // Pixel 7 is 412 px wide; the story asks for 360 px.
     if (testInfo.project.name === "mobile") await page.setViewportSize({ width: 360, height: 800 })
     await page.goto("/")
-    // The landing repeats the catalog link; the first one is in the hero.
-    await page.getByRole("link", { name: "Browse events" }).first().click()
+    // The landing repeats its two entries in the closing section; the first one is in the hero.
+    await page.getByRole("link", { name: "Find an event" }).first().click()
     await expect(page).toHaveURL(/\/catalog$/)
     await expect(page.getByRole("heading", { level: 1, name: "Event catalog" })).toBeVisible()
     await expect(page.getByRole("heading", { name: "Letní kemp 2027 – demo" })).toBeVisible()
