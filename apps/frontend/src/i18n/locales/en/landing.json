@@ -24,18 +24,6 @@
     }
   },
   "findEvent": "Find an event",
-  "footer": "Togena · Managing multi-term events",
-  "footerLinks": {
-    "login": "Sign in",
-    "myApplications": "My applications",
-    "organizers": "For organizers",
-    "participants": "For participants",
-    "register": "Create an account"
-  },
-  "nav": {
-    "catalog": "Event catalog",
-    "organizers": "For organizers"
-  },
   "noSignUp": "You apply without creating an account.",
   "preview": {
     "confirmed": "Confirmed",
