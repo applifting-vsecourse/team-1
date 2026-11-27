@@ -47,6 +47,8 @@ import {
 // errors https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15506-544
 // #732 compact list of terms (12 / 100 terms, desktop and 360 px): https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27413-15412 (mobile 27413-16274; 100 terms 27413-15688; expanded 27413-15964)
 // US-120 gender label + explanation and US-38 individual accommodation are kept from their stories.
+// Individual accommodation, one box and one hint: https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27443-16647
+// (mobile 27443-16653), ticked with the note: 27443-16672 (mobile 27443-16700)
 
 type ParticipantFieldsProps = {
   /** Position in the form, 0-based. */
@@ -333,18 +335,16 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
               <FormDescription className="pl-8 text-sm">
                 {t("form.individualAccommodationHint")}
               </FormDescription>
-              <FormDescription className="pl-8 text-sm">
-                {t("form.individualAccommodationFriends")}
-              </FormDescription>
             </FormItem>
           )}
         />
+        {/* Revealed under the box (GOV.UK conditional reveal), indented like the hint. */}
         {isIndividual ? (
           <FormField
             control={control}
             name={`participants.${index}.accommodationRequest`}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="pl-8">
                 <FormLabel>{t("form.accommodationRequest")}</FormLabel>
                 <FormControl>
                   <Textarea
@@ -353,9 +353,6 @@ export function ParticipantFields({ index, terms, onRemove, isDisabled }: Partic
                   />
                 </FormControl>
                 <div className="flex items-start gap-3">
-                  <FormDescription className="flex-1 text-sm">
-                    {t("form.accommodationRequestHint")}
-                  </FormDescription>
                   <FormMessage />
                   <CharacterCounter
                     count={field.value.length}

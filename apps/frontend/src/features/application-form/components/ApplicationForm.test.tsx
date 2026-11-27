@@ -1,6 +1,8 @@
+import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 import { ApplicationForm } from "@/features/application-form/components/ApplicationForm"
@@ -38,13 +40,7 @@ const participantCard = (number: number) => {
   return card
 }
 
-const priceCard = () => {
-  const card = screen
-    .getByRole("heading", { name: "Price of selected terms" })
-    .closest<HTMLElement>("[data-slot=card]")
-  if (!card) throw new Error("No price card")
-  return card
-}
+const priceCard = () => screen.getByRole("region", { name: "Price of selected terms" })
 
 const totalPrice = () =>
   within(priceCard()).getByText("Total").nextElementSibling?.textContent?.replace(/\s/g, " ")
@@ -185,18 +181,7 @@ describe("ApplicationForm", () => {
     )
   })
 
-  it("tells the individual accommodation apart from a roommate wish", () => {
-    render(
-      <ApplicationForm
-        event={event}
-        onSubmit={submitSpy()}
-      />,
-    )
-
-    expect(screen.getByText(/Roommate wishes come later/)).toBeVisible()
-  })
-
-  it("shows the price of the ticked terms per participant and updates it with every change", async () => {
+  it("shows a row per ticked term and updates the total with every change", async () => {
     render(
       <ApplicationForm
         event={event}
@@ -205,16 +190,28 @@ describe("ApplicationForm", () => {
     )
 
     expect(totalPrice()).toBe("CZK 0")
-    expect(within(priceCard()).getByText("No term")).toBeInTheDocument()
+    expect(within(priceCard()).getByRole("listitem")).toHaveTextContent(
+      /^No termParticipant 1CZK\s0$/,
+    )
+    expect(within(priceCard()).getByRole("list")).toHaveClass("gap-4")
+    // The form no longer repeats that only confirmed terms are paid.
+    expect(screen.queryByText(/confirmed participation will be payable/)).not.toBeInTheDocument()
 
     await userEvent.click(screen.getByRole("checkbox", { name: /4–10 Jul/ }))
     await userEvent.click(screen.getByRole("checkbox", { name: /11–17 Jul/ }))
     expect(totalPrice()).toBe("CZK 9,400")
-    expect(within(priceCard()).getByText("2 terms")).toBeInTheDocument()
+    expect(
+      within(priceCard())
+        .getAllByRole("listitem")
+        .map((row) => row.textContent),
+    ).toEqual([
+      expect.stringMatching(/^4–10 Jul 2027Participant 1CZK\s4,500$/),
+      expect.stringMatching(/^11–17 Jul 2027Participant 1CZK\s4,900$/),
+    ])
 
     await userEvent.click(screen.getByRole("checkbox", { name: /11–17 Jul/ }))
     expect(totalPrice()).toBe("CZK 4,500")
-    expect(within(priceCard()).getByText("1 term")).toBeInTheDocument()
+    expect(within(priceCard()).getAllByRole("listitem")).toHaveLength(1)
   })
 
   it("adds up several participants in the total, each under their name", async () => {
@@ -232,8 +229,8 @@ describe("ApplicationForm", () => {
 
     expect(totalPrice()).toBe("CZK 9,400")
     const rows = within(priceCard()).getAllByRole("listitem")
-    expect(rows[0]).toHaveTextContent(/^Anna Nováková1 termCZK\s4,500$/)
-    expect(rows[1]).toHaveTextContent(/^Participant 21 termCZK\s4,900$/)
+    expect(rows[0]).toHaveTextContent(/^4–10 Jul 2027Anna NovákováCZK\s4,500$/)
+    expect(rows[1]).toHaveTextContent(/^11–17 Jul 2027Participant 2CZK\s4,900$/)
   })
 
   it("shows the designed message at every empty required field and does not submit", async () => {
@@ -384,9 +381,9 @@ describe("ApplicationForm", () => {
   })
 
   describe("individual accommodation (US-38)", () => {
-    const note = () => screen.queryByLabelText("Note for the organizer")
+    const note = () => screen.queryByLabelText("Note for the organizer (optional)")
 
-    it("asks for a note only after the box is ticked and says who sees it", async () => {
+    it("asks for a note only after the box is ticked, with one hint saying who sees it", async () => {
       render(
         <ApplicationForm
           event={event}
@@ -399,6 +396,8 @@ describe("ApplicationForm", () => {
           "If room assignment by gender doesn’t suit you. Only the organizers will see it.",
         ),
       ).toBeInTheDocument()
+      // One hint: the roommate wish is not explained here any more.
+      expect(card.queryByText(/Roommate wishes/)).not.toBeInTheDocument()
       expect(note()).not.toBeInTheDocument()
 
       await userEvent.click(
@@ -568,7 +567,8 @@ describe("ApplicationForm", () => {
     expect(button).toBeDisabled()
     expect(button).toHaveAttribute("aria-busy", "true")
     expect(button.querySelector(".submit-mark")).toBeVisible()
-    expect(screen.getByRole("status")).toHaveTextContent("Please wait for the confirmation.")
+    // The pending button says it all; no extra line next to it.
+    expect(screen.queryByText(/Please wait/)).not.toBeInTheDocument()
     await userEvent.click(button)
     expect(onSubmit).toHaveBeenCalledOnce()
 
@@ -576,6 +576,139 @@ describe("ApplicationForm", () => {
     const ready = await screen.findByRole("button", { name: "Submit application" })
     expect(ready).toBeEnabled()
     expect(ready.querySelector(".submit-mark")).toBeNull()
+  })
+
+  it("puts the back control above the review heading and only the total next to the submit button", async () => {
+    render(
+      <ApplicationForm
+        event={event}
+        onSubmit={submitSpy()}
+      />,
+    )
+    await fillParticipant(1, anna)
+    await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
+    await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
+    await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
+
+    const heading = screen.getByRole("heading", { level: 1, name: "Review your application" })
+    // A denser column on review (Figma 18923:4544); the form step keeps gap-6.
+    expect(heading.parentElement).toHaveClass("gap-4")
+    expect(heading.parentElement).not.toHaveClass("gap-6")
+    const back = screen.getByRole("button", { name: "Back to editing" })
+    expect(back.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByText("You agree to the processing of personal data.")).toBeVisible()
+    expect(within(priceCard()).queryByRole("heading")).not.toBeInTheDocument()
+    expect(within(priceCard()).queryByRole("listitem")).not.toBeInTheDocument()
+    expect(totalPrice()).toBe("CZK 4,900")
+    expect(within(priceCard()).getByRole("button", { name: "Submit application" })).toBeVisible()
+  })
+
+  describe("below lg, the price bar at the bottom", () => {
+    beforeEach(() => {
+      Object.defineProperty(window, "matchMedia", {
+        configurable: true,
+        value: () => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() }),
+      })
+    })
+    afterEach(() => {
+      Reflect.deleteProperty(window, "matchMedia")
+    })
+
+    it("keeps the total next to the step's action and opens the rows upwards", async () => {
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      const bar = screen.getByRole("region", { name: "Price of selected terms" })
+      const toggle = within(bar).getByRole("button", { name: /^Total/ })
+      expect(toggle).toHaveAttribute("aria-expanded", "false")
+      expect(toggle).toHaveTextContent(/CZK\s0/)
+      expect(within(bar).queryByRole("listitem")).not.toBeInTheDocument()
+      // One action only: the bar replaces the side panel.
+      expect(screen.getAllByRole("button", { name: "Continue to review" })).toHaveLength(1)
+      expect(within(bar).getByRole("button", { name: "Continue to review" })).toHaveAttribute(
+        "type",
+        "submit",
+      )
+
+      await userEvent.click(screen.getByRole("checkbox", { name: /4–10 Jul/ }))
+      expect(toggle).toHaveTextContent(/CZK\s4,500/)
+
+      await userEvent.click(toggle)
+      expect(toggle).toHaveAttribute("aria-expanded", "true")
+      expect(within(bar).getByRole("listitem")).toHaveTextContent(
+        /^4–10 Jul 2027Participant 1CZK\s4,500$/,
+      )
+      await userEvent.click(toggle)
+      expect(within(bar).queryByRole("listitem")).not.toBeInTheDocument()
+    })
+
+    it("reads the total and the action before the rows it opens, and shows the rows on top", async () => {
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      const bar = screen.getByRole("region", { name: "Price of selected terms" })
+      const toggle = within(bar).getByRole("button", { name: /^Total/ })
+      await userEvent.click(toggle)
+
+      const list = within(bar).getByRole("list")
+      const action = within(bar).getByRole("button", { name: "Continue to review" })
+      expect(toggle.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(action.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(toggle).toHaveAttribute("aria-controls", list.id)
+      // Visually reversed: the rows sit above the total and scroll when they don't fit the screen.
+      expect(bar).toHaveClass("flex-col-reverse")
+      // Closer rows in the bar (Figma 27443:16726); the desktop panel keeps gap-4.
+      expect(list).toHaveClass("gap-2")
+      expect(list.parentElement).toHaveClass("overflow-y-auto", "min-h-0")
+    })
+
+    it("publishes its height for the page padding while it is shown", () => {
+      const { unmount } = render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      expect(document.documentElement.style.getPropertyValue("--price-bar-height")).toMatch(/px$/)
+
+      unmount()
+      expect(document.documentElement.style.getPropertyValue("--price-bar-height")).toBe("")
+    })
+
+    it("pads the page and the focus scroll by the measured bar (WCAG 2.4.11)", () => {
+      const css = readFileSync(resolve(process.cwd(), "src/styles/global.css"), "utf8")
+
+      expect(css).toMatch(
+        /html:has\(\[data-price-bar\]\) \{\s*scroll-padding-bottom: calc\(\s*var\(--price-bar-height/,
+      )
+      expect(css).toMatch(
+        /body:has\(\[data-price-bar\]\) \{\s*padding-bottom: var\(--price-bar-height/,
+      )
+    })
+
+    it("sends the application from the bar on the review step", async () => {
+      const onSubmit = submitSpy()
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={onSubmit}
+        />,
+      )
+      await fillParticipant(1, anna)
+      await userEvent.type(screen.getByLabelText("Contact e-mail *"), "anna@example.com")
+      await userEvent.click(screen.getByRole("checkbox", { name: /agree to the processing/ }))
+      const bar = screen.getByRole("region", { name: "Price of selected terms" })
+      await userEvent.click(within(bar).getByRole("button", { name: "Continue to review" }))
+      await userEvent.click(within(bar).getByRole("button", { name: "Submit application" }))
+
+      expect(onSubmit).toHaveBeenCalledOnce()
+    })
   })
 
   it("focuses the server message when a duplicate response identifies no submitted field", async () => {

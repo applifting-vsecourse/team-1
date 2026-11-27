@@ -507,6 +507,19 @@
   }
 }
 
+/* Below lg the price of the application form is a bar fixed to the bottom of the screen
+   (Figma 27443:16659). PriceBar publishes its measured height as --price-bar-height (rows open
+   or an error shown included): the end of the page stays above the bar and a focused field is
+   scrolled clear of it (WCAG 2.4.11). The fallback is the collapsed bar. */
+html:has([data-price-bar]) {
+  scroll-padding-bottom: calc(
+    var(--price-bar-height, calc(var(--spacing) * 20)) + var(--spacing) * 4
+  );
+}
+body:has([data-price-bar]) {
+  padding-bottom: var(--price-bar-height, calc(var(--spacing) * 20));
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .copy-confirmation {
     position: absolute;
