@@ -1,3 +1,4 @@
+import { useLocation } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -8,10 +9,12 @@ import { ForbiddenError } from "@/lib/errors"
 
 import { useSession } from "@/features/auth/hooks/useSession"
 import { useSignOut } from "@/features/auth/hooks/useSignOut"
+import { encodeRedirectUri } from "@/features/auth/lib/redirect"
 
 /**
  * `errorComponent` of the organizer area. A signed-in participant gets the 403 with a way to
- * their applications and a way to sign in with another account; an organizer opening another
+ * their applications and a way to sign in with another (organizer) account that comes back to
+ * the page; an organizer opening another
  * organization's record gets the 403 with the way to their events; everything else falls back
  * to the shared area error page.
  */
@@ -20,8 +23,12 @@ export function OrganizerAreaError({ error }: { error: unknown }) {
   const { t } = useTranslation("auth")
   const { t: tCommon } = useTranslation()
   const { user } = useSession()
-  // „Přihlásit se jiným účtem“: sign out, then straight to the sign-in.
-  const signOut = useSignOut({ to: ROUTES.participant.login })
+  const location = useLocation()
+  // „Přihlásit se jiným účtem“: sign out, then the organizer sign-in, which returns to this page.
+  const signOut = useSignOut({
+    to: ROUTES.organizer.login,
+    search: { from: encodeRedirectUri(location) },
+  })
 
   if (!(error instanceof ForbiddenError) || !user) {
     return <AreaErrorPage error={error} />

@@ -14,6 +14,7 @@ const { signOut, navigate } = vi.hoisted(() => ({ signOut: vi.fn(), navigate: vi
 vi.mock("@/features/auth/lib/auth-client", () => ({ authClient: { signOut } }))
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => navigate,
+  useLocation: () => ({ href: "/organizer/events/e1" }),
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),
@@ -72,14 +73,18 @@ describe("OrganizerAreaError", () => {
     expect(screen.queryByText("403")).not.toBeInTheDocument()
   })
 
-  it("lets a participant sign in with another account: signs out, then the sign-in", async () => {
+  it("lets a participant sign in with another account: signs out, then the organizer sign-in back to the page", async () => {
     signOut.mockResolvedValue({ error: null })
     renderWith(participant, new ForbiddenError())
 
     await userEvent.click(screen.getByRole("button", { name: "Sign in with another account" }))
 
     await waitFor(() =>
-      expect(navigate).toHaveBeenCalledWith({ to: "/participant/login", ignoreBlocker: true }),
+      expect(navigate).toHaveBeenCalledWith({
+        to: "/organizer/login",
+        search: { from: encodeURIComponent("/organizer/events/e1") },
+        ignoreBlocker: true,
+      }),
     )
     expect(signOut).toHaveBeenCalledOnce()
   })

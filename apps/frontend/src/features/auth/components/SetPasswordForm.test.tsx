@@ -74,6 +74,10 @@ describe("SetPasswordForm", () => {
     expect(
       await screen.findByText("The password must have at least 8 characters."),
     ).toBeInTheDocument()
+    // The field keeps the rule and gains the error: both describe the input.
+    expect(screen.getByLabelText("New password")).toHaveAccessibleDescription(
+      "At least 8 characters (not met) The password must have at least 8 characters.",
+    )
     expect(setPassword).not.toHaveBeenCalled()
   })
 

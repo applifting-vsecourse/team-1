@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { notify } from "@/lib/notify"
 
-import { MIN_PASSWORD_LENGTH, PasswordRule } from "@/features/auth/components/PasswordRule"
+import { FormPasswordRule, MIN_PASSWORD_LENGTH } from "@/features/auth/components/PasswordRule"
 import { useSetPassword } from "@/features/auth/hooks/useSetPassword"
 
 // Built per render language so validation messages follow the UI language.
@@ -93,13 +93,12 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
               <FormControl>
                 <PasswordInput
                   autoComplete="new-password"
-                  aria-describedby="set-password-rule"
                   {...field}
                 />
               </FormControl>
-              <PasswordRule
-                id="set-password-rule"
+              <FormPasswordRule
                 password={newPassword}
+                hasError={Boolean(form.formState.errors.newPassword)}
               />
               <FormMessage />
             </FormItem>

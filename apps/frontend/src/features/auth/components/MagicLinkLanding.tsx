@@ -60,7 +60,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
   if (!canContinue) {
     return (
       <>
-        <Seo title={t("magicLink.invalidTitle")} />
+        <Seo title={sentTo ? t("linkSent.title") : t("magicLink.invalidTitle")} />
         <AuthLayout>
           {sentTo ? (
             <LinkSent
@@ -68,7 +68,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
               back={
                 <Link
                   to={ROUTES.participant.login}
-                  className="text-link underline"
+                  className="whitespace-nowrap text-link underline"
                 >
                   {t("linkSent.back")}
                 </Link>
@@ -123,7 +123,7 @@ export function MagicLinkLanding({ token, error }: MagicLinkLandingProps) {
         <AuthLayout>
           <div
             role="status"
-            className="flex flex-col items-center gap-3 py-2"
+            className="flex flex-col items-center gap-3 py-4"
           >
             <span
               aria-hidden="true"

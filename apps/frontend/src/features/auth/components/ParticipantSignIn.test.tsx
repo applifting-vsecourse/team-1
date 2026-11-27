@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { act, render, screen, within } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -76,18 +76,33 @@ describe("ParticipantSignIn", () => {
     expect(screen.getByLabelText("E-mail")).toHaveValue("eva@example.com")
   })
 
+  it("moves focus with each switch: the e-mail field of the link request, then the sign-in heading", async () => {
+    const user = userEvent.setup()
+    renderCard()
+    expect(document.body).toHaveFocus()
+
+    await user.click(screen.getByRole("button", { name: "No password?" }))
+    expect(screen.getByLabelText("E-mail")).toHaveFocus()
+
+    await user.click(screen.getByRole("button", { name: "Sign in with password" }))
+    expect(screen.getByRole("heading", { level: 1, name: "Applicant sign-in" })).toHaveFocus()
+  })
+
   it("after sending says where the link went, conditionally, and leads back to the sign-in", async () => {
     const user = userEvent.setup()
     renderCard()
 
     await toSentState(user)
 
-    const status = screen.getByRole("status")
-    expect(status).toHaveTextContent(
+    // Focus moves to the heading, which carries the sentence as its description.
+    const heading = screen.getByRole("heading", { level: 1, name: "Check your e-mail" })
+    expect(heading).toHaveFocus()
+    expect(heading).toHaveAccessibleDescription(
       "We sent the link to eva@example.com if you used this e-mail in your application.",
     )
-    expect(within(status).getByText("eva@example.com").tagName).toBe("STRONG")
+    expect(screen.getByText("eva@example.com").tagName).toBe("STRONG")
     await user.click(screen.getByRole("button", { name: "Back to sign-in" }))
+    expect(screen.getByRole("heading", { level: 1, name: "Applicant sign-in" })).toHaveFocus()
     expect(screen.getByLabelText("E-mail")).toHaveValue("eva@example.com")
   })
 
@@ -122,5 +137,8 @@ describe("ParticipantSignIn", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Too many attempts in a short time. Wait a moment and try again.",
     )
+    // Waiting is the way on: the countdown starts again instead of offering the resend.
+    expect(screen.getByText("Resend in 30 s")).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Resend the link" })).not.toBeInTheDocument()
   })
 })

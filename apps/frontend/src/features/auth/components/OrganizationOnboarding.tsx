@@ -9,7 +9,7 @@ import { ROUTES } from "@/app/routes"
 import Camp from "@/assets/illustrations/camp.svg?react"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { Seo } from "@/components/atoms/Seo"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -39,19 +39,28 @@ export function OrganizationOnboarding() {
 
   if (memberships.isPending || (organizationId && profileQuery.isPending && !created)) {
     return (
-      <RegistrationLayout isSignedIn>
-        <p>{t("registration.loading")}</p>
+      <RegistrationLayout
+        isSignedIn
+        step={null}
+      >
+        <h1
+          role="status"
+          className="text-2xl font-bold"
+        >
+          {t("registration.loading")}
+        </h1>
       </RegistrationLayout>
     )
   }
   if (memberships.error || profileQuery.error) {
     return (
-      <RegistrationLayout isSignedIn>
-        <Alert variant="destructive">
-          <AlertDescription>{t("registration.loadFailed")}</AlertDescription>
-        </Alert>
+      <RegistrationLayout
+        isSignedIn
+        step={null}
+      >
+        <h1 className="text-2xl font-bold">{t("registration.loadFailed")}</h1>
         <Button
-          variant="outline"
+          size="lg"
           onClick={() => {
             void memberships.refetch()
             if (organizationId) void profileQuery.refetch()

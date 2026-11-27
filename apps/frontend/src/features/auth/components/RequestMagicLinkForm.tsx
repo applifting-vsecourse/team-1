@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
 import { TriangleAlert } from "lucide-react"
@@ -41,6 +41,8 @@ type Props = {
   onSent: (email: string) => void
   /** „Přihlásit se heslem“ under the button: back to the password with the e-mail typed so far. */
   onUsePassword?: (email: string) => void
+  /** Opened by a switch in the same card („Nemáte heslo?“): focus goes to the e-mail field. */
+  shouldFocusEmail?: boolean
 }
 
 /** E-mail in, a sign-in link out; a failure is one Alert above the button. */
@@ -50,6 +52,7 @@ export function RequestMagicLinkForm({
   submitLabel,
   onSent,
   onUsePassword,
+  shouldFocusEmail = false,
 }: Props) {
   const { t } = useTranslation("auth")
   const { t: tErrors } = useTranslation("errors")
@@ -59,6 +62,10 @@ export function RequestMagicLinkForm({
     defaultValues: { email: defaultEmail },
   })
   const request = useRequestMagicLink()
+
+  useEffect(() => {
+    if (shouldFocusEmail) form.setFocus("email")
+  }, [form, shouldFocusEmail])
 
   return (
     <Form {...form}>
