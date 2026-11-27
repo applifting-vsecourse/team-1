@@ -104,6 +104,7 @@ export class BulkEvaluationService {
           to,
           actorId: user.id,
           isOverCapacityConfirmed: false,
+          isEmailQueued: true,
           // Somebody may have decided the application meanwhile: that decision stays.
           expectedFrom: "TO_EVALUATE",
         })

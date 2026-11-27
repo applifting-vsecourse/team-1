@@ -57,6 +57,7 @@ describe("BulkDecisionService", () => {
         to: "WAITLISTED",
         actorId: "u1",
         isOverCapacityConfirmed: false,
+        isEmailQueued: true,
       }),
       expect.objectContaining({ applicationId: "petr", to: "WAITLISTED", actorId: "u1" }),
     ])

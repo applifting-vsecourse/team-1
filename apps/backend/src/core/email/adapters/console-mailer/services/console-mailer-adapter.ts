@@ -1,3 +1,4 @@
+import { EmailDeliveryError } from "@/core/email/interfaces/email-delivery.error"
 import { EmailService } from "@/core/email/interfaces/email-service.interface"
 import { Injectable } from "@nestjs/common"
 
@@ -13,7 +14,11 @@ export function extractLinks(html: string): string[] {
  */
 @Injectable()
 export class ConsoleMailerAdapter implements EmailService {
+  /** `isFailing` plays an outage of the provider (EMAIL_SIMULATE_FAILURE). */
+  constructor(private readonly isFailing = false) {}
+
   async sendEmail(to: string, subject: string, html: string): Promise<void> {
+    if (this.isFailing) throw new EmailDeliveryError("Simulated provider outage", "NOT_SENT")
     const links = extractLinks(html)
     console.log(`
       ====== Email Sent ======
