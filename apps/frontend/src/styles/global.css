@@ -94,9 +94,9 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
   /* Togena / Brand components A: hard ink offset shadows, never blurred (DESIGN.md, Surfaces). */
-  --shadow-hard: var(--offset-hard) var(--offset-hard) 0 var(--border-strong);
-  --shadow-sticker: var(--offset-sticker) var(--offset-sticker) 0 var(--border-strong);
-  --shadow-dialog: var(--offset-dialog) var(--offset-dialog) 0 var(--border-strong);
+  --shadow-hard: var(--offset-hard) var(--offset-hard) 0 var(--shadow-ink);
+  --shadow-sticker: var(--offset-sticker) var(--offset-sticker) 0 var(--shadow-ink);
+  --shadow-dialog: var(--offset-dialog) var(--offset-dialog) 0 var(--shadow-ink);
 
   /* Figma DS / Metrics radius/* */
   --radius-sm: 4px;
@@ -181,7 +181,11 @@
   --sticker-shadow: #031a1e; /* color/brand/sticker-shadow */
   /* Togena / Brand components, direction A „Ink and a hard shadow“ (Figma specimen 27535:3692):
      an ink edge on every control and card; what you press lifts onto a hard ink offset shadow. */
-  --border-strong: #031a1e; /* color/border/strong */
+  /* Lines muted, shadows full dark (edge strength B for lines, A for shadows; Figma 27632:9575):
+     the edge is ink at about 70 % as a solid colour (6.7:1 on white, 6.5:1 on the canvas),
+     every hard shadow stays pure ink. */
+  --border-strong: #4f5f62; /* color/border/strong */
+  --shadow-ink: #031a1e; /* color/shadow/hard → color/ink */
   --offset-hard: 3px; /* offset/hard: lift and its shadow */
   /* How far `lift` moves on hover: the full offset on public pages, none in the work layer (below). */
   --lift-offset: var(--offset-hard);
@@ -256,7 +260,8 @@
   --sticker-edge: #f0fff7;
   /* The ink edge and its shadow turn to the control border colour so they stay visible on the
      dark canvas (6.2:1 on #030b0b); a dark shadow would vanish. */
-  --border-strong: #6e959e; /* color/border/control */
+  --border-strong: #aabcb9; /* color/dark/ink-edge: dark ink at 70 % over the dark panel */
+  --shadow-ink: #e9f6f0; /* color/shadow/hard → color/dark/ink: a dark shadow would vanish */
   --disabled: #142223; /* color/border/default */
   --disabled-foreground: #7a9596; /* color/text/secondary */
   /* No dark error surface in the DS: the error alert keeps the card surface and its red icon. */
@@ -305,7 +310,7 @@
     @media (hover: hover) {
       &:hover {
         translate: calc(var(--lift-offset) * -1) calc(var(--lift-offset) * -1);
-        box-shadow: var(--offset-hard) var(--offset-hard) 0 var(--border-strong);
+        box-shadow: var(--offset-hard) var(--offset-hard) 0 var(--shadow-ink);
       }
     }
     &:active {
