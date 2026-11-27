@@ -116,11 +116,6 @@
     "terms": "Choose at least one term *",
     "title": "Application"
   },
-  "notFound": {
-    "action": "Go to homepage",
-    "description": "The link doesn't exist, or the event isn't accepting applications.",
-    "title": "This page is unavailable."
-  },
   "price": {
     "heading": "Price of selected terms",
     "noTerms": "No term",

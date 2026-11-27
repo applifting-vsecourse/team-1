@@ -4,6 +4,7 @@ import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
+import { PublicSignInButton } from "@/components/molecules/PublicSignInButton"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 
 import { CatalogPage } from "@/features/catalog/components/CatalogPage"
@@ -26,7 +27,10 @@ function CatalogRoute() {
   return (
     <>
       <Seo title={t("list.title")} />
-      <PublicLayout isFullWidth>
+      <PublicLayout
+        isFullWidth
+        headerAction={<PublicSignInButton />}
+      >
         <CatalogPage
           organizationId={organization}
           onOrganizationChange={(organizationId) =>

@@ -1,15 +1,13 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link, notFound } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
+import { createFileRoute, notFound } from "@tanstack/react-router"
 
-import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
+import { PublicSignInButton } from "@/components/molecules/PublicSignInButton"
+import { LinkNotFoundPage } from "@/components/pages/LinkNotFoundPage"
 import { PublicLayout } from "@/components/templates/PublicLayout"
-import { Button } from "@/components/ui/button"
 import { HTTPError } from "@/lib/api-client"
 
 import { catalogEventQueryOptions } from "@/features/catalog/api/catalog"
-import { EventNotFound } from "@/features/catalog/components/EventNotFound"
 import { EventPage } from "@/features/catalog/components/EventPage"
 
 export const Route = createFileRoute("/events/$publicToken")({
@@ -22,12 +20,11 @@ export const Route = createFileRoute("/events/$publicToken")({
       throw error
     }
   },
-  notFoundComponent: EventNotFound,
+  notFoundComponent: LinkNotFoundPage,
   component: CatalogEventRoute,
 })
 
 function CatalogEventRoute() {
-  const { t } = useTranslation("auth")
   const { publicToken } = Route.useParams()
   const { data: event } = useSuspenseQuery(catalogEventQueryOptions(publicToken))
 
@@ -36,17 +33,10 @@ function CatalogEventRoute() {
       <Seo title={event.name} />
       <PublicLayout
         isFullWidth
-        headerContentClassName="md:min-h-[115px]"
-        headerAction={
-          <Button
-            asChild
-            variant="ghost"
-          >
-            <Link to={ROUTES.participant.login}>{t("form.submit")}</Link>
-          </Button>
-        }
+        hasBottomBar
+        headerAction={<PublicSignInButton />}
       >
-        <div className="mx-auto w-full max-w-[1196px] px-4 py-4 md:p-12">
+        <div className="mx-auto w-full max-w-299 px-4 pt-4 pb-8 md:px-12 md:pt-8 md:pb-12">
           <EventPage event={event} />
         </div>
       </PublicLayout>
