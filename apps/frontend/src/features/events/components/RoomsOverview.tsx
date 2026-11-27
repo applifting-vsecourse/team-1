@@ -223,6 +223,8 @@ export function RoomsOverview({
           {isPrintOnly || pages.pageCount <= 1 ? null : (
             <div className="print:hidden">
               <Pagination
+                // Compact: on a phone three page numbers fit one row.
+                isCompact
                 page={pages.page}
                 pageCount={pages.pageCount}
                 pageSize={pages.pageSize}
