@@ -298,10 +298,12 @@ describe("ApplicationDetail", () => {
         ],
       }),
     )
-    expect(
-      await screen.findByText("The term has ended, there is nothing left to arrange."),
-    ).toBeInTheDocument()
-    expect(screen.getAllByRole("heading", { level: 3 }).length).toBeGreaterThanOrEqual(2)
+    const archived = await screen.findByText(
+      "The term has ended, there is nothing left to arrange.",
+    )
+    // The two cards of the steps, in the order of the terms.
+    const cards = archived.closest("ul") as HTMLElement
+    expect(within(cards).getByText("You are not attending this term.")).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Archived application" })).not.toBeInTheDocument()
   })
 
