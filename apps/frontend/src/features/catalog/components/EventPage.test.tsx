@@ -5,7 +5,8 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 
 import type { CatalogEventDetail } from "@/features/catalog/api/catalog"
@@ -121,5 +122,66 @@ describe("EventPage", () => {
     expect(screen.queryByRole("heading", { name: "Organization contact" })).not.toBeInTheDocument()
     expect(screen.getByText("Alpine Collective")).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "About the event" })).not.toBeInTheDocument()
+  })
+
+  describe("many terms (#732)", () => {
+    const manyTerms = (count: number): CatalogEventDetail["terms"] =>
+      Array.from({ length: count }, (_, index) => {
+        const start = new Date(Date.UTC(2027, 0, 2 + index * 7))
+        const end = new Date(start.getTime() + 6 * 864e5)
+        return {
+          id: `t${index + 1}`,
+          name: `Week ${index + 1}`,
+          startsOn: start.toISOString().slice(0, 10),
+          endsOn: end.toISOString().slice(0, 10),
+          priceCzk: 4900,
+        }
+      })
+
+    const termsCard = () => {
+      const card = screen
+        .getByRole("heading", { name: "Terms and prices" })
+        .closest<HTMLElement>("[data-slot=card]")
+      if (!card) throw new Error("No terms card")
+      return card
+    }
+
+    it("keeps the narrow card up to three terms", async () => {
+      await renderPage({ ...event, terms: manyTerms(3) })
+
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(3)
+      expect(termsCard()).not.toHaveClass("md:col-span-2")
+      expect(screen.queryByRole("button", { name: /Show/ })).not.toBeInTheDocument()
+    })
+
+    it("gives twelve terms the full width, eight first, and unfolds the rest", async () => {
+      await renderPage({ ...event, terms: manyTerms(12) })
+
+      expect(termsCard()).toHaveClass("md:col-span-2")
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(8)
+      await userEvent.click(screen.getByRole("button", { name: "Show 4 more terms" }))
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(12)
+      await userEvent.click(screen.getByRole("button", { name: "Show fewer" }))
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(8)
+    })
+
+    it("folds a hundred terms to eight and keeps the way to the application form", async () => {
+      await renderPage({ ...event, terms: manyTerms(100) })
+
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(8)
+      expect(screen.getByRole("button", { name: "Show 92 more terms" })).toBeVisible()
+      expect(screen.getByRole("link", { name: "Submit application" })).toHaveAttribute(
+        "href",
+        "/apply/tok123",
+      )
+      expect(screen.getByRole("heading", { name: "Organization contact" })).toBeVisible()
+    })
+
+    it("shows nine terms whole instead of hiding one", async () => {
+      await renderPage({ ...event, terms: manyTerms(9) })
+
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(9)
+      expect(screen.queryByRole("button", { name: /Show/ })).not.toBeInTheDocument()
+    })
   })
 })

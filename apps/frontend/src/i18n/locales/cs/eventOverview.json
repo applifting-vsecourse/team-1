@@ -469,7 +469,22 @@
       "firstName": "Jméno",
       "individualAccommodation": "Individuální ubytování",
       "lastName": "Příjmení",
-      "phone": "Telefon"
+      "phone": "Telefon",
+      "pronouns": "Zájmena"
+    },
+    "logistics": {
+      "arrival": "příjezd {{value}}",
+      "departure": "odjezd {{value}}",
+      "field": {
+        "health": "Zdravotní omezení",
+        "roomWishes": "Přání spolubydlení",
+        "stay": "Pozdější příjezd a dřívější odjezd",
+        "transport": "Doprava"
+      },
+      "noRestriction": "Nemá žádné omezení (zapsal organizátor)",
+      "noWishes": "Nemám přání",
+      "own": "Vlastní doprava",
+      "written": "zapsáno organizátorem"
     },
     "no": "ne",
     "noteChanged": "Poznámka k ubytování: změněna",
@@ -544,7 +559,8 @@
     "female": "Žena",
     "gender": "Pohlaví",
     "male": "Muž",
-    "phone": "Telefon"
+    "phone": "Telefon",
+    "pronouns": "Zájmena"
   },
   "payment": {
     "afterCorrection": "Po uložení",
@@ -552,6 +568,7 @@
     "amountRequired": "Částka *",
     "applicant": "Přihlašovatel",
     "applicationCode": "přihláška {{code}}",
+    "arrangementsLink": "Přání spolubydlení a pobyt",
     "back": "Zpět na přihlášky",
     "backToPayments": "Zpět na platby",
     "cancelAllAllocations": "Pokud je příjem rozdělený mezi více termínů, zruší se všechny jeho řádky.",
@@ -616,6 +633,7 @@
     "newShort": "Nové",
     "nothingDueDescription": "Přihláška nemá potvrzený žádný termín, takže zatím nic neplatí. Platbu zapíšete, až se místo potvrdí.",
     "nothingDueTitle": "Zatím nic k úhradě",
+    "onBehalf": "Zápis za účastníka",
     "originalShort": "Původní",
     "originalValue": "Původní zápis",
     "overpaid": "Přeplatek",
@@ -662,6 +680,7 @@
     "termLabel": "Termín",
     "termRequired": "Termín *",
     "title": "Detail platby a přihlášky",
+    "transportLink": "Doprava účastníka",
     "typeChoice": "Typ záznamu",
     "typePayment": "Platba",
     "typeRefund": "Vratka",

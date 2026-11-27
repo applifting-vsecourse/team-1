@@ -152,6 +152,7 @@
     "participant": "Údaje účastníka",
     "phone": "Telefon",
     "phoneInvalid": "Zadejte platné telefonní číslo, například +420 777 123 456.",
+    "pronouns": "Zájmena",
     "retry": "Zkusit znovu",
     "save": "Uložit změny",
     "saveError": "Zkuste změny uložit znovu",
@@ -184,6 +185,14 @@
       "REJECTED": "Vaše žádost o změnu byla zamítnuta"
     },
     "title": "Upozornění"
+  },
+  "organizerArrangements": {
+    "back": "Zpět na přihlášku",
+    "declined": "Potvrzeno: účastník nemá přání spolubydlení.",
+    "empty": "Pro tento termín zatím není zadané žádné přání.",
+    "errorTitle": "Údaje účastníka se nepodařilo načíst",
+    "nothing": "U této přihlášky se přání spolubydlení ani pobyt nezadávají: žádný termín není potvrzený ani otevřený.",
+    "title": "Přání spolubydlení a pobyt"
   },
   "payment": {
     "account": "Bankovní účet",
@@ -300,5 +309,6 @@
       "deleted": "Údaje o příjezdu a odjezdu byly smazány.",
       "saved": "Příjezd a odjezd byly uloženy."
     }
-  }
+  },
+  "termClosed": "Termín skončil, údaje už nelze změnit."
 }

@@ -23,6 +23,9 @@ describe("EventNotFound", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "This event page is unavailable." }),
     ).toBeVisible()
+    expect(
+      screen.getByText("The link doesn't exist, or the event isn't accepting applications."),
+    ).toBeVisible()
     expect(screen.getByRole("link", { name: "Go to homepage" })).toHaveAttribute("href", "/")
   })
 })

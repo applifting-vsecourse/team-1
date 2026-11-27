@@ -88,15 +88,15 @@ export class OwnMealsResponseDto {
   @ApiProperty({ type: String, nullable: true }) specialRequest!: string | null
   @ApiProperty({ description: "The participant confirmed having no meal restriction." })
   noRestrictions!: boolean
+  @ApiProperty({ description: "Until the last term that is not cancelled is over (D-192)." })
+  editable!: boolean
 
   static fromDomain(meals: OwnMeals): OwnMealsResponseDto {
     return { ...meals, options: meals.options.map((option) => MealOptionDto.fromDomain(option)) }
   }
 }
 
-export class OrganizerMealsResponseDto extends OwnMealsResponseDto {
-  @ApiProperty() editable!: boolean
-}
+export class OrganizerMealsResponseDto extends OwnMealsResponseDto {}
 
 class KitchenOptionCountDto extends MealOptionDto {
   @ApiProperty() count!: number

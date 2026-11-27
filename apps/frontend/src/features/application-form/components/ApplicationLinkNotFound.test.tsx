@@ -24,6 +24,9 @@ describe("ApplicationLinkNotFound", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "This page is unavailable." }),
     ).toBeInTheDocument()
+    expect(
+      screen.getByText("The link doesn't exist, or the event isn't accepting applications."),
+    ).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Go to homepage" })).toHaveAttribute("href", "/")
   })
 })
