@@ -19,15 +19,7 @@ import { LoadingState } from "@/components/molecules/LoadingState"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { formatCzk } from "@/lib/money"
 import { termLine } from "@/lib/term-label"
 
@@ -39,7 +31,7 @@ import type { ApplicationsSearch } from "@/features/event-overview/lib/applicati
 type Translate = ReturnType<typeof useTranslation<"eventOverview">>["t"]
 
 /**
- * What needs the organizer's attention in an event (US-51): the event switcher, a card per kind of
+ * What needs the organizer's attention in an event (US-51): a card per kind of
  * work that links to the applications list filtered the same way the count was made, and the
  * occupancy of the terms (the list of US-29). "Náhradníci k vyřešení" counts waitlisted applicants
  * the organizer can approve now: a free bed for them, in both evaluation modes (PO, 2026-11-07; US-31).
@@ -47,46 +39,14 @@ type Translate = ReturnType<typeof useTranslation<"eventOverview">>["t"]
 // Figma v2: US-51 Co vyžaduje pozornost · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20580-44169 (mobile 20580-44426).
 export function EventOverview({
   eventId,
-  events,
-  onEventChange,
   setup,
 }: {
   eventId: string
-  events: { id: string; name: string }[]
-  onEventChange: (eventId: string) => void
   /** Setup steps the event still needs before its link can be shared; shown above the cards (#314). */
   setup?: ReactNode
 }) {
-  const { t } = useTranslation("eventOverview")
-
   return (
     <div className="flex flex-col gap-4">
-      {events.length > 0 ? (
-        <div className="flex flex-col gap-2 sm:max-w-96">
-          <Label htmlFor="event-switcher">{t("switcher.label")}</Label>
-          <Select
-            value={eventId}
-            onValueChange={onEventChange}
-          >
-            <SelectTrigger
-              id="event-switcher"
-              className="w-full md:max-w-120"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {events.map((event) => (
-                <SelectItem
-                  key={event.id}
-                  value={event.id}
-                >
-                  {event.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      ) : null}
       {setup}
       <FreedBedBanner eventId={eventId} />
       <AttentionCards eventId={eventId} />

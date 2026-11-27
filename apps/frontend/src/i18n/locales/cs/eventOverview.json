@@ -794,9 +794,6 @@
     "takenHint": "{{name}} zůstává náhradníkem. Kapacita se nepřekročí.",
     "title": "Obsazení uvolněných lůžek"
   },
-  "switcher": {
-    "label": "Akce"
-  },
   "termChange": {
     "cancel": "Zrušit",
     "done": {

@@ -39,15 +39,21 @@ test.describe("Sign-in", () => {
   test("organizer lands on the overview of the event opened last (US-51)", async ({ page }) => {
     await signIn(page, "organizer", ORGANIZER)
     await openEventList(page)
+    await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
+    await expect(page.getByRole("heading", { level: 1, name: "Letní kemp 2027" })).toBeVisible()
+    await expect(page.getByRole("combobox", { name: "Event", exact: true })).toHaveCount(0)
+    await page.getByRole("link", { name: "All events", exact: true }).click()
+    await expect(page).toHaveURL(/\/organizer\/events$/)
+
     const remembered = page.waitForResponse(
       (response) =>
         response.request().method() === "PUT" && response.url().endsWith("/last-opened"),
     )
-    await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
+    await page.getByRole("link", { name: /Letní kemp 2027 – demo/ }).click()
     await expect(page).toHaveURL(/\/organizer\/events\/[^/]+$/)
     expect((await remembered).status()).toBe(204)
     const eventUrl = page.url()
-    await expect(page.getByRole("combobox", { name: "Event" })).toBeVisible()
+    await expect(page.getByRole("heading", { level: 1, name: "Letní kemp 2027 – demo" })).toBeVisible()
 
     await signOut(page, ORGANIZER)
     await expect(page).toHaveURL(/\/$/)
