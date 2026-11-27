@@ -75,6 +75,7 @@
   --color-brand-warm: var(--brand-warm);
   --color-brand-warm-subtle: var(--brand-warm-subtle);
   --color-brand-warm-foreground: var(--brand-warm-foreground);
+  --color-logo-symbol: var(--logo-symbol);
   --color-sticker-edge: var(--sticker-edge);
   --color-sticker-shadow: var(--sticker-shadow);
   --color-border-strong: var(--border-strong);
@@ -177,6 +178,8 @@
   --brand-warm: #f08a3c; /* color/brand/warm */
   --brand-warm-subtle: #fde8d7; /* color/brand/warm-subtle */
   --brand-warm-foreground: #031a1e; /* color/text/on-warm */
+  /* The arcs of the logo symbol (Figma color/logo/symbol, the same as favicon.svg); the dot is brand-warm. */
+  --logo-symbol: #007f72;
   --illustration-primary: #007f72; /* color/illustration/primary */
   --illustration-subtle: #c3ecdf; /* color/illustration/subtle */
   --illustration-ink: #031a1e; /* color/illustration/ink */
@@ -259,6 +262,7 @@
   --nav-indicator: var(--brand-warm);
   --brand-warm: #f5a05f;
   --brand-warm-subtle: #3d2a1d;
+  --logo-symbol: #b4e7d3; /* color/logo/symbol, dark: the favicon's dark arcs */
   --illustration-primary: #8bdfc4;
   --illustration-subtle: #244f47;
   --illustration-ink: #e9f6f0;

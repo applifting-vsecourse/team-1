@@ -4,7 +4,8 @@ import { ROUTES } from "@/app/routes"
 import { cn } from "@/lib/utils"
 
 /**
- * Togena symbol: the arcs in the current colour (the caller passes `text-primary`), the dot always
+ * Togena symbol: the arcs in the current colour (the caller passes `text-logo-symbol`: teal, mint in
+ * dark mode, Figma color/logo/symbol), the dot always
  * orange (system B: the dot is „you are here“, the same mark as the active nav bar and the avatar).
  * Weight „Výrazně tučné“ (approved 2026-11-27): Figma draws it in a 40-unit box with the arc 3.4
  * and the dot r 3.84; here the same geometry is scaled to the 32-unit box (× 0.8).
@@ -56,7 +57,7 @@ export function Logo({
         !isSmall && "md:gap-2.5 md:text-3xl",
       )}
     >
-      <LogoSymbol className={cn("size-6 text-primary", !isSmall && "md:size-10")} />
+      <LogoSymbol className={cn("size-6 text-logo-symbol", !isSmall && "md:size-10")} />
       <span>togena</span>
     </Link>
   )

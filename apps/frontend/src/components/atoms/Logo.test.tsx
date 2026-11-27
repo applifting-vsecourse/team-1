@@ -5,7 +5,7 @@ import { LogoSymbol } from "@/components/atoms/Logo"
 
 describe("LogoSymbol", () => {
   it("draws the dot in brand-warm whatever colour the arcs take", () => {
-    const { container } = render(<LogoSymbol className="text-primary" />)
+    const { container } = render(<LogoSymbol className="text-logo-symbol" />)
     const dot = container.querySelector('[data-slot="logo-dot"]')
     expect(dot).toHaveClass("fill-brand-warm")
     expect(dot).not.toHaveAttribute("fill", "currentColor")

@@ -33,7 +33,7 @@ export class RootErrorBoundary extends Component<{ children: ReactNode }, State>
               href={ROUTES.home}
               className="flex items-center gap-1.5 text-lg leading-none font-semibold tracking-tight md:gap-2.5 md:text-3xl"
             >
-              <LogoSymbol className="size-6 text-primary md:size-10" />
+              <LogoSymbol className="size-6 text-logo-symbol md:size-10" />
               <span>togena</span>
             </a>
             <a
