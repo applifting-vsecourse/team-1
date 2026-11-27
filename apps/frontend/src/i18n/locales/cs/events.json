@@ -358,8 +358,10 @@
   "roomOverview": {
     "beds": "Lůžka",
     "born": "nar. {{year}}",
+    "collapseAll": "Sbalit vše",
     "continued": "pokračování",
     "emptyAction": "Přejít na Rozřazování",
+    "expandAll": "Rozbalit vše",
     "extraBed": "Přistýlka",
     "free": "Volná lůžka",
     "freeBed": "Volné lůžko",
