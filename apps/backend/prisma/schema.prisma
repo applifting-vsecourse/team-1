@@ -488,6 +488,7 @@ model Application {
   accessToken    String       @unique
   firstName      String
   lastName       String
+  pronouns       String?
   birthDate      DateTime     @db.Date
   gender         Gender
   email          String

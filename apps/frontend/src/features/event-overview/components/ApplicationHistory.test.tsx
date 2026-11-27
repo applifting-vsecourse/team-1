@@ -81,6 +81,7 @@ describe("ApplicationHistory", () => {
               { field: "birthDate", from: "2014-05-04", to: "2014-05-05" },
               { field: "individualAccommodation", from: "false", to: "true" },
               { field: "accommodationRequest" },
+              { field: "pronouns", from: null, to: "they/them" },
             ],
           },
           entries[3],
@@ -96,6 +97,7 @@ describe("ApplicationHistory", () => {
     expect(edit).toHaveTextContent("Individual accommodation: no → yes")
     // The note's values are not listed, only that it changed.
     expect(edit).toHaveTextContent("Accommodation note: changed")
+    expect(edit).toHaveTextContent("Pronouns: — → they/them")
   })
 
   it("lists every change with its time, author and change", async () => {

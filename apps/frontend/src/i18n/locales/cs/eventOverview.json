@@ -469,7 +469,8 @@
       "firstName": "Jméno",
       "individualAccommodation": "Individuální ubytování",
       "lastName": "Příjmení",
-      "phone": "Telefon"
+      "phone": "Telefon",
+      "pronouns": "Zájmena"
     },
     "logistics": {
       "arrival": "příjezd {{value}}",
@@ -558,7 +559,8 @@
     "female": "Žena",
     "gender": "Pohlaví",
     "male": "Muž",
-    "phone": "Telefon"
+    "phone": "Telefon",
+    "pronouns": "Zájmena"
   },
   "payment": {
     "afterCorrection": "Po uložení",

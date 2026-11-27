@@ -14,6 +14,7 @@ export type EditableApplication = {
   eventName: string
   firstName: string
   lastName: string
+  pronouns: string | null
   birthDate: string
   phone: string | null
   individualAccommodation: boolean
@@ -25,6 +26,7 @@ export type EditInput = Pick<
   EditableApplication,
   | "firstName"
   | "lastName"
+  | "pronouns"
   | "birthDate"
   | "phone"
   | "individualAccommodation"
@@ -54,6 +56,7 @@ const toDto = (row: Row): EditableApplication => ({
   eventName: row.event.name,
   firstName: row.firstName,
   lastName: row.lastName,
+  pronouns: row.pronouns,
   birthDate: row.birthDate.toISOString().slice(0, 10),
   phone: row.phone,
   individualAccommodation: row.individualAccommodation,
@@ -86,7 +89,7 @@ export class ApplicationEditRepository {
     scope: EditScope,
     editor: Editor,
     id: string,
-    input: EditInput,
+    input: Omit<EditInput, "pronouns"> & { pronouns?: string | null },
   ): Promise<EditableApplication | null> {
     return this.prisma.$transaction(async (tx) => {
       const target = await tx.application.findFirst({
@@ -120,13 +123,18 @@ export class ApplicationEditRepository {
       const before: EditInput = {
         firstName: row.firstName,
         lastName: row.lastName,
+        pronouns: row.pronouns,
         birthDate: row.birthDate.toISOString().slice(0, 10),
         phone: row.phone,
         individualAccommodation: row.individualAccommodation,
         accommodationRequest: row.accommodationRequest,
       }
-      const changedFields = (Object.keys(input) as (keyof EditInput)[]).filter(
-        (field) => before[field] !== input[field],
+      const after: EditInput = {
+        ...input,
+        pronouns: input.pronouns === undefined ? before.pronouns : input.pronouns,
+      }
+      const changedFields = (Object.keys(after) as (keyof EditInput)[]).filter(
+        (field) => before[field] !== after[field],
       )
       if (changedFields.length === 0) return toDto(row)
 
@@ -183,6 +191,7 @@ export class ApplicationEditRepository {
         data: {
           firstName: input.firstName,
           lastName: input.lastName,
+          pronouns: after.pronouns,
           birthDate: new Date(`${input.birthDate}T00:00:00.000Z`),
           phone: input.phone,
           individualAccommodation: input.individualAccommodation,
@@ -197,7 +206,7 @@ export class ApplicationEditRepository {
           authorName: editor.name,
           changedFields,
           before: before as Prisma.InputJsonObject,
-          after: input as Prisma.InputJsonObject,
+          after: after as Prisma.InputJsonObject,
         },
       })
       // Only an applicant's edit notifies the organizers (D-141); an organizer's own change tells nobody.

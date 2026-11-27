@@ -161,6 +161,7 @@ const renderDetail = (
           lastName: data.lastName,
           birthDate: data.birthDate ?? "2011-05-04",
           phone: "+420 777 123 456",
+          pronouns: null,
           individualAccommodation: false,
           accommodationRequest: null,
           history: edits,

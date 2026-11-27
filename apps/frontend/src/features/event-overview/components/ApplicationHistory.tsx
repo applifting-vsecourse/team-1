@@ -46,16 +46,14 @@ export function ApplicationHistory({
       }
       return t("history.edit", {
         changes: entry.changes
-          .map(({ field, from, to }) =>
-            // The note is long free text: the history only says that it changed.
-            field === "accommodationRequest"
-              ? t("history.noteChanged")
-              : t("history.change", {
-                  field: t(`history.field.${field}`),
-                  from: value(field, from),
-                  to: value(field, to),
-                }),
-          )
+          .map(({ field, from, to }) => {
+            if (field === "accommodationRequest") return t("history.noteChanged")
+            return t("history.change", {
+              field: t(`history.field.${field}`),
+              from: value(field, from),
+              to: value(field, to),
+            })
+          })
           .join("; "),
       })
     }

@@ -78,6 +78,7 @@
       "firstNameRequired": "Zadejte jméno.",
       "genderRequired": "Vyberte Žena nebo Muž.",
       "lastNameRequired": "Zadejte příjmení.",
+      "pronounsTooLong": "Zájmena mohou mít nejvýše {{max}} znaků.",
       "termsRequired": "Vyberte alespoň jeden termín."
     },
     "firstName": "Jméno *",
@@ -100,6 +101,8 @@
     "moreTerms_other": "a dalších {{count}} termínů",
     "participantTitle": "Účastník {{number}}",
     "participantTitleNamed": "Účastník {{number}} · {{name}}",
+    "pronouns": "Zájmena",
+    "pronounsPlaceholder": "Např. ona/její",
     "removeParticipantAria": "Odebrat účastníka {{number}}",
     "requiredNote": "* Povinná pole",
     "showFewerTerms": "Zobrazit méně",

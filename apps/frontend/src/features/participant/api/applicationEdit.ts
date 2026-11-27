@@ -16,6 +16,7 @@ const editableApplicationSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   birthDate: z.string(),
+  pronouns: z.string().nullable(),
   phone: z.string().nullable(),
   individualAccommodation: z.boolean(),
   accommodationRequest: z.string().nullable(),
@@ -31,7 +32,7 @@ export type EditApplicationInput = Pick<
   | "phone"
   | "individualAccommodation"
   | "accommodationRequest"
->
+> & { pronouns?: string | null }
 
 export const applicationEditQueryOptions = (id: string) =>
   queryOptions({

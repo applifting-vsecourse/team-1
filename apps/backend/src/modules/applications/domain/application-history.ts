@@ -28,6 +28,7 @@ export type HistoryPaymentRow = {
 export const EDITABLE_FIELDS = [
   "firstName",
   "lastName",
+  "pronouns",
   "birthDate",
   "phone",
   "individualAccommodation",
@@ -53,9 +54,8 @@ export type HistoryEdit = {
 }
 
 /**
- * A changed field with its value before and after; a flag is `"true"` / `"false"`. The note about
- * the accommodation is long free text: its history says only that it changed (values stay stored
- * in the edit, they are not listed).
+ * A changed field with its value before and after; a flag is `"true"` / `"false"`.
+ * Accommodation notes are only marked as changed in the displayed history.
  */
 export type HistoryFieldChange =
   | {
