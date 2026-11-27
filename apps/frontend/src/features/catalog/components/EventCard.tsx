@@ -2,68 +2,68 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { Badge } from "@/components/ui/badge"
+import { LogoSymbol } from "@/components/atoms/Logo"
 import { Card } from "@/components/ui/card"
-import { formatDateRange } from "@/lib/date"
-import { formatCzk } from "@/lib/money"
-import { termName } from "@/lib/term-label"
+import { formatTermPrice } from "@/lib/money"
+import { cn } from "@/lib/utils"
 
 import { catalogEventPhotoUrl, type CatalogEvent } from "@/features/catalog/api/catalog"
+import { eventDatesSummary } from "@/features/catalog/lib/catalog"
 
-// Figma v2: public catalog event cards · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-12072 (mobile 22640-12173)
+// Figma (Design system v2): Karta akce v katalogu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27420-16517 (mobile 27421-16485)
 /** One published event; the whole card opens the event page. */
 export function EventCard({ event }: { event: CatalogEvent }) {
   const { t } = useTranslation("catalog")
+  const dates = eventDatesSummary(event, (count, months) =>
+    t("list.termsSummary", { count, months }),
+  )
+  const hasOneTerm = event.terms.length === 1
 
   return (
     <Link
       to={ROUTES.event}
       params={{ publicToken: event.publicToken }}
-      className="group block lift rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid"
+      className="group block h-full lift rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid"
     >
-      <Card className="h-full min-h-[214px] gap-0 overflow-hidden p-0">
-        {event.hasPhoto ? (
-          <img
-            src={catalogEventPhotoUrl(event.publicToken)}
-            alt=""
-            loading="lazy"
-            className="h-44 w-full border-b border-border-strong object-cover"
-          />
-        ) : null}
-        <div className="flex flex-1 flex-col gap-3 p-5">
+      <Card className="h-full gap-0 overflow-hidden p-0">
+        <div className="relative h-46 w-full border-b border-border-strong bg-wash md:h-49">
+          {event.hasPhoto ? (
+            <img
+              src={catalogEventPhotoUrl(event.publicToken)}
+              alt=""
+              loading="lazy"
+              className="size-full object-cover"
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center">
+              <LogoSymbol className="size-10 text-primary" />
+            </div>
+          )}
+          <span className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full border border-border bg-card py-1 pr-2.5 pl-2 text-xs font-medium">
+            <span
+              aria-hidden
+              className={cn(
+                "size-2 rounded-full",
+                event.isOpenForApplications ? "bg-primary" : "bg-muted-foreground",
+              )}
+            />
+            {t(event.isOpenForApplications ? "list.statusOpen" : "list.statusClosed")}
+          </span>
+        </div>
+        <div className="flex flex-col gap-2 p-4">
           <span className="sr-only">{event.organizationName}</span>
-          <h3 className="text-2xl/8 font-bold">{event.name}</h3>
-          {event.terms.length > 0 ? (
-            <ul>
-              {event.terms.map((term) => (
-                <li
-                  key={term.startsOn}
-                  className="flex flex-col"
-                >
-                  {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-                  {termName(term) ? (
-                    <span className="text-sm text-muted-foreground">{termName(term)}</span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          {event.location ? (
-            <p className="text-sm text-muted-foreground">{event.location}</p>
-          ) : null}
-          <Badge
-            className={
-              event.isOpenForApplications ? "bg-primary text-primary-foreground" : undefined
-            }
-          >
-            {event.isOpenForApplications ? t("list.badgeOpen") : t("list.badgePublished")}
-          </Badge>
-          {event.termCount > 0 && event.fromPriceCzk !== null ? (
+          <h3 className="truncate text-lg/6.5 font-semibold tracking-tight">{event.name}</h3>
+          <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
+            {dates ? <p>{dates}</p> : null}
+            {event.location ? <p>{event.location}</p> : null}
+          </div>
+          {event.fromPriceCzk !== null ? (
             <p className="text-sm text-muted-foreground">
-              {t(event.termCount > 1 ? "list.summaryFrom" : "list.summary", {
-                count: event.termCount,
-                price: formatCzk(event.fromPriceCzk),
-              })}
+              {hasOneTerm ? null : `${t("price.from")} `}
+              <span className="font-semibold text-foreground">
+                {formatTermPrice(event.fromPriceCzk)}
+              </span>{" "}
+              {t("price.perParticipant")}
             </p>
           ) : null}
         </div>

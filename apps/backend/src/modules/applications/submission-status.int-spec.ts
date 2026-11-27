@@ -1,7 +1,7 @@
 // US-25: the page after sending is reached by the secret access token and shows every
 // participant of the submission, never a place in the queue.
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { api, connectTestPrisma, resetAndSeed } from "@/test/integration/test-api"
+import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
 type Gender = "FEMALE" | "MALE"
 type StatusBody = {
@@ -36,8 +36,8 @@ describe("submission status (integration)", () => {
     termIds: terms,
   })
 
-  const submit = async (participants: object[]): Promise<{ accessToken: string }> => {
-    const response = await fetch(api(`/public/events/${publicToken}/applications`), {
+  const post = (participants: object[]): Promise<Response> =>
+    fetch(api(`/public/events/${publicToken}/applications`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -46,6 +46,8 @@ describe("submission status (integration)", () => {
         participants,
       }),
     })
+  const submit = async (participants: object[]): Promise<{ accessToken: string }> => {
+    const response = await post(participants)
     expect(response.status).toBe(201)
     return response.json()
   }
@@ -56,7 +58,9 @@ describe("submission status (integration)", () => {
   beforeAll(async () => {
     prisma = await connectTestPrisma()
     await resetAndSeed(prisma)
-    const organization = await prisma.organization.findFirstOrThrow()
+    const organization = await prisma.organization.findFirstOrThrow({
+      where: { name: "Letní kemp z. s." },
+    })
     publicToken = "us-25-event"
     const event = await prisma.event.create({
       data: {
@@ -143,6 +147,41 @@ describe("submission status (integration)", () => {
     expect(body.applications[0].payment).toBeNull()
     expect(body.applications[0].paymentStatus).toBe("NOTHING_DUE")
     expect(raw).not.toMatch(/position|queue|order/i)
+  })
+
+  it("stores optional pronouns per participant and restricts organizer access to the organization", async () => {
+    const [t1] = termIds
+    const { accessToken } = await submit([
+      { ...participant("Alex", "MALE", [t1]), pronouns: "  oni / jejich  " },
+      participant("Robin", "FEMALE", [t1]),
+      { ...participant("Dany", "FEMALE", [t1]), pronouns: "   " },
+    ])
+    const { applications } = (await (await status(accessToken)).json()) as StatusBody
+    expect(applications.map(({ firstName }) => firstName)).toEqual(["Alex", "Robin", "Dany"])
+    const ownCookie = await signIn("organizator@example.com", "password1")
+    const foreignCookie = await signIn("organizator2@example.com", "password2")
+
+    for (const [index, pronouns] of ["oni / jejich", null, null].entries()) {
+      const { id, firstName } = applications[index]
+      const detail = api(`/organizer/applications/${id}/payments`)
+      const allowed = await fetch(detail, { headers: { Cookie: ownCookie } })
+      expect(allowed.status).toBe(200)
+      expect(await allowed.json()).toMatchObject({ firstName, pronouns })
+      const denied = await fetch(detail, { headers: { Cookie: foreignCookie } })
+      expect(denied.status).toBe(403)
+      expect(await denied.text()).not.toContain("oni / jejich")
+    }
+  })
+
+  it("rejects pronouns longer than 100 characters without saving any participant", async () => {
+    const [t1] = termIds
+    const initial = await prisma.application.count({ where: { event: { publicToken } } })
+    const response = await post([
+      participant("Ari", "MALE", [t1]),
+      { ...participant("Sam", "FEMALE", [t1]), pronouns: "x".repeat(101) },
+    ])
+    expect(response.status).toBe(400)
+    expect(await prisma.application.count({ where: { event: { publicToken } } })).toBe(initial)
   })
 
   it("answers an unknown token with 404 and the NOT_FOUND code", async () => {

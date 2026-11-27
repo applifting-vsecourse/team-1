@@ -32,6 +32,7 @@ export type NewApplication = {
   accessToken: string
   firstName: string
   lastName: string
+  pronouns?: string | null
   birthDate: string
   gender: Gender
   email: string

@@ -2,6 +2,8 @@ import {
   EDITABLE_FIELDS,
   HistoryEntry,
   HistoryFieldChange,
+  LOGISTICS_FIELDS,
+  LogisticsField,
 } from "@/modules/applications/domain/application-history"
 import { ApiProperty } from "@nestjs/swagger"
 
@@ -28,13 +30,17 @@ const STATUSES = ["TO_EVALUATE", "CONFIRMED", "WAITLISTED", "CANCELLED", "ARCHIV
 /** One change of an application: when, by whom and what. The fields after `author` depend on `kind`. */
 export class HistoryEntryDto {
   @ApiProperty() id!: string
-  @ApiProperty({ enum: ["APPLICATION_CREATED", "STATUS_CHANGE", "PAYMENT", "EDIT"] })
+  @ApiProperty({ enum: ["APPLICATION_CREATED", "STATUS_CHANGE", "PAYMENT", "EDIT", "LOGISTICS"] })
   kind!: HistoryEntry["kind"]
   @ApiProperty() at!: string
   @ApiProperty({ nullable: true, type: String, description: "Null: the system made the change" })
   author!: string | null
 
-  @ApiProperty({ nullable: true, type: String, description: "STATUS_CHANGE: optional term name" })
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: "STATUS_CHANGE, LOGISTICS: optional term name",
+  })
   termName?: string | null
   @ApiProperty({ required: false, description: "STATUS_CHANGE: first day of the term" })
   startsOn?: string
@@ -60,6 +66,17 @@ export class HistoryEntryDto {
   })
   changes?: HistoryFieldChangeDto[]
 
+  @ApiProperty({
+    required: false,
+    enum: LOGISTICS_FIELDS,
+    description: "LOGISTICS: what the organizer wrote for the participant",
+  })
+  field?: LogisticsField
+  @ApiProperty({ required: false, nullable: true, type: String, description: "LOGISTICS: before" })
+  from?: string | null
+  @ApiProperty({ required: false, nullable: true, type: String, description: "LOGISTICS: after" })
+  to?: string | null
+
   static fromDomain(entry: HistoryEntry): HistoryEntryDto {
     const base = {
       id: entry.id,
@@ -75,6 +92,17 @@ export class HistoryEntryDto {
         endsOn: entry.endsOn.toISOString().slice(0, 10),
         fromStatus: entry.fromStatus,
         toStatus: entry.toStatus,
+      }
+    }
+    if (entry.kind === "LOGISTICS") {
+      return {
+        ...base,
+        field: entry.field,
+        termName: entry.term?.name ?? null,
+        startsOn: entry.term?.startsOn.toISOString().slice(0, 10),
+        endsOn: entry.term?.endsOn.toISOString().slice(0, 10),
+        from: entry.from,
+        to: entry.to,
       }
     }
     if (entry.kind === "EDIT") return { ...base, changes: entry.changes }

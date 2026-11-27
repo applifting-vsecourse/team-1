@@ -2,11 +2,11 @@ import { createFileRoute, notFound } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { Seo } from "@/components/atoms/Seo"
+import { NotFoundPage } from "@/components/pages/NotFoundPage"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { HTTPError } from "@/lib/api-client"
 
 import { submissionStatusQueryOptions } from "@/features/application-form/api/submissionStatus"
-import { ApplicationLinkNotFound } from "@/features/application-form/components/ApplicationLinkNotFound"
 import { SubmissionStatus } from "@/features/application-form/components/SubmissionStatus"
 import { useSession } from "@/features/auth/hooks/useSession"
 
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/apply/confirmation/$accessToken")({
       throw error
     }
   },
-  notFoundComponent: ApplicationLinkNotFound,
+  notFoundComponent: NotFoundPage,
   component: ApplicationConfirmationPage,
 })
 

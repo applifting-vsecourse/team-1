@@ -15,6 +15,7 @@ describe("PaymentsService.simulate", () => {
       {} as never,
       {} as never,
       { paymentSimulationEnabled: enabled } as never,
+      {} as never,
     )
     return { repository, service }
   }

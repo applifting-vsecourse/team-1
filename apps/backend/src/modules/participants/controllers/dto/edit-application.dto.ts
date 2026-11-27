@@ -1,6 +1,8 @@
 import { MAX_ACCOMMODATION_NOTE_LENGTH } from "@/shared/domain/accommodation"
 import { MAX_PHONE_INPUT_LENGTH } from "@/shared/domain/phone"
+import { MAX_PRONOUNS_LENGTH, normalizePronouns } from "@/shared/domain/pronouns"
 import { ApiProperty } from "@nestjs/swagger"
+import { Transform } from "class-transformer"
 import { IsBoolean, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from "class-validator"
 
 export class EditApplicationRequestDto {
@@ -40,6 +42,14 @@ export class EditApplicationRequestDto {
   @IsString()
   @MaxLength(MAX_ACCOMMODATION_NOTE_LENGTH)
   accommodationRequest!: string | null
+  @ApiProperty({ type: String, nullable: true, required: false, maxLength: MAX_PRONOUNS_LENGTH })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === "string" ? normalizePronouns(value) : value,
+  )
+  @IsOptional()
+  @IsString()
+  @MaxLength(MAX_PRONOUNS_LENGTH)
+  pronouns?: string | null
 }
 
 export class ApplicationEditEntryDto {
@@ -54,6 +64,7 @@ export class EditableApplicationDto {
   @ApiProperty() eventName!: string
   @ApiProperty() firstName!: string
   @ApiProperty() lastName!: string
+  @ApiProperty({ nullable: true, type: String }) pronouns!: string | null
   @ApiProperty() birthDate!: string
   @ApiProperty({ nullable: true, type: String }) phone!: string | null
   @ApiProperty() individualAccommodation!: boolean

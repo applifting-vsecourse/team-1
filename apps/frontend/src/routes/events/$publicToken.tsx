@@ -2,11 +2,11 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, notFound } from "@tanstack/react-router"
 
 import { Seo } from "@/components/atoms/Seo"
+import { NotFoundPage } from "@/components/pages/NotFoundPage"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { HTTPError } from "@/lib/api-client"
 
 import { catalogEventQueryOptions } from "@/features/catalog/api/catalog"
-import { EventNotFound } from "@/features/catalog/components/EventNotFound"
 import { EventPage } from "@/features/catalog/components/EventPage"
 
 export const Route = createFileRoute("/events/$publicToken")({
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/events/$publicToken")({
       throw error
     }
   },
-  notFoundComponent: EventNotFound,
+  notFoundComponent: NotFoundPage,
   component: CatalogEventRoute,
 })
 
@@ -34,8 +34,9 @@ function CatalogEventRoute() {
         isFullWidth
         hasFullFooter
         headerContentClassName="max-w-275"
+        hasBottomBar
       >
-        <div className="mx-auto w-full max-w-[1196px] px-4 py-4 md:p-12">
+        <div className="mx-auto w-full max-w-299 px-4 pt-4 pb-8 md:px-12 md:pt-8 md:pb-12">
           <EventPage event={event} />
         </div>
       </PublicLayout>

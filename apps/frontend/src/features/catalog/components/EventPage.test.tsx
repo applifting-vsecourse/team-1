@@ -5,7 +5,8 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 
 import type { CatalogEventDetail } from "@/features/catalog/api/catalog"
@@ -57,7 +58,28 @@ describe("EventPage", () => {
     expect(screen.getByText(/CZK 5,600/)).toBeInTheDocument()
     expect(screen.getByText("Lipno nad Vltavou")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Terms and prices" })).toBeVisible()
-    expect(screen.getByRole("heading", { name: "Organization contact" })).toBeVisible()
+    expect(screen.getByText("Organized by")).toBeVisible()
+    expect(screen.getByText("Alpine Collective")).toBeVisible()
+    expect(screen.getByText("Term")).toBeVisible()
+    expect(screen.getByText("Price / participant")).toBeVisible()
+    expect(
+      screen.getByText("You can apply without registering, for several participants too."),
+    ).toBeVisible()
+  })
+
+  it("keeps the contact behind a disclosure that shows the e-mail and the phone", async () => {
+    await renderPage(event)
+
+    expect(screen.queryByRole("link", { name: "info@alpine.example" })).not.toBeInTheDocument()
+    const toggle = screen.getByRole("button", { name: "Show contact" })
+    expect(toggle).toHaveAttribute("aria-expanded", "false")
+
+    await userEvent.click(toggle)
+
+    expect(screen.getByRole("button", { name: "Hide contact" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    )
     expect(screen.getByRole("link", { name: "info@alpine.example" })).toHaveAttribute(
       "href",
       "mailto:info@alpine.example",
@@ -66,6 +88,21 @@ describe("EventPage", () => {
       "href",
       "tel:+420000000000",
     )
+  })
+
+  it("offers the application in the card and in the bar with the lowest price", async () => {
+    await renderPage(event)
+
+    expect(screen.getAllByRole("link", { name: "Submit application" })).toHaveLength(2)
+    expect(screen.getByText("from CZK 4,900")).toBeInTheDocument()
+    expect(screen.getByText("/ participant")).toBeInTheDocument()
+  })
+
+  it("shows the exact price in the bar of an event with one term", async () => {
+    await renderPage({ ...event, terms: [event.terms[1]!] })
+
+    expect(screen.queryByText(/from CZK/)).not.toBeInTheDocument()
+    expect(screen.getAllByText(/CZK 5,600/).length).toBeGreaterThan(1)
   })
 
   it("shows the photo", async () => {
@@ -86,10 +123,9 @@ describe("EventPage", () => {
   it("leads to the application form", async () => {
     await renderPage(event)
 
-    expect(screen.getByRole("link", { name: "Submit application" })).toHaveAttribute(
-      "href",
-      "/apply/tok123",
-    )
+    for (const link of screen.getAllByRole("link", { name: "Submit application" })) {
+      expect(link).toHaveAttribute("href", "/apply/tok123")
+    }
   })
 
   it("shows no capacity, occupancy or free beds", async () => {
@@ -105,7 +141,7 @@ describe("EventPage", () => {
     })
 
     expect(screen.getAllByText("12–18 Jul 2027").length).toBeGreaterThan(0)
-    expect(screen.getByText(/Free/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Free/).length).toBeGreaterThan(0)
   })
 
   it("leaves out what the organizer did not fill in", async () => {
@@ -117,9 +153,70 @@ describe("EventPage", () => {
       contactPhone: null,
     })
 
-    expect(screen.queryByRole("link", { name: /@/ })).not.toBeInTheDocument()
-    expect(screen.queryByRole("heading", { name: "Organization contact" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Show contact" })).not.toBeInTheDocument()
     expect(screen.getByText("Alpine Collective")).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "About the event" })).not.toBeInTheDocument()
+  })
+
+  describe("many terms (#732)", () => {
+    const manyTerms = (count: number): CatalogEventDetail["terms"] =>
+      Array.from({ length: count }, (_, index) => {
+        const start = new Date(Date.UTC(2027, 0, 2 + index * 7))
+        const end = new Date(start.getTime() + 6 * 864e5)
+        return {
+          id: `t${index + 1}`,
+          name: `Week ${index + 1}`,
+          startsOn: start.toISOString().slice(0, 10),
+          endsOn: end.toISOString().slice(0, 10),
+          priceCzk: 4900,
+        }
+      })
+
+    const termsCard = () => {
+      const card = screen
+        .getByRole("heading", { name: "Terms and prices" })
+        .closest<HTMLElement>("[data-slot=card]")
+      if (!card) throw new Error("No terms card")
+      return card
+    }
+
+    it("keeps the card as drawn up to three terms", async () => {
+      await renderPage({ ...event, terms: manyTerms(3) })
+
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(3)
+      expect(termsCard()).toHaveClass("md:sticky")
+      expect(within(termsCard()).queryByRole("button", { name: /Show/ })).not.toBeInTheDocument()
+    })
+
+    it("lets twelve terms scroll with the page, eight first, and unfolds the rest", async () => {
+      await renderPage({ ...event, terms: manyTerms(12) })
+
+      expect(termsCard()).not.toHaveClass("md:sticky")
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(8)
+      const toggle = screen.getByRole("button", { name: "Show 4 more terms" })
+      expect(toggle).toHaveAttribute("aria-expanded", "false")
+      await userEvent.click(toggle)
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(12)
+      await userEvent.click(screen.getByRole("button", { name: "Show fewer" }))
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(8)
+    })
+
+    it("folds a hundred terms to eight and keeps the way to the application form", async () => {
+      await renderPage({ ...event, terms: manyTerms(100) })
+
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(8)
+      expect(screen.getByRole("button", { name: "Show 92 more terms" })).toBeVisible()
+      for (const link of screen.getAllByRole("link", { name: "Submit application" })) {
+        expect(link).toHaveAttribute("href", "/apply/tok123")
+      }
+      expect(screen.getByRole("button", { name: "Show contact" })).toBeVisible()
+    })
+
+    it("shows nine terms whole instead of hiding one", async () => {
+      await renderPage({ ...event, terms: manyTerms(9) })
+
+      expect(within(termsCard()).getAllByRole("listitem")).toHaveLength(9)
+      expect(within(termsCard()).queryByRole("button", { name: /Show/ })).not.toBeInTheDocument()
+    })
   })
 })

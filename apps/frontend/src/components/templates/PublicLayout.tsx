@@ -9,6 +9,8 @@ type PublicLayoutProps = {
   headerContentClassName?: string
   /** The footer with the brand and the link groups (landing, catalog, event page); otherwise the minimal one. */
   hasFullFooter?: boolean
+  /** The page has a fixed bar at the bottom on mobile; keeps the footer clear of it. */
+  hasBottomBar?: boolean
   /** Full-width sections that manage their own width (landing). */
   isFullWidth?: boolean
 }
@@ -18,6 +20,7 @@ export function PublicLayout({
   children,
   headerContentClassName,
   hasFullFooter = false,
+  hasBottomBar = false,
   isFullWidth = false,
 }: PublicLayoutProps) {
   return (
@@ -34,6 +37,12 @@ export function PublicLayout({
         isMinimal={!hasFullFooter}
         contentClassName={headerContentClassName}
       />
+      {hasBottomBar ? (
+        <div
+          aria-hidden
+          className="h-20 md:hidden"
+        />
+      ) : null}
     </div>
   )
 }

@@ -18,6 +18,7 @@ const term = (overrides: Partial<MyApplicationTerm> = {}): MyApplicationTerm => 
   priceCzk: 4500,
   transportOffered: false,
   transportDecided: false,
+  termEditable: true,
   stay: { lateArrival: null, earlyDeparture: null },
   ...overrides,
 })
@@ -49,6 +50,51 @@ describe("TermStaySection", () => {
     const button = screen.getByRole("button", { name: ADD })
     expect(button).toHaveTextContent(/^Add$/)
     expect(button).not.toHaveClass("whitespace-normal")
+  })
+
+  it("writes to the organizer's endpoint when the organizer enters it for the participant (D-191)", async () => {
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <TermStaySection
+          applicationId="a1"
+          writer="organizer"
+          terms={[term()]}
+        />
+      </QueryClientProvider>,
+    )
+    await open()
+    const [arrivalDate] = screen.getAllByLabelText("Date", { selector: "input" })
+    await userEvent.type(arrivalDate!, "13. 7. 2027")
+    const [arrivalTime] = screen.getAllByLabelText("Time", { selector: "input" })
+    await userEvent.type(arrivalTime!, "10:30")
+    await userEvent.click(screen.getByRole("button", { name: "Save" }))
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith("organizer/applications/a1/terms/t1/stay", {
+        json: { lateArrival: "2027-07-13T10:30", earlyDeparture: null },
+      }),
+    )
+  })
+
+  it("gives the organizer the delete next to edit, not in the dialog", async () => {
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <TermStaySection
+          applicationId="a1"
+          writer="organizer"
+          terms={[term({ stay: { lateArrival: "2027-07-13T10:30", earlyDeparture: null } })]}
+        />
+      </QueryClientProvider>,
+    )
+    await userEvent.click(screen.getByRole("button", { name: /^Edit arrival or departure – / }))
+    expect(screen.queryByRole("button", { name: "Delete all details" })).not.toBeInTheDocument()
+    await userEvent.keyboard("{Escape}")
+    await userEvent.click(await screen.findByRole("button", { name: "Delete all details" }))
+    await userEvent.click(screen.getByRole("button", { name: "Delete details" }))
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith("organizer/applications/a1/terms/t1/stay", {
+        json: { lateArrival: null, earlyDeparture: null },
+      }),
+    )
   })
 
   it("shows no arrival or departure while none is given", () => {
@@ -123,7 +169,6 @@ describe("TermStaySection", () => {
 
   it("deletes both after a confirmation", async () => {
     renderSection([term({ stay: { lateArrival: "2027-07-13T10:30", earlyDeparture: null } })])
-    await userEvent.click(screen.getByRole("button", { name: /^Edit arrival or departure – / }))
     await userEvent.click(screen.getByRole("button", { name: "Delete all details" }))
     expect(screen.getByRole("heading", { name: "Delete arrival and departure?" })).toBeVisible()
     expect(put).not.toHaveBeenCalled()

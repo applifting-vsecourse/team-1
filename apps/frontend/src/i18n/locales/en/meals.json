@@ -62,6 +62,7 @@
   "own": {
     "allergiesLabel": "Allergies and other dietary requirements",
     "back": "Back to application",
+    "closed": "All terms of the application are over or cancelled, the meals can no longer be changed.",
     "multiple": "You can select more than one option.",
     "noRestrictions": "I have no dietary restriction",
     "pageTitle": "Meals",

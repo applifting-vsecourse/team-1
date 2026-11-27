@@ -74,6 +74,12 @@ export class Config {
   @IsNotEmpty()
   readonly emailFrom!: string
 
+  // Development only: the console mailer fails every send, as during a provider outage (#737).
+  // Has no effect with Resend or SMTP.
+  @Env("EMAIL_SIMULATE_FAILURE", { expose: true, defaultValue: false })
+  @IsBoolean()
+  readonly emailSimulateFailure!: boolean
+
   @Env("SMTP_HOST", { expose: true })
   @IsOptional()
   readonly smtpHost?: string
@@ -108,6 +114,11 @@ export class Config {
   // How often waitlisted applications of started terms are cancelled (US-106); 0 = off.
   @Env("WAITLIST_EXPIRY_INTERVAL_MS", { expose: true, defaultValue: 3_600_000 })
   readonly waitlistExpiryIntervalMs!: number
+
+  // How often the e-mail queue retries failed sends and picks up leftovers (#737); 0 = off.
+  // New jobs are sent right after the action that added them, whatever this says.
+  @Env("EMAIL_QUEUE_INTERVAL_MS", { expose: true, defaultValue: 30_000 })
+  readonly emailQueueIntervalMs!: number
 
   // Staging and demo only (US-115): lets a participant simulate paying a debt. Off unless set.
   @Env("PAYMENT_SIMULATION_ENABLED", { expose: true, defaultValue: false })

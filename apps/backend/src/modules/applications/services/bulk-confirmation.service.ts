@@ -83,6 +83,7 @@ export class BulkConfirmationService {
           to: "CONFIRMED",
           actorId: user.id,
           isOverCapacityConfirmed: false,
+          isEmailQueued: true,
         })
         result.confirmed.push(candidate.applicationId)
       } catch (error) {
