@@ -380,7 +380,7 @@ describe("bank statement import (US-42)", () => {
     }
     const match = (
       transactionId: string,
-      body: { applicationId: string; termId: string },
+      body: { applicationId: string; termId: string; previousReceiptId?: string },
       auth = cookie,
     ): Promise<Response> =>
       fetch(api(`/organizer/events/${eventId}/bank-transactions/${transactionId}/match`), {
@@ -391,15 +391,14 @@ describe("bank statement import (US-42)", () => {
     const applicationOf = async (number: number) =>
       prisma.application.findFirstOrThrow({ where: { eventId, number } })
 
-    it("records a BANK_IMPORT payment under the receipt id of the import and marks the transaction", async () => {
+    it("records a BANK_IMPORT payment for a manual assignment and marks the transaction", async () => {
       const number = await createApplication(true)
       const application = await applicationOf(number)
-      const { id, externalId } = await importUnmatched(6900)
+      const { id } = await importUnmatched(6900)
 
       const response = await match(id, { applicationId: application.id, termId: firstTerm.id })
       expect(response.status).toBe(204)
 
-      const organizationId = application.organizationId
       const payments = await prisma.payment.findMany({
         where: { applicationTerm: { applicationId: application.id } },
       })
@@ -407,14 +406,14 @@ describe("bank statement import (US-42)", () => {
         {
           amountCzk: 6900,
           source: "BANK_IMPORT",
-          receiptId: `bank:${organizationId}:${externalId}`,
+          receiptId: expect.stringMatching(/^bank-manual:/),
         },
       ])
       expect(await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).toMatchObject({
         status: "MATCHED",
-        reason: null,
+        reason: "NO_VARIABLE_SYMBOL",
         applicationId: application.id,
-        receiptId: `bank:${organizationId}:${externalId}`,
+        receiptId: payments[0]?.receiptId,
       })
 
       // The second assignment is refused and adds nothing; the row is gone from the list.
@@ -432,6 +431,140 @@ describe("bank statement import (US-42)", () => {
         })
       ).json()) as { transactions: { id: string }[] }
       expect(unmatched.transactions.map((row) => row.id)).not.toContain(id)
+    })
+
+    const cancel = (applicationId: string, receiptId: string, auth = cookie) =>
+      fetch(api(`/organizer/applications/${applicationId}/payments/${encodeURIComponent(receiptId)}`), {
+        method: "DELETE",
+        headers: { Cookie: auth },
+      })
+
+    it("reopens, reassigns and can cancel the same bank transaction again without replaying a payment", async () => {
+      const original = await applicationOf(await createApplication(true, "First match"))
+      const replacement = await applicationOf(await createApplication(true, "Second match"))
+      const { id, externalId } = await importUnmatched(500)
+      const originalMatch = { applicationId: original.id, termId: firstTerm.id }
+      expect((await match(id, originalMatch)).status).toBe(204)
+      const assigned = await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })
+      const originalReceiptId = assigned.receiptId!
+      const foreign = await signIn("organizator2@example.com", "password2")
+      expect((await cancel(original.id, originalReceiptId, foreign)).status).toBe(403)
+      expect((await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).status).toBe("MATCHED")
+
+      expect((await cancel(original.id, originalReceiptId)).status).toBe(204)
+      expect((await cancel(original.id, originalReceiptId)).status).toBe(403)
+      const list = await fetch(api(`/organizer/events/${eventId}/bank-transactions/unmatched`), {
+        headers: { Cookie: cookie },
+      })
+      expect(await list.json()).toMatchObject({
+        transactions: expect.arrayContaining([
+          expect.objectContaining({
+            id,
+            previousReceiptId: originalReceiptId,
+            applicationId: null,
+            reason: "NO_VARIABLE_SYMBOL",
+          }),
+        ]),
+      })
+      expect((await match(id, originalMatch)).status).toBe(409)
+      const csv = statement(externalId, [[500, String(original.number * 1000 + firstTerm.number)]])
+        .replace(`${externalId}0;`, `${externalId};`)
+      expect(await (await upload(csv)).json()).toMatchObject({
+        matchedCount: 0,
+        unmatchedCount: 0,
+        duplicateCount: 1,
+      })
+
+      const replacementMatch = {
+        applicationId: replacement.id,
+        termId: firstTerm.id,
+        previousReceiptId: originalReceiptId,
+      }
+      const concurrent = await Promise.all([match(id, replacementMatch), match(id, replacementMatch)])
+      expect(concurrent.map(({ status }) => status).sort()).toEqual([204, 409])
+      const reassigned = await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })
+      const replacementReceiptId = reassigned.receiptId!
+      expect(reassigned).toMatchObject({ status: "MATCHED", applicationId: replacement.id })
+      expect(replacementReceiptId).not.toBe(originalReceiptId)
+      expect(await prisma.payment.count({
+        where: { receiptId: originalReceiptId, cancelledAt: { not: null } },
+      })).toBe(1)
+      expect(await prisma.payment.count({
+        where: { receiptId: replacementReceiptId, cancelledAt: null },
+      })).toBe(1)
+
+      expect((await cancel(original.id, originalReceiptId)).status).toBe(403)
+      expect((await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).receiptId).toBe(replacementReceiptId)
+      expect((await cancel(replacement.id, replacementReceiptId)).status).toBe(204)
+      expect((await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).status).toBe("UNMATCHED")
+      expect((await match(id, replacementMatch)).status).toBe(409)
+      expect((await match(id, { ...replacementMatch, previousReceiptId: replacementReceiptId })).status).toBe(204)
+    })
+
+    it("reopens an assignment when its corrected payment is cancelled", async () => {
+      const application = await applicationOf(await createApplication(true, "Corrected match"))
+      const { id } = await importUnmatched(500)
+      expect((await match(id, { applicationId: application.id, termId: firstTerm.id })).status).toBe(204)
+      const assigned = await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })
+      const originalReceiptId = assigned.receiptId!
+      const requestId = randomUUID()
+      const response = await fetch(
+        api(`/organizer/applications/${application.id}/payments/${encodeURIComponent(originalReceiptId)}`),
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", Cookie: cookie },
+          body: JSON.stringify({ requestId, amountCzk: 500, termId: firstTerm.id }),
+        },
+      )
+      expect(response.status).toBe(204)
+      expect((await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).status).toBe("MATCHED")
+      expect((await cancel(application.id, originalReceiptId)).status).toBe(403)
+      expect((await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).status).toBe("MATCHED")
+      expect((await cancel(application.id, requestId)).status).toBe(204)
+      expect(await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).toMatchObject({
+        status: "UNMATCHED",
+        receiptId: originalReceiptId,
+      })
+    })
+
+    it("reopens an older manual match when the absent reference proves its origin", async () => {
+      const application = await applicationOf(await createApplication(true, "Legacy manual match"))
+      const { id, externalId } = await importUnmatched(500)
+      const body = { applicationId: application.id, termId: firstTerm.id }
+      expect((await match(id, body)).status).toBe(204)
+      const assigned = await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })
+      const legacyReceiptId = `bank:${application.organizationId}:${externalId}`
+      await prisma.payment.updateMany({
+        where: { receiptId: assigned.receiptId! },
+        data: { receiptId: legacyReceiptId },
+      })
+      await prisma.bankTransaction.update({
+        where: { id },
+        data: { receiptId: legacyReceiptId, reason: null },
+      })
+      expect((await cancel(application.id, legacyReceiptId)).status).toBe(204)
+      expect(await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).toMatchObject({
+        status: "UNMATCHED",
+        reason: "NO_VARIABLE_SYMBOL",
+      })
+      expect((await match(id, { ...body, previousReceiptId: legacyReceiptId })).status).toBe(204)
+    })
+
+    it("keeps a legacy automatic match out of the unmatched list when its payment is cancelled", async () => {
+      const application = await applicationOf(await createApplication(true, "Automatic match"))
+      const prefix = `legacy-${Date.now()}-`
+      const csv = statement(prefix, [[500, String(application.number * 1000 + firstTerm.number)]])
+      expect(await (await upload(csv)).json()).toMatchObject({ matchedCount: 1 })
+      const automatic = await prisma.bankTransaction.findFirstOrThrow({
+        where: { eventId, externalId: `${prefix}0` },
+      })
+      expect((await cancel(application.id, automatic.receiptId!)).status).toBe(204)
+      const persisted = await prisma.bankTransaction.findUniqueOrThrow({ where: { id: automatic.id } })
+      expect(persisted).toMatchObject({ status: "MATCHED", receiptId: automatic.receiptId })
+      expect(await (await upload(csv)).json()).toMatchObject({
+        matchedCount: 0,
+        duplicateCount: 1,
+      })
     })
 
     it("counts the row as a duplicate when the statement is uploaded again", async () => {

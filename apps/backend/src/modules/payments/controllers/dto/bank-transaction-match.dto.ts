@@ -14,6 +14,12 @@ export class MatchBankTransactionRequestDto {
   @MinLength(1)
   @MaxLength(64)
   termId!: string
+
+  @ApiPropertyOptional({ description: "Previous assignment receipt shown for a reopened transaction" })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  previousReceiptId?: string
 }
 
 /** A repeated parameter arrives as an array and is refused. */

@@ -105,6 +105,6 @@ export class BankStatementsController {
     @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
     body: MatchBankTransactionRequestDto,
   ): Promise<void> {
-    await this.statements.match(user, eventId, id, body.applicationId, body.termId)
+    await this.statements.match(user, eventId, id, body.applicationId, body.termId, body.previousReceiptId)
   }
 }

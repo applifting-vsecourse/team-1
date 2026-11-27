@@ -42,6 +42,8 @@ class UnmatchedTransactionDto {
   @ApiProperty({ nullable: true, type: String }) counterpartyName!: string | null
   @ApiProperty({ nullable: true, type: String }) message!: string | null
   @ApiProperty({ enum: REASONS }) reason!: UnmatchedReason
+  @ApiProperty({ nullable: true, type: String, description: "Previous assignment receipt for a reopened transaction" })
+  previousReceiptId!: string | null
   @ApiProperty({
     nullable: true,
     type: String,
@@ -65,6 +67,7 @@ export class UnmatchedTransactionsResponseDto {
         counterpartyName: row.counterpartyName,
         message: row.message,
         reason: row.reason,
+        previousReceiptId: row.previousReceiptId,
         applicationId: row.application?.id ?? null,
         applicantName: row.application
           ? `${row.application.firstName} ${row.application.lastName}`

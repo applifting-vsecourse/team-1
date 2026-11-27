@@ -460,6 +460,34 @@ export class PaymentsRepository {
     })
   }
 
+  /**
+   * Corrections replace a receipt but keep its lineage. Older bank receipts share a format
+   * across automatic import and manual assignment, so their bank row needs a separate check.
+   */
+  private async findBankReceipt(
+    tx: Prisma.TransactionClient,
+    applicationId: string,
+    organizationId: string,
+    receiptId: string,
+  ): Promise<string | undefined> {
+    const [assignment] = await tx.$queryRaw<{ receiptId: string }[]>`
+      WITH RECURSIVE receipt_chain AS (
+        SELECT p."receiptId", p."correctsReceiptId"
+        FROM payment p JOIN application_term t ON t.id = p."applicationTermId"
+        WHERE p."receiptId" = ${receiptId}
+          AND p."organizationId" = ${organizationId} AND t."applicationId" = ${applicationId}
+        UNION
+        SELECT p."receiptId", p."correctsReceiptId"
+        FROM receipt_chain r JOIN payment p ON p."receiptId" = r."correctsReceiptId"
+        JOIN application_term t ON t.id = p."applicationTermId"
+        WHERE p."organizationId" = ${organizationId} AND t."applicationId" = ${applicationId}
+      )
+      SELECT "receiptId" FROM receipt_chain
+      WHERE "receiptId" LIKE 'bank-manual:%' OR "receiptId" LIKE 'bank:%'
+    `
+    return assignment?.receiptId
+  }
+
   /** Cancels the whole receipt the row belongs to; the rows stay so a retry cannot restore it. */
   async remove(
     applicationId: string,
@@ -467,6 +495,32 @@ export class PaymentsRepository {
     receiptId: string,
   ): Promise<PaymentDebtNotice | null> {
     return this.prisma.$transaction(async (tx) => {
+      const assignmentReceipt = await this.findBankReceipt(
+        tx,
+        applicationId,
+        organizationId,
+        receiptId,
+      )
+      // Match and import lock the bank row before locking the application.
+      if (assignmentReceipt) {
+        // Automatic import never matches a row without a reference. This is the only legacy
+        // kind we can reopen with a known original reason.
+        const isLegacyReceipt = assignmentReceipt.startsWith("bank:")
+        await tx.bankTransaction.updateMany({
+          where: {
+            organizationId,
+            applicationId,
+            receiptId: assignmentReceipt,
+            status: "MATCHED",
+            ...(isLegacyReceipt && { variableSymbol: null }),
+          },
+          data: {
+            status: "UNMATCHED",
+            applicationId: null,
+            ...(isLegacyReceipt && { reason: "NO_VARIABLE_SYMBOL" }),
+          },
+        })
+      }
       const locked = await tx.$queryRaw<
         { id: string }[]
       >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
