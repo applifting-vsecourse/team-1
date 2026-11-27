@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { signIn, signOut } from "./support/auth"
-import { latestMagicLinkToken } from "./support/magic-link"
+import { latestMagicLinkToken, requestSignInLink } from "./support/magic-link"
 import { createParticipantWithoutPassword } from "./support/participants"
 
 // US-01 + US-04: a new participant enters by the link, chooses a password and signs in with it later.
@@ -11,12 +11,10 @@ test(
     const { email } = await createParticipantWithoutPassword()
     const password = `own-${Date.now()}`
 
-    await page.goto("/participant/magic-link")
-    await page.getByLabel("E-mail").fill(email)
-    await page.getByRole("button", { name: "Send me a link" }).click()
+    await requestSignInLink(page, email)
     await expect(page.getByRole("status")).toContainText("Check your e-mail")
     await page.goto(`/participant/magic-link?token=${await latestMagicLinkToken()}`)
-    await page.getByRole("button", { name: "Continue" }).click()
+    await page.getByRole("button", { name: "Sign in" }).click()
 
     await expect(page.getByRole("heading", { level: 1, name: "Set your password" })).toBeVisible()
     await page.getByLabel("New password", { exact: true }).fill(password)

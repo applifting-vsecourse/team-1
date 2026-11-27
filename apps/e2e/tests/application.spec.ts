@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test"
 import { SUMMER_CAMP_LINK } from "./support/accounts"
 import { expectCompactHeading, expectFitsViewport } from "./support/layout"
-import { latestMagicLinkToken } from "./support/magic-link"
+import { latestMagicLinkToken, requestSignInLink } from "./support/magic-link"
 
 // US-23 application from a link, US-40 price, US-25 / US-27 submit and status. Runs on a phone too (@mobile).
 test.describe("Application from a link", { tag: "@mobile" }, () => {
@@ -74,12 +74,10 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await expect(page.getByText("2900123456/2010")).toBeVisible()
 
     // The applicant has no password yet: the e-mailed link leads to setting one, then to the application.
-    await page.goto("/participant/magic-link")
-    await page.getByLabel("E-mail").fill(email)
-    await page.getByRole("button", { name: "Send me a link" }).click()
+    await requestSignInLink(page, email)
     await expect(page.getByRole("status")).toContainText("Check your e-mail")
     await page.goto(`/participant/magic-link?token=${await latestMagicLinkToken()}`)
-    await page.getByRole("button", { name: "Continue" }).click()
+    await page.getByRole("button", { name: "Sign in" }).click()
     await page.getByLabel("New password", { exact: true }).fill("own-password-1")
     await page.getByRole("button", { name: "Set password", exact: true }).click()
 
