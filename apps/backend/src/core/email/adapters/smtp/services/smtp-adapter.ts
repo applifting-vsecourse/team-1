@@ -1,4 +1,5 @@
 import { SMTPConfig } from "@/core/email/adapters/smtp/interfaces/smtp-config.interface"
+import { EmailDeliveryError } from "@/core/email/interfaces/email-delivery.error"
 import { EmailService } from "@/core/email/interfaces/email-service.interface"
 import { Injectable } from "@nestjs/common"
 import * as nodemailer from "nodemailer"
@@ -20,11 +21,22 @@ export class SMTPAdapter implements EmailService {
   }
 
   async sendEmail(to: string, subject: string, html: string): Promise<void> {
-    await this.transporter.sendMail({
-      from: this.config.user,
-      to,
-      subject,
-      html,
-    })
+    try {
+      await this.transporter.sendMail({
+        from: this.config.user,
+        to,
+        subject,
+        html,
+      })
+    } catch (error) {
+      // Refused by the server, or never connected: nothing was sent. Anything else may have been.
+      const { responseCode, command, message } = error as {
+        responseCode?: number
+        command?: string
+        message: string
+      }
+      const isRefused = responseCode !== undefined || command === "CONN"
+      throw new EmailDeliveryError(message, isRefused ? "NOT_SENT" : "UNKNOWN")
+    }
   }
 }

@@ -36,7 +36,7 @@ import { EmailModule } from "./email.module"
             pass: config.smtpPassword,
           })
         }
-        return ConsoleMailerAdapterFactory.create()
+        return ConsoleMailerAdapterFactory.create({ isFailing: config.emailSimulateFailure })
       },
       inject: [Config],
     }),
