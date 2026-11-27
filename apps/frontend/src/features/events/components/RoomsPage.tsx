@@ -48,6 +48,7 @@ import { RoomProposal } from "@/features/events/components/RoomProposal"
 import { RoomsOverview } from "@/features/events/components/RoomsOverview"
 import { RoomsPublicationCard } from "@/features/events/components/RoomsPublicationCard"
 import { RoomWishesOverview } from "@/features/events/components/RoomWishesOverview"
+import type { RoomPaging } from "@/features/events/hooks/useRoomPaging"
 
 /** The views of the accommodation: Rozřazování, from the people (US-35), Pokoje, from the rooms (US-36, #542), and Individuální požadavky (#514). */
 export type RoomsView = "assignment" | "overview" | "requests"
@@ -78,6 +79,7 @@ export type AccommodationTerm = {
 // Figma (Design system): #530 Ikona přistýlky · podle pohlaví · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26056-112911 (mobile 26064-113690)
 // Figma (Design system): #530 Ikona přistýlky · společné pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113154 (mobile 26064-114034)
 // Figma (Design system): #530 Ikona přistýlky · tooltip a fokus · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113550
+// Approved patterns (no frames): „Rozbalit / sbalit vše“ https://github.com/applifting-vsecourse/team-1/issues/698#issuecomment-7219622253 · paging https://github.com/applifting-vsecourse/team-1/issues/728#issuecomment-7219623249
 // Figma (Design system v2): #542 / Rozřazování · přepínač pohledů a tisk · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27272-118788 (mobile https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27272-118920)
 export function RoomsPage({
   eventId,
@@ -86,6 +88,8 @@ export function RoomsPage({
   terms,
   onSelectTerm,
   onSelectView = () => undefined,
+  page,
+  onPageChange,
 }: {
   eventId: string
   termId?: string
@@ -93,6 +97,9 @@ export function RoomsPage({
   terms: AccommodationTerm[]
   onSelectTerm: (termId: string) => void
   onSelectView?: (view: RoomsView) => void
+  /** Page of the rooms (0-based, #728); without `onPageChange` each list keeps its own. */
+  page?: number
+  onPageChange?: RoomPaging["onPageChange"]
 }) {
   const { t } = useTranslation("events")
   const client = useQueryClient()
@@ -107,6 +114,21 @@ export function RoomsPage({
   const [pendingMode, setPendingMode] = useState<RoomMode | null>(null)
   const [isCopying, setIsCopying] = useState(false)
   const [isBulk, setIsBulk] = useState(false)
+  // #698: whose beds are listed in the view Rooms. Kept here for the button above the view and
+  // across its pages; another term or view starts collapsed.
+  const bedsKey = `${view}:${selected?.id}`
+  const [beds, setBeds] = useState({ key: bedsKey, openIds: new Set<string>() })
+  if (beds.key !== bedsKey) setBeds({ key: bedsKey, openIds: new Set() })
+  const roomIds = query.data?.rooms.map((room) => room.id) ?? []
+  const isAnyBedListOpen = roomIds.some((id) => beds.openIds.has(id))
+  const canToggleBeds = view === "overview" && roomIds.length > 0
+  const toggleBeds = (roomId: string) =>
+    setBeds(({ key, openIds }) => {
+      const next = new Set(openIds)
+      if (!next.delete(roomId)) next.add(roomId)
+      return { key, openIds: next }
+    })
+  const paging = onPageChange && { page: page ?? 0, onPageChange }
   const refresh = async () => {
     if (selected) client.removeQueries({ queryKey: roomCapacityIncreaseKey(eventId, selected.id) })
     await Promise.all([
@@ -154,7 +176,7 @@ export function RoomsPage({
   // A new view only has to be added to the tabs; it gets the print button without more work.
   const viewBar = (
     <div className="flex flex-col gap-6 print:hidden">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end print:hidden">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end print:hidden">
         <ViewToggleGroup
           aria-label={t("roomOverview.views")}
           value={view}
@@ -175,12 +197,25 @@ export function RoomsPage({
           ))}
         </ViewToggleGroup>
         {/* Printing is for the room views; a printed list of requests is out of scope (#514). */}
-        {view === "requests" ? null : (
+        {canToggleBeds ? (
           <Button
             variant="outline"
             size="lg"
             className="max-sm:w-full sm:ml-auto"
-            disabled={(query.data?.rooms.length ?? 0) === 0}
+            aria-expanded={isAnyBedListOpen}
+            onClick={() =>
+              setBeds({ key: bedsKey, openIds: new Set(isAnyBedListOpen ? [] : roomIds) })
+            }
+          >
+            {t(isAnyBedListOpen ? "roomOverview.collapseAll" : "roomOverview.expandAll")}
+          </Button>
+        ) : null}
+        {view === "requests" ? null : (
+          <Button
+            variant="outline"
+            size="lg"
+            className={cn("max-sm:w-full", !canToggleBeds && "sm:ml-auto")}
+            disabled={roomIds.length === 0}
             onClick={() => window.print()}
           >
             {t("roomOverview.print")}
@@ -309,6 +344,9 @@ export function RoomsPage({
           term={term}
           onShowAssignment={() => onSelectView("assignment")}
           onEditExtraBeds={openExtraBeds}
+          openRoomIds={beds.openIds}
+          onToggleRoom={toggleBeds}
+          paging={paging}
         />
       ) : (
         <>
@@ -439,6 +477,7 @@ export function RoomsPage({
                   <TooltipProvider>
                     <RoomAssignmentsCard
                       term={term}
+                      paging={paging}
                       onAddRoom={() => setEditor("new")}
                       roomActions={(roomId) => {
                         const room = term.rooms.find((item) => item.id === roomId)

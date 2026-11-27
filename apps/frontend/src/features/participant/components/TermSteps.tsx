@@ -212,8 +212,12 @@ export function ArchivedApplicationCard() {
   )
 }
 
-/** One card per confirmed term with what the participant has to arrange before the event. */
+/**
+ * One card per confirmed term with what the participant has to arrange before the event. A cancelled
+ * term, and an archived one next to terms that are not archived (#700), get a line of text instead.
+ */
 // Figma (Design system): US-149 Dva termíny a kroky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=24910-14581 (360 px: node-id=24910-14762)
+// Approved pattern (#700, no frame): the card of a cancelled term with the text of US-149 · https://github.com/applifting-vsecourse/team-1/issues/700#issuecomment-7219621671
 // Figma (Design system v2): #620 Varianta A · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27171-3647 (360 px: 27171-3838)
 export function TermSteps({
   application,
@@ -224,10 +228,17 @@ export function TermSteps({
 }) {
   const { t } = useTranslation("participant")
   const { t: tCommon } = useTranslation("common")
-  // A cancelled term has no steps but still gets its status and a line of text, so the section is not empty.
+  // A cancelled or archived term has no steps but still gets its status and a line of text, so the
+  // section is not empty. A fully archived application says so once, in ArchivedApplicationCard.
+  const isArchived = isFullyArchived(application)
   const cards = application.terms
     .map((term) => ({ term, steps: termSteps(application, term, t, onEditRoomWishes) }))
-    .filter(({ term, steps }) => steps.length > 0 || term.status === "CANCELLED")
+    .filter(
+      ({ term, steps }) =>
+        steps.length > 0 ||
+        term.status === "CANCELLED" ||
+        (term.status === "ARCHIVED" && !isArchived),
+    )
   if (cards.length === 0) return null
 
   return (
@@ -254,7 +265,9 @@ export function TermSteps({
             </div>
             {steps.length === 0 ? (
               <p className="border-t pt-2 text-sm text-muted-foreground">
-                {tCommon("termPayment.note.CANCELLED")}
+                {term.status === "ARCHIVED"
+                  ? t("detail.archivedText")
+                  : tCommon("termPayment.note.CANCELLED")}
               </p>
             ) : (
               <h4 className="border-t pt-2 text-base font-medium">{t("detail.steps.title")}</h4>
