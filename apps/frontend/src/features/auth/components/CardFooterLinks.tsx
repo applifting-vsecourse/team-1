@@ -12,6 +12,7 @@ type Props = {
  * The footer of an entry card: a hairline, then the ways to the other entries as inline links.
  * Each link stays in one piece; on a phone they wrap onto their own lines without the „·“.
  */
+// Figma (Design system v2): patička karty v US-02 / Přihlášení přihlašovatele · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-2 (mobil 15315-52), Přihlášení organizátora 27462:8620 (mobil 27462:8692), Registrace · Účet 27462:8762 (mobil 27462:8840)
 export function CardFooterLinks({ question, links }: Props) {
   return (
     <p className="flex flex-wrap justify-center gap-x-1 border-t border-border pt-4 text-center text-muted-foreground">
