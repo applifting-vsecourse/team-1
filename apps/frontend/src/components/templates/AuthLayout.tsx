@@ -30,8 +30,8 @@ export function AuthLayout({ children, headerAction, below }: AuthLayoutProps) {
       />
       <div className="relative flex flex-1 flex-col">
         <Backdrop />
-        <main className="relative flex flex-1 flex-col items-center gap-4 px-4 pt-6 pb-12 md:px-6 md:pt-16">
-          <Card className="w-full max-w-110 gap-4 p-6">{children}</Card>
+        <main className="relative flex flex-1 flex-col items-center gap-6 px-4 pt-6 pb-12 md:px-6 md:pt-16">
+          <Card className="w-full max-w-110 gap-4 p-5 md:p-6">{children}</Card>
           {below}
         </main>
         <PublicFooter isMinimal />

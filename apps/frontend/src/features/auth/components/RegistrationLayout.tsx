@@ -32,7 +32,10 @@ function SignOutButton() {
   )
 }
 
-/** Three fixed dots under the card (Cal.com onboarding); the current step is the elongated one. */
+/**
+ * Three fixed dots under the card (Cal.com onboarding): the steps done are ink dots, the current
+ * one an elongated ink dot, the steps ahead grey.
+ */
 function StepDots({ step }: { step: (typeof STEPS)[number] }) {
   const { t } = useTranslation("auth")
   const current = STEPS.indexOf(step)
@@ -40,14 +43,16 @@ function StepDots({ step }: { step: (typeof STEPS)[number] }) {
     <div
       role="img"
       aria-label={t("registration.step", { step: current + 1, total: STEPS.length })}
-      className="flex items-center gap-1.5"
+      className="flex items-center gap-2"
     >
       {STEPS.map((item, index) => (
         <span
           key={item}
+          data-state={index < current ? "done" : index === current ? "current" : "waiting"}
           className={cn(
             "h-1.5 rounded-full",
-            index === current ? "w-4 bg-foreground" : "w-1.5 bg-muted-foreground/50",
+            index === current ? "w-4" : "w-1.5",
+            index <= current ? "bg-foreground" : "bg-border",
           )}
         />
       ))}

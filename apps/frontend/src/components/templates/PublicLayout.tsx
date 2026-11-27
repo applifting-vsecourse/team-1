@@ -5,7 +5,7 @@ import { PublicFooter } from "@/components/organisms/PublicFooter"
 
 type PublicLayoutProps = {
   children: ReactNode
-  /** Width of the content column the header lines up with (Figma: the header's padding follows the page). */
+  /** Width of the content column the header and the full footer line up with (Figma: their padding follows the page). */
   headerContentClassName?: string
   /** The footer with the brand and the link groups (landing, catalog, event page); otherwise the minimal one. */
   hasFullFooter?: boolean
@@ -30,7 +30,10 @@ export function PublicLayout({
           <div className="mx-auto w-full max-w-200 px-4 py-8">{children}</div>
         )}
       </main>
-      <PublicFooter isMinimal={!hasFullFooter} />
+      <PublicFooter
+        isMinimal={!hasFullFooter}
+        contentClassName={headerContentClassName}
+      />
     </div>
   )
 }

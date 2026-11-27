@@ -8,11 +8,11 @@ export function StatusIcon({ icon: Icon, tone }: { icon: LucideIcon; tone: "mute
     <span
       aria-hidden
       className={cn(
-        "flex size-8 items-center justify-center rounded-full",
+        "flex size-12 items-center justify-center rounded-full",
         tone === "error" ? "bg-status-error-bg text-field-error" : "bg-wash text-muted-foreground",
       )}
     >
-      <Icon className="size-4" />
+      <Icon className="size-6" />
     </span>
   )
 }

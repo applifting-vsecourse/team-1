@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { ROUTES } from "@/app/routes"
 import { Logo } from "@/components/atoms/Logo"
 import { PreferencesRow } from "@/components/molecules/PreferencesRow"
+import { cn } from "@/lib/utils"
 
 const LINK = "text-muted-foreground hover:text-foreground"
 
@@ -14,13 +15,20 @@ const LINK = "text-muted-foreground hover:text-foreground"
  * application form) only the signature.
  */
 // Figma (Design system v2): Patička (veřejná) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27427-16472 (minimal: US-02 / Přihlášení přihlašovatele / Mobil 15315-52)
-export function PublicFooter({ isMinimal = false }: { isMinimal?: boolean }) {
+export function PublicFooter({
+  isMinimal = false,
+  contentClassName = "max-w-300",
+}: {
+  isMinimal?: boolean
+  /** Width of the content column, the same as the header's, so both line up (landing 1200, catalog 1100). */
+  contentClassName?: string
+}) {
   const { t } = useTranslation()
 
   if (isMinimal) {
     return (
       <footer className="relative max-md:border-t max-md:border-border max-md:bg-card">
-        <div className="px-4 pt-6 md:hidden">
+        <div className="px-4 pt-4 md:hidden">
           <PreferencesRow />
         </div>
         <p className="p-4 text-center text-sm text-muted-foreground">
@@ -31,8 +39,13 @@ export function PublicFooter({ isMinimal = false }: { isMinimal?: boolean }) {
   }
 
   return (
-    <footer className="border-t border-border bg-card">
-      <div className="mx-auto flex w-full max-w-300 flex-col gap-6 px-4 py-6 md:flex-row md:justify-between md:gap-12 md:px-6 md:py-8">
+    <footer className="border-t border-border bg-card px-4 py-6 md:px-8 md:py-8">
+      <div
+        className={cn(
+          "mx-auto flex w-full flex-col gap-6 md:flex-row md:justify-between md:gap-12",
+          contentClassName,
+        )}
+      >
         <div className="md:hidden">
           <PreferencesRow />
         </div>
