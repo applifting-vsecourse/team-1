@@ -23,13 +23,11 @@ export const overpaymentsQueryOptions = (eventId: string) =>
   queryOptions({
     queryKey: ["eventOverview", "payments", eventId, "overpayments"],
     queryFn: async ({ signal }) =>
-      overpaymentSchema
-        .array()
-        .parse(
-          await api
-            .get(`organizer/events/${encodeURIComponent(eventId)}/payments/overpayments`, {
-              signal,
-            })
-            .json(),
-        ),
+      overpaymentSchema.array().parse(
+        await api
+          .get(`organizer/events/${encodeURIComponent(eventId)}/payments/overpayments`, {
+            signal,
+          })
+          .json(),
+      ),
   })

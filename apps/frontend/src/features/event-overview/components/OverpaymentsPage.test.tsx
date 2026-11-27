@@ -42,7 +42,10 @@ function jsonResponse(body: unknown) {
   })
 }
 
-function setup(rows: Overpayment[], fetchResponse: typeof fetch = () => Promise.resolve(jsonResponse(rows))) {
+function setup(
+  rows: Overpayment[],
+  fetchResponse: typeof fetch = () => Promise.resolve(jsonResponse(rows)),
+) {
   const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(fetchResponse)
   const root = createRootRoute()
   const route = createRoute({
@@ -169,9 +172,9 @@ describe("OverpaymentsPage", () => {
       focusManager.setFocused(true)
     })
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4))
-    expect(within(screen.getByRole("dialog")).getByRole("textbox", { name: "Amount *" })).toHaveValue(
-      "350",
-    )
+    expect(
+      within(screen.getByRole("dialog")).getByRole("textbox", { name: "Amount *" }),
+    ).toHaveValue("350")
 
     refresh.resolve()
     expect(await within(dialog).findByText(/you can refund at most CZK 600/)).toBeInTheDocument()
