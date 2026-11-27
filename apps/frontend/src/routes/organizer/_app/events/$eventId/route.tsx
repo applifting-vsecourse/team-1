@@ -36,9 +36,14 @@ function EventLayout() {
   const matchRoute = useMatchRoute()
   const hasMealHeader = matchRoute({ to: ROUTES.organizer.eventMealOptions, params: { eventId } })
 
+  const hasOverpaymentsHeader = matchRoute({
+    to: ROUTES.organizer.eventOverpayments,
+    params: { eventId },
+  })
+
   return (
     <>
-      {hasMealHeader ? null : <EventHeader eventId={eventId} />}
+      {hasMealHeader || hasOverpaymentsHeader ? null : <EventHeader eventId={eventId} />}
       <Outlet />
     </>
   )

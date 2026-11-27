@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 
 type PaginationProps = {
   isCompact?: boolean
+  shouldShowSinglePage?: boolean
   page: number
   pageCount: number
   pageSize: number
@@ -23,6 +24,7 @@ const control = "h-11 shrink-0 hover:bg-transparent hover:text-primary"
 /** Range, arrows and page numbers; renders nothing when everything fits on one page. */
 export function Pagination({
   isCompact = false,
+  shouldShowSinglePage = false,
   page,
   pageCount,
   pageSize,
@@ -30,7 +32,7 @@ export function Pagination({
   onPageChange,
 }: PaginationProps) {
   const { t } = useTranslation("common")
-  if (pageCount <= 1) return null
+  if (pageCount <= 1 && !shouldShowSinglePage) return null
 
   const firstVisible = (limit: number) =>
     Math.max(0, Math.min(page - Math.floor(limit / 2), pageCount - limit))

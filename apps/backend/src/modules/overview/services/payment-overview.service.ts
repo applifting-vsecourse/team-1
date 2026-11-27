@@ -1,4 +1,8 @@
-import { paymentOverview, PaymentOverview } from "@/modules/overview/domain/payment-overview"
+import {
+  outstandingOverpayments,
+  paymentOverview,
+  PaymentOverview,
+} from "@/modules/overview/domain/payment-overview"
 import { PaymentOverviewRepository } from "@/modules/overview/repositories/payment-overview.repository"
 import { Identity } from "@/shared/auth/domain/identity"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
@@ -10,6 +14,13 @@ export class PaymentOverviewService {
     private readonly repository: PaymentOverviewRepository,
     private readonly access: OrganizationAccessService,
   ) {}
+
+  async getOverpayments(user: Identity, eventId: string) {
+    const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
+    return outstandingOverpayments(
+      await this.repository.findOverpaymentCandidates(eventId, organizationId),
+    )
+  }
 
   async get(user: Identity, eventId: string): Promise<PaymentOverview> {
     const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)

@@ -157,6 +157,18 @@ export function PaymentsOverviewPage({
           <>
             <Button
               asChild
+              variant="outline"
+              size="lg"
+            >
+              <Link
+                to={ROUTES.organizer.eventOverpayments}
+                params={{ eventId }}
+              >
+                {t("overpayments.title")}
+              </Link>
+            </Button>
+            <Button
+              asChild
               variant="ghost"
               size="lg"
             >

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
@@ -110,6 +111,100 @@ describe("payment overview API", () => {
       termId: source.term.id,
       summaryVariableSymbol: variableSymbol(source.application.number),
     })
+  })
+
+  it("keeps a paid cancellation and refunds only its term despite debt elsewhere", async () => {
+    const application = await prisma.application.findFirstOrThrow({
+      where: { eventId, terms: { some: { status: "CONFIRMED" } } },
+      include: { terms: { include: { term: true } } },
+    })
+    const first = application.terms.find((row) => row.status === "CONFIRMED")!
+    const secondTerm = await prisma.term.findFirstOrThrow({
+      where: { eventId, id: { not: first.termId } },
+    })
+    const second = await prisma.applicationTerm.upsert({
+      where: { applicationId_termId: { applicationId: application.id, termId: secondTerm.id } },
+      create: {
+        applicationId: application.id,
+        organizationId: application.organizationId,
+        termId: secondTerm.id,
+        status: "CONFIRMED",
+        priceCzk: 9900,
+      },
+      update: { status: "CONFIRMED", priceCzk: 9900 },
+    })
+    await prisma.payment.deleteMany({ where: { applicationTermId: { in: [first.id, second.id] } } })
+    await prisma.applicationTerm.update({ where: { id: first.id }, data: { priceCzk: 700 } })
+    const write = (path: string, method: string, body: object) =>
+      fetch(api(`/organizer/applications/${application.id}${path}`), {
+        method,
+        headers: { Cookie: cookie, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+    const overpayments = async () => {
+      const response = await fetch(api(`/organizer/events/${eventId}/payments/overpayments`), {
+        headers: { Cookie: cookie },
+      })
+      expect(response.status).toBe(200)
+      return (await response.json()) as {
+        applicationId: string
+        termId: string
+        status: string
+        amountCzk: number
+        variableSymbol: string
+      }[]
+    }
+    const forApplication = async () =>
+      (await overpayments()).filter((row) => row.applicationId === application.id)
+
+    expect(
+      (
+        await write("/payments", "POST", {
+          requestId: randomUUID(),
+          termId: first.termId,
+          amountCzk: 700,
+        })
+      ).status,
+    ).toBe(204)
+    expect(await forApplication()).toHaveLength(0)
+    expect(
+      (await write(`/terms/${first.termId}/status`, "PATCH", { status: "CANCELLED" })).ok,
+    ).toBe(true)
+    expect(await forApplication()).toEqual([
+      expect.objectContaining({
+        termId: first.termId,
+        status: "CANCELLED",
+        amountCzk: 700,
+        variableSymbol: variableSymbol(application.number, first.term.number),
+      }),
+    ])
+    const otherDebt = (await (await get()).json()).entries.find(
+      (entry: { applicationId: string; termId: string }) =>
+        entry.applicationId === application.id && entry.termId === secondTerm.id,
+    )
+    expect(otherDebt.amountOwedCzk).toBe(9900)
+    const refund = (amountCzk: number) =>
+      write("/payments/refunds", "POST", {
+        requestId: randomUUID(),
+        termId: first.termId,
+        amountCzk,
+      })
+    expect((await refund(250)).status).toBe(204)
+    expect(await forApplication()).toEqual([
+      expect.objectContaining({ termId: first.termId, amountCzk: 450 }),
+    ])
+    expect((await refund(450)).status).toBe(204)
+    expect(await forApplication()).toHaveLength(0)
+    const detail = await fetch(api(`/organizer/applications/${application.id}/payments`), {
+      headers: { Cookie: cookie },
+    })
+    expect(detail.status).toBe(200)
+    expect((await detail.json()).payments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ amountCzk: -250 }),
+        expect.objectContaining({ amountCzk: -450 }),
+      ]),
+    )
   })
 
   it("requires an organizer with access to the event", async () => {

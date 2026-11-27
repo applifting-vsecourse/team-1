@@ -33,6 +33,7 @@ export const ROUTES = {
     eventPayments: "/organizer/events/$eventId/payments",
     eventMeals: "/organizer/events/$eventId/meals",
     eventMealOptions: "/organizer/events/$eventId/meals/options",
+    eventOverpayments: "/organizer/events/$eventId/payments/overpayments",
     eventPaymentsImport: "/organizer/events/$eventId/payments/import",
     eventCancellationTerms: "/organizer/events/$eventId/payments/cancellation",
     eventProgram: "/organizer/events/$eventId/program",

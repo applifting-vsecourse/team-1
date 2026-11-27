@@ -1,4 +1,4 @@
-import { paymentOverview, PaymentOverviewTerm } from "./payment-overview"
+import { outstandingOverpayments, paymentOverview, PaymentOverviewTerm } from "./payment-overview"
 
 const now = new Date("2026-11-06T12:00:00Z")
 const term: PaymentOverviewTerm = {
@@ -139,5 +139,40 @@ describe("payment overview", () => {
     )
     expect(result.entries[0].paymentDueAt).toEqual(reconfirmed)
     expect(result.entries[0].overdue).toBe(true)
+  })
+})
+
+describe("outstanding overpayments", () => {
+  it("uses the refundable amount of each term independently", () => {
+    const candidate = term
+    const entries = outstandingOverpayments([
+      { ...candidate, status: "CANCELLED", payments: [{ amountCzk: 1000 }, { amountCzk: -300 }] },
+      {
+        ...candidate,
+        termId: "t2",
+        termNumber: 4,
+        status: "CONFIRMED",
+        priceCzk: 9900,
+        payments: [],
+      },
+      {
+        ...candidate,
+        termId: "t3",
+        termNumber: 5,
+        status: "ARCHIVED",
+        priceCzk: 4000,
+        payments: [{ amountCzk: 4200 }],
+      },
+    ])
+    expect(
+      entries.map(({ termId, amountCzk, variableSymbol }) => ({
+        termId,
+        amountCzk,
+        variableSymbol,
+      })),
+    ).toEqual([
+      { termId: "t1", amountCzk: 700, variableSymbol: "246003" },
+      { termId: "t3", amountCzk: 200, variableSymbol: "246005" },
+    ])
   })
 })
