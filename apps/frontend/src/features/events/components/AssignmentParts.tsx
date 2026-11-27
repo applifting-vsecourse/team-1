@@ -53,7 +53,7 @@ const chipClass =
 /** The chip that follows the pointer while dragging. */
 export function ParticipantGhost({ name }: { name: string }) {
   return (
-    <span className={cn(chipClass, "cursor-grabbing border-border-strong bg-card shadow-hard")}>
+    <span className={cn(chipClass, "cursor-grabbing border-border-strong bg-card")}>
       <GripVertical
         className="size-3 text-muted-foreground"
         aria-hidden
