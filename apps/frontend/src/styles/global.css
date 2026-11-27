@@ -168,10 +168,10 @@
   --sidebar: #f5f9fa; /* color/bg/subtle */
   --sidebar-foreground: #031a1e; /* color/text/primary */
   --sidebar-border: #dae3e4; /* color/border/default */
-  /* Active sidebar item, system B nav A (Figma R5 27751:33229, kit Nav item 15219:4340): a neutral
+  /* Active sidebar item, system B nav A (Figma 27751:33229, kit Nav item 15219:4340): a neutral
      grey surface, ink Semi Bold text and a 4 × 24 px warm bar at the left edge. */
-  --nav-active: #e6eced; /* nav-active: 1.13:1 on the sidebar, ink text 15:1 */
-  --nav-indicator: #c4621f; /* nav-indicator → color/brand/warm-lip: 3.4:1 on nav-active */
+  --nav-active: #e6eced; /* color/nav/active: 1.13:1 on the sidebar, ink text 15:1 */
+  --nav-indicator: #c4621f; /* color/nav/indicator → color/brand/warm-lip: 3.4:1 on nav-active */
   /* Togena / Color brand (Figma 27360:3600), system B (2026-11-27): orange is a fill with ink content
      that says „you are here / this is yours“, never text, a state or an action. */
   --brand-warm: #f08a3c; /* color/brand/warm */
@@ -253,9 +253,9 @@
   --sidebar: #031011;
   --sidebar-foreground: #e4edee;
   --sidebar-border: #142223;
-  /* Recomputed against the code sidebar #031011 to keep Figma's dark ratio (1.48:1 → 1.46:1);
-     text 11:1, the bar in brand-warm 6.4:1 (warm-lip would be 3.2:1). */
-  --nav-active: #173438;
+  /* color/nav/active and color/nav/indicator, dark: against the code sidebar #031011 the surface is
+     1.72:1, text 9.4:1, the bar in brand-warm 5.4:1 (warm-lip would be 2.6:1). */
+  --nav-active: #22403f;
   --nav-indicator: var(--brand-warm);
   --brand-warm: #f5a05f;
   --brand-warm-subtle: #3d2a1d;

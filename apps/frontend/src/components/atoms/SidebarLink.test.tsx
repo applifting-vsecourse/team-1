@@ -61,8 +61,12 @@ describe("SidebarLink", () => {
   it("keeps hover neutral and weaker than the active surface, focus teal, and draws no corners", async () => {
     const { active } = await renderSidebar()
 
-    expect(active).toHaveClass("hover:bg-nav-active/60", "focus-visible:outline-ring")
-    expect(active.className).not.toMatch(/brand-warm|accent/)
+    expect(active).toHaveClass(
+      "hover:bg-action-subtle",
+      "focus-visible:outline-ring",
+      "focus-visible:outline-offset-2",
+    )
+    expect(active.className).not.toMatch(/brand-warm|sidebar-accent|bg-accent/)
     // Only the item's own icon: the ActiveCorners arcs are gone from the sidebar.
     expect(active.querySelectorAll("svg")).toHaveLength(1)
   })

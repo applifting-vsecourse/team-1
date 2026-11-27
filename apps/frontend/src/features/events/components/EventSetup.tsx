@@ -5,7 +5,6 @@ import { ArrowUpRight, Check, TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { ActiveCorners } from "@/components/atoms/ActiveCorners"
 import { CopyButton } from "@/components/atoms/CopyButton"
 import { CARD_GRID_WIDE, CardGrid } from "@/components/molecules/CardGrid"
 import { ErrorState } from "@/components/molecules/ErrorState"
@@ -195,9 +194,11 @@ function MissingSteps({ event }: { event: OrganizerEvent }) {
                 key={step}
                 data-status={isCurrent ? "active" : undefined}
                 aria-current={isCurrent ? "step" : undefined}
+                // The current step as in the stepper kit (nav A): the grey nav-active surface, ink Semi Bold
+                // and a 20 × 3 px orange underline; no mint, no corners.
                 className={cn(
-                  "group relative flex items-center gap-1 rounded-md px-3 py-2 text-sm",
-                  isCurrent ? "bg-accent font-semibold" : "text-muted-foreground",
+                  "relative flex items-center gap-1 rounded-md px-3 py-2 text-sm",
+                  isCurrent ? "bg-nav-active font-semibold" : "text-muted-foreground",
                 )}
               >
                 {isDone ? (
@@ -207,7 +208,13 @@ function MissingSteps({ event }: { event: OrganizerEvent }) {
                   />
                 ) : null}
                 {steps[step].tab}
-                <ActiveCorners />
+                {isCurrent ? (
+                  <span
+                    aria-hidden="true"
+                    data-slot="step-indicator"
+                    className="absolute bottom-1 left-3 h-0.75 w-5 rounded-full bg-nav-indicator"
+                  />
+                ) : null}
               </li>
             )
           })}

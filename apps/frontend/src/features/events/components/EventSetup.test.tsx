@@ -100,6 +100,18 @@ describe("EventSetup", () => {
     expect(screen.queryByRole("button", { name: /Copy/ })).not.toBeInTheDocument()
   })
 
+  // Stepper kit, nav A (Figma 15207:1976): the current step is grey with a 20 × 3 orange underline, no corners.
+  it("marks only the current step, with the grey surface and the orange underline", async () => {
+    renderSetup(base)
+
+    const current = (await screen.findByText("1. Term")).closest("li")
+    expect(current).toHaveClass("bg-nav-active", "font-semibold")
+    expect(current?.querySelector('[data-slot="step-indicator"]')).toHaveClass("bg-nav-indicator")
+    expect(current?.querySelector("svg")).toBeNull()
+    expect(document.querySelectorAll('[data-slot="step-indicator"]')).toHaveLength(1)
+    expect(screen.getByText("2. Capacity").closest("li")).toHaveClass("text-muted-foreground")
+  })
+
   it("offers one action: the step to do now", async () => {
     renderSetup(base)
 
