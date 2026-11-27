@@ -83,13 +83,14 @@ export function PriceSummary({ rows, totalCzk, isReview, alert, action }: PriceS
     <Card
       role="region"
       aria-label={t("price.heading")}
-      // The strip is absolute and the card clips it; the content moves down by its 4 px (kit rule).
-      className="relative gap-4 overflow-hidden p-4 pt-5"
+      // The strip covers the top edge as in Figma: the 1 px top border turns orange and a 3 px strip
+      // inside it (clipped to the rounded card) makes the 4 px; the content moves down by 4 px (kit rule).
+      className="relative gap-4 overflow-hidden border-t-brand-warm p-4 pt-5"
     >
       <span
         aria-hidden="true"
         data-slot="task-strip"
-        className="absolute inset-x-0 top-0 h-1 bg-brand-warm"
+        className="absolute inset-x-0 top-0 h-0.75 bg-brand-warm"
       />
       {isReview ? null : (
         <>

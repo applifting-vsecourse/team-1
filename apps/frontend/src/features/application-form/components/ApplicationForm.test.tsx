@@ -190,10 +190,15 @@ describe("ApplicationForm", () => {
       />,
     )
 
-    expect(priceCard()).toHaveClass("bg-card", "border-border-strong", "overflow-hidden")
+    expect(priceCard()).toHaveClass(
+      "bg-card",
+      "border-border-strong",
+      "border-t-brand-warm",
+      "overflow-hidden",
+    )
     expect(priceCard().className).not.toMatch(/brand-warm-subtle/)
     const strip = priceCard().querySelector('[data-slot="task-strip"]')
-    expect(strip).toHaveClass("absolute", "top-0", "h-1", "bg-brand-warm")
+    expect(strip).toHaveClass("absolute", "top-0", "h-0.75", "bg-brand-warm")
     expect(strip).toHaveAttribute("aria-hidden", "true")
   })
 
