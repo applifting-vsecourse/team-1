@@ -53,12 +53,10 @@ export function SidebarAccount() {
           <button
             type="button"
             title={user.name}
-            className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none hover:bg-sidebar-accent/60 focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-sidebar-accent/60"
+            className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none hover:bg-nav-active/60 focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-nav-active/60"
           >
             <Avatar>
-              <AvatarFallback className="bg-accent text-xs font-semibold text-link">
-                {initials(user.name)}
-              </AvatarFallback>
+              <AvatarFallback className="text-xs">{initials(user.name)}</AvatarFallback>
             </Avatar>
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="truncate text-sm font-medium">{user.name}</span>

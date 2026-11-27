@@ -69,8 +69,8 @@
   --color-tooltip-foreground: #e9f6f0;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-nav-active: var(--nav-active);
+  --color-nav-indicator: var(--nav-indicator);
   --color-sidebar-border: var(--sidebar-border);
   --color-brand-warm: var(--brand-warm);
   --color-brand-warm-subtle: var(--brand-warm-subtle);
@@ -167,10 +167,13 @@
   --status-waitlist-bg: #f4efff; /* color/status/waitlist-bg */
   --sidebar: #f5f9fa; /* color/bg/subtle */
   --sidebar-foreground: #031a1e; /* color/text/primary */
-  --sidebar-accent: #c3ecdf; /* color/bg/selected */
-  --sidebar-accent-foreground: #031a1e; /* color/text/primary */
   --sidebar-border: #dae3e4; /* color/border/default */
-  /* Togena / Color brand (Figma 27360:3600): warm accent is a fill only, never text. */
+  /* Active sidebar item, system B nav A (Figma R5 27751:33229, kit Nav item 15219:4340): a neutral
+     grey surface, ink Semi Bold text and a 4 × 24 px warm bar at the left edge. */
+  --nav-active: #e6eced; /* nav-active: 1.13:1 on the sidebar, ink text 15:1 */
+  --nav-indicator: #c4621f; /* nav-indicator → color/brand/warm-lip: 3.4:1 on nav-active */
+  /* Togena / Color brand (Figma 27360:3600), system B (2026-11-27): orange is a fill with ink content
+     that says „you are here / this is yours“, never text, a state or an action. */
   --brand-warm: #f08a3c; /* color/brand/warm */
   --brand-warm-subtle: #fde8d7; /* color/brand/warm-subtle */
   --brand-warm-foreground: #031a1e; /* color/text/on-warm */
@@ -249,9 +252,11 @@
   --wash: var(--secondary);
   --sidebar: #031011;
   --sidebar-foreground: #e4edee;
-  --sidebar-accent: #005f5a;
-  --sidebar-accent-foreground: #e4edee;
   --sidebar-border: #142223;
+  /* Recomputed against the code sidebar #031011 to keep Figma's dark ratio (1.48:1 → 1.46:1);
+     text 11:1, the bar in brand-warm 6.4:1 (warm-lip would be 3.2:1). */
+  --nav-active: #173438;
+  --nav-indicator: var(--brand-warm);
   --brand-warm: #f5a05f;
   --brand-warm-subtle: #3d2a1d;
   --illustration-primary: #8bdfc4;
