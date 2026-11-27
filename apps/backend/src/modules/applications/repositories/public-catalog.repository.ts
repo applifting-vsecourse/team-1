@@ -8,7 +8,7 @@ import { isOpenForTerms } from "@/modules/applications/domain/public-event"
 import { isoDate } from "@/shared/utils/iso-date"
 import { Injectable } from "@nestjs/common"
 
-/** The catalog list shows only events the organizer published in it (US-122). */
+/** Catalog entries must be published by the organizer (US-122). */
 const published = { publishedInCatalog: true }
 
 const termsInclude = {
@@ -43,29 +43,27 @@ export class PublicCatalogRepository {
     })
 
     return events
-      .map((event) => {
-        const isOpen = isOpenForTerms(
+      .filter((event) =>
+        isOpenForTerms(
           event.terms.map((term) => ({ roomCount: term._count.rooms })),
           event.evaluationModePending,
-        )
-        return {
-          publicToken: event.publicToken,
-          name: event.name,
-          organizationId: event.organization.id,
-          organizationName: event.organization.name,
-          location: event.location,
-          terms: event.terms.map((term) => ({
-            name: term.name,
-            startsOn: isoDate(term.startsOn),
-            endsOn: isoDate(term.endsOn),
-          })),
-          ...summarizeTerms(event.terms),
-          // The photo endpoint has the same gate as the page, so a card of an event without a
-          // working link must not ask for a photo that would answer 404.
-          hasPhoto: event.photo !== null && isOpen,
-          isOpenForApplications: isOpen,
-        }
-      })
+        ),
+      )
+      .map((event) => ({
+        publicToken: event.publicToken,
+        name: event.name,
+        organizationId: event.organization.id,
+        organizationName: event.organization.name,
+        location: event.location,
+        terms: event.terms.map((term) => ({
+          name: term.name,
+          startsOn: isoDate(term.startsOn),
+          endsOn: isoDate(term.endsOn),
+        })),
+        ...summarizeTerms(event.terms),
+        hasPhoto: event.photo !== null,
+        isOpenForApplications: true,
+      }))
       .sort(
         (a, b) =>
           (a.terms[0]?.startsOn ?? "9999").localeCompare(b.terms[0]?.startsOn ?? "9999") ||
