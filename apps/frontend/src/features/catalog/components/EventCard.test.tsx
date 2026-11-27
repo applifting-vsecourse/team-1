@@ -99,3 +99,40 @@ describe("EventCard terms (#732)", () => {
     expect(screen.getByRole("link")).toHaveFocus()
   })
 })
+
+// System B (2026-11-27): HF/01 catalog 22640:12072, Datovka 27719:4271, Cenovka 27719:4276.
+describe("EventCard brand markers", () => {
+  it("shows the first term as a date tile in the photo corner, hidden from screen readers", async () => {
+    await renderCard(makeEvent(3))
+
+    const tile = document.querySelector('[data-slot="date-tile"]')
+    expect(tile).toHaveTextContent("Jan2")
+    expect(tile).toHaveAttribute("aria-hidden", "true")
+    expect(tile).toHaveClass("absolute", "top-3", "right-3", "border-border-strong", "bg-card")
+    expect(tile?.firstElementChild).toHaveClass("bg-brand-warm", "text-brand-warm-foreground")
+  })
+
+  it("puts the price in an orange price tag with ink text and no edge, the per-participant note beside it", async () => {
+    await renderCard(makeEvent(3))
+
+    const tag = document.querySelector('[data-slot="price-tag"]')
+    expect(tag).toHaveTextContent("from CZK 4,900")
+    expect(tag).toHaveClass("bg-brand-warm", "text-brand-warm-foreground")
+    expect(tag?.className).not.toMatch(/border/)
+    expect(tag?.parentElement).toHaveTextContent("from CZK 4,900 / participant")
+  })
+
+  it("marks open applications with a tonal positive pill, not the teal action colour", async () => {
+    await renderCard(makeEvent(1))
+
+    const status = screen.getByText("Applications open")
+    expect(status).toHaveClass("bg-status-success-bg")
+    expect(status.innerHTML).not.toMatch(/bg-primary/)
+  })
+
+  it("has no date tile for an event without terms", async () => {
+    await renderCard({ ...makeEvent(0), fromPriceCzk: null })
+
+    expect(document.querySelector('[data-slot="date-tile"]')).not.toBeInTheDocument()
+  })
+})

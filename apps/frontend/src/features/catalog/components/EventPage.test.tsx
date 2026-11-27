@@ -219,4 +219,13 @@ describe("EventPage", () => {
       expect(within(termsCard()).queryByRole("button", { name: /Show/ })).not.toBeInTheDocument()
     })
   })
+
+  // System B: every term row starts with its date tile (Figma 27424:16440, Datovka 27719:4271).
+  it("starts every term with its date tile, which repeats the dates only visually", async () => {
+    await renderPage(event)
+
+    const tiles = document.querySelectorAll('[data-slot="date-tile"]')
+    expect([...tiles].map((tile) => tile.textContent)).toEqual(["Jul12", "Jul19"])
+    for (const tile of tiles) expect(tile).toHaveAttribute("aria-hidden", "true")
+  })
 })
