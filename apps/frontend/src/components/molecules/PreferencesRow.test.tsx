@@ -34,6 +34,21 @@ it("shows the theme as three segments with the current one pressed, and switches
   expect(setTheme).toHaveBeenCalledWith("dark")
 })
 
+// System B (DESIGN.md, Colour): the chosen segment is orange with an ink icon and the ink edge.
+it("fills the chosen theme segment orange with ink, like the view toggle", () => {
+  render(<PreferencesRow />)
+  const theme = screen.getByRole("radiogroup", { name: "Appearance" })
+  const chosen = within(theme).getByRole("radio", { name: "System" })
+
+  expect(chosen).toHaveAttribute("data-state", "on")
+  expect(chosen).toHaveClass(
+    "data-[state=on]:bg-brand-warm",
+    "data-[state=on]:text-brand-warm-foreground",
+    "data-[state=on]:border-border-strong",
+  )
+  expect(chosen.className).not.toMatch(/bg-accent/)
+})
+
 it("identifies system mode in the header theme menu even when the system palette is light", async () => {
   const user = userEvent.setup()
   render(<ThemeSwitcher />)
