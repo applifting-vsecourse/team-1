@@ -183,6 +183,8 @@
      an ink edge on every control and card; what you press lifts onto a hard ink offset shadow. */
   --border-strong: #031a1e; /* color/border/strong */
   --offset-hard: 3px; /* offset/hard: lift and its shadow */
+  /* How far `lift` moves on hover: the full offset on public pages, none in the work layer (below). */
+  --lift-offset: var(--offset-hard);
   --offset-sticker: 4px; /* offset/sticker: toast and sticker */
   --offset-dialog: 6px; /* dialog shadow (specimen A · Dialog 27538:3801) */
   --disabled: #e6eced; /* color/bg/disabled */
@@ -288,6 +290,13 @@
 /* Togena / Brand components A · lift (Figma specimen 27535:3692): on hover what you press moves up
    and left onto its hard ink shadow and settles back when pressed (Gumroad). Only translate and
    box-shadow move; with reduced motion the shadow shows without the move. Disabled never lifts. */
+/* Work layer (organizer and participant area; AreaLayout marks <body data-layer="work">, so dialogs opened
+   there count too): hover shows only the hard shadow or the surface change, nothing moves (DESIGN.md, Brand
+   layer and motion). Public pages keep the lift. */
+[data-layer="work"] {
+  --lift-offset: 0px;
+}
+
 @utility lift {
   transition-property: translate, box-shadow, background-color, border-color, color;
   transition-duration: var(--duration-fast);
@@ -295,7 +304,7 @@
   &:where(:not(:disabled, [aria-disabled="true"], [data-disabled])) {
     @media (hover: hover) {
       &:hover {
-        translate: calc(var(--offset-hard) * -1) calc(var(--offset-hard) * -1);
+        translate: calc(var(--lift-offset) * -1) calc(var(--lift-offset) * -1);
         box-shadow: var(--offset-hard) var(--offset-hard) 0 var(--border-strong);
       }
     }

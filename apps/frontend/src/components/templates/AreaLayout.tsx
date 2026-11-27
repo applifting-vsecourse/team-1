@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { useRouterState } from "@tanstack/react-router"
 import { Menu } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -52,6 +52,14 @@ export function AreaLayout({
   // The sheet remembers the page it was opened on, so following a link in it closes it.
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const [menuOpenedOn, setMenuOpenedOn] = useState<string | null>(null)
+  // The work layer (DESIGN.md, Brand layer and motion): `lift` shows its shadow without moving. On <body>,
+  // so dialogs and menus portalled out of the layout follow it too.
+  useEffect(() => {
+    document.body.dataset.layer = "work"
+    return () => {
+      delete document.body.dataset.layer
+    }
+  }, [])
 
   return (
     <div className="flex min-h-svh">
