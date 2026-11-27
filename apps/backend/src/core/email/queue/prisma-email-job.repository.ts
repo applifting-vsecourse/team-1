@@ -1,23 +1,15 @@
-import { Locale } from "@/core/email/locale"
 import { PrismaService } from "@/core/prisma/prisma.service"
-import { EmailJobTemplate, Prisma } from "@/generated/prisma/client"
+import { Prisma } from "@/generated/prisma/client"
 import { Injectable } from "@nestjs/common"
-import { ClaimedEmailJob, EmailContent, EmailJobRepository } from "./email-job.repository"
+import {
+  ClaimedEmailJob,
+  EmailContent,
+  EmailJobRepository,
+  NewEmailJob,
+} from "./email-job.repository"
 
 /** Longer than one send takes; a job held longer belongs to a worker that stopped. */
 export const LEASE_MS = 5 * 60_000
-
-export type NewEmailJob = {
-  organizationId: string
-  eventId: string
-  applicationId: string
-  template: EmailJobTemplate
-  recipient: string
-  locale: Locale
-  dedupeKey: string
-  /** Template data; has to survive JSON. */
-  data: object
-}
 
 /** The queue in the `email_job` table (#737). */
 @Injectable()

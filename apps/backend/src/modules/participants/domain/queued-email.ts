@@ -1,4 +1,4 @@
-import { NewEmailJob } from "@/core/email/queue/prisma-email-job.repository"
+import { NewEmailJob } from "@/core/email/queue/email-job.repository"
 import { PaymentReceivedEmailProps } from "@/core/email/templates/payment-received"
 import {
   ApplicationChange,

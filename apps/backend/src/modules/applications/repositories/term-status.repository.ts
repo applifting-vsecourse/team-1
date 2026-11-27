@@ -1,7 +1,5 @@
-import {
-  NewEmailJob,
-  PrismaEmailJobRepository,
-} from "@/core/email/queue/prisma-email-job.repository"
+import { NewEmailJob } from "@/core/email/queue/email-job.repository"
+import { PrismaEmailJobRepository } from "@/core/email/queue/prisma-email-job.repository"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import {

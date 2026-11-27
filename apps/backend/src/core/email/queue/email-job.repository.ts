@@ -1,4 +1,18 @@
+import { Locale } from "@/core/email/locale"
+
 export type EmailContent = { subject: string; html: string }
+
+export type NewEmailJob = {
+  organizationId: string
+  eventId: string
+  applicationId: string
+  template: "APPLICATION_CHANGE" | "TERM_CANCELLED" | "PAYMENT_RECEIVED"
+  recipient: string
+  locale: Locale
+  dedupeKey: string
+  /** Template data; has to survive JSON. */
+  data: object
+}
 
 export type ClaimedEmailJob = {
   id: string
