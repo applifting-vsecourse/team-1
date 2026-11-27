@@ -12,7 +12,7 @@ test(
     const password = `own-${Date.now()}`
 
     await requestSignInLink(page, email)
-    await expect(page.getByRole("status")).toContainText("Check your e-mail")
+    await expect(page.getByRole("heading", { level: 1, name: "Check your e-mail" })).toBeFocused()
     await page.goto(`/participant/magic-link?token=${await latestMagicLinkToken()}`)
     await page.getByRole("button", { name: "Sign in" }).click()
 

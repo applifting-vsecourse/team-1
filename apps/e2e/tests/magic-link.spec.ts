@@ -7,7 +7,7 @@ import { latestEmailSubject } from "./support/mail"
 test.describe("Magic link", { tag: "@mobile" }, () => {
   test("participant requests a link, opens it and gets to the application", async ({ page }) => {
     await requestSignInLink(page, PARTICIPANT.email)
-    await expect(page.getByRole("status")).toContainText("Check your e-mail")
+    await expect(page.getByRole("heading", { level: 1, name: "Check your e-mail" })).toBeFocused()
 
     const token = await latestMagicLinkToken()
     await page.goto(`/participant/magic-link?token=${token}`)
@@ -19,7 +19,7 @@ test.describe("Magic link", { tag: "@mobile" }, () => {
 
   test("the e-mail is in English when asked for from the English UI", async ({ page }) => {
     await requestSignInLink(page, PARTICIPANT.email)
-    await expect(page.getByRole("status")).toContainText("Check your e-mail")
+    await expect(page.getByRole("heading", { level: 1, name: "Check your e-mail" })).toBeFocused()
 
     await expect
       .poll(() => latestEmailSubject(PARTICIPANT.email))

@@ -75,7 +75,7 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
 
     // The applicant has no password yet: the e-mailed link leads to setting one, then to the application.
     await requestSignInLink(page, email)
-    await expect(page.getByRole("status")).toContainText("Check your e-mail")
+    await expect(page.getByRole("heading", { level: 1, name: "Check your e-mail" })).toBeFocused()
     await page.goto(`/participant/magic-link?token=${await latestMagicLinkToken()}`)
     await page.getByRole("button", { name: "Sign in" }).click()
     await page.getByLabel("New password", { exact: true }).fill("own-password-1")
