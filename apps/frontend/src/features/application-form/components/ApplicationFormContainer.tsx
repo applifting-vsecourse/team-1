@@ -45,6 +45,7 @@ function ApplicationFormForLink({ token, event }: { token: string; event: Public
       draftKey={token}
       isDone={submit.isSuccess}
       errorMessage={submit.error?.message}
+      isRateLimited={apiErrorCode(submit.error) === "TOO_MANY_REQUESTS"}
       onReview={() => submit.reset()}
       onSubmit={async (values) => {
         let accessToken: string
