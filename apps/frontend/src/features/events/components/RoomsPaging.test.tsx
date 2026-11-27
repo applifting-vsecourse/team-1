@@ -264,8 +264,16 @@ describe("paged rooms in the room assignment (#728)", () => {
     await waitFor(() => expect(inTable(21)).toBeInTheDocument())
     expect(inTable(1)).not.toBeInTheDocument()
     expect(search().page).toBe(2)
-    // The print sheet of this view has every room.
-    expect(cards()).toHaveLength(TOTAL)
+    // This view doesn't print its table: the one print area is the sheet of the term, with every room.
+    const [sheet, ...others] = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-print-area]"),
+    )
+    expect(others).toHaveLength(0)
+    expect(sheet).toHaveClass("hidden", "print:flex")
+    expect(sheet).not.toContainElement(table())
+    expect(within(sheet!).getAllByRole("heading", { level: 3, name: /^Room \d{3}$/ })).toHaveLength(
+      TOTAL,
+    )
 
     await user.click(screen.getByRole("radio", { name: "Rooms" }))
     await waitFor(() => expect(search().view).toBe("overview"))

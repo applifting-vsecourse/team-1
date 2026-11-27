@@ -85,6 +85,8 @@ export function RoomAssignmentsCard({
   const matchingRooms = (data?.rooms ?? []).filter((room) =>
     room.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
   )
+  // Pages are for the screen only: this view prints the sheet RoomsPage renders (RoomsOverview with
+  // isPrintOnly), which has every room.
   const pages = useRoomPaging({
     rooms: matchingRooms,
     total: query.isFetching ? undefined : data?.rooms.length,
