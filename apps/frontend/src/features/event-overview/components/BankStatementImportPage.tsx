@@ -237,6 +237,7 @@ function UnmatchedTransactions({ eventId }: { eventId: string }) {
                   <TableCell className="px-4 py-4">
                     {row.applicationId ? (
                       <Button
+                        size="sm"
                         asChild
                         variant="ghost"
                       >

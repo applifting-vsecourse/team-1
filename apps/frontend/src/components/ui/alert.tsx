@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils"
 
 // Figma (Design system v2): Togena / Feedback / Alert · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15219-4375
 // Brand look A (specimen, Hláška · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27536-3828):
-// an ink edge on the tone's surface, ink text, the icon in the tone's colour. No shadow, no motion.
+// feedback, not an action, so no ink edge (DESIGN.md): the tone's surface, ink text, the icon in the tone's colour.
+// The 1 px transparent edge keeps the padding; a screen may still colour it. No shadow, no motion.
 const alertVariants = cva(
-  "relative grid w-full grid-cols-[0_1fr] items-start gap-y-1 rounded-lg border border-border-strong p-4 text-sm text-foreground has-[>svg]:grid-cols-[calc(var(--spacing)*5)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-5 [&>svg]:text-current",
+  "relative grid w-full grid-cols-[0_1fr] items-start gap-y-1 rounded-lg border border-transparent p-4 text-sm text-foreground has-[>svg]:grid-cols-[calc(var(--spacing)*5)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-5 [&>svg]:text-current",
   {
     variants: {
       variant: {

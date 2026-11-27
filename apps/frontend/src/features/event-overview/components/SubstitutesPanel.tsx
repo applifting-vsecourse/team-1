@@ -356,6 +356,7 @@ function ConfirmButton({
   const { t } = useTranslation("eventOverview")
   return (
     <Button
+      size="sm"
       aria-label={`${t("substitutes.confirm")}: ${label(item)}`}
       onClick={() => onChoose(item)}
     >

@@ -517,7 +517,7 @@ export function ApplicationsPage({
                             <Button
                               asChild
                               variant="outline"
-                              size="lg"
+                              size="sm"
                             >
                               <Link
                                 to={ROUTES.organizer.application}
@@ -569,7 +569,7 @@ export function ApplicationsPage({
                         <Button
                           asChild
                           variant="outline"
-                          size="lg"
+                          size="sm"
                           className="ms-auto h-auto min-h-11 max-w-full whitespace-normal"
                         >
                           <Link

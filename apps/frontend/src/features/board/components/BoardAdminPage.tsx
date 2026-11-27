@@ -93,7 +93,7 @@ export function BoardAdminPage({ eventId }: { eventId: string }) {
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon-lg"
+                        size="icon-sm"
                         aria-label={t("admin.edit")}
                         title={t("admin.edit")}
                         onClick={() => {
@@ -105,7 +105,7 @@ export function BoardAdminPage({ eventId }: { eventId: string }) {
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon-lg"
+                        size="icon-sm"
                         aria-label={t("admin.delete")}
                         title={t("admin.delete")}
                         onClick={() => {

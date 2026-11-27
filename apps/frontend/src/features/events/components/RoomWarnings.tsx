@@ -175,7 +175,7 @@ export function RoomWarningsSummary({
     <div
       role="status"
       aria-label={t("roomWarnings.summaryTitle")}
-      className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-lg border border-border-strong bg-status-warning-bg px-4 py-2.5 text-center text-sm nested:border-border"
+      className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-lg bg-status-warning-bg px-4 py-2.5 text-center text-sm"
     >
       <span className="flex items-center gap-2 font-medium">
         <AlertTriangle

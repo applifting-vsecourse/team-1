@@ -487,7 +487,7 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
         <Button
           asChild
           variant="outline"
-          size="lg"
+          size="sm"
           className="max-w-full whitespace-normal"
         >
           <Link
