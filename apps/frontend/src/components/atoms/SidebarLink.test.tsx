@@ -50,12 +50,26 @@ describe("SidebarLink", () => {
     const { active, other } = await renderSidebar()
 
     expect(active).toHaveAttribute("data-status", "active")
+    expect(active).toHaveAttribute("aria-current", "page")
     expect(other).not.toHaveAttribute("data-status", "active")
+    expect(other).not.toHaveAttribute("aria-current")
     expect(active).toHaveClass("data-[status=active]:bg-nav-active")
     expect(active).toHaveClass("data-[status=active]:font-semibold")
     const bar = active.querySelector('[data-slot="nav-indicator"]')
     expect(bar).toHaveClass("bg-nav-indicator", "h-6", "w-1", "group-data-[status=active]:block")
     expect(bar).toHaveAttribute("aria-hidden", "true")
+  })
+
+  // Figma Default 15219:4312: the inactive icon is text/secondary, the active one ink.
+  it("draws inactive icons muted and the active icon in ink", async () => {
+    const { active, other } = await renderSidebar()
+
+    for (const item of [active, other]) {
+      expect(item.querySelector("svg")).toHaveClass(
+        "text-muted-foreground",
+        "group-data-[status=active]:text-sidebar-foreground",
+      )
+    }
   })
 
   it("keeps hover neutral and weaker than the active surface, focus teal, and draws no corners", async () => {

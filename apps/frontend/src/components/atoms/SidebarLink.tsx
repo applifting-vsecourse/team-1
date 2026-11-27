@@ -3,7 +3,8 @@ import { Link, type LinkProps } from "@tanstack/react-router"
 
 /**
  * An item of the area sidebar. No border. The active item (system B, nav A: GitHub Primer NavList,
- * IBM Carbon) gets the neutral `nav-active` surface, ink Semi Bold text and icon and a 4 × 24 px
+ * IBM Carbon) gets the neutral `nav-active` surface, ink Semi Bold text and an ink icon (inactive
+ * icons are text/secondary, Figma Default 15219:4312) and a 4 × 24 px
  * `nav-indicator` bar inside its left edge: the orange says „you are here“ without filling the
  * item. Hover is the quiet `action-subtle` tint (Figma bg/subtle 60 %), always weaker than active;
  * focus is the teal outline, offset so the sidebar never clips it. No ActiveCorners here.
@@ -32,7 +33,7 @@ export function SidebarLink({ icon: Icon, children, ...props }: SidebarLinkProps
       />
       <Icon
         aria-hidden
-        className="size-5 shrink-0"
+        className="size-5 shrink-0 text-muted-foreground group-data-[status=active]:text-sidebar-foreground"
       />
       <span>{children}</span>
     </Link>

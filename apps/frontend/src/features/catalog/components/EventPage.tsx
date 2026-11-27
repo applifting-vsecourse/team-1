@@ -149,7 +149,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
             {shownTerms.map((term) => (
               <li
                 key={term.id}
-                className="flex items-center gap-3 rounded-lg bg-wash p-3"
+                className="flex items-center gap-3 rounded-md bg-wash p-3"
               >
                 <DateTile date={term.startsOn} />
                 <span className="flex min-w-0 flex-1 flex-col">

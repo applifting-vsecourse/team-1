@@ -197,7 +197,7 @@ function MissingSteps({ event }: { event: OrganizerEvent }) {
                 // The current step as in the stepper kit (nav A): the grey nav-active surface, ink Semi Bold
                 // and a 20 × 3 px orange underline; no mint, no corners.
                 className={cn(
-                  "relative flex items-center gap-1 rounded-md px-3 py-2 text-sm",
+                  "relative flex items-center gap-1 rounded-md px-3 py-2.5 text-sm",
                   isCurrent ? "bg-nav-active font-semibold" : "text-muted-foreground",
                 )}
               >

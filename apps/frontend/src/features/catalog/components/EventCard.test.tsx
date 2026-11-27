@@ -112,6 +112,24 @@ describe("EventCard brand markers", () => {
     expect(tile?.firstElementChild).toHaveClass("bg-brand-warm", "text-brand-warm-foreground")
   })
 
+  it("says the date of the tile in text for screen readers when the card has several terms", async () => {
+    await renderCard(makeEvent(3))
+
+    expect(screen.getByText("First term starts 2 Jan 2027")).toHaveClass("sr-only")
+  })
+
+  it("leaves the tile's date to the visible dates line when there is one term", async () => {
+    await renderCard(makeEvent(1))
+
+    expect(screen.queryByText(/First term starts/)).not.toBeInTheDocument()
+  })
+
+  it("draws the placeholder symbol of an event without a photo in the logo colour", async () => {
+    await renderCard({ ...makeEvent(1), hasPhoto: false })
+
+    expect(document.querySelector("svg")).toHaveClass("text-logo-symbol")
+  })
+
   it("puts the price in an orange price tag with ink text and no edge, the per-participant note beside it", async () => {
     await renderCard(makeEvent(3))
 

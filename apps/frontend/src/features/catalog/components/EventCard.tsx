@@ -6,6 +6,7 @@ import { DateTile } from "@/components/atoms/DateTile"
 import { LogoSymbol } from "@/components/atoms/Logo"
 import { PriceTag } from "@/components/atoms/PriceTag"
 import { Card } from "@/components/ui/card"
+import { formatDate } from "@/lib/date"
 import { formatTermPrice } from "@/lib/money"
 import { cn } from "@/lib/utils"
 
@@ -43,7 +44,7 @@ export function EventCard({ event }: { event: CatalogEvent }) {
             />
           ) : (
             <div className="flex size-full items-center justify-center">
-              <LogoSymbol className="size-10 text-primary" />
+              <LogoSymbol className="size-10 text-logo-symbol" />
             </div>
           )}
           <span
@@ -76,6 +77,12 @@ export function EventCard({ event }: { event: CatalogEvent }) {
           <h3 className="truncate text-lg/6.5 font-semibold tracking-tight">{event.name}</h3>
           <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
             {dates ? <p>{dates}</p> : null}
+            {/* The date tile is aria-hidden; with several terms its date isn't in the text above. */}
+            {firstTerm && !hasOneTerm ? (
+              <p className="sr-only">
+                {t("list.firstTermStart", { date: formatDate(firstTerm.startsOn) })}
+              </p>
+            ) : null}
             {event.location ? <p>{event.location}</p> : null}
           </div>
           {event.fromPriceCzk !== null ? (

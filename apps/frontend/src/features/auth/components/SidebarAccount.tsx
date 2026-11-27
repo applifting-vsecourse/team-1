@@ -56,7 +56,7 @@ export function SidebarAccount() {
             className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none hover:bg-action-subtle focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-action-subtle"
           >
             <Avatar>
-              <AvatarFallback className="text-xs">{initials(user.name)}</AvatarFallback>
+              <AvatarFallback>{initials(user.name)}</AvatarFallback>
             </Avatar>
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="truncate text-sm font-medium">{user.name}</span>

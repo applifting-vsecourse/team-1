@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 /**
  * „Datovka“: the start of a term as a calendar tile (system B, Luma's date tile): white, ink edge,
  * an orange strip with the short month in ink, the day big in ink. Decoration only (`aria-hidden`):
- * the dates are always in text next to it.
+ * the caller puts the same date in text, visibly next to it or `sr-only` (the catalog card).
  */
 // Figma (Design system v2): Togena / Brand / Datovka · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27719-4271
 export function DateTile({ date, className }: { date: string; className?: string }) {

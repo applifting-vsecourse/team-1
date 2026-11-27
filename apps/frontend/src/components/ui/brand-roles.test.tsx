@@ -55,7 +55,7 @@ describe("orange roles in the kit", () => {
     )
   })
 
-  it("puts the avatar initials in ink on orange, without an edge", () => {
+  it("puts the avatar initials in ink Medium 14 / 20 on orange, without an edge", () => {
     render(
       <Avatar>
         <AvatarFallback>EM</AvatarFallback>
@@ -63,7 +63,12 @@ describe("orange roles in the kit", () => {
     )
 
     const initials = screen.getByText("EM")
-    expect(initials).toHaveClass("bg-brand-warm", "text-brand-warm-foreground")
+    expect(initials).toHaveClass(
+      "bg-brand-warm",
+      "text-brand-warm-foreground",
+      "text-sm",
+      "font-medium",
+    )
     expect(initials.className).not.toMatch(/border/)
   })
 
