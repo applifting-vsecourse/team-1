@@ -122,7 +122,7 @@ describe("EventOverview", () => {
       expect.stringContaining("term=t1"),
     )
     expect(screen.getByRole("button", { name: "View waitlist" })).toBeDisabled()
-    expect(screen.getByRole("combobox", { name: "Event" })).toBeVisible()
+    expect(screen.queryByRole("combobox", { name: "Event" })).not.toBeInTheDocument()
   })
 
   it("shows the buttons to applications and the waitlist as outlined actions (#753)", async () => {
