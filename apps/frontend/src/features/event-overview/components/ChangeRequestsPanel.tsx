@@ -189,7 +189,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
         }}
       >
         {request ? (
-          <DialogContent className="h-dvh max-h-dvh max-w-none overflow-y-auto rounded-none border-0 p-4 sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-160 sm:rounded-lg sm:border sm:p-6">
+          <DialogContent className="h-dvh max-h-dvh max-w-none overflow-y-auto rounded-none border-0 p-4 sm:h-auto sm:max-h-[calc(100dvh-2rem)] sm:max-w-160 sm:rounded-lg sm:border sm:border-border-strong sm:p-6">
             <DialogHeader className="text-left">
               <DialogTitle className="text-2xl">{t("changeRequests.review")}</DialogTitle>
               <DialogDescription className="sr-only">{summary(request)}</DialogDescription>

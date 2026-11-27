@@ -68,7 +68,7 @@ Use the scale only: `1, 2, 3, 4, 5, 6, 8, 10, 12, 16` (Tailwind units — 4px…
 
 ## Forms
 
-- Heights come from the kit (`size/control-medium`): `Button` default and `lg` 48, `sm` 40; `Input` and `Select` 48 (padding 12 / 16, also with the 2 px error edge). Buttons line up with inputs; `xl` is not used. Don't override heights per screen.
+- Heights come from the kit: `Button` default 40, `lg` 44; `Input` and `Select` 44. Page and form actions are `lg` (44), so they line up with inputs; `xl` is not used. Don't override heights per screen. (Figma draws controls at 48; the code keeps the compact heights until density is unified as a separate design step.)
 - Every input has a visible `<label>`. Placeholders are examples, never labels.
 - Validation runs client-side _and_ server-side. The client message appears under the field.
 - The submit button shows a pending state and is disabled while submitting.

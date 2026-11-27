@@ -20,7 +20,7 @@ export function BulkSelectionBar({
 }) {
   const { t } = useTranslation("eventOverview")
   return (
-    <div className="sticky bottom-0 z-20 -mx-4 flex flex-col gap-3 border-t bg-card px-4 py-4 md:static md:mx-0 md:flex-row md:items-center md:justify-between md:rounded-lg md:border md:px-4">
+    <div className="sticky bottom-0 z-20 -mx-4 flex flex-col gap-3 border-t bg-card px-4 py-4 md:static md:mx-0 md:flex-row md:items-center md:justify-between md:rounded-lg md:border md:border-border-strong md:px-4">
       <p
         role="status"
         aria-atomic="true"

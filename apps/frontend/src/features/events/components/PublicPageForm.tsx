@@ -154,7 +154,7 @@ export function PublicPageForm({ event }: { event: OrganizerEvent }) {
     >
       <AccordionItem
         value={SECTION}
-        className={`rounded-lg border bg-card text-card-foreground shadow-sm last:border-b ${SETTINGS_CARD_CLASS} py-0 sm:py-0`}
+        className={`rounded-lg border border-border-strong bg-card text-card-foreground last:border-b ${SETTINGS_CARD_CLASS} py-0 sm:py-0`}
       >
         <AccordionTrigger
           aria-label={t("publicPage.title")}

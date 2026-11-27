@@ -71,7 +71,7 @@ export function RegistrationLayout({ children, step = "accountStep", isSignedIn 
           ) : (
             <BackLink to={ROUTES.home}>{t("registration.homeLink")}</BackLink>
           )}
-          <ol className="flex min-h-11 items-center gap-2 rounded-lg border bg-card p-0.5 text-sm">
+          <ol className="flex min-h-11 items-center gap-2 rounded-lg border border-border-strong bg-card p-0.5 text-sm">
             {steps.map((item, index) => (
               <li
                 key={item}

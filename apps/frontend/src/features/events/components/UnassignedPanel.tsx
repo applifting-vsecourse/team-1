@@ -66,7 +66,10 @@ export function UnassignedPanel({
     <UnassignedDropZone
       panelRef={panelRef}
       isDragActive={isDragActive}
-      className={cn("flex shrink-0 flex-col rounded-lg border border-border bg-card", className)}
+      className={cn(
+        "flex shrink-0 flex-col rounded-lg border border-border-strong bg-card",
+        className,
+      )}
     >
       <div className="flex flex-col gap-1 px-3 pt-3 pb-2.5">
         <div className="flex items-center gap-2">

@@ -71,7 +71,7 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
           </p>
         </div>
         <div className="flex min-w-0 flex-col gap-6">
-          <Card className="gap-4 rounded-xl border-0 p-4 shadow-none">
+          <Card className="gap-4 p-4">
             <h2 className="text-xl font-semibold md:text-2xl">{t("event.terms")}</h2>
             <ul className="flex flex-col gap-5">
               {event.terms.map((term) => (

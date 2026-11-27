@@ -160,7 +160,7 @@ function ParticipantTable({
             type="multiple"
             value={expandedIds}
             onValueChange={setExpandedIds}
-            className="rounded-lg border bg-card"
+            className="rounded-lg border border-border-strong bg-card"
           >
             {pageItems.map((participant) => (
               <AccordionItem

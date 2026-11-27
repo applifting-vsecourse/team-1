@@ -53,7 +53,7 @@ const chipClass =
 /** The chip that follows the pointer while dragging. */
 export function ParticipantGhost({ name }: { name: string }) {
   return (
-    <span className={cn(chipClass, "cursor-grabbing bg-card shadow-md")}>
+    <span className={cn(chipClass, "cursor-grabbing border-border-strong bg-card shadow-hard")}>
       <GripVertical
         className="size-3 text-muted-foreground"
         aria-hidden
@@ -654,7 +654,7 @@ export function RoomCard({
     <li
       ref={setNodeRef}
       className={cn(
-        "flex flex-col overflow-hidden rounded-xl border border-border bg-card",
+        "flex flex-col overflow-hidden rounded-lg border border-border-strong bg-card",
         isDropping
           ? "bg-accent outline-2 -outline-offset-2 outline-ring"
           : isEligible && isDragActive

@@ -346,7 +346,7 @@ export function ApplicationsPage({
         ) : (
           <section
             aria-busy={query.isFetching}
-            className="flex flex-col gap-4 md:rounded-lg md:border md:bg-card md:p-6"
+            className="flex flex-col gap-4 md:rounded-lg md:border md:border-border-strong md:bg-card md:p-6"
           >
             <div className="flex flex-wrap justify-between gap-2">
               <h2 className="text-lg font-semibold">
@@ -541,7 +541,7 @@ export function ApplicationsPage({
                     <li
                       key={row.id}
                       className={cn(
-                        "flex flex-col gap-1 rounded-lg border bg-card px-3",
+                        "flex flex-col gap-1 rounded-lg border border-border-strong bg-card px-3",
                         selectedIds.has(row.id) && "bg-accent",
                       )}
                     >

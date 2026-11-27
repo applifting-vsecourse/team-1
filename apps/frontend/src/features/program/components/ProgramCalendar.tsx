@@ -93,7 +93,7 @@ function ProgramTimeline({ term, onSelect, onMove, isSaving = false }: CalendarP
   const calendar = (
     <section
       aria-label={t("calendarLabel")}
-      className="overflow-x-auto rounded-lg border bg-card"
+      className="overflow-x-auto rounded-lg border border-border-strong bg-card"
     >
       <div
         className="[--time-column:3rem] md:[--time-column:3.5rem]"
