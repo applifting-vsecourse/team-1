@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeTermOwed, computeTermPaid } from "@/modules/applications/domain/pricing"
@@ -12,7 +13,6 @@ import {
   PaymentsRepository,
 } from "@/modules/payments/repositories/payments.repository"
 import { Injectable } from "@nestjs/common"
-import { randomUUID } from "node:crypto"
 
 export type StoredBankTransaction = {
   id: string

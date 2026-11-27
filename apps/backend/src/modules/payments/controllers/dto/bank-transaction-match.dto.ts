@@ -15,7 +15,9 @@ export class MatchBankTransactionRequestDto {
   @MaxLength(64)
   termId!: string
 
-  @ApiPropertyOptional({ description: "Previous assignment receipt shown for a reopened transaction" })
+  @ApiPropertyOptional({
+    description: "Previous assignment receipt shown for a reopened transaction",
+  })
   @IsOptional()
   @IsString()
   @MinLength(1)

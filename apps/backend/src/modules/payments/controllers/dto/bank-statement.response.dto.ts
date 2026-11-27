@@ -42,7 +42,11 @@ class UnmatchedTransactionDto {
   @ApiProperty({ nullable: true, type: String }) counterpartyName!: string | null
   @ApiProperty({ nullable: true, type: String }) message!: string | null
   @ApiProperty({ enum: REASONS }) reason!: UnmatchedReason
-  @ApiProperty({ nullable: true, type: String, description: "Previous assignment receipt for a reopened transaction" })
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    description: "Previous assignment receipt for a reopened transaction",
+  })
   previousReceiptId!: string | null
   @ApiProperty({
     nullable: true,
