@@ -15,12 +15,12 @@ const terms: PublicTerm[] = [
 
 describe("priceOfSelection", () => {
   it("sums the ticked terms only", () => {
-    expect(priceOfSelection(terms, ["a", "b"])).toEqual({ termCount: 2, priceCzk: 14100 })
+    expect(priceOfSelection(terms, ["a", "b"])).toEqual({ priceCzk: 14100 })
   })
 
   it("is zero without a selection and ignores unknown ids", () => {
-    expect(priceOfSelection(terms, [])).toEqual({ termCount: 0, priceCzk: 0 })
-    expect(priceOfSelection(terms, ["x"])).toEqual({ termCount: 0, priceCzk: 0 })
+    expect(priceOfSelection(terms, [])).toEqual({ priceCzk: 0 })
+    expect(priceOfSelection(terms, ["x"])).toEqual({ priceCzk: 0 })
   })
 })
 
@@ -47,11 +47,6 @@ describe("priceRows", () => {
 
 describe("totalPrice", () => {
   it("adds up all participants", () => {
-    expect(
-      totalPrice([
-        { termCount: 2, priceCzk: 14100 },
-        { termCount: 1, priceCzk: 7200 },
-      ]),
-    ).toBe(21300)
+    expect(totalPrice([{ priceCzk: 14100 }, { priceCzk: 7200 }])).toBe(21300)
   })
 })

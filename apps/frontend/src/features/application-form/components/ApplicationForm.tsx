@@ -265,8 +265,9 @@ export function ApplicationForm({
             () => setInvalidSubmitCount((count) => count + 1),
           )(submitEvent)
         }
-        // The fixed price bar below `lg` must not cover the field that gets focus.
-        className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] [&_[data-slot=form-item]]:scroll-mt-24 [&_[data-slot=form-item]]:scroll-mb-24"
+        // Below `lg` the fixed price bar sets `scroll-padding-bottom` on the page (global.css), so the
+        // field that gets focus never ends up under it (WCAG 2.4.11).
+        className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] [&_[data-slot=form-item]]:scroll-mt-24"
         data-invalid-submit={invalidSubmitCount > 0 || undefined}
         data-restored={restoredDraft ? true : undefined}
       >
@@ -288,15 +289,21 @@ export function ApplicationForm({
           </h1>
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <ApplicationSteps isReview={Boolean(review)} />
-            {isDraftSaved && !review ? (
-              <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Check
-                  aria-hidden
-                  className="size-5 text-primary"
-                />
-                {t("form.draftSaved")}
-              </p>
-            ) : null}
+            {/* Always present, so the first save is announced (WCAG 4.1.3); it says it once, not per key. */}
+            <p
+              role="status"
+              className="flex items-center gap-2 text-sm text-muted-foreground"
+            >
+              {isDraftSaved && !review ? (
+                <>
+                  <Check
+                    aria-hidden
+                    className="size-5 text-primary"
+                  />
+                  {t("form.draftSaved")}
+                </>
+              ) : null}
+            </p>
           </div>
           {review ? (
             <ApplicationReview
@@ -464,6 +471,7 @@ export function ApplicationForm({
         isOpen={isClearing}
         onOpenChange={setIsClearing}
         onConfirm={clearForm}
+        focusAfterClear={() => heading.current?.focus()}
       />
     </Form>
   )

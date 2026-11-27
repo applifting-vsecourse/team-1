@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from "react"
+import { useId, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -96,6 +96,26 @@ export function PriceSummary({ rows, totalCzk, isReview, alert, action }: PriceS
 }
 
 /**
+ * Publishes the bar's current height as `--price-bar-height` on `<html>`: global.css pads the end of
+ * the page by it and keeps a focused field clear of it, with the rows open or an error shown too.
+ */
+function usePublishedHeight(ref: RefObject<HTMLElement | null>) {
+  useLayoutEffect(() => {
+    const element = ref.current
+    if (!element) return
+    const root = document.documentElement
+    const publish = () => root.style.setProperty("--price-bar-height", `${element.offsetHeight}px`)
+    publish()
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(publish)
+    observer?.observe(element)
+    return () => {
+      observer?.disconnect()
+      root.style.removeProperty("--price-bar-height")
+    }
+  }, [ref])
+}
+
+/**
  * Below `lg` the price is a bar fixed to the bottom of the screen: the total opens the rows
  * upwards, the step's action sits next to it (Stripe Checkout, Airbnb).
  */
@@ -105,24 +125,20 @@ export function PriceBar({ rows, totalCzk, alert, action }: Omit<PriceSummaryPro
   const { t } = useTranslation("applicationForm")
   const [isOpen, setIsOpen] = useState(false)
   const rowsId = useId()
+  const bar = useRef<HTMLElement>(null)
+  usePublishedHeight(bar)
   const Chevron = isOpen ? ChevronDown : ChevronUp
 
   return (
+    // Read in the order total → action → error → rows; `flex-col-reverse` shows the rows on top.
+    // Below the header the bar never grows past the screen: the rows scroll instead.
     <section
+      ref={bar}
       aria-label={t("price.heading")}
       data-price-bar
-      className="fixed inset-x-0 bottom-0 z-40 flex flex-col gap-3 border-t border-border-strong bg-card px-4 pt-3 pb-4"
+      className="fixed inset-x-0 bottom-0 z-40 flex max-h-[calc(100dvh-4rem)] flex-col-reverse gap-3 border-t border-border-strong bg-card px-4 pt-3 pb-4"
     >
-      {isOpen ? (
-        <div className="border-b border-border pt-1 pb-3">
-          <PriceRows
-            id={rowsId}
-            rows={rows}
-          />
-        </div>
-      ) : null}
-      {alert}
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         <Button
           type="button"
           variant="ghost"
@@ -147,6 +163,15 @@ export function PriceBar({ rows, totalCzk, alert, action }: Omit<PriceSummaryPro
         </Button>
         <div className="min-w-0 flex-1">{action}</div>
       </div>
+      {alert ? <div className="shrink-0">{alert}</div> : null}
+      {isOpen ? (
+        <div className="min-h-0 overflow-y-auto border-b border-border pt-1 pb-3">
+          <PriceRows
+            id={rowsId}
+            rows={rows}
+          />
+        </div>
+      ) : null}
     </section>
   )
 }

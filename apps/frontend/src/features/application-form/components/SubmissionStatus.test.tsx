@@ -181,7 +181,10 @@ describe("SubmissionStatus", () => {
     expect(screen.getByText("Pay the amount due using the payment details below.")).toBeVisible()
     const summary = summaryOf("Jana")
     expect(within(summary).getByText("Jana Nováková · application no. LK-0048")).toBeVisible()
-    expect(within(summary).getByText("12–18 Jul 2027")).toBeVisible()
+    // The date is shown; the term name is read too, so two terms stay apart for a screen reader.
+    const termValue = within(summary).getByText(/^12–18 Jul 2027/)
+    expect(termValue).toHaveTextContent("12–18 Jul 2027 · t0048")
+    expect(within(termValue).getByText("· t0048", { exact: false })).toHaveClass("sr-only")
     expect(within(summary).getByText("Confirmed")).toBeVisible()
     expect(within(summary).getByText("CZK 6,900")).toBeVisible()
     expect(within(summary).getByText("48000")).toBeVisible()
@@ -189,6 +192,29 @@ describe("SubmissionStatus", () => {
     expect(within(summary).getByRole("button", { name: "Copy variable symbol" })).toBeVisible()
     expect(within(summary).getByRole("button", { name: "Copy account number" })).toBeVisible()
     expect(within(summary).getByRole("button", { name: "Download QR code" })).toBeVisible()
+  })
+
+  it("labels the first of several terms and keeps the next ones in the value column", async () => {
+    const twoTerms = {
+      ...jana(),
+      terms: [
+        term("t1", "CONFIRMED", "2027-07-12", "2027-07-18"),
+        term("t2", "WAITLISTED", "2027-07-19", "2027-07-25"),
+      ],
+    }
+    await renderStatus(data({ applications: [twoTerms] }))
+
+    const labels = within(summaryOf("Jana")).getAllByRole("term")
+    const termLabels = labels.filter((label) => label.textContent === "Term")
+    expect(termLabels).toHaveLength(2)
+    expect(termLabels[0]).not.toHaveClass("sr-only")
+    expect(termLabels[1]).toHaveClass("sr-only")
+    // A grid from sm: the value keeps the second column even when its label is only read.
+    for (const label of termLabels) {
+      expect(label.nextElementSibling).toHaveClass("sm:col-start-2")
+      expect(label.parentElement).toHaveClass("sm:grid", "sm:grid-cols-[11rem_minmax(0,1fr)]")
+    }
+    expect(within(summaryOf("Jana")).getByText("Waitlisted")).toBeVisible()
   })
 
   it("explains the new account once, with the spam hint and the sign-in action", async () => {

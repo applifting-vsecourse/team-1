@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
 import { summaryPaymentSpayd } from "@/lib/payment-qr"
+import { termName } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
 
 import {
@@ -227,6 +228,8 @@ function ApplicationSummary({
               aside={<Badge variant={badge.variant}>{t(badge.label)}</Badge>}
             >
               {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+              {/* Figma shows the date only; the name still tells two terms apart for a screen reader. */}
+              {termName(term) ? <span className="sr-only"> · {termName(term)}</span> : null}
             </SummaryRow>
           )
         })}
@@ -288,29 +291,17 @@ function SummaryRow({
   children,
 }: {
   label: string
-  /** The next term under the first one: the label is read, not shown; the value keeps its column. */
+  /** The next term under the first one: the label is read, not shown. */
   isLabelHidden?: boolean
   /** A state badge or the copy action at the end of the row. */
   aside?: ReactNode
   children: ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-1 border-t border-border py-2 first:border-t-0 sm:flex-row sm:items-center sm:gap-4">
-      <dt
-        className={cn(
-          "text-sm text-muted-foreground sm:w-44 sm:shrink-0",
-          isLabelHidden && "sr-only",
-        )}
-      >
-        {label}
-      </dt>
-      <dd
-        className={cn(
-          "flex min-h-8 w-full min-w-0 items-center gap-3",
-          // w-44 of the label + gap-4
-          isLabelHidden && "sm:pl-48",
-        )}
-      >
+    // From `sm` a grid: the label column stays 11rem even when the label is only read (next terms).
+    <div className="flex flex-col gap-1 border-t border-border py-2 first:border-t-0 sm:grid sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+      <dt className={cn("text-sm text-muted-foreground", isLabelHidden && "sr-only")}>{label}</dt>
+      <dd className="flex min-h-8 min-w-0 items-center gap-3 sm:col-start-2">
         <span className="min-w-0 flex-1 break-words">{children}</span>
         {aside}
       </dd>

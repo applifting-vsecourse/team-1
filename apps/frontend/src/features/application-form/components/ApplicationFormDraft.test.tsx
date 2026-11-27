@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react"
+import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -137,6 +137,8 @@ describe("ApplicationForm draft in sessionStorage", () => {
 
     await userEvent.type(screen.getByLabelText("Contact e-mail *"), "r")
     expect(screen.getByText("Draft saved")).toBeVisible()
+    // A polite live region that exists from the start, so screen readers hear the first save.
+    expect(screen.getByText("Draft saved").closest("[role=status]")).toBeInTheDocument()
     expect(window.sessionStorage.getItem(KEY)).not.toBeNull()
 
     await userEvent.clear(screen.getByLabelText("Contact e-mail *"))
@@ -185,7 +187,10 @@ describe("ApplicationForm draft in sessionStorage", () => {
     expect(screen.queryByRole("heading", { name: /^Participant 2/ })).not.toBeInTheDocument()
     expect(window.sessionStorage.getItem(KEY)).toBeNull()
     expect(screen.queryByText("Draft saved")).not.toBeInTheDocument()
-    expect(screen.queryByRole("status")).not.toBeInTheDocument()
+    // No toast: the only live region left is the empty draft status.
+    expect(screen.getByRole("status")).toBeEmptyDOMElement()
+    // The button that opened the dialog is gone; focus lands on the form heading, not the page.
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1 })).toHaveFocus())
   })
 
   it("keeps the start-over button away from the submit button", async () => {

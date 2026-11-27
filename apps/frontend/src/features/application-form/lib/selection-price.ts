@@ -1,7 +1,6 @@
 import type { PublicTerm } from "@/features/application-form/api/publicEvent"
 
 export type ParticipantPrice = {
-  termCount: number
   priceCzk: number
 }
 
@@ -12,10 +11,7 @@ export type ParticipantPrice = {
  */
 export function priceOfSelection(terms: PublicTerm[], termIds: string[]): ParticipantPrice {
   const selected = terms.filter((term) => termIds.includes(term.id))
-  return {
-    termCount: selected.length,
-    priceCzk: selected.reduce((sum, term) => sum + term.priceCzk, 0),
-  }
+  return { priceCzk: selected.reduce((sum, term) => sum + term.priceCzk, 0) }
 }
 
 export function totalPrice(prices: ParticipantPrice[]): number {

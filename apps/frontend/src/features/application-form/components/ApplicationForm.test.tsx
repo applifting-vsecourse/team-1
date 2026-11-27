@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
@@ -609,6 +611,51 @@ describe("ApplicationForm", () => {
       )
       await userEvent.click(toggle)
       expect(within(bar).queryByRole("listitem")).not.toBeInTheDocument()
+    })
+
+    it("reads the total and the action before the rows it opens, and shows the rows on top", async () => {
+      render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      const bar = screen.getByRole("region", { name: "Price of selected terms" })
+      const toggle = within(bar).getByRole("button", { name: /^Total/ })
+      await userEvent.click(toggle)
+
+      const list = within(bar).getByRole("list")
+      const action = within(bar).getByRole("button", { name: "Continue to review" })
+      expect(toggle.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(action.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(toggle).toHaveAttribute("aria-controls", list.id)
+      // Visually reversed: the rows sit above the total and scroll when they don't fit the screen.
+      expect(bar).toHaveClass("flex-col-reverse")
+      expect(list.parentElement).toHaveClass("overflow-y-auto", "min-h-0")
+    })
+
+    it("publishes its height for the page padding while it is shown", () => {
+      const { unmount } = render(
+        <ApplicationForm
+          event={event}
+          onSubmit={submitSpy()}
+        />,
+      )
+      expect(document.documentElement.style.getPropertyValue("--price-bar-height")).toMatch(/px$/)
+
+      unmount()
+      expect(document.documentElement.style.getPropertyValue("--price-bar-height")).toBe("")
+    })
+
+    it("pads the page and the focus scroll by the measured bar (WCAG 2.4.11)", () => {
+      const css = readFileSync(resolve(process.cwd(), "src/styles/global.css"), "utf8")
+
+      expect(css).toMatch(
+        /html:has\(\[data-price-bar\]\) \{\s*scroll-padding-bottom: calc\(\s*var\(--price-bar-height/,
+      )
+      expect(css).toMatch(
+        /body:has\(\[data-price-bar\]\) \{\s*padding-bottom: var\(--price-bar-height/,
+      )
     })
 
     it("sends the application from the bar on the review step", async () => {
