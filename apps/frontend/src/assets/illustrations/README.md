@@ -9,8 +9,8 @@ Značkové ilustrace Togeny z geometrie loga (Figma: Togena / Brand / Illustrati
 | `terms.svg`      | Termíny a ceny         | landing: karta „Přihlášky na více termínů“ |
 | `rooms.svg`      | Pokoje a kapacita      | landing: karta „Kapacitu podle pokojů“     |
 | `payments.svg`   | Platby                 | landing: karta „Přehled plateb“            |
-| `confirmed.svg`  | Potvrzeno (radost)     | zatím nepoužito                            |
-| `waiting.svg`    | Čekání                 | zatím nepoužito                            |
+| `confirmed.svg`  | Potvrzeno (radost)     | potvrzení přihlášky s potvrzeným termínem (M31 + M32) |
+| `waiting.svg`    | Čekání                 | potvrzení přihlášky bez potvrzeného termínu (statická) |
 | `empty.svg`      | Prázdno                | zatím nepoužito                            |
 | `lost.svg`       | Ztraceno               | zatím nepoužito                            |
 | `loading.svg`    | Načítání               | zatím nepoužito                            |

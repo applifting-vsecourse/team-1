@@ -131,13 +131,43 @@ describe("ApplicationForm draft in sessionStorage", () => {
     expect(screen.getByRole("checkbox", { name: /11–17 Jul/ })).toBeChecked()
   })
 
-  it("asks before clearing, then empties the form and the saved draft", async () => {
+  it("says the draft is saved once something is typed, near the steps", async () => {
+    renderForm()
+    expect(screen.queryByText("Draft saved")).not.toBeInTheDocument()
+
+    await userEvent.type(screen.getByLabelText("Contact e-mail *"), "r")
+    expect(screen.getByText("Draft saved")).toBeVisible()
+    expect(window.sessionStorage.getItem(KEY)).not.toBeNull()
+
+    await userEvent.clear(screen.getByLabelText("Contact e-mail *"))
+    expect(screen.queryByText("Draft saved")).not.toBeInTheDocument()
+  })
+
+  it("claims no saved draft without an application link", async () => {
+    renderForm({})
+    await userEvent.type(screen.getByLabelText("Contact e-mail *"), "rodic@example.com")
+
+    expect(screen.queryByText("Draft saved")).not.toBeInTheDocument()
+  })
+
+  it("offers starting over only once something is filled in", async () => {
+    renderForm()
+    expect(screen.queryByRole("button", { name: "Start over" })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole("checkbox", { name: /4–10 Jul/ }))
+    expect(screen.getByRole("button", { name: "Start over" })).toBeVisible()
+  })
+
+  it("asks before starting over, then empties the form and the saved draft without a toast", async () => {
     renderForm()
     await fillWholeForm()
     expect(window.sessionStorage.getItem(KEY)).not.toBeNull()
 
-    await userEvent.click(screen.getByRole("button", { name: "Clear" }))
-    const dialog = await screen.findByRole("dialog", { name: "Clear the form?" })
+    await userEvent.click(screen.getByRole("button", { name: "Start over" }))
+    const dialog = await screen.findByRole("dialog", { name: "Start over?" })
+    expect(dialog).toHaveAccessibleDescription(
+      "All participants and selected terms will be deleted. This can't be undone.",
+    )
 
     // Keeping it changes nothing.
     await userEvent.click(within(dialog).getByRole("button", { name: "Keep it" }))
@@ -145,21 +175,24 @@ describe("ApplicationForm draft in sessionStorage", () => {
     expect(screen.getByLabelText("Contact e-mail *")).toHaveValue("rodic@example.com")
     expect(window.sessionStorage.getItem(KEY)).not.toBeNull()
 
-    await userEvent.click(screen.getByRole("button", { name: "Clear" }))
+    await userEvent.click(screen.getByRole("button", { name: "Start over" }))
     await userEvent.click(
-      within(await screen.findByRole("dialog")).getByRole("button", { name: "Clear the form" }),
+      within(await screen.findByRole("dialog")).getByRole("button", { name: "Start over" }),
     )
 
     expect(screen.getByLabelText("Contact e-mail *")).toHaveValue("")
     expect(screen.getByLabelText("First name *")).toHaveValue("")
     expect(screen.queryByRole("heading", { name: /^Participant 2/ })).not.toBeInTheDocument()
     expect(window.sessionStorage.getItem(KEY)).toBeNull()
+    expect(screen.queryByText("Draft saved")).not.toBeInTheDocument()
+    expect(screen.queryByRole("status")).not.toBeInTheDocument()
   })
 
-  it("keeps the clear button away from the submit button", () => {
+  it("keeps the start-over button away from the submit button", async () => {
     renderForm()
+    await userEvent.type(screen.getByLabelText("Contact e-mail *"), "r")
 
-    const clear = screen.getByRole("button", { name: "Clear" })
+    const clear = screen.getByRole("button", { name: "Start over" })
     const submit = screen.getByRole("button", { name: "Continue to review" })
     expect(clear.closest("[data-slot=card]")).toBeNull()
     expect(submit.closest("[data-slot=card]")).not.toBeNull()
@@ -194,9 +227,12 @@ describe("ApplicationForm draft in sessionStorage", () => {
     await userEvent.type(screen.getByLabelText("Contact e-mail *"), "rodic@example.com")
     expect(screen.getByLabelText("Contact e-mail *")).toHaveValue("rodic@example.com")
 
-    await userEvent.click(screen.getByRole("button", { name: "Clear" }))
+    // Nothing is kept, so nothing claims to be.
+    expect(screen.queryByText("Draft saved")).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole("button", { name: "Start over" }))
     await userEvent.click(
-      within(await screen.findByRole("dialog")).getByRole("button", { name: "Clear the form" }),
+      within(await screen.findByRole("dialog")).getByRole("button", { name: "Start over" }),
     )
     expect(screen.getByLabelText("Contact e-mail *")).toHaveValue("")
     vi.restoreAllMocks()

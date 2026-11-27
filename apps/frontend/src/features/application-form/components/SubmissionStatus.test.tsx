@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
 import { Suspense, useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
@@ -7,7 +9,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { act, render, screen } from "@testing-library/react"
+import { act, render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -107,6 +109,31 @@ const renderStatus = async (
     act(() => updateParticipant(participant))
 }
 
+/** The summary card of one participant. */
+const summaryOf = (firstName: string) => {
+  const card = screen
+    .getByText(new RegExp(`^${firstName} .* · application no\\.`))
+    .closest<HTMLElement>("[data-slot=card]")
+  if (!card) throw new Error(`No summary for ${firstName}`)
+  return card
+}
+
+/** The stylesheet without every block that starts with `opening` (balanced braces). */
+const withoutBlocks = (css: string, opening: string) => {
+  let rest = css
+  for (let start = rest.indexOf(opening); start !== -1; start = rest.indexOf(opening)) {
+    let depth = 0
+    let end = rest.indexOf("{", start)
+    do {
+      if (rest[end] === "{") depth += 1
+      if (rest[end] === "}") depth -= 1
+      end += 1
+    } while (depth > 0)
+    rest = rest.slice(0, start) + rest.slice(end)
+  }
+  return rest
+}
+
 describe("SubmissionStatus", () => {
   it("copies the variable symbol for the selected participant", async () => {
     const user = userEvent.setup()
@@ -131,43 +158,55 @@ describe("SubmissionStatus", () => {
   it("shows terms to evaluate as awaiting evaluation, not as a waitlist, without payment (US-102)", async () => {
     await renderStatus(data({ applications: [jana("TO_EVALUATE")] }))
 
-    expect(screen.getByText("Awaiting evaluation")).toBeInTheDocument()
-    expect(screen.queryByText(/waitlisted/i)).not.toBeInTheDocument()
-    expect(screen.queryByText("Waitlisted")).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 2, name: "Awaiting evaluation" })).toBeVisible()
     expect(
-      screen.getByText("Letní kemp 2027 · participation not confirmed yet"),
-    ).toBeInTheDocument()
-    expect(screen.getByText("What happens next")).toBeInTheDocument()
-    expect(screen.getByText(/Don't pay anything yet/)).toBeInTheDocument()
+      screen.getByText(
+        "Once the organizer decides, we'll e-mail you the result – don't pay anything until then.",
+      ),
+    ).toBeVisible()
+    expect(within(summaryOf("Jana")).getByText("Awaiting evaluation")).toBeVisible()
+    // APP_RECEIVED goes out in both evaluation modes, so the address is always named.
     expect(
-      screen.getByText("The organizer will decide on participation in this term."),
-    ).toBeInTheDocument()
-    expect(screen.queryByText("Do not pay yet")).not.toBeInTheDocument()
+      screen.getByText("Letní kemp 2027 · we sent the confirmation to jana@example.com"),
+    ).toBeVisible()
+    expect(screen.queryByText(/waitlist/i)).not.toBeInTheDocument()
+    expect(screen.queryByText("Amount due")).not.toBeInTheDocument()
     expect(screen.queryByText("123456789/0800")).not.toBeInTheDocument()
-    expect(screen.queryByRole("heading", { name: "Payment for the confirmed terms" })).toBeNull()
   })
 
-  it("shows a confirmed term with the amount and the payment details", async () => {
+  it("shows a confirmed term with the amount due and the payment details", async () => {
     await renderStatus(data())
 
-    expect(screen.getByText("Application no. LK-0048")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 2, name: "Your place is confirmed" })).toBeVisible()
+    expect(screen.getByText("Pay the amount due using the payment details below.")).toBeVisible()
+    const summary = summaryOf("Jana")
+    expect(within(summary).getByText("Jana Nováková · application no. LK-0048")).toBeVisible()
+    expect(within(summary).getByText("12–18 Jul 2027")).toBeVisible()
+    expect(within(summary).getByText("Confirmed")).toBeVisible()
+    expect(within(summary).getByText("CZK 6,900")).toBeVisible()
+    expect(within(summary).getByText("48000")).toBeVisible()
+    expect(within(summary).getByText("123456789/0800")).toBeVisible()
+    expect(within(summary).getByRole("button", { name: "Copy variable symbol" })).toBeVisible()
+    expect(within(summary).getByRole("button", { name: "Copy account number" })).toBeVisible()
+    expect(within(summary).getByRole("button", { name: "Download QR code" })).toBeVisible()
+  })
+
+  it("explains the new account once, with the spam hint and the sign-in action", async () => {
+    await renderStatus(data())
+
     expect(
-      screen.getByText("We sent the confirmation and the status of the terms to jana@example.com."),
-    ).toBeInTheDocument()
-    expect(screen.getByText("Confirmed")).toBeInTheDocument()
-    expect(screen.getByText(/for the confirmed term$/)).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Payment for the confirmed terms" })).toBeVisible()
-    expect(screen.getByText("123456789/0800")).toBeInTheDocument()
-    expect(screen.getByText("48000")).toBeInTheDocument()
-    expect(screen.getByText(/We created an account for you automatically/)).toBeVisible()
-    expect(screen.getByText(/The link is valid for 7 days/)).toBeVisible()
+      screen.getByText(
+        "We created an account for you – you'll find the link for your first sign-in in the e-mail. It's valid for 7 days.",
+      ),
+    ).toBeVisible()
+    expect(screen.getByText("No e-mail? Check your spam folder.")).toBeVisible()
     expect(screen.getByRole("link", { name: "Go to sign in" })).toHaveAttribute(
       "href",
       "/participant/login",
     )
   })
 
-  it("shows one payment card with the total, the account once and a symbol per participant", async () => {
+  it("gives every participant their own summary with their amount and variable symbol", async () => {
     await renderStatus(
       data({
         applications: [
@@ -177,26 +216,10 @@ describe("SubmissionStatus", () => {
       }),
     )
 
-    expect(
-      screen.getAllByRole("heading", { name: "Payment for the confirmed terms" }),
-    ).toHaveLength(1)
-    const card = screen.getByRole("heading", {
-      name: "Payment for the confirmed terms",
-    }).parentElement!
-    expect(card).toHaveTextContent(/14.300/)
-    expect(card).toHaveTextContent(/Jana: .*6.900.* \+ Matěj: .*7.400/)
-    expect(screen.getAllByText("123456789/0800")).toHaveLength(1)
-    expect(screen.getByText("48000")).toBeInTheDocument()
-    expect(screen.getByText("49000")).toBeInTheDocument()
-    expect(screen.getByText(/^Matěj · .*7.400.* · variable symbol$/)).toBeInTheDocument()
-    expect(card).toHaveTextContent(/Pay each application separately: .*VS 48000; Matěj .*VS 49000/)
-  })
-
-  it("names the symbol only plainly for a single payer", async () => {
-    await renderStatus(data())
-
-    expect(screen.getByText("Variable symbol")).toBeInTheDocument()
-    expect(screen.queryByText(/Pay each application separately/)).not.toBeInTheDocument()
+    expect(screen.getAllByRole("heading", { name: "Your place is confirmed" })).toHaveLength(1)
+    expect(summaryOf("Jana")).toHaveTextContent(/CZK\s6,900.*48000/)
+    expect(summaryOf("Matěj")).toHaveTextContent(/CZK\s7,400.*49000/)
+    expect(summaryOf("Matěj")).not.toHaveTextContent("48000")
   })
 
   it("shows a waitlisted term as waitlisted without a place in line, with no payment for it", async () => {
@@ -209,21 +232,70 @@ describe("SubmissionStatus", () => {
       }),
     )
 
-    expect(screen.getByText("Waitlisted")).toBeInTheDocument()
-    expect(screen.getByText("Do not pay yet")).toBeInTheDocument()
-    expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     expect(
-      screen.getAllByRole("heading", { name: "Payment for the confirmed terms" }),
-    ).toHaveLength(1)
+      screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent),
+    ).toEqual([
+      "Your place is confirmed",
+      "Added to the waitlist",
+      "How to get back to your application",
+    ])
+    expect(
+      screen.getByText("If we confirm your place, we'll e-mail you – don't pay for it until then."),
+    ).toBeVisible()
+    expect(within(summaryOf("Matěj")).getByText("Waitlisted")).toBeVisible()
+    expect(within(summaryOf("Matěj")).queryByText("Amount due")).not.toBeInTheDocument()
+    expect(screen.getAllByText("Amount due")).toHaveLength(1)
+    expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     expect(screen.queryByText("49000")).not.toBeInTheDocument()
   })
 
   it("shows no payment details when every term is waitlisted", async () => {
     await renderStatus(data({ applications: [jana("WAITLISTED")] }))
 
-    expect(screen.getByRole("heading", { name: "Do not pay anything yet" })).toBeVisible()
-    expect(screen.queryByText("Organization bank account")).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Added to the waitlist" })).toBeVisible()
+    expect(screen.queryByRole("heading", { name: "Your place is confirmed" })).toBeNull()
+    expect(screen.queryByText("Bank account")).not.toBeInTheDocument()
     expect(screen.queryByText("123456789/0800")).not.toBeInTheDocument()
+  })
+
+  describe("celebration", () => {
+    it("assembles the camp and sticks the sticker only when a term is confirmed", async () => {
+      await renderStatus(data())
+
+      const sticker = document.querySelector(".sticker")
+      expect(sticker).toHaveTextContent("Confirmed")
+      expect(sticker).toHaveAttribute("data-animated", "true")
+      // Decoration only: the confirmed state is read from the heading and the badge.
+      expect(sticker?.closest(".brand-assemble")).toHaveAttribute("aria-hidden", "true")
+      expect(document.querySelector(".saved-mark")).toBeNull()
+    })
+
+    it.each(["TO_EVALUATE", "WAITLISTED"] as const)(
+      "keeps the waiting camp still and draws only the check by the heading (%s)",
+      async (status) => {
+        await renderStatus(data({ applications: [jana(status)] }))
+
+        expect(document.querySelector(".sticker")).toBeNull()
+        expect(document.querySelector(".brand-assemble")).toBeNull()
+        const mark = document.querySelector(".saved-mark")
+        expect(mark).toHaveAttribute("aria-hidden", "true")
+        expect(mark?.parentElement).toContainElement(
+          screen.getByRole("heading", { level: 1, name: "We've received your application" }),
+        )
+      },
+    )
+
+    it("plays M31, M32 and M04 only without the reduced-motion preference", () => {
+      const css = readFileSync(resolve(process.cwd(), "src/styles/global.css"), "utf8")
+      const outsideMotion = withoutBlocks(css, "@media (prefers-reduced-motion: no-preference)")
+
+      expect(css).toMatch(/\.brand-assemble \.arc-1 \{\s*animation/)
+      expect(css).toMatch(/\.sticker\[data-animated\] \{\s*animation/)
+      expect(css).toMatch(/\.saved-mark path \{[^}]*animation/)
+      expect(outsideMotion).not.toContain(".brand-assemble")
+      expect(outsideMotion).not.toContain(".sticker[data-animated]")
+      expect(outsideMotion).not.toContain(".saved-mark")
+    })
   })
 
   it("tells an applicant with an existing account to sign in", async () => {
@@ -233,7 +305,7 @@ describe("SubmissionStatus", () => {
     expect(screen.getByRole("link", { name: "Sign in to the application" })).toBeVisible()
   })
 
-  describe("link under the account card (#318)", () => {
+  describe("action in the account block (#318)", () => {
     it("keeps the sign-in link for an applicant who is not signed in", async () => {
       await renderStatus(data())
 
