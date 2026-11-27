@@ -1,3 +1,4 @@
+import { isMealsEditable, isTermEditable } from "@/modules/applications/domain/edit-window"
 import { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import {
   buildPaymentDetails,
@@ -14,6 +15,8 @@ import {
   PaymentStatus,
 } from "@/modules/applications/domain/pricing"
 import { variableSymbol as toVariableSymbol } from "@/modules/applications/domain/variable-symbol"
+import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
+import { canWriteRoomWishes, canWriteStay } from "./arrangement-rules"
 
 export type RoomOccupancy = {
   beds: number
@@ -101,6 +104,8 @@ export type MyApplicationTerm = {
   transportOffered: boolean
   /** The participant has told how they get there. */
   transportDecided: boolean
+  /** The term is not over or cancelled: transport, wishes and stay can still be changed. */
+  termEditable: boolean
   /**
    * Present for a confirmed term after publication. An individually accommodated participant
    * only gets the card if the organizer has assigned them to a room.
@@ -154,6 +159,8 @@ export type MyApplication = {
   terms: MyApplicationTerm[]
   /** Meal restrictions entered (application-wide, so the same in every term). */
   mealsDecided: boolean
+  /** The meals can still be changed: a term that is not cancelled is not over (D-192). */
+  mealsEditable: boolean
   /** Health restriction entered (application-wide). */
   healthDecided: boolean
   amountDueCzk: number
@@ -196,7 +203,9 @@ const toIsoDate = (date: Date): string => date.toISOString().slice(0, 10)
 export function buildMyApplication(
   record: MyApplicationRecord,
   canSimulatePayment = false,
+  now = new Date(),
 ): MyApplication {
+  const today = todayInPrague(now)
   const amountDueCzk = computeApplicationDue(record.terms)
   const amountPaidCzk = computeApplicationPaid(record.terms)
   const variableSymbol = toVariableSymbol(record.number)
@@ -237,6 +246,14 @@ export function buildMyApplication(
           : {}),
         transportOffered: term.transportOffered,
         transportDecided: term.transportDecided,
+        termEditable: isTermEditable(
+          {
+            status: term.status,
+            endsOn: term.endsOn,
+            cancelledAt: term.termCancelled ? now : null,
+          },
+          today,
+        ),
         ...(term.status === "CONFIRMED" &&
         term.roomsPublished &&
         !term.termCancelled &&
@@ -248,14 +265,22 @@ export function buildMyApplication(
               },
             }
           : {}),
-        ...(term.status === "CONFIRMED" && !term.termCancelled && !record.individualAccommodation
+        ...(canWriteRoomWishes(term, record.individualAccommodation)
           ? { roomWishes: term.roomWishes, noRoomWishes: term.noRoomWishes }
           : {}),
-        ...(term.status !== "CANCELLED" && term.status !== "ARCHIVED" && !term.termCancelled
+        ...(canWriteStay(term)
           ? { stay: { lateArrival: term.lateArrival, earlyDeparture: term.earlyDeparture } }
           : {}),
       })),
     mealsDecided: record.mealsFilled,
+    mealsEditable: isMealsEditable(
+      record.terms.map((term) => ({
+        status: term.status,
+        endsOn: term.endsOn,
+        cancelledAt: term.termCancelled ? now : null,
+      })),
+      today,
+    ),
     healthDecided: record.healthFilled,
     amountDueCzk,
     amountPaidCzk,

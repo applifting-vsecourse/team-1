@@ -10,6 +10,11 @@
     "organizedBy": "Pořádá",
     "phone": "Telefon",
     "priceColumn": "Cena / účastník",
+    "showFewerTerms": "Zobrazit méně",
+    "showMoreTerms_few": "Zobrazit další {{count}} termíny",
+    "showMoreTerms_many": "Zobrazit dalších {{count}} termínů",
+    "showMoreTerms_one": "Zobrazit další {{count}} termín",
+    "showMoreTerms_other": "Zobrazit dalších {{count}} termínů",
     "termColumn": "Termín",
     "terms": "Termíny a ceny"
   },

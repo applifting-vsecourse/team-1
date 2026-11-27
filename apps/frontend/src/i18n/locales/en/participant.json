@@ -152,6 +152,7 @@
     "participant": "Participant details",
     "phone": "Phone",
     "phoneInvalid": "Enter a valid phone number, for example +420 777 123 456.",
+    "pronouns": "Pronouns",
     "retry": "Try again",
     "save": "Save changes",
     "saveError": "Try saving your changes again",
@@ -184,6 +185,14 @@
       "REJECTED": "Your change request was declined"
     },
     "title": "Notifications"
+  },
+  "organizerArrangements": {
+    "back": "Back to the application",
+    "declined": "Confirmed: the participant has no roommate wishes.",
+    "empty": "No wishes have been entered for this term yet.",
+    "errorTitle": "Could not load the participant’s data",
+    "nothing": "No roommate wishes or stay can be entered for this application: no term is confirmed or open.",
+    "title": "Roommate wishes and stay"
   },
   "payment": {
     "account": "Bank account",
@@ -300,5 +309,6 @@
       "deleted": "Arrival and departure deleted.",
       "saved": "Arrival and departure saved."
     }
-  }
+  },
+  "termClosed": "The term is over, the details can no longer be changed."
 }

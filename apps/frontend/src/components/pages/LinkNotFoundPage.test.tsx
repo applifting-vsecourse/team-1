@@ -25,6 +25,8 @@ describe("LinkNotFoundPage", () => {
     ).toBeVisible()
     expect(screen.getByRole("link", { name: "Browse events" })).toHaveAttribute("href", "/catalog")
     expect(screen.queryByText(/event page|not ready/i)).not.toBeInTheDocument()
+    // #738: a closed event looks the same as a missing one, with no description (PO, 26. 11.).
+    expect(screen.queryByText(/doesn't exist|accepting applications/i)).not.toBeInTheDocument()
     expect(screen.getByText("Managing multi-term events")).toBeInTheDocument()
   })
 })

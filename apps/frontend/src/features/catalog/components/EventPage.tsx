@@ -9,20 +9,31 @@ import { BackLink } from "@/components/molecules/BackLink"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { COMPACT_LIMITS, compactList } from "@/lib/compact-list"
 import { formatTermPrice } from "@/lib/money"
 import { termDates, termName } from "@/lib/term-label"
+import { cn } from "@/lib/utils"
 
 import { catalogEventPhotoUrl, type CatalogEventDetail } from "@/features/catalog/api/catalog"
 import { lowestPrice } from "@/features/catalog/lib/catalog"
 
+/** Up to this many terms the card sticks beside the description, as drawn. */
+const STICKY_TERMS = 3
+
 // Figma (Design system v2): Stránka akce · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20188-6594 (mobile 20188-6692)
 // Header 27424-16425, contact 27424-16432 (expanded 27426-16389 / 27426-16419), application card 20188-6620 / 20188-6713, mobile bar 27425-16448.
+// Many terms (#732): first eight and „Zobrazit další…“ as in 27413-17449 / 27413-17584 (mobile 27413-17719 / 27413-17826), kept in this card.
 export function EventPage({ event }: { event: CatalogEventDetail }) {
   const { t } = useTranslation("catalog")
   const [isContactOpen, setIsContactOpen] = useState(false)
   const paragraphs = event.description?.split(/\n{2,}/).filter(Boolean) ?? []
   const hasContact = Boolean(event.contactEmail) || Boolean(event.contactPhone)
   const price = lowestPrice(event.terms)
+  const [isTermsExpanded, setIsTermsExpanded] = useState(false)
+  const { visible: foldedTerms, hiddenCount } = compactList(event.terms, COMPACT_LIMITS.eventPage)
+  const shownTerms = isTermsExpanded ? event.terms : foldedTerms
+  // A long card would stick with its end, and the button, below the fold; only a short one sticks.
+  const isSticky = event.terms.length <= STICKY_TERMS
   const apply = (
     <Link
       to={ROUTES.applicationForm}
@@ -126,14 +137,14 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
             </p>
           ))}
         </div>
-        <Card className="gap-3 rounded-xl p-4 md:sticky md:top-24">
+        <Card className={cn("gap-3 rounded-xl p-4", isSticky && "md:sticky md:top-24")}>
           <h2 className="text-lg/6.5 font-semibold tracking-tight">{t("event.terms")}</h2>
           <div className="flex justify-between px-3 text-xs font-medium text-muted-foreground">
             <span>{t("event.termColumn")}</span>
             <span>{t("event.priceColumn")}</span>
           </div>
           <ul className="flex flex-col gap-2 text-sm">
-            {event.terms.map((term) => (
+            {shownTerms.map((term) => (
               <li
                 key={term.id}
                 className="flex items-center justify-between gap-3 rounded-lg bg-wash p-3"
@@ -150,6 +161,20 @@ export function EventPage({ event }: { event: CatalogEventDetail }) {
               </li>
             ))}
           </ul>
+          {hiddenCount > 0 ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full"
+              aria-expanded={isTermsExpanded}
+              onClick={() => setIsTermsExpanded(!isTermsExpanded)}
+            >
+              {isTermsExpanded
+                ? t("event.showFewerTerms")
+                : t("event.showMoreTerms", { count: hiddenCount })}
+            </Button>
+          ) : null}
           <Button
             asChild
             size="lg"

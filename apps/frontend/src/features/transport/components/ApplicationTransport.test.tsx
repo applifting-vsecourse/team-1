@@ -34,6 +34,7 @@ const offer = {
       endsOn: "2027-07-18",
       status: "CONFIRMED",
       selectedTransportId: null,
+      isEditable: true,
       options: [
         {
           id: "t1",
@@ -48,28 +49,41 @@ const offer = {
   ],
 }
 
-function renderPage() {
+function renderPage(
+  data: typeof offer = offer,
+  props: { writer?: "organizer"; eventId?: string } = {},
+) {
   const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
     const method = input instanceof Request ? input.method : (init?.method ?? "GET")
     return Promise.resolve(
       method === "PUT"
         ? new Response(null, { status: 204 })
-        : new Response(JSON.stringify(offer), { headers: { "Content-Type": "application/json" } }),
+        : new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } }),
     )
   })
   const root = createRootRoute()
   const page = createRoute({
     getParentRoute: () => root,
     path: "/",
-    component: () => <ApplicationTransport applicationId="a1" />,
+    component: () => (
+      <ApplicationTransport
+        applicationId="a1"
+        {...props}
+      />
+    ),
   })
   const detail = createRoute({
     getParentRoute: () => root,
     path: "/participant/applications/$applicationId",
     component: () => <p>Application detail</p>,
   })
+  const organizerDetail = createRoute({
+    getParentRoute: () => root,
+    path: "/organizer/events/$eventId/applications/$applicationId",
+    component: () => <p>Organizer detail</p>,
+  })
   const router = createRouter({
-    routeTree: root.addChildren([page, detail]),
+    routeTree: root.addChildren([page, detail, organizerDetail]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   })
   render(
@@ -100,6 +114,29 @@ describe("ApplicationTransport", () => {
     await userEvent.click(screen.getByRole("button", { name: "Save transport choice" }))
 
     expect(await screen.findByText("Application detail")).toBeInTheDocument()
+  })
+
+  it("cannot be changed once the term is over (D-192)", async () => {
+    renderPage({ ...offer, terms: [{ ...offer.terms[0]!, isEditable: false }] })
+    expect(await screen.findByRole("combobox", { name: "Transport" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Save transport choice" })).toBeDisabled()
+  })
+
+  it("lets the organizer choose for the participant and returns to the organizer's detail (D-191)", async () => {
+    const fetchMock = renderPage(offer, { writer: "organizer", eventId: "e1" })
+    await userEvent.click(await screen.findByRole("combobox", { name: "Transport" }))
+    await userEvent.click(await screen.findByRole("option", { name: "Autobus z Prahy" }))
+    await userEvent.click(screen.getByRole("button", { name: "Save transport choice" }))
+
+    expect(await screen.findByText("Organizer detail")).toBeInTheDocument()
+    const urls = fetchMock.mock.calls.map(([input]) => (input instanceof Request ? input.url : ""))
+    expect(urls.some((url) => url.includes("/organizer/applications/a1/transport"))).toBe(true)
+    expect(urls.some((url) => url.includes("/participant/"))).toBe(false)
+  })
+
+  it("says so when no term of the application offers transport", async () => {
+    renderPage({ ...offer, terms: [{ ...offer.terms[0]!, options: [] }] })
+    expect(await screen.findByText(/No transport is offered/)).toBeVisible()
   })
 
   it("drops a transport deleted meanwhile from the choices and still saves the others", async () => {

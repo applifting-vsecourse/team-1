@@ -10,6 +10,11 @@
     "organizedBy": "Organized by",
     "phone": "Phone",
     "priceColumn": "Price / participant",
+    "showFewerTerms": "Show fewer",
+    "showMoreTerms_few": "Show {{count}} more terms",
+    "showMoreTerms_many": "Show {{count}} more terms",
+    "showMoreTerms_one": "Show {{count}} more term",
+    "showMoreTerms_other": "Show {{count}} more terms",
     "termColumn": "Term",
     "terms": "Terms and prices"
   },

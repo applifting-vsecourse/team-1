@@ -37,6 +37,7 @@ const confirmed = {
   priceCzk: 4500,
   transportOffered: false,
   transportDecided: false,
+  termEditable: true,
 }
 const waitlisted = {
   termId: "t2",
@@ -47,6 +48,7 @@ const waitlisted = {
   priceCzk: 4900,
   transportOffered: false,
   transportDecided: false,
+  termEditable: true,
 }
 
 const application = (overrides: Partial<MyApplication> = {}): MyApplication => ({
@@ -60,6 +62,7 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   simulatedPayments: [],
   terms: [confirmed],
   mealsDecided: false,
+  mealsEditable: true,
   healthDecided: false,
   amountDueCzk: 4500,
   amountPaidCzk: 2000,
@@ -158,6 +161,7 @@ const renderDetail = (
           lastName: data.lastName,
           birthDate: data.birthDate ?? "2011-05-04",
           phone: "+420 777 123 456",
+          pronouns: null,
           individualAccommodation: false,
           accommodationRequest: null,
           history: edits,
@@ -1003,6 +1007,28 @@ describe("ApplicationDetail", () => {
         terms: [{ ...confirmed, transportOffered: true, transportDecided: false }],
         ...overrides,
       })
+
+    it("hides the transport and meals steps once the term is over (D-192)", async () => {
+      renderDetail(
+        withSteps({
+          mealsEditable: false,
+          terms: [
+            {
+              ...confirmed,
+              transportOffered: true,
+              transportDecided: false,
+              termEditable: false,
+            },
+          ],
+        }),
+      )
+
+      await screen.findByRole("heading", { name: "Steps before the event" })
+      expect(screen.queryByText("Transport")).not.toBeInTheDocument()
+      expect(screen.queryByRole("link", { name: /meals/i })).not.toBeInTheDocument()
+      // Health is not bound by the term: it stays.
+      expect(screen.getByText("Health restriction")).toBeVisible()
+    })
 
     it("lists each step of a confirmed term as to do or done, with a link to where it is arranged", async () => {
       renderDetail(withSteps({ mealsDecided: true }))

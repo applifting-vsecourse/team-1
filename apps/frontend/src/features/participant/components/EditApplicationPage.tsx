@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { isIsoDate } from "@/lib/date-input"
 import { notify } from "@/lib/notify"
 import { isValidPhone, MAX_PHONE_INPUT_LENGTH, normalizePhone } from "@/lib/phone"
+import { MAX_PRONOUNS_LENGTH } from "@/lib/pronouns"
 
 import {
   applicationEditQueryOptions,
@@ -39,6 +40,7 @@ import {
 
 // Figma (Design system v2): US-34 / Upravit údaje · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20491-16159 (360 px: 20491-16398); Chyba uložení 20491-17377 (360 px: 20491-17622)
 // Figma (Design system v2): #38 individuální řešení ubytování · nezaškrtnuto node-id=25586-32206 (360 px: 25586-32330); zaškrtnuto s poznámkou 25586-32411 (360 px: 25586-32543); chyba 25586-32632 (360 px: 25586-32768)
+// Figma (Design system v2): #516 Úprava zájmen přihlašovatelem · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27282-154622 (360 px: node-id=27282-154730)
 export function EditApplicationPage({ applicationId }: { applicationId: string }) {
   const { t } = useTranslation("participant")
   const query = useQuery(applicationEditQueryOptions(applicationId))
@@ -87,6 +89,7 @@ function EditForm({
     firstName: initial.firstName,
     lastName: initial.lastName,
     birthDate: initial.birthDate,
+    pronouns: initial.pronouns ?? "",
     phone: initial.phone ?? "",
     individualAccommodation: initial.individualAccommodation,
     accommodationRequest: initial.accommodationRequest ?? "",
@@ -103,13 +106,16 @@ function EditForm({
     boolean
   > | null>(null)
   const mutation = useMutation({
-    mutationFn: () =>
-      saveApplicationEdit(applicationId, {
-        ...values,
+    mutationFn: () => {
+      const { pronouns, ...details } = values
+      return saveApplicationEdit(applicationId, {
+        ...details,
+        ...(isPronounsChanged ? { pronouns: nullableTrimmed(pronouns) } : {}),
         phone: normalizePhone(values.phone) === null ? null : (values.phone ?? "").trim(),
         // The note belongs to the request: without it none is sent.
         accommodationRequest: values.individualAccommodation ? values.accommodationRequest : null,
-      }),
+      })
+    },
     onSuccess: async () => {
       // The result is a toast over the application detail; there is no result page.
       notify.success(t("edit.toast.saved"), t("edit.toast.organizerNotified"))
@@ -118,7 +124,7 @@ function EditForm({
       await client.invalidateQueries({ queryKey: ["participant", "applications"] })
     },
   })
-  const nullableTrimmed = (value: string | null) => {
+  const nullableTrimmed = (value: string | null | undefined) => {
     const trimmed = value?.trim()
     return trimmed?.length ? trimmed : null
   }
@@ -134,10 +140,12 @@ function EditForm({
     values.individualAccommodation !== initial.individualAccommodation ||
     (values.individualAccommodation ? nullableTrimmed(values.accommodationRequest) : null) !==
       initial.accommodationRequest
+  const isPronounsChanged = nullableTrimmed(values.pronouns) !== initial.pronouns
   const isChanged =
     values.firstName.trim() !== initial.firstName ||
     values.lastName.trim() !== initial.lastName ||
     values.birthDate !== initial.birthDate ||
+    isPronounsChanged ||
     normalizePhone(values.phone) !== normalizePhone(initial.phone) ||
     isAccommodationChanged
   const blocker = useBlocker({
@@ -149,6 +157,7 @@ function EditForm({
     firstName: values.firstName.trim() !== initial.firstName,
     lastName: values.lastName.trim() !== initial.lastName,
     birthDate: values.birthDate !== initial.birthDate,
+    pronouns: isPronounsChanged,
     phone: normalizePhone(values.phone) !== normalizePhone(initial.phone),
     accommodationRequest: isAccommodationChanged,
   }
@@ -157,7 +166,8 @@ function EditForm({
     !mutation.isError ||
     visibleFields.firstName ||
     visibleFields.lastName ||
-    visibleFields.birthDate
+    visibleFields.birthDate ||
+    visibleFields.pronouns
   const phoneField = (
     <div className="flex flex-col gap-2">
       <Label htmlFor="edit-phone">{t("edit.phone")}</Label>
@@ -300,6 +310,18 @@ function EditForm({
                     {t("edit.birthDateInvalid")}
                   </p>
                 ) : null}
+              </div>
+            ) : null}
+            {!mutation.isError || visibleFields.pronouns ? (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="edit-pronouns">{t("edit.pronouns")}</Label>
+                <Input
+                  id="edit-pronouns"
+                  maxLength={MAX_PRONOUNS_LENGTH}
+                  value={values.pronouns ?? ""}
+                  onChange={(event) => set("pronouns", event.target.value)}
+                  className="h-12"
+                />
               </div>
             ) : null}
           </Card>
