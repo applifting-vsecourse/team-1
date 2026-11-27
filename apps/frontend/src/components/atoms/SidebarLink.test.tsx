@@ -16,7 +16,7 @@ async function renderSidebar() {
     component: () => (
       <nav>
         <SidebarLink
-          to="/events"
+          to="/organizer/events"
           icon={Calendar}
         >
           Events
@@ -32,10 +32,10 @@ async function renderSidebar() {
   })
   const router = createRouter({
     routeTree: root.addChildren([
-      createRoute({ getParentRoute: () => root, path: "/events" }),
+      createRoute({ getParentRoute: () => root, path: "/organizer/events" }),
       createRoute({ getParentRoute: () => root, path: "/catalog" }),
     ]),
-    history: createMemoryHistory({ initialEntries: ["/events"] }),
+    history: createMemoryHistory({ initialEntries: ["/organizer/events"] }),
   })
   render(<RouterProvider router={router} />)
   return {
