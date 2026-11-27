@@ -120,7 +120,8 @@ describe("EmailQueueWorker", () => {
 
   it("after a restart repeats an abandoned send with the same key where the provider allows it", async () => {
     const jobs = new FakeJobs(["a@example.com"])
-    await jobs.claimNext(START) // the worker that died
+    await jobs.claimNext(START) // the worker that died while sending
+    await jobs.saveContent("job-0", { subject: "Subject", html: "a@example.com" })
 
     await worker(jobs).drain(() => later(1))
 
@@ -136,11 +137,21 @@ describe("EmailQueueWorker", () => {
   ])("does not repeat an abandoned send when %s", async (_, isIdempotent, hours) => {
     const jobs = new FakeJobs(["a@example.com"])
     await jobs.claimNext(START)
+    await jobs.saveContent("job-0", { subject: "Subject", html: "a@example.com" })
 
     await worker(jobs, isIdempotent).drain(() => later(hours))
 
     expect(sendEmail).not.toHaveBeenCalled()
     expect(jobs.rows[0].status).toBe("UNCERTAIN")
+  })
+
+  it("sends a job abandoned before it was rendered, whatever the provider", async () => {
+    const jobs = new FakeJobs(["a@example.com"])
+    await jobs.claimNext(START)
+
+    await worker(jobs, false).drain(() => later(1))
+
+    expect(jobs.rows[0].status).toBe("SENT")
   })
 
   it("does not repeat a send with an unknown result without idempotency", async () => {

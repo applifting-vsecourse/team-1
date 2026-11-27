@@ -29,14 +29,18 @@ export class SMTPAdapter implements EmailService {
         html,
       })
     } catch (error) {
-      // Refused by the server, or never connected: nothing was sent. Anything else may have been.
-      const { responseCode, command, message } = error as {
+      // NOT_SENT only where it is certain: the server answered with a refusal, or there never was
+      // a connection. nodemailer says `command: "CONN"` also for a connection lost after DATA.
+      const { responseCode, code, syscall, message } = error as {
         responseCode?: number
-        command?: string
+        code?: string
+        syscall?: string
         message: string
       }
-      const isRefused = responseCode !== undefined || command === "CONN"
-      throw new EmailDeliveryError(message, isRefused ? "NOT_SENT" : "UNKNOWN")
+      const isRefused = responseCode !== undefined && responseCode >= 400
+      const isNeverConnected = code === "EDNS" || syscall === "connect"
+      const isNotSent = isRefused || isNeverConnected
+      throw new EmailDeliveryError(message, isNotSent ? "NOT_SENT" : "UNKNOWN")
     }
   }
 }

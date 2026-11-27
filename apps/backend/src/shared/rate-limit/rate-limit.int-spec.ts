@@ -139,6 +139,12 @@ describe("rate limits (integration)", () => {
     // The bypass is off on this server, so the allowed tries are answered 404.
     expect(first).toEqual([404, 404, 404])
     expect(over.status).toBe(429)
+    // The hourly limit stayed at 100 when the one of the application grew (#739).
+    expect(
+      (await post("/email-verification-bypass", "203.0.113.61", {})).headers.get(
+        "x-ratelimit-limit-hour",
+      ),
+    ).toBe("100")
   })
 
   it("do not count the account e-mail of the verification bypass as an applicant", async () => {
