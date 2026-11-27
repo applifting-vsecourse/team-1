@@ -1224,6 +1224,111 @@ otazky:
     url: https://github.com/applifting-vsecourse/team-1/blob/e7e7abb7395722e04486e374f1b6bb5d0442c0cd/docs/zapisy/2026-11-25-sprint-5-planning.md
     citace: '„Scénář „Co kdyby“ má pro Tomáše vysokou hodnotu při nastavování ceny a ověřování bodu zvratu.“'
   uzavreno_duvod: 'PO 25. 11.: před otevřením přihlášek nastavuje cenu a hledá bod zvratu, po otevření sleduje počet přihlášených a rezervu. Proměnné jsou cena a počet účastníků; o změně nákladů ve scénáři řeč nebyla.'
+- id: Q-EKO-03
+  otazka: 'Stačí pro rozpočtovou rezervu běžná nákladová položka s pevnou částkou? Jak při jejím čerpání předejít dvojímu započtení výdaje zapsaného bez položky?'
+  epic: ekonomika
+  us:
+  - label: A1 Rezervy a ad hoc situace
+    url: https://github.com/applifting-vsecourse/team-1/issues/808
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Ovlivňuje způsob zápisu a výpočet výsledku při čerpání rozpočtové rezervy.
+  ceka_na: pm
+  zdroje:
+  - popis: A1, otázky k rozhodnutí
+    url: https://github.com/applifting-vsecourse/team-1/issues/808
+    citace: '„Jak zabránit dvojímu započtení, když se výdaj krytý rezervou zapíše bez položky?“'
+  - popis: Zápis ze statusu s PO 25. 11.
+    url: https://github.com/applifting-vsecourse/team-1/blob/b00f623194eb68e6f1f0cd159f628bbf95f4f885/docs/zapisy/2026-11-25-sprint-5-planning.md
+    citace: '„Kryje je z rozpočtové rezervy a při podrobnějším sledování je třídí podle kategorií.“'
+  poznamka: D-211 umožňuje pevnou nákladovou položku a přičítá výdaj bez položky celý. Pravidlo pro čerpání rezervy z toho neplyne.
+  navazne_tickety:
+  - label: N2 Plánovaná položka s pevnou částkou
+    url: https://github.com/applifting-vsecourse/team-1/issues/814
+  - label: N8 Výdaj bez položky
+    url: https://github.com/applifting-vsecourse/team-1/issues/820
+- id: Q-EKO-04
+  otazka: Má organizátor zvolit nákladovou kategorii u mimořádného výdaje zapsaného bez nákladové položky?
+  epic: ekonomika
+  us:
+  - label: A1 Rezervy a ad hoc situace
+    url: https://github.com/applifting-vsecourse/team-1/issues/808
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Ovlivňuje zápis výdaje bez položky a přehled nákladů podle kategorií.
+  ceka_na: pm
+  zdroje:
+  - popis: N8, otevřená otázka
+    url: https://github.com/applifting-vsecourse/team-1/issues/820
+    citace: '„Má mít takový výdaj vlastní kategorii (A1)?“'
+  poznamka: D-211 řeší započtení plné částky do výsledku; D-213 vyjmenovává výchozí kategorie. Kategorie Ostatní v N8 je návrh.
+  navazne_tickety:
+  - label: N8 Výdaj bez položky
+    url: https://github.com/applifting-vsecourse/team-1/issues/820
+  - label: V3 Náklady podle kategorií
+    url: https://github.com/applifting-vsecourse/team-1/issues/829
+- id: Q-EKO-05
+  otazka: Má organizátor vedle přijatých mimořádných příjmů evidovat i plánované? Ve kterých přehledech se mají projevit?
+  epic: ekonomika
+  us:
+  - label: A1 Rezervy a ad hoc situace
+    url: https://github.com/applifting-vsecourse/team-1/issues/808
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Ovlivňuje rozsah ruční příjmové položky a očekávaný výsledek.
+  ceka_na: pm
+  zdroje:
+  - popis: A1, otázky k rozhodnutí
+    url: https://github.com/applifting-vsecourse/team-1/issues/808
+    citace: '„Mimořádný příjem (sponzor, dotace, zůstatek z loňska, ponechané storno): jen přijatý, nebo i plánovaný?“'
+  - popis: Zápis ze statusu s PO 25. 11.
+    url: https://github.com/applifting-vsecourse/team-1/blob/b00f623194eb68e6f1f0cd159f628bbf95f4f885/docs/zapisy/2026-11-25-sprint-5-planning.md
+    citace: '„U sponzoringu, dotací nebo zůstatku z minulého ročníku mu stačí ručně přidat obecnou příjmovou položku jako v Excelu.“'
+  poznamka: D-210 potvrzuje započtení ručních příjmových položek do skutečného výsledku. Rozhodnutí o plánovaných příjmech chybí.
+  navazne_tickety:
+  - label: P1 Ruční příjmová položka
+    url: https://github.com/applifting-vsecourse/team-1/issues/835
+- id: Q-EKO-06
+  otazka: Jak má organizátor v ekonomice akce zaznamenat peníze vrácené dodavatelem?
+  epic: ekonomika
+  us:
+  - label: A1 Rezervy a ad hoc situace
+    url: https://github.com/applifting-vsecourse/team-1/issues/808
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Ovlivňuje, jak se vrácená částka promítne do skutečných nákladů akce.
+  ceka_na: pm
+  zdroje:
+  - popis: A1, otázky k rozhodnutí
+    url: https://github.com/applifting-vsecourse/team-1/issues/808
+    citace: '„Vrácené peníze od dodavatele: jak je zapsat?“'
+  poznamka: D-211 a D-212 pracují s výdaji nákladové položky. Zápis peněz vrácených dodavatelem neupravují.
+  navazne_tickety:
+  - label: N6 Skutečný výdaj k položce
+    url: https://github.com/applifting-vsecourse/team-1/issues/818
+  - label: V1 Výsledek akce
+    url: https://github.com/applifting-vsecourse/team-1/issues/827
+- id: Q-EKO-07
+  otazka: Potřebuje organizátor po skončení akce samostatný krok pro uzavření a vyhodnocení celkového výsledku?
+  epic: ekonomika
+  us:
+  - label: A1 Rezervy a ad hoc situace
+    url: https://github.com/applifting-vsecourse/team-1/issues/808
+  stav: otevreno
+  priorita: P2
+  priorita_duvod: Ovlivňuje postup po akci nad rámec existujícího výpočtu jejího výsledku.
+  ceka_na: pm
+  zdroje:
+  - popis: A1, otázky k rozhodnutí
+    url: https://github.com/applifting-vsecourse/team-1/issues/808
+    citace: '„Uzavření a vyhodnocení po akci: je potřeba krok za celou akci?“'
+  - popis: Zápis ze statusu s PO 25. 11.
+    url: https://github.com/applifting-vsecourse/team-1/blob/b00f623194eb68e6f1f0cd159f628bbf95f4f885/docs/zapisy/2026-11-25-sprint-5-planning.md
+    citace: '„Jak po akci uzavírá a vyhodnocuje celkový výsledek, na schůzce nerozvedl.“'
+  poznamka: D-212 řeší uzavření jednotlivé nákladové položky a D-214 rozsah ekonomického přehledu.
+  navazne_tickety:
+  - label: V1 Výsledek akce
+    url: https://github.com/applifting-vsecourse/team-1/issues/827
 - id: Q-PLT-01
   otazka: Které části má mít každá akce vždy (přihláška, platby) a které si má organizátor zapínat podle
     potřeby?
