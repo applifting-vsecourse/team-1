@@ -165,6 +165,7 @@ describe("ApplicationForm", () => {
     expect(within(priceCard()).getByRole("listitem")).toHaveTextContent(
       /^No termParticipant 1CZK\s0$/,
     )
+    expect(within(priceCard()).getByRole("list")).toHaveClass("gap-4")
     // The form no longer repeats that only confirmed terms are paid.
     expect(screen.queryByText(/confirmed participation will be payable/)).not.toBeInTheDocument()
 
@@ -562,6 +563,9 @@ describe("ApplicationForm", () => {
     await userEvent.click(screen.getByRole("button", { name: "Continue to review" }))
 
     const heading = screen.getByRole("heading", { level: 1, name: "Review your application" })
+    // A denser column on review (Figma 18923:4544); the form step keeps gap-6.
+    expect(heading.parentElement).toHaveClass("gap-4")
+    expect(heading.parentElement).not.toHaveClass("gap-6")
     const back = screen.getByRole("button", { name: "Back to editing" })
     expect(back.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(screen.getByText("You agree to the processing of personal data.")).toBeVisible()
@@ -631,6 +635,8 @@ describe("ApplicationForm", () => {
       expect(toggle).toHaveAttribute("aria-controls", list.id)
       // Visually reversed: the rows sit above the total and scroll when they don't fit the screen.
       expect(bar).toHaveClass("flex-col-reverse")
+      // Closer rows in the bar (Figma 27443:16726); the desktop panel keeps gap-4.
+      expect(list).toHaveClass("gap-2")
       expect(list.parentElement).toHaveClass("overflow-y-auto", "min-h-0")
     })
 

@@ -76,7 +76,7 @@ const STATES = {
  * per participant with the term states and — for a confirmed term — what to pay and where, and how
  * the applicant gets back. A waitlisted term is never given a place in line (docs/PROJEKT.md, 2026-10-21).
  * Only a confirmed place is celebrated (Luma, Cal.com): the camp assembles (M31) and the sticker
- * sticks (M32); otherwise the waiting camp stays still and only the check by the heading draws (M04).
+ * sticks (M32); otherwise the waiting camp stays still (Figma hides the M04 check by the heading).
  */
 // Figma v2: K vyhodnocení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15751-1267 (360 px: 15751-1297)
 // Figma v2: Potvrzené termíny · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15314-2 (360 px: 15314-42)
@@ -100,19 +100,11 @@ export function SubmissionStatus({
   return (
     <div className="px-4 pt-6 pb-16 md:px-6 md:pt-12">
       <div className="mx-auto flex w-full max-w-200 flex-col gap-6">
-        <div className="flex flex-col-reverse gap-6 sm:flex-row sm:items-center">
+        <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:gap-6">
           <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight md:text-[32px]/10">
-                {t("confirmation.title")}
-              </h1>
-              {hasConfirmedTerm ? null : (
-                <Check
-                  aria-hidden
-                  className="saved-mark size-8 shrink-0 text-primary"
-                />
-              )}
-            </div>
+            <h1 className="text-2xl font-bold tracking-tight md:text-[32px]/10">
+              {t("confirmation.title")}
+            </h1>
             <p className="text-muted-foreground">
               {t("confirmation.subtitle", { event: data.eventName, email: data.email })}
             </p>

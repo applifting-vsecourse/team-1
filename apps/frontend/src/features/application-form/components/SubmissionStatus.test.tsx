@@ -293,34 +293,28 @@ describe("SubmissionStatus", () => {
       expect(sticker).toHaveAttribute("data-animated", "true")
       // Decoration only: the confirmed state is read from the heading and the badge.
       expect(sticker?.closest(".brand-assemble")).toHaveAttribute("aria-hidden", "true")
-      expect(document.querySelector(".saved-mark")).toBeNull()
     })
 
     it.each(["TO_EVALUATE", "WAITLISTED"] as const)(
-      "keeps the waiting camp still and draws only the check by the heading (%s)",
+      "keeps the waiting camp still, with no check by the heading (%s)",
       async (status) => {
         await renderStatus(data({ applications: [jana(status)] }))
 
         expect(document.querySelector(".sticker")).toBeNull()
         expect(document.querySelector(".brand-assemble")).toBeNull()
-        const mark = document.querySelector(".saved-mark")
-        expect(mark).toHaveAttribute("aria-hidden", "true")
-        expect(mark?.parentElement).toContainElement(
-          screen.getByRole("heading", { level: 1, name: "We've received your application" }),
-        )
+        // Figma hides the M04 layer by the heading („skryto · M04 · saved-mark“).
+        expect(document.querySelector(".saved-mark")).toBeNull()
       },
     )
 
-    it("plays M31, M32 and M04 only without the reduced-motion preference", () => {
+    it("plays M31 and M32 only without the reduced-motion preference", () => {
       const css = readFileSync(resolve(process.cwd(), "src/styles/global.css"), "utf8")
       const outsideMotion = withoutBlocks(css, "@media (prefers-reduced-motion: no-preference)")
 
       expect(css).toMatch(/\.brand-assemble \.arc-1 \{\s*animation/)
       expect(css).toMatch(/\.sticker\[data-animated\] \{\s*animation/)
-      expect(css).toMatch(/\.saved-mark path \{[^}]*animation/)
       expect(outsideMotion).not.toContain(".brand-assemble")
       expect(outsideMotion).not.toContain(".sticker[data-animated]")
-      expect(outsideMotion).not.toContain(".saved-mark")
     })
   })
 

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { focusFirstInvalidField } from "@/lib/focus-first-invalid"
+import { cn } from "@/lib/utils"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 import {
@@ -271,7 +272,8 @@ export function ApplicationForm({
         data-invalid-submit={invalidSubmitCount > 0 || undefined}
         data-restored={restoredDraft ? true : undefined}
       >
-        <div className="flex min-w-0 flex-col gap-6">
+        {/* The review step is denser (Figma 18923:4544 / 4624). */}
+        <div className={cn("flex min-w-0 flex-col", review ? "gap-4" : "gap-6")}>
           {review ? (
             <BackButton
               disabled={isSubmitting}

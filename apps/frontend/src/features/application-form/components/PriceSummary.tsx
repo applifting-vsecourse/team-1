@@ -6,6 +6,7 @@ import { MoneyAmount, TermPrice } from "@/components/atoms/MoneyAmount"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
+import { cn } from "@/lib/utils"
 
 import type { PriceRow } from "@/features/application-form/lib/selection-price"
 
@@ -21,12 +22,21 @@ type PriceSummaryProps = {
 }
 
 /** One ticked term of one participant (or the participant without a term) and its price. */
-function PriceRows({ rows, id }: { rows: PriceRow[]; id?: string }) {
+function PriceRows({
+  rows,
+  id,
+  isCompact = false,
+}: {
+  rows: PriceRow[]
+  id?: string
+  /** The rows inside the mobile bar sit closer (Figma 27443:16726). */
+  isCompact?: boolean
+}) {
   const { t } = useTranslation("applicationForm")
   return (
     <ul
       id={id}
-      className="flex flex-col gap-4"
+      className={cn("flex flex-col", isCompact ? "gap-2" : "gap-4")}
     >
       {rows.map((row) => (
         <li
@@ -169,6 +179,7 @@ export function PriceBar({ rows, totalCzk, alert, action }: Omit<PriceSummaryPro
           <PriceRows
             id={rowsId}
             rows={rows}
+            isCompact
           />
         </div>
       ) : null}

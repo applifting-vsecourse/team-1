@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button"
 import { usePaymentQr } from "@/hooks/usePaymentQr"
 
 // Figma: #259 · Chyba stažení QR · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=22515-10865
-// `inline` (a summary row after sending the application, 27439-16621): a small code next to the
-// button from `sm`, below it only the button.
+// `inline` (a summary row after sending the application, 27439-16621 / 16627): a small code next to
+// a text-only button from `sm`, below it only the button.
 export function PaymentQrDownload({
   spayd,
   variableSymbol,
@@ -43,7 +43,7 @@ export function PaymentQrDownload({
     <div
       className={
         isInline
-          ? "flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2"
+          ? "flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2"
           : "flex min-w-0 flex-col items-center gap-2"
       }
     >
@@ -59,10 +59,11 @@ export function PaymentQrDownload({
       <Button
         type="button"
         variant="outline"
+        className={isInline ? "min-w-55" : undefined}
         disabled={!spayd || isSaving}
         onClick={() => void save()}
       >
-        <Download aria-hidden />
+        {isInline ? null : <Download aria-hidden />}
         {t("termPayment.saveQr")}
       </Button>
       {hasFailed && (

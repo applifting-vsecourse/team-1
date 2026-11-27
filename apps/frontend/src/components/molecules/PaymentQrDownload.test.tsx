@@ -25,6 +25,9 @@ describe("PaymentQrDownload", () => {
     expect(image).toHaveClass("size-40")
     expect(image).not.toHaveClass("hidden")
     expect(image.parentElement).toHaveClass("flex-col")
+    expect(
+      screen.getByRole("button", { name: "Download QR code" }).querySelector("svg"),
+    ).not.toBeNull()
   })
 
   // The summary row after sending the application (Figma 27439-16621).
@@ -34,7 +37,11 @@ describe("PaymentQrDownload", () => {
     const image = await screen.findByRole("img", { name: "QR code for the combined payment" })
     expect(image).toHaveClass("hidden", "sm:block", "size-28")
     expect(image.parentElement).not.toHaveClass("flex-col")
-    expect(image.parentElement).toHaveClass("flex-wrap", "items-center")
-    expect(screen.getByRole("button", { name: "Download QR code" })).toBeEnabled()
+    expect(image.parentElement).toHaveClass("flex-wrap", "items-center", "gap-x-4")
+    // Text only, at the width of the other actions on the page (Figma 27439:16627).
+    const button = screen.getByRole("button", { name: "Download QR code" })
+    expect(button).toBeEnabled()
+    expect(button).toHaveClass("min-w-55")
+    expect(button.querySelector("svg")).toBeNull()
   })
 })
