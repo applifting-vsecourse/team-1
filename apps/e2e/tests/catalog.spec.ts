@@ -42,7 +42,7 @@ test.describe("Catalog of events", { tag: "@mobile" }, () => {
     await page.goto("/events/demo-zimni-vyjezd-2028")
 
     await expect(
-      page.getByRole("heading", { level: 1, name: "This link doesn't work" }),
+      page.getByRole("heading", { level: 1, name: "This event page is unavailable." }),
     ).toBeVisible()
     await expect(page.getByRole("heading", { name: "Zimní výjezd 2028" })).toHaveCount(0)
     await expect(page.getByRole("link", { name: "Submit application" })).toHaveCount(0)

@@ -2,11 +2,11 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, notFound } from "@tanstack/react-router"
 
 import { Seo } from "@/components/atoms/Seo"
-import { NotFoundPage } from "@/components/pages/NotFoundPage"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { HTTPError } from "@/lib/api-client"
 
 import { catalogEventQueryOptions } from "@/features/catalog/api/catalog"
+import { EventNotFound } from "@/features/catalog/components/EventNotFound"
 import { EventPage } from "@/features/catalog/components/EventPage"
 
 export const Route = createFileRoute("/events/$publicToken")({
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/events/$publicToken")({
       throw error
     }
   },
-  notFoundComponent: NotFoundPage,
+  notFoundComponent: EventNotFound,
   component: CatalogEventRoute,
 })
 

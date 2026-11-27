@@ -3,12 +3,12 @@ import { createFileRoute, notFound } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { Seo } from "@/components/atoms/Seo"
-import { NotFoundPage } from "@/components/pages/NotFoundPage"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { HTTPError } from "@/lib/api-client"
 
 import { publicEventQueryOptions } from "@/features/application-form/api/publicEvent"
 import { ApplicationFormContainer } from "@/features/application-form/components/ApplicationFormContainer"
+import { ApplicationLinkNotFound } from "@/features/application-form/components/ApplicationLinkNotFound"
 
 export const Route = createFileRoute("/apply/$token")({
   // An unknown link — or an event that has no term or room yet — is a 404.
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/apply/$token")({
       throw error
     }
   },
-  notFoundComponent: NotFoundPage,
+  notFoundComponent: ApplicationLinkNotFound,
   component: ApplicationFormPage,
 })
 

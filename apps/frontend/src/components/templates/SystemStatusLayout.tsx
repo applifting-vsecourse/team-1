@@ -22,10 +22,10 @@ type Props = {
 }
 
 /**
- * Legacy: the previous system-page design, kept only for `ApplicationLinkNotFound` and
- * `EventNotFound`, which the routes no longer use (they show `NotFoundPage`). Their features belong
- * to other design-pass branches (#795 deletes both); remove this file with them. New pages use
- * `SystemPageLayout`.
+ * The previous system-page design, still used by `ApplicationLinkNotFound` and `EventNotFound`,
+ * whose features belong to the catalog and application-form design passes (#795). They move to
+ * `NotFoundPage` / `SystemPageLayout` when main (with #795) is merged in; then this file and
+ * `assets/status` go. New system pages use `SystemPageLayout`.
  */
 // Figma: #126 system errors, desktop and mobile · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=20125-1810
 export function SystemStatusLayout({
