@@ -2,12 +2,14 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+// Brand look A (specimen, Karta · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27536-3708):
+// an ink edge and no shadow; only a clickable card lifts (CardLink).
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "flex flex-col gap-6 rounded-lg border bg-card py-6 text-card-foreground shadow-sm",
+        "flex flex-col gap-6 rounded-lg border border-border-strong bg-card py-6 text-card-foreground",
         className,
       )}
       {...props}

@@ -4,18 +4,18 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 // Figma (Design system v2): Togena / Feedback / Alert · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15219-4375
+// Brand look A (specimen, Hláška · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27536-3828):
+// an ink edge on the tone's surface, ink text, the icon in the tone's colour. No shadow, no motion.
 const alertVariants = cva(
-  "relative grid w-full grid-cols-[0_1fr] items-start gap-y-1 rounded-lg border p-4 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*5)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-5 [&>svg]:text-current",
+  "relative grid w-full grid-cols-[0_1fr] items-start gap-y-1 rounded-lg border border-border-strong p-4 text-sm text-foreground has-[>svg]:grid-cols-[calc(var(--spacing)*5)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-5 [&>svg]:text-current",
   {
     variants: {
       variant: {
         // Tone=Info
-        default: "border-border bg-wash text-foreground",
-        warning:
-          "border-status-warning/30 bg-status-warning-bg text-foreground [&>svg]:text-status-warning",
+        default: "bg-wash [&>svg]:text-status-info",
+        warning: "bg-status-warning-bg [&>svg]:text-status-warning",
         // Tone=Error
-        destructive:
-          "border-field-error bg-card text-foreground *:data-[slot=alert-title]:text-field-error [&>svg]:text-field-error",
+        destructive: "bg-status-error-bg [&>svg]:text-field-error",
       },
     },
     defaultVariants: {

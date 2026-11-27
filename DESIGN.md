@@ -14,7 +14,7 @@ This file says how to build; **Figma says what to build.** Every UI story links 
 
 When a frame contradicts a rule below, build the frame and report the conflict in the PR; the tech lead decides which one changes. Decided so far (US-23): public pages are 800 px wide, and type stays on the Tailwind scale even where a frame is a few px off it (the "404" is `text-6xl`, not 64 px).
 
-**Visual style: shadcn look on the original colours.** The current frames in [Design system v2](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15186-2) use the shadcn style ([`docs/FIGMA-REMAKE.md`](docs/FIGMA-REMAKE.md)): original DS colours, cards with a soft shadow, Inter for text and numbers. The two logo arcs (`ActiveCorners`) mark one active thing — the active sidebar item, the active tab, the current step, the current event card — and nothing else: never rows, controls, badges, buttons, hover or empty states. The same arcs inside a brand illustration are drawing, not a marker, and are allowed.
+**Visual style: the Togena brand, direction A „Ink and a hard shadow“** (approved 2026-11-27; [proposal](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27533-3722), [component specimen](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27535-3692)). Every control and card has a 1 px ink edge; what you can press lifts on hover onto a hard ink offset shadow and settles back when pressed — the same language as the „Potvrzeno“ sticker. References: [Gumroad](https://gumroad.com/login) (1 px black edge, hover lift with a hard shadow, press settles; [source](https://github.com/antiwork/gumroad)) and [Mailchimp](https://mailchimp.com/pricing/marketing) (ink outline, brand colour as a surface with dark text). Original DS colours, Inter for text and numbers. **One component style everywhere:** a button, field, card or badge looks the same on a public page and on an organizer work screen. The two layers ([Brand layer and motion](#brand-layer-and-motion)) differ only in illustrations, celebration and how much motion plays, never in how a component looks. The two logo arcs (`ActiveCorners`) mark one active thing — the active sidebar item, the active tab, the current step, the current event card — and nothing else: never rows, controls, badges, buttons, hover or empty states. The same arcs inside a brand illustration are drawing, not a marker, and are allowed.
 
 **Tokens live in `apps/frontend/src/styles/global.css`.** That file is the only source of truth for colour, radius and shadows. This file says how to _use_ them.
 
@@ -25,11 +25,12 @@ When a frame contradicts a rule below, build the frame and report the conflict i
 - **`destructive` only for destructive actions and errors.** Never for emphasis.
 - **`accent` is a quiet teal tint, not a brand colour.** It marks badges, icon tiles, the active tab and hover surfaces. The brand colour is `primary`; `link` is the teal for text links and accented words.
 - Body text is `foreground`; supporting text is `muted-foreground`. There is no third level.
-- **`brand-warm` (warm orange) is a fill, never text.** Illustrations, the highlighter stripe under the key words of a public heading (the heading keeps its own colour) and the sticker surface, whose content is always ink (`brand-warm-foreground`). It never carries a state on its own, never colours a button or a link, and never touches primary teal (a white gap or an ink line between them).
+- **`border-strong` (ink) is the edge** of every control, card, alert, badge, toast, menu and dialog. Dividers inside them stay hairlines (`border-border`).
+- **Orange (`brand-warm`, `brand-warm-subtle`) is a highlight surface, never anything else.** It appears only as a `brand-warm-subtle` panel that highlights a sum (the price / summary panel), the highlighter stripe under the key words of a public heading (the heading keeps its own colour), in illustrations and on the sticker surface; content on it is always ink (`brand-warm-foreground`). There is no orange button: every primary button is teal. Orange is never text, a link, focus, a hover or press surface, or a status colour, and never touches primary teal (a white gap or an ink line between them).
 
 ## Layout
 
-- **Cards group a section or an item of a list** — an event in a list, "Your account" on a settings page, the sign-in form, a feature on the landing. Card = `bg-card`, hairline border, `rounded-lg`, `shadow-sm`, padding 24 (list items 20 top and bottom); its heading is an `h2`. Cards are not a layout tool: no card for a whole page, no card just to add a box.
+- **Cards group a section or an item of a list** — an event in a list, "Your account" on a settings page, the sign-in form, a feature on the landing. Card = `bg-card`, ink edge (`border-border-strong`), `rounded-lg`, no shadow, padding 24 (list items 20 top and bottom); its heading is an `h2`. Cards are not a layout tool: no card for a whole page, no card just to add a box.
 - **Never nest a card inside a card.** If content needs grouping inside a card, use spacing and a hairline divider (a top border on the row).
 - **A page is not a card.** Page content sits on `background` in a column (`max-w-196` = 784 px for forms and settings, full width for overviews, `max-w-200` = 800 px for the application form in `PublicLayout`); the cards sit in that column.
 - **Every page keeps the app chrome.** The header is present on every route, including login and sign-up. Pages never render as standalone islands.
@@ -38,8 +39,10 @@ When a frame contradicts a rule below, build the frame and report the conflict i
 
 ## Brand layer and motion
 
-Two layers ([Figma Komponenty, brand](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27355-3504)). The **expressive** layer — brand illustrations, the warm accent, the `Sticker` — belongs only to public pages and milestones (a confirmed place, a payment). Organizer work screens stay **calm**: no illustrations, no sticker, motion only `--duration-fast` / `--duration-base` with `--ease-standard`.
+Two layers ([Figma Komponenty, brand](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27355-3504)), one component style. The **expressive** layer — brand illustrations, the warm highlight surfaces, the `Sticker`, celebration — belongs only to public pages and milestones (a confirmed place, a payment). Organizer work screens stay **calm**: no illustrations, no sticker, motion only `--duration-fast` / `--duration-base` with `--ease-standard`. Both layers use the same components with the same ink edge, lift and focus; a layer never restyles a component.
 
+- **Lift** (the `lift` utility in `global.css`, Figma specimen `27535:3692`): on hover the element moves `--offset-hard` (3 px) up and left onto `shadow-hard` (a 3 px ink offset shadow, no blur); pressed, it settles back without the shadow. Only `translate` and `box-shadow` move, `--duration-fast` with `--ease-standard`. With reduced motion there is no translate, the shadow still shows. It belongs to what you press and that has an ink edge: primary, outline, secondary, destructive and success buttons, clickable cards, the pagination arrows and the round back control. Ghost and link buttons, fields, badges, alerts, tabs and table rows never lift; rows of dense organizer tables stay flat (hover is the `muted` surface).
+- **Disabled** controls are flat: `disabled` surface, `disabled-foreground` text, the ink edge stays, no lift. A pending button (`aria-busy`) keeps its colours.
 - Motion uses the tokens in `global.css` (`--ease-standard`, `--ease-enter`, `--ease-overshoot`, `--ease-effect`, `--duration-fast` 120, `--duration-base` 180, `--duration-slow` 400, `--duration-mark` 650). Opacity and colour never overshoot; only scale, position and rotation may.
 - M31 (the logo arcs assemble the illustration) plays once per page load on the landing; M32 (the sticker sticks, then its check draws) once when the result is known. Neither loops.
 - Every animation is declared inside `@media (prefers-reduced-motion: no-preference)`; JavaScript that starts motion checks `matchMedia("(prefers-reduced-motion: reduce)")`. With reduced motion the end state shows at once, and text and controls never wait for motion.
@@ -58,9 +61,9 @@ Use the scale only: `1, 2, 3, 4, 5, 6, 8, 10, 12, 16` (Tailwind units — 4px…
 
 ## Surfaces
 
-- **Borders are hairlines**: `border border-border`. One border, not two adjacent ones.
-- **Shadows are for cards and things that float** — `shadow-sm` on cards, `shadow-md` on dropdowns, dialogs and toasts. Inputs, buttons, badges and nav items do not get shadows. The one exception is the brand `Sticker` with its hard offset shadow.
-- Radius comes from the token (DS scale 4 / 8 / 12 / 20): `rounded-lg` cards, alerts and floating menus, `rounded-md` buttons, inputs and nav items, `rounded-sm` menu items, `rounded-full` badges and avatars. Never mix radii in one component.
+- **Edges are ink, dividers are hairlines.** Controls, cards, alerts, badges, toasts, menus and dialogs: `border border-border-strong`, at least 3:1 against the canvas in both themes. Inside them — dividers, table rows: `border border-border`. One edge, not two adjacent ones: a table inside a card has no edge of its own.
+- **No soft shadows.** Depth is a hard ink offset shadow without blur: `shadow-hard` (3 px) on a lifted control or clickable card and on dropdowns and popovers, `shadow-sticker` (4 px) on toasts and the `Sticker`, 6 px on dialogs (set for every dialog in `global.css`). Static cards, fields, badges, alerts and table rows have none.
+- Radius comes from the token (DS scale 4 / 8 / 10 / 12 / 20): `rounded-lg` cards, alerts, toasts and floating menus, `rounded-xl` dialogs, `rounded-control` buttons and fields, `rounded-sm` menu items, `rounded-full` badges, tabs and avatars. Never mix radii in one component.
 
 ## Forms
 
@@ -103,7 +106,8 @@ Data refreshes itself: refetch when the tab regains focus, and invalidate the qu
 
 - Buttons are `<button>`, links are `<a>`/`<Link>`. Never a `div` with `onClick`.
 - Every icon-only control has an `aria-label`.
-- Focus rings are never removed. If you restyle focus, it must stay clearly visible.
+- Focus rings are never removed. Focus is a 2 px teal outline 2 px off the element (`outline-ring`), the same on every control in both layers; orange never marks focus. If you restyle focus, it must stay clearly visible.
+- Control boundaries (the ink edge) keep at least 3:1 against what is around them; selection and state are never carried by colour alone (a check, an edge or text goes with it).
 - Text contrast at least 4.5:1 — the tokens are chosen to satisfy this; hardcoded colours are how you break it.
 
 ## When you are unsure

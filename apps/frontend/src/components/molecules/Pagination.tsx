@@ -18,6 +18,9 @@ const VISIBLE_PAGES = 5
 const NARROW_VISIBLE_PAGES = 3
 
 const control = "h-11 shrink-0 hover:bg-transparent hover:text-primary"
+// Brand look A (specimen, Stránkování · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27538-3756):
+// the arrows are ink-edged secondary buttons that lift; the page numbers stay quiet.
+const arrow = "h-11 w-10 shrink-0 [&_svg]:size-6"
 
 // Figma (Design system v2): Togena / Navigation / Pagination · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15270-7342
 /** Range, arrows and page numbers; renders nothing when everything fits on one page. */
@@ -57,8 +60,8 @@ export function Pagination({
       <div className={cn("flex flex-wrap items-center gap-2", !isCompact && "md:justify-center")}>
         <Button
           type="button"
-          variant="ghost"
-          className={cn(control, "w-10 [&_svg]:size-6")}
+          variant="outline"
+          className={arrow}
           aria-label={t("pagination.previous")}
           disabled={page === 0}
           onClick={() => onPageChange(page - 1)}
@@ -98,8 +101,8 @@ export function Pagination({
         ))}
         <Button
           type="button"
-          variant="ghost"
-          className={cn(control, "w-10 [&_svg]:size-6")}
+          variant="outline"
+          className={arrow}
           aria-label={t("pagination.next")}
           disabled={page + 1 === pageCount}
           onClick={() => onPageChange(page + 1)}
