@@ -263,8 +263,8 @@ describe("ApplicationDetail", () => {
     expect(await screen.findByText("Archived")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Archived application" })).toBeInTheDocument()
     expect(
-      screen.getByText("The term has ended, there is nothing left to arrange."),
-    ).toBeInTheDocument()
+      screen.getAllByText("The term has ended, there is nothing left to arrange."),
+    ).toHaveLength(1)
     expect(screen.queryByRole("link", { name: "Edit application" })).not.toBeInTheDocument()
     expect(screen.queryByText("Steps before the event")).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: "Meals" })).not.toBeInTheDocument()
@@ -272,15 +272,38 @@ describe("ApplicationDetail", () => {
     expect(screen.queryByText(/CZK|Kč/)).not.toBeInTheDocument()
   })
 
-  it("keeps the steps of a confirmed term next to an archived one", async () => {
+  it("keeps the steps of a confirmed term next to an archived one, which says it is over (#700)", async () => {
     renderDetail(
       application({
         terms: [confirmed, { ...waitlisted, status: "ARCHIVED" }],
       }),
     )
-    expect(await screen.findByText("Archived")).toBeInTheDocument()
-    expect(screen.getByText("Steps before the event")).toBeInTheDocument()
+    expect(await screen.findByText("Steps before the event")).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Edit application" })).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: "Archived application" })).not.toBeInTheDocument()
+    const card = screen
+      .getByText("The term has ended, there is nothing left to arrange.")
+      .closest("li") as HTMLElement
+    expect(within(card).getByText("Archived")).toBeInTheDocument()
+    expect(within(card).queryByText("Steps before the event")).not.toBeInTheDocument()
+    expect(within(card).queryByRole("link")).not.toBeInTheDocument()
+  })
+
+  it("gives an archived and a cancelled term each their own line (#700)", async () => {
+    renderDetail(
+      application({
+        terms: [
+          { ...confirmed, status: "ARCHIVED" },
+          { ...waitlisted, status: "CANCELLED" },
+        ],
+      }),
+    )
+    const archived = await screen.findByText(
+      "The term has ended, there is nothing left to arrange.",
+    )
+    // The two cards of the steps, in the order of the terms.
+    const cards = archived.closest("ul") as HTMLElement
+    expect(within(cards).getByText("You are not attending this term.")).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Archived application" })).not.toBeInTheDocument()
   })
 
