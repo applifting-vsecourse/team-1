@@ -5,7 +5,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 
@@ -54,38 +54,40 @@ async function renderCard(event: CatalogEvent) {
   await screen.findByRole("heading", { name: "Summer camp" })
 }
 
-const listedTerms = () => within(screen.getByRole("list")).getAllByRole("listitem")
+// The card sums its terms up in one line (#795), so a long list can't grow it (#732).
+const datesLines = () => screen.getAllByText(/\d+ terms? · /)
 
 describe("EventCard terms (#732)", () => {
-  it("lists up to three terms one under another with their names, nothing folded", async () => {
+  it("sums up to three terms in one line, nothing folded", async () => {
     await renderCard(makeEvent(3))
 
-    expect(listedTerms()).toHaveLength(3)
-    expect(screen.getByText("Week 1")).toBeInTheDocument()
+    expect(datesLines()).toHaveLength(1)
+    expect(screen.getByText("3 terms · January 2027")).toBeInTheDocument()
+    expect(screen.queryByRole("list")).not.toBeInTheDocument()
     expect(screen.queryByText(/more terms?/)).not.toBeInTheDocument()
   })
 
-  it("shows four terms in two columns and counts the rest from two hidden on", async () => {
+  it("keeps twelve terms in that one line without listing their dates", async () => {
     await renderCard(makeEvent(12))
 
-    expect(listedTerms()).toHaveLength(4)
-    expect(screen.getByRole("list")).toHaveClass("grid-cols-2")
-    expect(screen.getByText("and 8 more terms")).toBeInTheDocument()
+    expect(datesLines()).toHaveLength(1)
+    expect(screen.getByText("12 terms · January–March 2027")).toBeInTheDocument()
+    expect(screen.queryByRole("listitem")).not.toBeInTheDocument()
     expect(screen.queryByText("Week 1")).not.toBeInTheDocument()
   })
 
-  it("counts 96 hidden terms of a hundred", async () => {
+  it("counts all hundred terms and shows the lowest price", async () => {
     await renderCard(makeEvent(100))
 
-    expect(listedTerms()).toHaveLength(4)
-    expect(screen.getByText("and 96 more terms")).toBeInTheDocument()
-    expect(screen.getByText(/100 terms · from/)).toBeInTheDocument()
+    expect(datesLines()).toHaveLength(1)
+    expect(screen.getByText("100 terms · January 2027–December 2028")).toBeInTheDocument()
+    expect(screen.getByRole("link")).toHaveTextContent("from CZK 4,900 / participant")
   })
 
-  it("shows all five terms rather than hiding a single one", async () => {
+  it("counts five terms rather than hiding a single one", async () => {
     await renderCard(makeEvent(5))
 
-    expect(listedTerms()).toHaveLength(5)
+    expect(screen.getByText("5 terms · January–February 2027")).toBeInTheDocument()
     expect(screen.queryByText(/more terms?/)).not.toBeInTheDocument()
   })
 

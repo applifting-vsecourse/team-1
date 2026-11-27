@@ -95,6 +95,10 @@
       "description": "This page belongs to another account or another organization.",
       "title": "You don’t have access to this content."
     },
+    "linkNotFound": {
+      "action": "Browse events",
+      "title": "This link doesn't work"
+    },
     "notFound": {
       "action": "Go to homepage",
       "description": "The link may be incorrect or no longer valid. You can continue from the homepage.",
@@ -117,6 +121,18 @@
   },
   "price": {
     "free": "Free"
+  },
+  "publicFooter": {
+    "catalog": "Event catalog",
+    "login": "Sign in",
+    "myApplications": "My applications",
+    "organizers": "For organizers",
+    "participants": "For participants",
+    "register": "Create an account",
+    "tagline": "Managing multi-term events"
+  },
+  "publicHeader": {
+    "signIn": "Sign in"
   },
   "state": {
     "connectionRestored": "Your device is back online.",

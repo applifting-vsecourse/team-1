@@ -116,11 +116,6 @@
     "terms": "Vyberte alespoň jeden termín *",
     "title": "Přihláška"
   },
-  "notFound": {
-    "action": "Na úvodní stránku",
-    "description": "Odkaz neexistuje, nebo akce nepřijímá přihlášky.",
-    "title": "Tato stránka není dostupná."
-  },
   "price": {
     "heading": "Cena vybraných termínů",
     "noTerms": "Bez termínu",
