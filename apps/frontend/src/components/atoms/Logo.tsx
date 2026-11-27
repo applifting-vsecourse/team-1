@@ -3,7 +3,13 @@ import { Link } from "@tanstack/react-router"
 import { ROUTES } from "@/app/routes"
 import { cn } from "@/lib/utils"
 
-/** Togena symbol (Figma DS / Brand / Togena symbol), drawn in the primary colour. */
+/**
+ * Togena symbol: the arcs in the current colour (the caller passes `text-primary`), the dot always
+ * orange (system B: the dot is „you are here“, the same mark as the active nav bar and the avatar).
+ * Weight „Výrazně tučné“ (approved 2026-11-27): Figma draws it in a 40-unit box with the arc 3.4
+ * and the dot r 3.84; here the same geometry is scaled to the 32-unit box (× 0.8).
+ */
+// Figma (Design system v2): Logo · tloušťka, Výrazně tučné · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27714-4261
 export function LogoSymbol({ className, fraction }: { className?: string; fraction?: number }) {
   return (
     <svg
@@ -13,19 +19,21 @@ export function LogoSymbol({ className, fraction }: { className?: string; fracti
       className={className}
     >
       <path
-        d="M6.667 18.667V10c0-2.222 1.111-3.333 3.333-3.333h6.667M25.333 13.333V22c0 2.222-1.111 3.333-3.333 3.333h-6.667"
+        d="M5.76 19.84V10.88A5.12 5.12 0 0 1 10.88 5.76H18.56M26.24 12.16V21.12A5.12 5.12 0 0 1 21.12 26.24H13.44"
         pathLength={fraction === undefined ? undefined : 1}
         strokeDasharray={fraction === undefined ? undefined : 1}
         strokeDashoffset={fraction === undefined ? undefined : 1 - fraction}
         stroke="currentColor"
-        strokeWidth="2.667"
+        strokeWidth="2.72"
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <circle
+        data-slot="logo-dot"
         cx="16"
         cy="16"
-        r="2"
-        fill="currentColor"
+        r="3.072"
+        className="fill-brand-warm"
       />
     </svg>
   )
