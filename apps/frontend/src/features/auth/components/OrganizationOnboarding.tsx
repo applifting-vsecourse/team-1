@@ -1,20 +1,18 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
-import { BrandDivider } from "@/components/atoms/BrandDivider"
+import Camp from "@/assets/illustrations/camp.svg?react"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { Seo } from "@/components/atoms/Seo"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 
-import { authSessionQueryOptions } from "@/features/auth/api/authSessionQueryOptions"
 import {
   createOrganization,
   myOnboardingOrganizationsQueryOptions,
@@ -26,9 +24,8 @@ import { RegistrationLayout } from "@/features/auth/components/RegistrationLayou
 
 const bankAccountPattern = /^(?:\d{1,6}-)?\d{1,10}\/\d{4}$/
 
-// Figma v2: Založit organizaci · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21238-10576
-// Figma v2: Doplnit profil organizace · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21238-10700
-// "Organizace je připravená" has no v2 frame; it keeps the US-69 layout.
+// Figma (Design system v2): Registrace organizátora / Organizace · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27462-8916 (mobile 27462-8985)
+// Figma (Design system v2): Registrace organizátora / Profil · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27462-9055 (mobile 27462-9133)
 export function OrganizationOnboarding() {
   const { t } = useTranslation("auth")
   const memberships = useQuery(myOnboardingOrganizationsQueryOptions())
@@ -75,7 +72,7 @@ export function OrganizationOnboarding() {
       />
     )
   }
-  return <OrganizationReady profile={profile} />
+  return <OrganizationReady />
 }
 
 function CreateOrganizationForm({
@@ -89,8 +86,6 @@ function CreateOrganizationForm({
   const [isPending, setPending] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   const queryClient = useQueryClient()
-  // The route guard has loaded the session; its e-mail is the one just verified.
-  const email = queryClient.getQueryData(authSessionQueryOptions().queryKey)?.user.email
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -117,17 +112,7 @@ function CreateOrganizationForm({
       step="organizationStep"
     >
       <Seo title={t("registration.createOrganizationTitle")} />
-      <h1 className="text-2xl font-bold tracking-tight">
-        {t("registration.createOrganizationTitle")}
-      </h1>
-      <BrandDivider />
-      <Badge
-        variant="success"
-        className="self-start"
-      >
-        {t("registration.emailVerified")}
-      </Badge>
-      {email ? <p>{t("registration.organizationIntro", { email })}</p> : null}
+      <h1 className="text-2xl font-bold">{t("registration.createOrganizationTitle")}</h1>
       <form
         noValidate
         onSubmit={(event) => void submit(event)}
@@ -142,7 +127,6 @@ function CreateOrganizationForm({
           </label>
           <Input
             id="organization-name"
-            className="h-12"
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="Lipno Events"
@@ -154,18 +138,18 @@ function CreateOrganizationForm({
         </div>
         {failure ? (
           <Alert variant="destructive">
-            <AlertDescription>{failure}</AlertDescription>
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{failure}</AlertTitle>
           </Alert>
         ) : null}
         <PendingButton
           isPending={isPending}
           type="submit"
           size="lg"
-          className="h-12 w-full"
+          className="w-full"
         >
           {t("registration.createOrganization")}
         </PendingButton>
-        <p className="text-muted-foreground">{t("registration.organizationNext")}</p>
       </form>
     </RegistrationLayout>
   )
@@ -216,19 +200,10 @@ function OrganizationProfileForm({
       step="profileStep"
     >
       <Seo title={t("registration.profileTitle")} />
-      <h1 className="text-2xl font-bold tracking-tight">{t("registration.profileTitle")}</h1>
-      <BrandDivider />
-      <Badge
-        variant="success"
-        className="self-start"
-      >
-        {t("registration.organizationCreated")}
-      </Badge>
-      <div className="flex flex-col gap-1">
-        <p className="text-sm text-muted-foreground">{t("registration.organization")}</p>
-        <p>{profile.name}</p>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-2xl font-bold">{t("registration.profileTitle")}</h1>
+        <p className="text-muted-foreground">{t("registration.profileIntro")}</p>
       </div>
-      <p>{t("registration.profileIntro")}</p>
       <form
         noValidate
         onSubmit={(event) => void submit(event)}
@@ -243,7 +218,6 @@ function OrganizationProfileForm({
           </label>
           <Input
             id="organization-contact"
-            className="h-12"
             type="email"
             value={contactEmail}
             onChange={(event) => setContactEmail(event.target.value)}
@@ -263,7 +237,6 @@ function OrganizationProfileForm({
           </label>
           <Input
             id="organization-phone"
-            className="h-12"
             type="tel"
             value={contactPhone}
             onChange={(event) => setContactPhone(event.target.value)}
@@ -279,7 +252,6 @@ function OrganizationProfileForm({
           </label>
           <Input
             id="organization-bank"
-            className="h-12"
             value={bankAccount}
             onChange={(event) => setBankAccount(event.target.value)}
             placeholder="2900123456/2010"
@@ -291,14 +263,15 @@ function OrganizationProfileForm({
         </div>
         {failure ? (
           <Alert variant="destructive">
-            <AlertDescription>{failure}</AlertDescription>
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{failure}</AlertTitle>
           </Alert>
         ) : null}
         <PendingButton
           isPending={isPending}
           type="submit"
           size="lg"
-          className="h-12 w-full"
+          className="w-full"
         >
           {t("registration.saveProfile")}
         </PendingButton>
@@ -307,24 +280,21 @@ function OrganizationProfileForm({
   )
 }
 
-function OrganizationReady({ profile }: { profile: OrganizationProfile }) {
+// Figma (Design system v2): Registrace organizátora / Hotovo · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27462-9214 (mobile 27462-9282)
+function OrganizationReady() {
   const { t } = useTranslation("auth")
   return (
     <RegistrationLayout
       isSignedIn
-      step="profileStep"
+      step={null}
     >
       <Seo title={t("registration.readyTitle")} />
-      <h1 className="text-2xl font-bold tracking-tight">{t("registration.readyTitle")}</h1>
-      <BrandDivider />
-      <Card className="gap-4 p-4 shadow-none">
-        <h2 className="text-2xl font-bold tracking-tight">{profile.name}</h2>
-        <p>{t("registration.readyDescription")}</p>
-      </Card>
+      <Camp className="h-24 w-32" />
+      <h1 className="text-2xl font-bold">{t("registration.readyTitle")}</h1>
       <Button
         asChild
         size="lg"
-        className="h-12 w-full"
+        className="w-full"
       >
         <Link to={ROUTES.organizer.newEvent}>{t("registration.createFirstEvent")}</Link>
       </Button>
