@@ -14,11 +14,6 @@ _Nic._
 | --- | --- | --- | --- |
 | [D-140](#d-140) | E-maily o přijetí a zamítnutí žádosti o změnu | `docs/emaily/TEXTY.md` | texty obou zpráv CS/EN |
 | [D-195](#d-195) | Štítek potvrzeného termínu v e-mailech je „Potvrzeno / Confirmed“ | `docs/emaily/TEXTY.md` |  |
-| [D-226](#d-226) | Organizátor zadá odhlášku i u náhradníka a u přihlášky K vyhodnocení | `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/` | odhláška ze stavu K vyhodnocení v procesu a životním cyklu |
-| [D-226](#d-226) | Organizátor zadá odhlášku i u náhradníka a u přihlášky K vyhodnocení | `docs/procesy/zpracovani-prihlasky/README.md` | pravidlo o odhlášce |
-| [D-226](#d-226) | Organizátor zadá odhlášku i u náhradníka a u přihlášky K vyhodnocení | `docs/emaily/KATALOG.md` | e-mail u odhlášky z K vyhodnocení |
-| [D-228](#d-228) | Organizátor přidá termín a obnoví zrušený v téže přihlášce | `docs/procesy/zpracovani-prihlasky/` | obnovení zrušeného termínu v procesech a životních cyklech obou režimů |
-| [D-228](#d-228) | Organizátor přidá termín a obnoví zrušený v téže přihlášce | `docs/SLOVNIK.md` | Zrušená není vždy koncová |
 
 ## Změny dřívějších rozhodnutí
 
@@ -2829,9 +2824,9 @@ _Nic._
 - **Text:** Organizátor má akci „Odhlásit“ i u přihlášky v termínu ve stavu Náhradník a K vyhodnocení, i když přihláška nemá žádný potvrzený termín. Přihláška v termínu přejde do Zrušené a přihlašovatel dostane souhrnný e-mail o změně přihlášky jako u D-127, ne e-mail o zrušení organizátorem ani o zamítnutí.
 - **Dotčené US:** [#867](https://github.com/applifting-vsecourse/team-1/issues/867)
 - **Zdroj:** [rozhodnutí PM 28. 11. 2026, audit #662 (PR #782)](https://github.com/applifting-vsecourse/team-1/pull/782#issuecomment-7242168026)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/`: ceka, odhláška ze stavu K vyhodnocení v procesu a životním cyklu
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/README.md`: ceka, pravidlo o odhlášce
-- **Dokumentace:** `docs/emaily/KATALOG.md`: ceka, e-mail u odhlášky z K vyhodnocení
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/`: hotovo (d320cdcd), odhláška ze stavu K vyhodnocení v procesu a životním cyklu
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/README.md`: hotovo (d320cdcd), pravidlo o odhlášce
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (d320cdcd), e-mail u odhlášky z K vyhodnocení
 - **Poznámka:** Doplňuje D-127.
 
 <a id="d-227"></a>
@@ -2854,5 +2849,5 @@ _Nic._
 - **Text:** Organizátor může v téže přihlášce samostatnou akcí přidat další termín a obnovit zrušený, bez odebrání jiného. Platí pro nezrušený termín akce do jeho posledního dne (D-137). Stav a kapacita se řídí D-134 (Potvrzená s dluhem, nad kapacitu jen vědomě); dřívější platby zrušeného termínu u něj zůstávají.
 - **Dotčené US:** [#869](https://github.com/applifting-vsecourse/team-1/issues/869)
 - **Zdroj:** [rozhodnutí PM 28. 11. 2026, audit #662 (PR #782)](https://github.com/applifting-vsecourse/team-1/pull/782#issuecomment-7242168026)
-- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: ceka, obnovení zrušeného termínu v procesech a životních cyklech obou režimů
-- **Dokumentace:** `docs/SLOVNIK.md`: ceka, Zrušená není vždy koncová
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: hotovo (d320cdcd), obnovení zrušeného termínu v procesech a životních cyklech obou režimů
+- **Dokumentace:** `docs/SLOVNIK.md`: hotovo (d320cdcd), Zrušená není vždy koncová

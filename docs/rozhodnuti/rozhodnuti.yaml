@@ -4603,13 +4603,16 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/
     popis: odhláška ze stavu K vyhodnocení v procesu a životním cyklu
-    stav: ceka
+    stav: hotovo
+    commit: d320cdcd
   - soubor: docs/procesy/zpracovani-prihlasky/README.md
     popis: pravidlo o odhlášce
-    stav: ceka
+    stav: hotovo
+    commit: d320cdcd
   - soubor: docs/emaily/KATALOG.md
     popis: e-mail u odhlášky z K vyhodnocení
-    stav: ceka
+    stav: hotovo
+    commit: d320cdcd
   poznamka: Doplňuje D-127.
 - id: D-227
   nazev: Organizátor vrátí „Nemám žádné zdravotní omezení“ na nevyplněný údaj
@@ -4648,7 +4651,9 @@ rozhodnuti:
   dokumentace:
   - soubor: docs/procesy/zpracovani-prihlasky/
     popis: obnovení zrušeného termínu v procesech a životních cyklech obou režimů
-    stav: ceka
+    stav: hotovo
+    commit: d320cdcd
   - soubor: docs/SLOVNIK.md
     popis: Zrušená není vždy koncová
-    stav: ceka
+    stav: hotovo
+    commit: d320cdcd
