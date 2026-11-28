@@ -8,7 +8,7 @@ states:
   - { id: nahradnik, label: Náhradník }
   - { id: potvrzena_dluh, label: Potvrzená s dluhem }
   - { id: potvrzena_zaplacena, label: Potvrzená a zaplacená }
-  - { id: zrusena, label: Zrušená, final: true }
+  - { id: zrusena, label: Zrušená }
   - { id: archivovana, label: Archivovaná, final: true }
 
 transitions:
@@ -138,6 +138,20 @@ transitions:
   - { from: nahradnik, to: zrusena, reason: Organizátor zruší termín akce, op: cancel() }
   - { from: potvrzena_dluh, to: zrusena, reason: Organizátor zruší termín akce, op: cancel() }
   - { from: potvrzena_zaplacena, to: zrusena, reason: Organizátor zruší termín akce, op: cancel() }
+
+  # obnovení zrušeného termínu organizátorem (D-228): jen nezrušený termín akce do jeho posledního dne
+  - {
+      from: zrusena,
+      to: potvrzena_dluh,
+      reason: Organizátor obnoví zrušený termín přihlášky a platby u něj nepokrývají částku k úhradě,
+      op: addTerm(),
+    }
+  - {
+      from: zrusena,
+      to: potvrzena_zaplacena,
+      reason: Organizátor obnoví zrušený termín přihlášky a platby u něj pokrývají částku k úhradě,
+      op: addTerm(),
+    }
 
   - { from: zrusena, to: end }
   - { from: archivovana, to: end }

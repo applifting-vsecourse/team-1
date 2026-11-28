@@ -4584,3 +4584,71 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace: []
+- id: D-226
+  nazev: Organizátor zadá odhlášku i u náhradníka a u přihlášky K vyhodnocení
+  text: Organizátor má akci „Odhlásit“ i u přihlášky v termínu ve stavu Náhradník a K vyhodnocení, i když přihláška nemá žádný potvrzený termín. Přihláška v termínu přejde do Zrušené a přihlašovatel dostane souhrnný e-mail o změně přihlášky jako u D-127, ne e-mail o zrušení organizátorem ani o zamítnutí.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026, audit #662 (PR #782)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/782#issuecomment-7242168026
+  us:
+  - label: '#867'
+    url: https://github.com/applifting-vsecourse/team-1/issues/867
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/
+    popis: odhláška ze stavu K vyhodnocení v procesu a životním cyklu
+    stav: ceka
+  - soubor: docs/procesy/zpracovani-prihlasky/README.md
+    popis: pravidlo o odhlášce
+    stav: ceka
+  - soubor: docs/emaily/KATALOG.md
+    popis: e-mail u odhlášky z K vyhodnocení
+    stav: ceka
+  poznamka: Doplňuje D-127.
+- id: D-227
+  nazev: Organizátor vrátí „Nemám žádné zdravotní omezení“ na nevyplněný údaj
+  text: Organizátor může potvrzení „Nemám žádné zdravotní omezení“ vzít zpět a vrátit údaj na nevyplněný, stejně jako přihlašovatel.
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026, audit #662 (PR #782)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/782#issuecomment-7242168026
+  us:
+  - label: '#868'
+    url: https://github.com/applifting-vsecourse/team-1/issues/868
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: Uložené zdravotní poznámky se netýká (D-122).
+- id: D-228
+  nazev: Organizátor přidá termín a obnoví zrušený v téže přihlášce
+  text: Organizátor může v téže přihlášce samostatnou akcí přidat další termín a obnovit zrušený, bez odebrání jiného. Platí pro nezrušený termín akce do jeho posledního dne (D-137). Stav a kapacita se řídí D-134 (Potvrzená s dluhem, nad kapacitu jen vědomě); dřívější platby zrušeného termínu u něj zůstávají.
+  typ: produkt
+  oblast: přihlašování na akce
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026, audit #662 (PR #782)'
+    url: https://github.com/applifting-vsecourse/team-1/pull/782#issuecomment-7242168026
+  us:
+  - label: '#869'
+    url: https://github.com/applifting-vsecourse/team-1/issues/869
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/procesy/zpracovani-prihlasky/
+    popis: obnovení zrušeného termínu v procesech a životních cyklech obou režimů
+    stav: ceka
+  - soubor: docs/SLOVNIK.md
+    popis: Zrušená není vždy koncová
+    stav: ceka

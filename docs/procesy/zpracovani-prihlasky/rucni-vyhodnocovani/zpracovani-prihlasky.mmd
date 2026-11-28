@@ -23,6 +23,9 @@ flowchart TD
   n_e_pridani_terminu(("Přidá se termín k<br/>existující přihlášce"))
   n_g_pridani{"XOR"}
   n_n_pridani["Od data schvalování<br/>požadavků účastníků<br/>přidá termín<br/>přihlašovatel žádostí<br/>(zadost-o-zmenu).<br/>Platby se při změně<br/>termínu nepřevádějí<br/>(D-051, D-088), vratka<br/>se nevytváří (D-134)."]
+  n_e_obnoveni(("Organizátor obnoví<br/>zrušený termín<br/>přihlášky"))
+  n_g_obnoveni{"XOR"}
+  n_n_obnoveni["Jen nezrušený termín<br/>akce do jeho<br/>posledního dne (D-137,<br/>D-228), nad kapacitu<br/>jen vědomě (D-134).<br/>Dřívější platby u<br/>termínu zůstávají."]
   n_s_zrusena(["Přihláška v termínu:<br/>zrušená"])
   n_s_nahradnik(["Přihláška v termínu:<br/>náhradník"])
   n_s_potvrzena_dluh(["Přihláška v termínu:<br/>potvrzená s dluhem"])
@@ -33,6 +36,7 @@ flowchart TD
   n_e_zruseni_terminu_po_vyzve(("Organizátor zruší<br/>termín akce"))
   n_e_zruseni_terminu_zaplacena(("Organizátor zruší<br/>termín akce"))
   n_e_zruseni_terminu_kv(("Organizátor zruší<br/>termín akce"))
+  n_e_odhlaska_kv(("Účastník se odhlásí<br/>(nebo odhlášku zadá<br/>organizátor)"))
   n_e_zruseni_nahradnika(("Organizátor zruší<br/>náhradníka"))
   n_e_presun(("Organizátor přesune<br/>přihlášku mezi<br/>náhradníky"))
   n_rucne_potvrdit("Ručně potvrdit<br/>přihlášku v termínu<br/>role: organizátor")
@@ -76,6 +80,7 @@ flowchart TD
   n_prihlaska_zaregistrovana --> n_s_k_vyhodnoceni
   n_s_k_vyhodnoceni --> n_do_poradniku
   n_split_do_poradniku -->|"Organizátor zruší termín<br/>akce"| n_s_zrusena
+  n_split_do_poradniku -->|"Účastník se odhlásí<br/>(nebo odhlášku zadá<br/>organizátor)"| n_s_zrusena
   n_split_do_poradniku -->|"Organizátor chce<br/>vyhodnotit přihlášky v<br/>termínu"| n_vyhodnotit
   n_vyhodnotit --> n_g_vysledek
   n_g_vysledek -->|"zamítne"| n_s_zrusena
@@ -89,6 +94,10 @@ flowchart TD
   n_g_pridani -->|"organizátor přidá termín<br/>(nad kapacitou jen po<br/>vědomém potvrzení)"| n_s_potvrzena_dluh
   n_g_pridani -->|"přihlašovatel přidá<br/>termín před datem<br/>schvalování"| n_s_k_vyhodnoceni
   n_n_pridani -.-> n_e_pridani_terminu
+  n_e_obnoveni --> n_g_obnoveni
+  n_g_obnoveni -->|"platby nepokrývají<br/>částku k úhradě"| n_s_potvrzena_dluh
+  n_g_obnoveni -->|"platby pokrývají částku<br/>k úhradě"| n_s_potvrzena_zaplacena
+  n_n_obnoveni -.-> n_e_obnoveni
   n_split_s_nahradnik -->|"Účastník se odhlásí<br/>(nebo odhlášku zadá<br/>organizátor)"| n_s_zrusena
   n_split_s_nahradnik -->|"Organizátor zruší termín<br/>akce"| n_s_zrusena
   n_split_s_nahradnik -->|"Uvolní se místo"| n_rucne_potvrdit
@@ -122,6 +131,7 @@ flowchart TD
   n_alt_do_poradniku --> n_sync_do_poradniku
   n_chce_vyhodnotit --> n_alt_do_poradniku
   n_e_zruseni_terminu_kv --> n_alt_do_poradniku
+  n_e_odhlaska_kv --> n_alt_do_poradniku
   n_sync_do_poradniku --> n_split_do_poradniku
   n_s_nahradnik --> n_sync_s_nahradnik
   n_alt_s_nahradnik --> n_sync_s_nahradnik
@@ -155,11 +165,11 @@ flowchart TD
   n_e_oprava_platby --> n_alt_s_potvrzena_zaplacena
   n_sync_s_potvrzena_zaplacena --> n_split_s_potvrzena_zaplacena
 
-  class n_prihlaska_zaregistrovana,n_chce_vyhodnotit,n_e_rucni_pridani,n_e_pridani_terminu,n_uvolni_se_misto,n_e_zruseni_terminu_nahradnik,n_e_zruseni_terminu_dluh,n_e_zruseni_terminu_po_vyzve,n_e_zruseni_terminu_zaplacena,n_e_zruseni_terminu_kv,n_e_zruseni_nahradnika,n_e_presun,n_e_platby,n_e_zamitnuti,n_e_platby_po_vyzve,n_e_zamitnuti_po_vyzve,n_e_zamitnuti_zaplacena,n_e_odhlaska,n_e_odhlaska_dluh,n_e_odhlaska_nahradnik,n_e_oprava_platby ev
+  class n_prihlaska_zaregistrovana,n_chce_vyhodnotit,n_e_rucni_pridani,n_e_pridani_terminu,n_e_obnoveni,n_uvolni_se_misto,n_e_zruseni_terminu_nahradnik,n_e_zruseni_terminu_dluh,n_e_zruseni_terminu_po_vyzve,n_e_zruseni_terminu_zaplacena,n_e_zruseni_terminu_kv,n_e_odhlaska_kv,n_e_zruseni_nahradnika,n_e_presun,n_e_platby,n_e_zamitnuti,n_e_platby_po_vyzve,n_e_zamitnuti_po_vyzve,n_e_zamitnuti_zaplacena,n_e_odhlaska,n_e_odhlaska_dluh,n_e_odhlaska_nahradnik,n_e_oprava_platby ev
   class n_do_poradniku,n_vyhodnotit,n_rucne_potvrdit,n_zaucotovat,n_vyzva task
   class n_s_k_vyhodnoceni,n_s_nahradnik,n_s_potvrzena_dluh,n_s_potvrzena_zaplacena st
-  class n_g_vysledek,n_g_rucni,n_g_pridani,n_alt_do_poradniku,n_split_do_poradniku,n_alt_s_nahradnik,n_split_s_nahradnik,n_alt_s_potvrzena_dluh,n_split_s_potvrzena_dluh,n_alt_vyzva,n_split_vyzva,n_alt_s_potvrzena_zaplacena,n_split_s_potvrzena_zaplacena gw_xor
-  class n_n_rucni,n_n_pridani,n_n_kapacita,n_n_zrusena,n_n_zadost,n_n_lhuta,n_n_oprava,n_n_archivovana note
+  class n_g_vysledek,n_g_rucni,n_g_pridani,n_g_obnoveni,n_alt_do_poradniku,n_split_do_poradniku,n_alt_s_nahradnik,n_split_s_nahradnik,n_alt_s_potvrzena_dluh,n_split_s_potvrzena_dluh,n_alt_vyzva,n_split_vyzva,n_alt_s_potvrzena_zaplacena,n_split_s_potvrzena_zaplacena gw_xor
+  class n_n_rucni,n_n_pridani,n_n_obnoveni,n_n_kapacita,n_n_zrusena,n_n_zadost,n_n_lhuta,n_n_oprava,n_n_archivovana note
   class n_s_zrusena,n_s_archivovana endst
   class n_e_zacatek,n_e_lhuta,n_e_termin timed
   class n_sync_do_poradniku,n_sync_s_nahradnik,n_sync_s_potvrzena_dluh,n_sync_vyzva,n_sync_s_potvrzena_zaplacena gw_and
