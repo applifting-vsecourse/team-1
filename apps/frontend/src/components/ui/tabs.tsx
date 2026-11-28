@@ -2,6 +2,7 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Tabs as TabsPrimitive } from "radix-ui"
 
+import { SelectedLabel } from "@/components/atoms/SelectedLabel"
 import { cn } from "@/lib/utils"
 
 function Tabs({
@@ -21,7 +22,7 @@ function Tabs({
 }
 
 const tabsListVariants = cva(
-  "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-[orientation=horizontal]/tabs:h-9 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col data-[variant=line]:rounded-none",
+  "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-[orientation=horizontal]/tabs:h-9 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col group-data-[orientation=horizontal]/tabs:data-[variant=default]:h-auto data-[variant=line]:rounded-none",
   {
     variants: {
       variant: {
@@ -50,22 +51,28 @@ function TabsList({
   )
 }
 
-function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+function TabsTrigger({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
   return (
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
         "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors duration-(--duration-fast) ease-(--ease-standard) outline-none group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid disabled:pointer-events-none disabled:text-disabled-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         // Default = the View tab segment (Figma 26812:3561), like ViewToggleGroup: pills without a track. The
-        // selected one is system B „you are here“: orange, ink text, ink edge; a hairline on hover. No lift, no shadow.
-        "group-data-[variant=default]/tabs-list:rounded-full group-data-[variant=default]/tabs-list:px-3 group-data-[variant=default]/tabs-list:data-[state=active]:border-border-strong group-data-[variant=default]/tabs-list:data-[state=active]:bg-brand-warm group-data-[variant=default]/tabs-list:data-[state=active]:text-brand-warm-foreground group-data-[variant=default]/tabs-list:data-[state=inactive]:hover:border-border group-data-[variant=default]/tabs-list:data-[state=inactive]:hover:bg-muted",
+        // selected one is the nav A marker: nav-active surface, Semi Bold ink, orange underline; a hairline on hover. No lift, no shadow.
+        "group-data-[variant=default]/tabs-list:h-auto group-data-[variant=default]/tabs-list:rounded-full group-data-[variant=default]/tabs-list:px-4 group-data-[variant=default]/tabs-list:py-3 group-data-[variant=default]/tabs-list:data-[state=active]:bg-nav-active group-data-[variant=default]/tabs-list:data-[state=active]:font-semibold group-data-[variant=default]/tabs-list:data-[state=active]:after:inset-x-auto group-data-[variant=default]/tabs-list:data-[state=active]:after:bottom-0.5 group-data-[variant=default]/tabs-list:data-[state=active]:after:left-1/2 group-data-[variant=default]/tabs-list:data-[state=active]:after:h-0.75 group-data-[variant=default]/tabs-list:data-[state=active]:after:w-5 group-data-[variant=default]/tabs-list:data-[state=active]:after:-translate-x-1/2 group-data-[variant=default]/tabs-list:data-[state=active]:after:rounded-full group-data-[variant=default]/tabs-list:data-[state=active]:after:bg-nav-indicator group-data-[variant=default]/tabs-list:data-[state=active]:after:opacity-100 group-data-[variant=default]/tabs-list:data-[state=inactive]:hover:border-border group-data-[variant=default]/tabs-list:data-[state=inactive]:hover:bg-muted",
         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:border-transparent dark:group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent",
         "data-[state=active]:text-foreground",
         "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100",
         className,
       )}
       {...props}
-    />
+    >
+      <SelectedLabel>{children}</SelectedLabel>
+    </TabsPrimitive.Trigger>
   )
 }
 
