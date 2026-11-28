@@ -239,7 +239,7 @@
     "pendingAttendance": "Your original participation remains valid for now.",
     "pendingCancelTitle": "Term cancellation",
     "pendingChangeTitle": "Term change",
-    "reason": "Reason: {{reason}}",
+    "reason": "Reason",
     "request": "Request",
     "requested": "New term",
     "requestedTerm": "Requested term",

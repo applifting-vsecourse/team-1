@@ -64,7 +64,7 @@ export function ParticipantTermActions({
   }
   const isPendingRequest = requests.data?.some((request) => request.status === "PENDING") ?? false
   return (
-    // Quiet buttons in the head of the terms section (Figma 27649:35098).
+    // Actions in the head of the terms section (Figma 27649:35098).
     <div className={cn("flex flex-wrap gap-1", className)}>
       <Button
         variant="ghost"
@@ -74,8 +74,8 @@ export function ParticipantTermActions({
         {t("change.open")}
       </Button>
       <Button
-        variant="ghost"
-        className="text-destructive hover:text-destructive"
+        variant="destructive"
+        size="lg"
         disabled={requests.isPending || requests.isError || isPendingRequest}
         onClick={() => onStart("cancel")}
       >

@@ -96,6 +96,14 @@ export function ChangeRequestNotice({
       </Card>
     )
   }
+  const outcome = (
+    <>
+      <p>{t(`request.message.${request.status}.${isCancel ? "cancel" : "change"}`)}</p>
+      {request.status === "REJECTED" && request.rejectionReason ? (
+        <DetailItem label={t("request.reason")}>{request.rejectionReason}</DetailItem>
+      ) : null}
+    </>
+  )
   return (
     <Card
       className="gap-4 p-4 sm:p-6"
@@ -117,11 +125,14 @@ export function ChangeRequestNotice({
         )}
       </div>
       {isCancel ? (
-        <DetailItem label={t("request.request")}>
-          {isWholeApplication
-            ? t("request.wholeApplication", { count: request.currentTermIds.length })
-            : t("request.onlyTerms", { terms: labels(removedIds) })}
-        </DetailItem>
+        <div className="flex flex-col gap-3 border-t pt-4">
+          <DetailItem label={t("request.request")}>
+            {isWholeApplication
+              ? t("request.wholeApplication", { count: request.currentTermIds.length })
+              : t("request.onlyTerms", { terms: labels(removedIds) })}
+          </DetailItem>
+          {outcome}
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {removedIds.length > 0 ? (
@@ -130,10 +141,7 @@ export function ChangeRequestNotice({
           <DetailItem label={t("request.requested")}>{labels(addedIds)}</DetailItem>
         </div>
       )}
-      <p>{t(`request.message.${request.status}.${isCancel ? "cancel" : "change"}`)}</p>
-      {request.rejectionReason ? (
-        <p>{t("request.reason", { reason: request.rejectionReason })}</p>
-      ) : null}
+      {isCancel ? null : outcome}
     </Card>
   )
 }

@@ -6,9 +6,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { OwnMeals } from "@/features/meals/api/meals"
 import { ParticipantMeals } from "@/features/meals/components/ParticipantMeals"
 
-const { navigate, success } = vi.hoisted(() => ({ navigate: vi.fn(), success: vi.fn() }))
+const { close, success } = vi.hoisted(() => ({ close: vi.fn(), success: vi.fn() }))
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => navigate,
   Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
     <a href={to}>{children}</a>
   ),
@@ -52,7 +51,10 @@ function setup(
   saveOwnMeals.mockResolvedValue(value)
   render(
     <QueryClientProvider client={client}>
-      <ParticipantMeals applicationId="a1" />
+      <ParticipantMeals
+        applicationId="a1"
+        onClose={close}
+      />
     </QueryClientProvider>,
   )
 }
@@ -62,8 +64,7 @@ describe("ParticipantMeals", () => {
 
   it("shows the participant, the event, the offered options and the saved values", async () => {
     setup()
-    expect(await screen.findByRole("heading", { name: "Meals · Adam Dvořák" })).toBeVisible()
-    expect(screen.getByText("Letní kemp Lipno 2027")).toBeVisible()
+    expect(await screen.findByText("Adam Dvořák · Letní kemp Lipno 2027")).toBeVisible()
     expect(screen.getByRole("checkbox", { name: "Vegetarian" })).not.toBeChecked()
     expect(screen.getByRole("checkbox", { name: "Gluten-free" })).toBeChecked()
     expect(screen.getByLabelText("Allergies and other dietary requirements")).toHaveValue("Peanuts")
@@ -104,12 +105,7 @@ describe("ParticipantMeals", () => {
     const user = userEvent.setup()
     setup()
     await user.click(await screen.findByRole("button", { name: "Save meals" }))
-    await waitFor(() =>
-      expect(navigate).toHaveBeenCalledWith({
-        to: "/participant/applications/$applicationId",
-        params: { applicationId: "a1" },
-      }),
-    )
+    await waitFor(() => expect(close).toHaveBeenCalledOnce())
     expect(success).toHaveBeenCalledWith("Meals saved")
   })
 
@@ -130,7 +126,7 @@ describe("ParticipantMeals", () => {
     saveOwnMeals.mockRejectedValue(new Error("Server said no"))
     await user.click(await screen.findByRole("button", { name: "Save meals" }))
     expect(await screen.findByText("Server said no")).toBeVisible()
-    expect(navigate).not.toHaveBeenCalled()
+    expect(close).not.toHaveBeenCalled()
     expect(success).not.toHaveBeenCalled()
   })
 

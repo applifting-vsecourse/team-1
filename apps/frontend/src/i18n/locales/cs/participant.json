@@ -239,7 +239,7 @@
     "pendingAttendance": "Vaše původní účast zatím zůstává platná.",
     "pendingCancelTitle": "Odhlášení z termínu",
     "pendingChangeTitle": "Změna termínu",
-    "reason": "Důvod: {{reason}}",
+    "reason": "Důvod",
     "request": "Žádost",
     "requested": "Nový termín",
     "requestedTerm": "Požadovaný termín",

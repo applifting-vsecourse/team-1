@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link, useNavigate } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -8,10 +8,8 @@ import { PendingButton } from "@/components/atoms/PendingButton"
 import { CheckboxRow } from "@/components/molecules/CheckboxRow"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
-import { PageHeader } from "@/components/molecules/PageHeader"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { notify } from "@/lib/notify"
@@ -32,7 +30,13 @@ const NOTE_MAX_LENGTH = 2000
  */
 // Figma (Design system v2): US-68 / Před udělením souhlasu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21218-17181 (360 px: node-id=21218-17327)
 // Figma (Design system v2): US-68 / Souhlas udělen · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21218-17423 (360 px: node-id=21218-17559)
-export function ParticipantHealthForm({ applicationId }: { applicationId: string }) {
+export function ParticipantHealthForm({
+  applicationId,
+  onClose,
+}: {
+  applicationId: string
+  onClose: () => Promise<void>
+}) {
   const { t } = useTranslation("health")
   const { data, isPending, error, refetch } = useQuery(ownHealthQueryOptions(applicationId))
 
@@ -50,14 +54,22 @@ export function ParticipantHealthForm({ applicationId }: { applicationId: string
     <HealthFields
       applicationId={applicationId}
       health={data}
+      onClose={onClose}
     />
   )
 }
 
-function HealthFields({ applicationId, health }: { applicationId: string; health: Health }) {
+function HealthFields({
+  applicationId,
+  health,
+  onClose,
+}: {
+  applicationId: string
+  health: Health
+  onClose: () => Promise<void>
+}) {
   const { t } = useTranslation("health")
   const client = useQueryClient()
-  const navigate = useNavigate()
   // Filled-in data is read-only; changing it goes through a request to the organizer.
   const isStored = health.note !== null
   const [isEditing, setIsEditing] = useState(false)
@@ -66,6 +78,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
   const [hasNone, setHasNone] = useState(health.noRestriction && !isStored)
 
   const mutation = useMutation({
+    mutationKey: ownHealthQueryOptions(applicationId).queryKey,
     mutationFn: async () => {
       if (isStored) {
         await requestHealthChange(applicationId, { note, consent: hasConsent })
@@ -90,7 +103,7 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
         queryKey: ["organizer", "applications", applicationId, "health"],
       })
       notify.success(t(isStored ? "requestSent" : "saved"))
-      await navigate({ to: ROUTES.participant.application, params: { applicationId } })
+      await onClose()
     },
   })
 
@@ -113,119 +126,120 @@ function HealthFields({ applicationId, health }: { applicationId: string; health
 
   return (
     <form
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault()
-        mutation.mutate()
+        if (canSave && !mutation.isPending) mutation.mutate()
       }}
     >
-      <PageHeader
-        hasBand
-        motif="forms"
-        title={t("title")}
-        description={`${health.firstName} ${health.lastName} · ${health.eventName}`}
-      />
-      <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
-        <Alert>
-          <AlertTitle>{t("audienceTitle")}</AlertTitle>
-          <AlertDescription>{t("audienceText")}</AlertDescription>
-        </Alert>
-        <Button
-          asChild
-          variant="ghost"
-          className="self-start"
-        >
+      <p className="text-sm text-muted-foreground">
+        {health.firstName} {health.lastName} · {health.eventName}
+      </p>
+      <Alert>
+        <AlertTitle>{t("audienceTitle")}</AlertTitle>
+        <AlertDescription>{t("audienceText")}</AlertDescription>
+      </Alert>
+      <Button
+        asChild={!mutation.isPending}
+        variant="outline"
+        size="lg"
+        className="w-full sm:w-auto sm:self-start"
+        type="button"
+        disabled={mutation.isPending}
+      >
+        {mutation.isPending ? (
+          t("goMeals")
+        ) : (
           <Link
             to={ROUTES.participant.applicationMeals}
             params={{ applicationId }}
+            replace
           >
             {t("goMeals")}
           </Link>
-        </Button>
-        {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
-        {isStored ? null : (
-          <CheckboxRow
-            id="health-none"
-            label={t("noRestriction")}
-            checked={hasNone}
-            disabled={isClosed}
-            onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
-          />
         )}
-        <div className="flex flex-col gap-2">
-          {isClosed ? <p className="text-sm text-muted-foreground">{t("closed")}</p> : null}
-          <Label htmlFor={noteId}>{t("noteLabel")}</Label>
-          <Textarea
-            id={noteId}
-            className="min-h-32"
-            maxLength={NOTE_MAX_LENGTH}
-            readOnly={isLocked}
-            disabled={hasNone}
-            value={isLocked ? (health.note ?? "") : note}
-            onChange={(event) => setNote(event.target.value)}
-          />
-        </div>
+      </Button>
+      {/* US-150: confirms the step without any restriction; not drawn in Figma. */}
+      {isStored ? null : (
         <CheckboxRow
-          id="health-consent"
-          label={t("consent")}
-          checked={hasConsent}
-          disabled={isLocked || hasNone}
-          onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
+          id="health-none"
+          label={t("noRestriction")}
+          checked={hasNone}
+          disabled={isClosed}
+          onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
         />
-        {isStored && pending ? (
-          <Alert>
-            <AlertTitle>{t("pendingTitle")}</AlertTitle>
-            <AlertDescription>{t("pendingText")}</AlertDescription>
-          </Alert>
-        ) : null}
-        {mutation.error ? (
-          <Alert variant="destructive">
-            <AlertDescription>{mutation.error.message}</AlertDescription>
-          </Alert>
-        ) : null}
-        {!hasConsent && !isLocked && !hasNone && (
-          <p className="text-sm text-muted-foreground">{t("consentHint")}</p>
-        )}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          {isLocked ? (
-            <Button
-              type="button"
-              size="lg"
-              variant="outline"
-              className="w-full sm:w-auto"
-              disabled={pending !== null}
-              onClick={() => {
-                setIsEditing(true)
-                setNote(health.note ?? "")
-                setHasConsent(false)
-              }}
-            >
-              {t("requestChange")}
-            </Button>
-          ) : (
-            <PendingButton
-              isPending={mutation.isPending}
-              type="submit"
-              size="lg"
-              className="w-full sm:w-auto"
-              disabled={!canSave || mutation.isPending}
-            >
-              {t(isStored ? "requestSubmit" : "save")}
-            </PendingButton>
-          )}
+      )}
+      <div className="flex flex-col gap-2">
+        {isClosed ? <p className="text-sm text-muted-foreground">{t("closed")}</p> : null}
+        <Label htmlFor={noteId}>{t("noteLabel")}</Label>
+        <Textarea
+          id={noteId}
+          className="min-h-32"
+          maxLength={NOTE_MAX_LENGTH}
+          readOnly={isLocked}
+          disabled={hasNone}
+          value={isLocked ? (health.note ?? "") : note}
+          onChange={(event) => setNote(event.target.value)}
+        />
+      </div>
+      <CheckboxRow
+        id="health-consent"
+        label={t("consent")}
+        checked={hasConsent}
+        disabled={isLocked || hasNone}
+        onCheckedChange={(isChecked) => setHasConsent(isChecked === true)}
+      />
+      {isStored && pending ? (
+        <Alert>
+          <AlertTitle>{t("pendingTitle")}</AlertTitle>
+          <AlertDescription>{t("pendingText")}</AlertDescription>
+        </Alert>
+      ) : null}
+      {mutation.error ? (
+        <Alert variant="destructive">
+          <AlertDescription>{mutation.error.message}</AlertDescription>
+        </Alert>
+      ) : null}
+      {!hasConsent && !isLocked && !hasNone && (
+        <p className="text-sm text-muted-foreground">{t("consentHint")}</p>
+      )}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        {isClosed ? null : isLocked ? (
           <Button
-            asChild
-            variant="ghost"
+            type="button"
+            size="lg"
+            variant="outline"
+            className="w-full sm:w-auto"
+            disabled={pending !== null}
+            onClick={() => {
+              setIsEditing(true)
+              setNote(health.note ?? "")
+              setHasConsent(false)
+            }}
           >
-            <Link
-              to={ROUTES.participant.application}
-              params={{ applicationId }}
-            >
-              {t("cancelChanges")}
-            </Link>
+            {t("requestChange")}
           </Button>
-        </div>
-      </Card>
+        ) : (
+          <PendingButton
+            isPending={mutation.isPending}
+            type="submit"
+            size="lg"
+            className="w-full sm:w-auto"
+            disabled={!canSave || mutation.isPending}
+          >
+            {t(isStored ? "requestSubmit" : "save")}
+          </PendingButton>
+        )}
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          disabled={mutation.isPending}
+          onClick={() => void onClose()}
+        >
+          {t("cancelChanges")}
+        </Button>
+      </div>
     </form>
   )
 }
