@@ -200,7 +200,7 @@
       "modeNow": "Choose how new applications are processed in every term.",
       "modeStep": "Evaluation mode",
       "progress": "{{done}}/{{total}} done",
-      "roomNow": "In accommodation, add rooms and their number of beds.",
+      "roomNow": "Choose the room mode and add rooms.",
       "roomStep": "Capacity",
       "setCapacity": "Set capacity",
       "steps": "Application setup steps",
