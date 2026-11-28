@@ -632,6 +632,8 @@ rozhodnuti:
     soubor: docs/PROJEKT.md
   us: []
   stav: platne
+  zmeneno_v:
+  - D-248
   z_otazek: []
   dokumentace: []
 - id: D-039
@@ -711,6 +713,7 @@ rozhodnuti:
   - D-050
   - D-114
   - D-147
+  - D-248
   z_otazek: []
   dokumentace: []
 - id: D-043
@@ -3111,6 +3114,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-248
   meni:
   - D-042
   z_otazek: []
@@ -5041,3 +5046,27 @@ rozhodnuti:
   stav: platne
   z_otazek: []
   dokumentace: []
+- id: D-248
+  nazev: 'Navigace A: sekce akce ve skupinách v sidebaru, na menších šířkách spodní panel'
+  text: 'Od 1024 px je sidebar organizátora kontextový: uvnitř akce nese odkaz „Všechny akce“, název akce se stavem a sekce akce ve skupinách; záložky nad obsahem nejsou. Pod 1024 px se sekce přepínají ve spodním panelu se stejnými skupinami. Horní lišta není. U sekcí se počty neukazují a sekce se jmenuje „Kapacita“.'
+  typ: design
+  oblast: design
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026, PR #871'
+    url: https://github.com/applifting-vsecourse/team-1/pull/871#issuecomment-7243349749
+  us:
+  - label: '#613'
+    url: https://github.com/applifting-vsecourse/team-1/issues/613
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-038
+  - D-042
+  - D-147
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/FIGMA-REMAKE.md
+    popis: místo záložek akce popsat kontextový sidebar a spodní panel sekcí (po merge PR 871)
+    stav: ceka

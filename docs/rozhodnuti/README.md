@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**241 platných**, 0 návrhů, 6 nahrazených nebo zrušených.
+**242 platných**, 0 návrhů, 6 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -18,6 +18,7 @@ _Nic._
 | [D-243](#d-243) | Lhůta na zaplacení: počet dní, nebo pevné datum u termínu | `docs/PROJEKT.md` | volba režimu splatnosti a datum u termínu |
 | [D-243](#d-243) | Lhůta na zaplacení: počet dní, nebo pevné datum u termínu | `docs/SLOVNIK.md` | pojem Lhůta na zaplacení |
 | [D-243](#d-243) | Lhůta na zaplacení: počet dní, nebo pevné datum u termínu | `docs/procesy/zpracovani-prihlasky/README.md` | poznámka o lhůtě v procesech obou režimů (YAML a generované diagramy) |
+| [D-248](#d-248) | Navigace A: sekce akce ve skupinách v sidebaru, na menších šířkách spodní panel | `docs/FIGMA-REMAKE.md` | místo záložek akce popsat kontextový sidebar a spodní panel sekcí (po merge PR 871) |
 
 ## Změny dřívějších rozhodnutí
 
@@ -58,6 +59,7 @@ _Nic._
 | [D-240](#d-240) | Doprava: kapacita autobusu jen informativně a seznam „v autobusu nebudou“ | 2026-11-28 | mění [D-124](#d-124) |
 | [D-243](#d-243) | Lhůta na zaplacení: počet dní, nebo pevné datum u termínu | 2026-11-28 | mění [D-099](#d-099) |
 | [D-245](#d-245) | Kopírování pokojů: přistýlky jen na volbu | 2026-11-28 | nahrazuje [D-179](#d-179)mění [D-115](#d-115), mění [D-139](#d-139) |
+| [D-248](#d-248) | Navigace A: sekce akce ve skupinách v sidebaru, na menších šířkách spodní panel | 2026-11-28 | mění [D-038](#d-038), mění [D-042](#d-042), mění [D-147](#d-147) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -65,6 +67,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-248](#d-248) | Navigace A: sekce akce ve skupinách v sidebaru, na menších šířkách spodní panel | 2026-11-28 | `pm` | design |
 | [D-247](#d-247) | Účastník na úvodní stránce, přihlašovatel u účtu | 2026-11-28 | `pm` | design |
 | [D-246](#d-246) | Obnova hesla organizátora: texty z návrhu schváleny | 2026-11-28 | `pm` | design |
 | [D-224](#d-224) | Texty u zveřejněné akce bez funkčního přihlašování | 2026-11-28 | `pm` | design |
@@ -738,6 +741,7 @@ _Nic._
 - **Datum:** 2026-10-21 · **Rozhodl:** `tech-lead`
 - **Text:** **Organizátor: akce jako karty, sekce akce v sidebaru.** Seznam akcí má kartu na akci s řádkem na termín (datum s rokem, název, obsazeno / lůžek); seznam termínů má řádky oddělené linkou místo karet v kartě. Sekce otevřené akce (Přehled, Přihlášky, Ubytování, Termíny) jsou v sidebaru pod „Akce“, ne záložky nad stránkou. Figma O02 / O02a / O24.
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
+- **Změněno v:** [D-248](#d-248)
 
 <a id="d-039"></a>
 
@@ -776,7 +780,7 @@ _Nic._
 - **Datum:** 2026-10-25 · **Rozhodl:** `tech-lead`
 - **Text:** **Dashboard organizátora se ruší.** Po přihlášení organizátor přistane na seznamu akcí (`/organizer` přesměruje na `/organizer/events`), sidebar má jen „Akce“ a „Organizace“. Panel „Co vyžaduje pozornost“ přijde nad seznam akcí, až budou data z US-29 / US-52. Účet (avatar, jméno, e-mail) je dole v sidebaru a v mobilním draweru, menu se otevírá nahoru (Nastavení účtu, Odhlásit se). Horní lišta má roli, jazyk a vzhled; na mobilu menu, logo, jazyk a vzhled. Sekce akce jsou na mobilu rozbalovací menu s aktuální sekcí („Přehled · 1 z 5“) místo posuvných záložek. Návrh N1–N9, Figma stránka „HF / 07 Návrh 25. 10.“. **Zrušení dashboardu bylo změněno rozhodnutím 2026-10-28** (dashboard se vrací).
 - **Zdroj:** [PROJEKT.md, sekce 9 (původní zápis)](../../docs/PROJEKT.md)
-- **Změněno v:** [D-050](#d-050), [D-114](#d-114), [D-147](#d-147)
+- **Změněno v:** [D-050](#d-050), [D-114](#d-114), [D-147](#d-147), [D-248](#d-248)
 
 <a id="d-043"></a>
 
@@ -2016,6 +2020,7 @@ _Nic._
 - **Text:** V administraci i v oblasti přihlašovatele se jazyk (ukládá se do účtu) a vzhled (jen v zařízení) přepínají v Nastavení účtu › Předvolby, ne v horní liště; lišta nese zvonek upozornění. Veřejné stránky a registrace mají přepínač jazyka v hlavičce.
 - **Zdroj:** [PR #444](https://github.com/applifting-vsecourse/team-1/pull/444); [PR #460](https://github.com/applifting-vsecourse/team-1/pull/460)
 - **Mění:** [D-042](#d-042)
+- **Změněno v:** [D-248](#d-248)
 - **Poznámka:** Doporučení: schválit; Figma N1 a N6 kreslí přepínače v liště (opraví design), PROJEKT popisuje patch D-069 (b).
 
 <a id="d-148"></a>
@@ -3093,3 +3098,15 @@ _Nic._
 - **Text:** Nadpis „Pro účastníky“ na úvodní stránce zůstává a slovník se nemění. Nepoužívaný název typu účtu „Účastník“ v cs/common.json se při nejbližší příležitosti opraví na „Přihlašovatel“.
 - **Dotčené US:** [#844](https://github.com/applifting-vsecourse/team-1/issues/844)
 - **Zdroj:** [rozhodnutí PM 28. 11. 2026 k otázkám designu, #844](https://github.com/applifting-vsecourse/team-1/issues/844#issuecomment-7242958931)
+
+<a id="d-248"></a>
+
+### D-248 – Navigace A: sekce akce ve skupinách v sidebaru, na menších šířkách spodní panel
+
+- **Stav:** platné · **Typ:** design · **Oblast:** design
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** Od 1024 px je sidebar organizátora kontextový: uvnitř akce nese odkaz „Všechny akce“, název akce se stavem a sekce akce ve skupinách; záložky nad obsahem nejsou. Pod 1024 px se sekce přepínají ve spodním panelu se stejnými skupinami. Horní lišta není. U sekcí se počty neukazují a sekce se jmenuje „Kapacita“.
+- **Dotčené US:** [#613](https://github.com/applifting-vsecourse/team-1/issues/613)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026, PR #871](https://github.com/applifting-vsecourse/team-1/pull/871#issuecomment-7243349749)
+- **Mění:** [D-038](#d-038), [D-042](#d-042), [D-147](#d-147)
+- **Dokumentace:** `docs/FIGMA-REMAKE.md`: ceka, místo záložek akce popsat kontextový sidebar a spodní panel sekcí (po merge PR 871)
