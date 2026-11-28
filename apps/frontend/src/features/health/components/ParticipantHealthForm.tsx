@@ -108,15 +108,19 @@ function HealthFields({
   })
 
   const hasNote = note.trim() !== ""
+  // No first entry once every term is over; a stored note still changes through a request (D-122).
+  const isClosed = !isStored && !health.editable
   // Filling it in needs the consent; clearing a stored note does not.
-  const canSave = isStored
-    ? isEditing && note.trim() !== health.note?.trim() && (hasNote ? hasConsent : true)
-    : hasNone
-      ? !health.noRestriction
-      : hasNote
-        ? hasConsent
-        : health.noRestriction
-  const isLocked = isStored && !isEditing
+  const canSave = isClosed
+    ? false
+    : isStored
+      ? isEditing && note.trim() !== health.note?.trim() && (hasNote ? hasConsent : true)
+      : hasNone
+        ? !health.noRestriction
+        : hasNote
+          ? hasConsent
+          : health.noRestriction
+  const isLocked = (isStored && !isEditing) || isClosed
   const pending = health.pendingRequest
   const noteId = "health-note"
 
@@ -125,7 +129,7 @@ function HealthFields({
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault()
-        mutation.mutate()
+        if (canSave && !mutation.isPending) mutation.mutate()
       }}
     >
       <p className="text-sm text-muted-foreground">
@@ -149,7 +153,6 @@ function HealthFields({
           <Link
             to={ROUTES.participant.applicationMeals}
             params={{ applicationId }}
-            hash={(hash) => (hash?.startsWith("health-") ? hash.replace(/^health-/, "meals-") : "")}
             replace
           >
             {t("goMeals")}
@@ -162,10 +165,12 @@ function HealthFields({
           id="health-none"
           label={t("noRestriction")}
           checked={hasNone}
+          disabled={isClosed}
           onCheckedChange={(isChecked) => setHasNone(isChecked === true)}
         />
       )}
       <div className="flex flex-col gap-2">
+        {isClosed ? <p className="text-sm text-muted-foreground">{t("closed")}</p> : null}
         <Label htmlFor={noteId}>{t("noteLabel")}</Label>
         <Textarea
           id={noteId}
@@ -199,7 +204,7 @@ function HealthFields({
         <p className="text-sm text-muted-foreground">{t("consentHint")}</p>
       )}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        {isLocked ? (
+        {isClosed ? null : isLocked ? (
           <Button
             type="button"
             size="lg"

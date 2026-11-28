@@ -128,7 +128,7 @@ export function CopyRoomsDialog({
       }}
     >
       <DialogContent
-        className="bg-card shadow-md sm:max-w-160"
+        className="bg-card sm:max-w-160"
         aria-describedby={undefined}
         onOpenAutoFocus={(e) => {
           e.preventDefault()

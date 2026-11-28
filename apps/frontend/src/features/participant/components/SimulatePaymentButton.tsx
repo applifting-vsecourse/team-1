@@ -1,3 +1,4 @@
+import { useId } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
@@ -7,7 +8,13 @@ import { formatCzk } from "@/lib/money"
 
 import { simulatePayment } from "@/features/participant/api/applications"
 
-type SimulatePaymentButtonProps = { applicationId: string; termId: string; amountCzk: number }
+type SimulatePaymentButtonProps = {
+  applicationId: string
+  termId: string
+  amountCzk: number
+  /** Which term, when the to-do card offers several (Figma F4 puts them together). */
+  termLabel?: string
+}
 
 /**
  * Staging and demo only (US-115): records a simulated payment of the term's remaining debt. The
@@ -18,8 +25,10 @@ export function SimulatePaymentButton({
   applicationId,
   termId,
   amountCzk,
+  termLabel,
 }: SimulatePaymentButtonProps) {
   const { t } = useTranslation(["participant", "common"])
+  const descriptionId = useId()
   const client = useQueryClient()
   const mutation = useMutation({
     mutationFn: () => simulatePayment(applicationId, termId),
@@ -28,8 +37,13 @@ export function SimulatePaymentButton({
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm text-muted-foreground">
-        {t("payment.simulation.termAmount", { amount: formatCzk(amountCzk) })}
+      <p
+        id={descriptionId}
+        className="text-sm text-muted-foreground"
+      >
+        {[termLabel, t("payment.simulation.termAmount", { amount: formatCzk(amountCzk) })]
+          .filter(Boolean)
+          .join(" · ")}
       </p>
       {mutation.isError && (
         <Alert variant="destructive">
@@ -40,6 +54,7 @@ export function SimulatePaymentButton({
         type="button"
         size="lg"
         className="w-full"
+        aria-describedby={descriptionId}
         isPending={mutation.isPending}
         onClick={() => mutation.mutate()}
       >

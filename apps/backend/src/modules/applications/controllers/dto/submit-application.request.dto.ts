@@ -1,8 +1,9 @@
 import { MAX_ACCOMMODATION_NOTE_LENGTH } from "@/shared/domain/accommodation"
 import { GENDERS } from "@/shared/domain/gender"
 import type { Gender } from "@/shared/domain/gender"
+import { MAX_PRONOUNS_LENGTH, normalizePronouns } from "@/shared/domain/pronouns"
 import { ApiProperty } from "@nestjs/swagger"
-import { Type } from "class-transformer"
+import { Transform, Type } from "class-transformer"
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -36,6 +37,15 @@ export class SubmitParticipantDto {
   @IsNotEmpty()
   @MaxLength(MAX_NAME_LENGTH)
   lastName!: string
+
+  @ApiProperty({ type: String, nullable: true, required: false, maxLength: MAX_PRONOUNS_LENGTH })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === "string" ? normalizePronouns(value) : value,
+  )
+  @IsOptional()
+  @IsString()
+  @MaxLength(MAX_PRONOUNS_LENGTH)
+  pronouns?: string | null
 
   @ApiProperty({ example: "2014-05-18", description: "ISO date." })
   @Matches(/^\d{4}-\d{2}-\d{2}$/)

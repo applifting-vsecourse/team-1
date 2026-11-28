@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test"
 import pg from "pg"
 import { e2eDatabaseUrl } from "../../scripts/database-url.mjs"
 
@@ -18,4 +19,19 @@ export async function latestMagicLinkToken(): Promise<string> {
   } finally {
     await client.end()
   }
+}
+
+/**
+ * Asks for a sign-in link the way a participant does: „No password?“ on the sign-in card turns it
+ * into the link request in the same card. The labels follow the UI language.
+ */
+export async function requestSignInLink(
+  page: Page,
+  email: string,
+  labels = { noPassword: "No password?", send: "Send sign-in link" },
+) {
+  await page.goto("/participant/login")
+  await page.getByRole("button", { name: labels.noPassword }).click()
+  await page.getByLabel("E-mail").fill(email)
+  await page.getByRole("button", { name: labels.send }).click()
 }

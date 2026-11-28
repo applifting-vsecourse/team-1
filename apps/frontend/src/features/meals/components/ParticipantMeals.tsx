@@ -72,30 +72,40 @@ function MealsForm({
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault()
-        mutation.mutate()
+        if (meals.editable && !mutation.isPending) mutation.mutate()
       }}
     >
       <p className="text-sm text-muted-foreground">
         {meals.firstName} {meals.lastName} · {meals.eventName}
       </p>
       <h3 className="text-base font-semibold">{t("own.restrictions")}</h3>
-      <MealSelectionFields
-        draft={draft}
-        noneLabel={t("own.noRestrictions")}
-      />
-      {mutation.error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{mutation.error.message}</AlertDescription>
-        </Alert>
-      ) : null}
-      <PendingButton
-        isPending={mutation.isPending}
-        type="submit"
-        size="lg"
-        className="w-full sm:w-auto sm:self-start"
-      >
-        {t("own.save")}
-      </PendingButton>
+        {/* After the last term that is not cancelled the meals cannot be changed (D-192). */}
+        <fieldset
+          disabled={!meals.editable || mutation.isPending}
+          className="flex min-w-0 flex-col gap-4"
+        >
+          <MealSelectionFields
+            draft={draft}
+            noneLabel={t("own.noRestrictions")}
+          />
+        </fieldset>
+        {mutation.error ? (
+          <Alert variant="destructive">
+            <AlertDescription>{mutation.error.message}</AlertDescription>
+          </Alert>
+        ) : null}
+        {meals.editable ? (
+          <PendingButton
+            isPending={mutation.isPending}
+            type="submit"
+            size="lg"
+            className="w-full sm:w-auto sm:self-start"
+          >
+            {t("own.save")}
+          </PendingButton>
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("own.closed")}</p>
+        )}
     </form>
   )
 }

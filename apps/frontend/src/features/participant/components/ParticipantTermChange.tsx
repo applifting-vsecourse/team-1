@@ -64,10 +64,10 @@ export function ParticipantTermActions({
   }
   const isPendingRequest = requests.data?.some((request) => request.status === "PENDING") ?? false
   return (
-    <div className={cn("flex flex-col gap-3 sm:flex-row sm:flex-wrap", className)}>
+    // Actions in the head of the terms section (Figma 27649:35098).
+    <div className={cn("flex flex-wrap gap-1", className)}>
       <Button
-        variant="outline"
-        size="lg"
+        variant="ghost"
         disabled={requests.isPending || requests.isError || isPendingRequest}
         onClick={() => onStart("change")}
       >

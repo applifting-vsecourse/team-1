@@ -39,6 +39,7 @@ const empty: Health = {
   lastName: "Dvořák",
   note: null,
   noRestriction: false,
+  editable: true,
   consentAt: null,
   pendingRequest: null,
 }

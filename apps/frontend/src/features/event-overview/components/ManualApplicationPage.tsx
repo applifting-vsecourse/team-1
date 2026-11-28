@@ -30,6 +30,7 @@ import { parseDateInput } from "@/lib/date-input"
 import { focusFirstInvalidField } from "@/lib/focus-first-invalid"
 import { formatCzk } from "@/lib/money"
 import { isValidPhone, MAX_PHONE_INPUT_LENGTH, normalizePhone } from "@/lib/phone"
+import { MAX_PRONOUNS_LENGTH } from "@/lib/pronouns"
 import { termTitle } from "@/lib/term-label"
 
 import {
@@ -46,6 +47,7 @@ type Status = "CONFIRMED" | "WAITLISTED"
 type Draft = {
   firstName: string
   lastName: string
+  pronouns: string
   birthDate: string
   gender: "" | "FEMALE" | "MALE"
   individualAccommodation: boolean
@@ -59,6 +61,7 @@ type Draft = {
 const emptyDraft: Draft = {
   firstName: "",
   lastName: "",
+  pronouns: "",
   birthDate: "",
   gender: "",
   individualAccommodation: false,
@@ -219,6 +222,7 @@ export function ManualApplicationPage({
     const input: ManualApplicationInput = {
       firstName: draft.firstName.trim(),
       lastName: draft.lastName.trim(),
+      ...(draft.pronouns.trim() ? { pronouns: draft.pronouns.trim() } : {}),
       birthDate,
       gender: draft.gender,
       email: draft.email.trim(),
@@ -413,6 +417,18 @@ export function ManualApplicationPage({
                     <FieldError
                       id="manual-last-name-error"
                       message={errors.lastName}
+                    />
+                  </div>
+                  <div
+                    data-slot="form-item"
+                    className="space-y-2"
+                  >
+                    <Label htmlFor="manual-pronouns">{t("participant.pronouns")}</Label>
+                    <Input
+                      id="manual-pronouns"
+                      value={draft.pronouns}
+                      maxLength={MAX_PRONOUNS_LENGTH}
+                      onChange={(event) => update("pronouns", event.target.value)}
                     />
                   </div>
                   <div

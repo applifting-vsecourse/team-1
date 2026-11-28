@@ -3,6 +3,7 @@ import type { TFunction } from "i18next"
 import { z } from "zod"
 
 import { parseDateInput } from "@/lib/date-input"
+import { MAX_PRONOUNS_LENGTH } from "@/lib/pronouns"
 
 export const GENDERS = ["FEMALE", "MALE"] as const
 /** Longest note to the organizer about the individual accommodation (the server holds the same limit). */
@@ -41,6 +42,12 @@ export const createApplicationFormSchema = (
       return iso
     }),
     gender: z.enum(GENDERS, { error: t("form.errors.genderRequired") }),
+    pronouns: z
+      .string()
+      .trim()
+      .max(MAX_PRONOUNS_LENGTH, t("form.errors.pronounsTooLong", { max: MAX_PRONOUNS_LENGTH }))
+      .transform((value) => value || undefined)
+      .optional(),
     // US-38: the note is optional and only meant when the box is ticked.
     individualAccommodation: z.boolean(),
     accommodationRequest: z

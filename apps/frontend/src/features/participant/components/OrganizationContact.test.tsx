@@ -25,17 +25,12 @@ describe("OrganizationContact", () => {
     expect(phone).toHaveAttribute("href", "tel:+420777000003")
     // Shown as the organizer typed it.
     expect(phone).toHaveTextContent("+420 777 000 003")
-    expect(within(phone).getByText("Call")).toBeVisible()
-    expect(
-      within(screen.getByRole("link", { name: "info@alpine.example" })).getByText("Send an e-mail"),
-    ).toBeVisible()
   })
 
   it("leaves out the phone when there is only an e-mail", () => {
     render(<OrganizationContact contact={contact({ phone: null })} />)
 
     expect(screen.getByRole("link", { name: "info@alpine.example" })).toBeInTheDocument()
-    expect(screen.queryByText("Call")).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: /\+420/ })).not.toBeInTheDocument()
   })
 
@@ -43,7 +38,6 @@ describe("OrganizationContact", () => {
     render(<OrganizationContact contact={contact({ email: null })} />)
 
     expect(screen.getByRole("link", { name: "+420 777 000 003" })).toBeInTheDocument()
-    expect(screen.queryByText("Send an e-mail")).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: /alpine/ })).not.toBeInTheDocument()
   })
 
@@ -53,8 +47,6 @@ describe("OrganizationContact", () => {
     expect(screen.getByText("Alpine Collective")).toBeInTheDocument()
     expect(screen.getByText("The organization hasn't published a contact yet.")).toBeInTheDocument()
     expect(screen.queryByRole("link")).not.toBeInTheDocument()
-    expect(screen.queryByText("Send an e-mail")).not.toBeInTheDocument()
-    expect(screen.queryByText("Call")).not.toBeInTheDocument()
   })
 
   it("does not show the note while there is a contact", () => {
@@ -63,13 +55,14 @@ describe("OrganizationContact", () => {
     expect(screen.queryByText(/hasn't published a contact/)).not.toBeInTheDocument()
   })
 
-  it("keeps contact actions stacked in the narrow detail column and on mobile", () => {
+  it("is its own section with the contact lines one under another", () => {
     render(<OrganizationContact contact={contact()} />)
 
-    const row = screen.getByText("Alpine Collective").parentElement!
-    expect(row).toHaveClass("@container")
-    expect(screen.getByRole("link", { name: "info@alpine.example" }).parentElement).toHaveClass(
-      "@min-[34rem]:grid-cols-2",
-    )
+    const section = screen.getByRole("region", { name: "Organization contact" })
+    const lines = within(section).getAllByRole("link")
+    expect(lines.map((line) => line.textContent)).toEqual([
+      "info@alpine.example",
+      "+420 777 000 003",
+    ])
   })
 })

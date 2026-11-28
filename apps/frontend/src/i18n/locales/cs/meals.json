@@ -1,5 +1,6 @@
 {
   "edit": {
+    "actions": "Akce",
     "all": "Vše",
     "cancel": "Zrušit",
     "empty": "Žádný účastník neodpovídá výběru.",
@@ -9,6 +10,7 @@
     "none": "Žádné omezení",
     "restricted": "S omezením",
     "roster": "Účastníci",
+    "rosterFilter": "Stav stravování",
     "search": "Hledat účastníka",
     "title": "Upravit stravování",
     "view": "Úprava stravování"
@@ -33,6 +35,7 @@
     "notes": "Alergie a poznámky",
     "optionColumn": "Strava",
     "overlapNote": "Omezení se mohou překrývat.",
+    "participantColumn": "Účastník",
     "participantNotesTitle": "Alergie a další požadavky",
     "personDiet": "Účastník / strava",
     "portions": "Počet porcí",
@@ -61,6 +64,7 @@
   },
   "own": {
     "allergiesLabel": "Alergie a další požadavky na stravu",
+    "closed": "Všechny termíny přihlášky skončily nebo byly zrušeny, stravování už nelze změnit.",
     "multiple": "Můžete vybrat více možností.",
     "noRestrictions": "Nemám žádné stravovací omezení",
     "pageTitle": "Stravování",

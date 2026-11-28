@@ -7,9 +7,9 @@ import { z } from "zod"
 
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { DetailItem } from "@/components/molecules/DetailItem"
+import { SettingsRow } from "@/components/molecules/SettingsRows"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -93,23 +93,21 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
 
   return (
     <>
-      <Card className="gap-4 p-4">
-        <h2 className="text-2xl font-bold">{t("changeEmail.title")}</h2>
-        <DetailItem label={t("changeEmail.current")}>{user.email}</DetailItem>
-        {/* Fills the space between the e-mail and the button, so the card is as tall as its neighbour. */}
-        <DetailItem label={t("changeEmail.footer.label")}>
-          {t("changeEmail.footer.default")}
-        </DetailItem>
-        <Button
-          type="button"
-          size="lg"
-          // Looks like „Uložit údaje“ of the neighbouring card, and sits at the same height.
-          className="mt-auto h-12 w-full rounded-lg md:w-45 md:self-start"
-          onClick={() => setOpen(true)}
-        >
-          {t("changeEmail.start")}
-        </Button>
-      </Card>
+      <SettingsRow
+        label={t("account.email")}
+        value={user.email}
+        action={
+          <Button
+            type="button"
+            variant="ghost"
+            // „Změnit“ alone would not say what changes among the other rows.
+            aria-label={t("changeEmail.start")}
+            onClick={() => setOpen(true)}
+          >
+            {t("account.change")}
+          </Button>
+        }
+      />
 
       <Dialog
         open={isOpen}
@@ -120,6 +118,9 @@ export function ChangeEmailSection({ user }: ChangeEmailSectionProps) {
             <DialogTitle className="text-2xl font-bold">{t("changeEmail.title")}</DialogTitle>
             <DialogDescription>{t("changeEmail.hint")}</DialogDescription>
           </DialogHeader>
+          <DetailItem label={t("changeEmail.footer.label")}>
+            {t("changeEmail.footer.default")}
+          </DetailItem>
 
           {pendingEmail ? (
             <>

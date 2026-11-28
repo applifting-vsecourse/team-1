@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { useLocation, useNavigate } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
 
 import { ROUTES } from "@/app/routes"
 import { Seo } from "@/components/atoms/Seo"
@@ -21,7 +21,6 @@ export function ApplicationPreferencesDialog({
   children: (close: () => Promise<void>) => ReactNode
 }) {
   const navigate = useNavigate()
-  const hash = useLocation({ select: (location) => location.hash })
 
   const close = async () => {
     await navigate({ to: ROUTES.participant.application, params: { applicationId }, replace: true })
@@ -32,7 +31,7 @@ export function ApplicationPreferencesDialog({
           : ROUTES.participant.applicationHealth
       const href = route.replace("$applicationId", encodeURIComponent(applicationId))
       Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"))
-        .find((link) => link.pathname === href && (!hash || link.hash === `#${hash}`))
+        .find((link) => link.pathname === href)
         ?.focus()
     })
   }

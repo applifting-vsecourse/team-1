@@ -1,0 +1,38 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 360 788"
+  fill="none"
+  aria-hidden="true"
+>
+  <circle
+    class="backdrop-left"
+    cx="40"
+    cy="590"
+    r="120"
+    fill="var(--illustration-subtle)"
+  />
+  <path
+    class="arc-1"
+    d="M16 575V533C16 514.774 30.7739 500 49 500H91C95.9706 500 100 504.029 100 509C100 513.971 95.9706 518 91 518H49C40.7151 518 34 524.715 34 533V575C34 579.971 29.9706 584 25 584C20.0294 584 16 579.971 16 575Z"
+    fill="var(--illustration-primary)"
+  />
+  <circle
+    class="backdrop-right"
+    cx="340"
+    cy="20"
+    r="90"
+    fill="var(--illustration-subtle)"
+  />
+  <circle
+    class="sun"
+    cx="274"
+    cy="584"
+    r="24"
+    fill="var(--brand-warm)"
+  />
+  <path
+    class="arc-2"
+    d="M342 675V633C342 628.029 346.029 624 351 624C355.971 624 360 628.029 360 633V675C360 693.226 345.226 708 327 708H285C280.029 708 276 703.971 276 699C276 694.029 280.029 690 285 690H327C335.285 690 342 683.285 342 675Z"
+    fill="var(--illustration-primary)"
+  />
+</svg>

@@ -20,6 +20,7 @@ const storedDraft = z.object({
         lastName: z.string(),
         birthDate: z.string(),
         gender: z.enum(GENDERS).optional(),
+        pronouns: z.string().optional(),
         // Drafts saved before US-38 have none of the two.
         individualAccommodation: z.boolean().default(false),
         accommodationRequest: z.string().default(""),
@@ -55,7 +56,8 @@ function withStorage<T>(action: (storage: Storage) => T, fallback: T): T {
   }
 }
 
-const isEmpty = (draft: ApplicationFormDraft) =>
+/** Nothing typed or ticked yet (the consent does not count, it is never kept). */
+export const isEmptyApplicationDraft = (draft: ApplicationFormDraft) =>
   draft.email === "" &&
   draft.participants.length === 1 &&
   draft.participants.every(
@@ -64,6 +66,7 @@ const isEmpty = (draft: ApplicationFormDraft) =>
       participant.lastName === "" &&
       participant.birthDate === "" &&
       participant.gender === undefined &&
+      !participant.pronouns &&
       !participant.individualAccommodation &&
       participant.accommodationRequest === "" &&
       participant.termIds.length === 0,
@@ -93,13 +96,23 @@ export function loadApplicationDraft(
 /** Stores the form as it is; an untouched form removes the entry instead. */
 export function saveApplicationDraft(token: string, draft: ApplicationFormDraft): void {
   withStorage((storage) => {
-    if (isEmpty(draft)) {
+    if (isEmptyApplicationDraft(draft)) {
       storage.removeItem(storageKey(token))
       return
     }
     const { email, participants } = draft
     storage.setItem(storageKey(token), JSON.stringify({ email, participants }))
   }, undefined)
+}
+
+/** Whether a draft can be kept at all; blocked site data throws on every write. */
+export function canKeepApplicationDrafts(): boolean {
+  return withStorage((storage) => {
+    const probe = `${KEY_PREFIX}probe`
+    storage.setItem(probe, "1")
+    storage.removeItem(probe)
+    return true
+  }, false)
 }
 
 export function clearApplicationDraft(token: string): void {

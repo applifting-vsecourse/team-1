@@ -28,7 +28,7 @@ export function EventSummary({ event }: { event: PublicEvent }) {
   return (
     <section
       aria-label={t("form.heading", { event: event.name })}
-      className="flex flex-col gap-2 rounded-xl border border-border bg-secondary p-4"
+      className="flex flex-col gap-2 rounded-lg border border-border-strong bg-secondary p-4 nested:border-border"
     >
       <h2 className="text-sm font-medium">{event.name}</h2>
       {where ? <p className="text-sm text-muted-foreground">{where}</p> : null}
