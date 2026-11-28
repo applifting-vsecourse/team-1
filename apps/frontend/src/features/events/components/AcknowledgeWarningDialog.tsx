@@ -90,8 +90,8 @@ export function AcknowledgeWarningDialog({
                     men: t("roomWarnings.men", { count: counted.length - women }),
                   })
                 : t("acknowledgeDialog.overcrowdedValue", {
-                    people: t("roomWarnings.people", { count: room.participants.length }),
-                    beds: t("roomWarnings.beds", { count: room.beds }),
+                    people: room.participants.length,
+                    beds: room.beds,
                   })}
             </dd>
           </div>

@@ -297,12 +297,6 @@ export function CopyRoomsDialog({
                     </div>
                   </dl>
                   {copiedBox}
-                  <p>
-                    {t("rooms.copy.emptyBody", {
-                      rooms: rooms(sourceRooms.length),
-                      beds: beds(sourceBeds),
-                    })}
-                  </p>
                 </>
               )}
             </div>

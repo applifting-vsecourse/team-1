@@ -32,7 +32,7 @@ describe("Pagination", () => {
   it("shows the range, marks the current page and disables the arrow at the edge", () => {
     renderPagination(0)
 
-    expect(screen.getByText("1–20 of 196 results")).toBeInTheDocument()
+    expect(screen.getByText("1–20 / 196")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Page 1" })).toHaveAttribute("aria-current", "page")
     expect(screen.getByRole("button", { name: "Previous page" })).toBeDisabled()
     expect(screen.getByRole("button", { name: "Next page" })).toBeEnabled()

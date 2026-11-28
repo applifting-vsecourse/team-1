@@ -100,6 +100,7 @@ describe("OrganizerTermChange", () => {
 
     const dialog = await pickNewTerm(user)
     expect(await within(dialog).findByText(/Capacity for men/)).toBeInTheDocument()
+    expect(within(dialog).getByText("Free beds: 2 / 50")).toBeVisible()
     await user.click(within(dialog).getByRole("button", { name: "Confirm the term change" }))
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
@@ -119,6 +120,7 @@ describe("OrganizerTermChange", () => {
 
     const dialog = await pickNewTerm(user)
     await user.click(await within(dialog).findByRole("button", { name: "Confirm the term change" }))
+    expect(screen.getByText(/Occupancy if confirmed: 50 \/ 50 → 51 \/ 50/)).toBeVisible()
     expect(put).not.toHaveBeenCalled()
     const confirm = screen.getByRole("button", { name: "Confirm the change" })
     expect(confirm).toBeDisabled()

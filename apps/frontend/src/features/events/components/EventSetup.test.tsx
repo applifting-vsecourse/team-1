@@ -91,7 +91,7 @@ describe("EventSetup", () => {
 
     // Figma F5 (15398:536): one to-do card with the title and the count, no alert above it.
     expect(await screen.findByRole("heading", { name: "Application setup" })).toBeInTheDocument()
-    expect(screen.getByText("0/3 done")).toBeInTheDocument()
+    expect(screen.getByText("Done: 0 / 3")).toBeInTheDocument()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Term and price" })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Capacity" })).toBeInTheDocument()
@@ -131,7 +131,7 @@ describe("EventSetup", () => {
   it("counts the capacity as not done while the event has no term", async () => {
     renderSetup({ ...base, missing: ["TERM", "EVALUATION_MODE"] })
 
-    expect(await screen.findByText("0/3 done")).toBeInTheDocument()
+    expect(await screen.findByText("Done: 0 / 3")).toBeInTheDocument()
     expect(screen.queryByText("Done")).not.toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Term and price" }).closest("li")).toHaveAttribute(
       "aria-current",
@@ -150,7 +150,7 @@ describe("EventSetup", () => {
   it("marks the finished step done and moves on to the capacity", async () => {
     renderSetup({ ...base, termCount: 1, missing: ["ROOM", "EVALUATION_MODE"] })
 
-    expect(await screen.findByText("1/3 done")).toBeInTheDocument()
+    expect(await screen.findByText("Done: 1 / 3")).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Term and price" }).closest("li")).toHaveTextContent(
       "Done",
     )
@@ -190,7 +190,7 @@ describe("EventSetup", () => {
   it("offers both modes in the third step with nothing preselected and the button off", async () => {
     renderSetup({ ...base, termCount: 1, missing: ["EVALUATION_MODE"] })
 
-    expect(await screen.findByText("2/3 done")).toBeInTheDocument()
+    expect(await screen.findByText("Done: 2 / 3")).toBeInTheDocument()
     expect(screen.getByRole("radio", { name: "Automatic" })).not.toBeChecked()
     expect(screen.getByRole("radio", { name: "Manual" })).not.toBeChecked()
     expect(screen.getByRole("radio", { name: "Automatic" })).toHaveAccessibleDescription(
@@ -229,7 +229,7 @@ describe("EventSetup", () => {
   it("shows the chosen mode as a done step with a link to change it", async () => {
     renderSetup({ ...base, evaluationModePending: false, missing: ["TERM", "ROOM"] })
 
-    expect(await screen.findByText("1/3 done")).toBeInTheDocument()
+    expect(await screen.findByText("Done: 1 / 3")).toBeInTheDocument()
     const mode = screen.getByRole("heading", { name: "Evaluation mode" }).closest("li")
     expect(mode).toHaveTextContent("Automatic · Change")
     expect(mode).toHaveTextContent("Done")

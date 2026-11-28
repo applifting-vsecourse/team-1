@@ -196,8 +196,8 @@ describe("suitable substitutes (US-104)", () => {
     expect(
       await screen.findByRole("heading", { name: "No suitable substitutes are waiting" }),
     ).toBeVisible()
-    expect(screen.getByText("Men · Occupied 49/50")).toBeVisible()
-    expect(screen.queryByText(/Occupied 52\/53/)).toBeNull()
+    expect(screen.getByText("Men · Occupied: 49 / 50")).toBeVisible()
+    expect(screen.queryByText(/Occupied: 52 \/ 53/)).toBeNull()
     expect(screen.getByText(/1 free men's bed/)).toBeVisible()
     expect(screen.getByRole("link", { name: "Show the whole waitlist" })).toHaveAttribute(
       "href",
@@ -209,8 +209,8 @@ describe("suitable substitutes (US-104)", () => {
   it("shows that capacity is full while applicants remain on the manual waitlist", async () => {
     setup(list({ freeBeds: { MALE: 0, FEMALE: 0 }, items: [] }), true)
     expect(await screen.findByRole("heading", { name: "Capacity is full" })).toBeVisible()
-    expect(screen.getByText("Men · Occupied 50/50")).toBeVisible()
-    expect(screen.getByText("Women · Occupied 3/3")).toBeVisible()
+    expect(screen.getByText("Men · Occupied: 50 / 50")).toBeVisible()
+    expect(screen.getByText("Women · Occupied: 3 / 3")).toBeVisible()
     expect(screen.getByText("The remaining substitutes stay on the waitlist.")).toBeVisible()
     expect(screen.queryByRole("button", { name: /Confirm/ })).toBeNull()
   })

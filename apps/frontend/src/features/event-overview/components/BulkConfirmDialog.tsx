@@ -12,7 +12,6 @@ import type { ListedApplication } from "@/features/event-overview/api/applicatio
 import {
   bulkConfirmationPreviewQueryOptions,
   confirmSelected,
-  type BulkConfirmationPreview,
 } from "@/features/event-overview/api/bulkConfirmation"
 import {
   BulkActionDialog,
@@ -71,13 +70,6 @@ export function BulkConfirmDialog({
     if (eligible.length) confirm.mutate(eligible)
   }
   const count = data?.confirmable.length ?? 0
-  const beds = (
-    places: BulkConfirmationPreview["freePlaces"],
-    preview: BulkConfirmationPreview,
-  ): string =>
-    preview.isShared
-      ? String(places.MALE)
-      : `${t("bulk.men", { count: places.MALE })} + ${t("bulk.women", { count: places.FEMALE })}`
   return (
     <BulkActionDialog
       title={t("bulk.dialogTitle")}
@@ -113,10 +105,12 @@ export function BulkConfirmDialog({
               <AlertDescription>{t("bulk.changedDescription")}</AlertDescription>
             </Alert>
           )}
-          <BulkDetail
-            label={t("bulk.selected")}
-            value={t("bulk.selectedApplications", { count: data?.selectedCount })}
-          />
+          {data?.skipped.length === 0 && (
+            <BulkDetail
+              label={t("bulk.selected")}
+              value={t("bulk.selectedApplications", { count: data.selectedCount })}
+            />
+          )}
           <BulkDetail
             label={t("bulk.willConfirm")}
             value={<BulkNames names={data?.confirmable.map((row) => row.name) ?? []} />}
@@ -124,10 +118,19 @@ export function BulkConfirmDialog({
           {data && (
             <BulkDetail
               label={t("bulk.freeBedsAfter")}
-              value={t("bulk.freeBedsChange", {
-                before: beds(data.freePlaces, data),
-                after: beds(data.freePlacesAfter, data),
-              })}
+              value={
+                data.isShared
+                  ? t("bulk.freeBedsChange", {
+                      before: data.freePlaces.MALE,
+                      after: data.freePlacesAfter.MALE,
+                    })
+                  : t("bulk.freeBedsByGender", {
+                      menBefore: data.freePlaces.MALE,
+                      menAfter: data.freePlacesAfter.MALE,
+                      womenBefore: data.freePlaces.FEMALE,
+                      womenAfter: data.freePlacesAfter.FEMALE,
+                    })
+              }
             />
           )}
           {data && data.skipped.length > 0 && (

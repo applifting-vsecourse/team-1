@@ -38,8 +38,8 @@ function useWarningText() {
       return [counts, ...exclusions].join(" ")
     }
     return t("roomWarnings.overcrowded", {
-      people: t("roomWarnings.people", { count: room.participants.length }),
-      beds: t("roomWarnings.beds", { count: room.beds }),
+      people: room.participants.length,
+      beds: room.beds,
     })
   }
 }

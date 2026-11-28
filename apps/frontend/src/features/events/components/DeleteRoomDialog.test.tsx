@@ -72,64 +72,36 @@ it("puts Cancel before the destructive action (#757)", () => {
   expect(names[1]).toMatch(/^Delete/)
 })
 
-// The number before the noun is what the noun agrees with: what is left after the deletion.
-// `from` is the Czech "from" with the number it stands before: "ze 6" but "z 9" (5 beds removed).
-const left = [
-  { after: 1, cs: "místo", en: "bed", from: "ze 6" },
-  { after: 2, cs: "místa", en: "beds", from: "ze 7" },
-  { after: 4, cs: "místa", en: "beds", from: "z 9" },
-  { after: 0, cs: "míst", en: "beds", from: "z 5" },
-  { after: 5, cs: "míst", en: "beds", from: "z 10" },
-  { after: 22, cs: "míst", en: "beds", from: "ze 27" },
-]
 describe("DeleteRoomDialog capacity impact", () => {
-  it.each(left)("in Czech with $after beds left", async ({ after, cs, from }) => {
-    await act(() => i18n.changeLanguage("cs"))
-    renderDialog("SHARED", null, 5 + after, 5)
-    expect(screen.getByText(`Kapacita klesne ${from} na ${after} ${cs}`)).toBeVisible()
-  })
+  it.each([0, 1, 2, 4, 5, 22])(
+    "shows the capacity change with %i beds left in both languages",
+    async (after) => {
+      renderDialog("SHARED", null, 5 + after, 5)
+      expect(screen.getByText(`Capacity: ${5 + after} → ${after}`)).toBeVisible()
 
-  it.each(left)("in English with $after beds left", ({ after, en }) => {
-    renderDialog("SHARED", null, 5 + after, 5)
-    expect(
-      screen.getByText(`Capacity will decrease from ${5 + after} to ${after} ${en}`),
-    ).toBeVisible()
-  })
-
-  it.each(left)(
-    "for women's rooms in Czech and English with $after beds left",
-    async ({ after, cs, en, from }) => {
-      renderDialog("GENDERED", "FEMALE", 5 + after, 5)
-      expect(
-        screen.getByText(`Women's capacity will decrease from ${5 + after} to ${after} ${en}`),
-      ).toBeVisible()
       await act(() => i18n.changeLanguage("cs"))
-      expect(screen.getByText(`Dámská kapacita klesne ${from} na ${after} ${cs}`)).toBeVisible()
+      expect(screen.getByText(`Kapacita: ${5 + after} → ${after}`)).toBeVisible()
     },
   )
 
-  it.each(left)(
-    "for men's rooms in Czech and English with $after beds left",
-    async ({ after, cs, en, from }) => {
-      renderDialog("GENDERED", "MALE", 5 + after, 5)
-      expect(
-        screen.getByText(`Men's capacity will decrease from ${5 + after} to ${after} ${en}`),
-      ).toBeVisible()
+  it.each([
+    { gender: "FEMALE", english: "Women", czech: "Ženy" },
+    { gender: "MALE", english: "Men", czech: "Muži" },
+  ] as const)(
+    "labels the capacity change for $english in both languages",
+    async ({ gender, english, czech }) => {
+      renderDialog("GENDERED", gender, 7, 5)
+      expect(screen.getByText(`${english}: 7 → 2`)).toBeVisible()
+
       await act(() => i18n.changeLanguage("cs"))
-      expect(screen.getByText(`Pánská kapacita klesne ${from} na ${after} ${cs}`)).toBeVisible()
+      expect(screen.getByText(`${czech}: 7 → 2`)).toBeVisible()
     },
   )
-
-  it("says „ze 3“ and „ze 2“ for the whole capacity of a room (#627)", async () => {
-    await act(() => i18n.changeLanguage("cs"))
-    renderDialog("SHARED", null, 3, 3)
-    expect(screen.getByText("Kapacita klesne ze 3 na 0 míst")).toBeVisible()
-  })
 
   it("keeps only the capacity warning, without repeated rows", async () => {
     await act(() => i18n.changeLanguage("cs"))
     renderDialog("GENDERED", "FEMALE", 7, 5)
-    expect(screen.getByText("Dámská kapacita klesne ze 7 na 2 místa")).toBeVisible()
+    expect(screen.getByText("Ženy: 7 → 2")).toBeVisible()
     expect(screen.queryByText(/má 5 míst/)).not.toBeInTheDocument()
     expect(screen.queryByText(/Room 1 · Dámský/)).not.toBeInTheDocument()
     expect(screen.queryByText(/Pokoj zmizí/)).not.toBeInTheDocument()
@@ -138,9 +110,7 @@ describe("DeleteRoomDialog capacity impact", () => {
   // US-145: the beds of an individual room are in the capacity only while occupied.
   it("tells how the capacity of each gender drops when an occupied individual room goes", () => {
     renderDialog("GENDERED", null, 10, 4, true, { FEMALE: 2, MALE: 1 })
-    expect(
-      screen.getByText("Capacity drops: women from 10 to 8, men from 10 to 9."),
-    ).toBeInTheDocument()
+    expect(screen.getByText("Women: 10 → 8 · Men: 10 → 9")).toBeInTheDocument()
     expect(
       screen.getByText(
         "Its beds counted towards the capacity only while occupied. The people in the room (3) are left without a bed.",

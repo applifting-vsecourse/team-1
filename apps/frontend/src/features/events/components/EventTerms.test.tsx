@@ -116,8 +116,8 @@ describe("EventTerms", () => {
     ).toBeInTheDocument()
     expect(screen.getByText("12–18 Jul 2027")).toBeInTheDocument()
     expect(screen.getByText("Letní turnus 1", { exact: true })).toBeInTheDocument()
-    expect(screen.getByText("Occupied 0/60")).toBeInTheDocument()
-    expect(screen.getByRole("progressbar", { name: "Occupied 18/60" })).toBeInTheDocument()
+    expect(screen.getByText("Beds: 0 / 60")).toBeInTheDocument()
+    expect(screen.getByRole("progressbar", { name: "Beds: 18 / 60" })).toBeInTheDocument()
     expect(screen.getByText("Cancelled term")).toBeInTheDocument()
     expect(screen.getByText("Zrušený · 12–18 Jul 2027 · Cancelled")).toBeInTheDocument()
   })
@@ -125,13 +125,13 @@ describe("EventTerms", () => {
   it("highlights a term with more confirmed than beds in red, and leaves a normal one alone", async () => {
     renderTerms([term({ id: "t1", confirmedCount: 63 }), terms[1]])
 
-    const over = await screen.findByText("Occupied 63/60")
+    const over = await screen.findByText("Beds: 63 / 60")
     expect(over).toHaveClass("text-destructive")
-    expect(screen.getByRole("progressbar", { name: "Occupied 63/60" })).toHaveClass(
+    expect(screen.getByRole("progressbar", { name: "Beds: 63 / 60" })).toHaveClass(
       "[&_[data-slot=progress-indicator]]:bg-destructive",
     )
-    expect(screen.getByText("Occupied 18/60")).not.toHaveClass("text-destructive")
-    expect(screen.getByRole("progressbar", { name: "Occupied 18/60" })).not.toHaveClass(
+    expect(screen.getByText("Beds: 18 / 60")).not.toHaveClass("text-destructive")
+    expect(screen.getByRole("progressbar", { name: "Beds: 18 / 60" })).not.toHaveClass(
       "[&_[data-slot=progress-indicator]]:bg-destructive",
     )
   })

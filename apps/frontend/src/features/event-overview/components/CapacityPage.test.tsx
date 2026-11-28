@@ -111,7 +111,10 @@ describe("CapacityPage", () => {
       })
       renderPage(gendered, 200, { termId: "t1" }, client)
       await screen.findByText("2 / 5")
-      expect(Boolean(screen.queryByText("Women's capacity increased by 2 beds"))).toBe(isShown)
+      expect(Boolean(screen.queryByText("Women's capacity increased · Beds added: 2"))).toBe(
+        isShown,
+      )
+      expect(Boolean(screen.queryByText(/Women · Confirmed: 2 \/ 5 · Free beds: 3/))).toBe(isShown)
     },
   )
 
@@ -161,7 +164,7 @@ describe("CapacityPage", () => {
     ).toHaveTextContent("2 / 5")
     expect(
       screen.getByRole("heading", { name: /Women · capacity 5 beds/ }).parentElement,
-    ).toHaveTextContent("3 free places · 1 women’s room of 5 beds")
+    ).toHaveTextContent("3 free places · Rooms: 1 (beds per room: 5)")
     for (const part of ["term=t1", "status=CONFIRMED", "gender=FEMALE"]) {
       expect(women.getAttribute("href")).toContain(part)
     }
@@ -183,7 +186,7 @@ describe("CapacityPage", () => {
     renderPage(over, 200, { termId: "t1" })
 
     expect(await screen.findByText("Term capacity exceeded")).toBeVisible()
-    expect(screen.getByText(/Men: 6 confirmed for 5 beds/)).toBeVisible()
+    expect(screen.getByText("Men · Confirmed: 6 / 5 · Over capacity: 1")).toBeVisible()
   })
 
   describe("bed counts agree with the number", () => {
@@ -220,31 +223,26 @@ describe("CapacityPage", () => {
       ).toBeVisible()
     })
 
-    it.each([
-      { beds: 1, cs: "lůžko", en: "bed" },
-      { beds: 3, cs: "lůžka", en: "beds" },
-      { beds: 8, cs: "lůžek", en: "beds" },
-    ])("in the over-capacity warning for $beds beds", async ({ beds, cs, en }) => {
-      const over = structuredClone(gendered)
-      over.terms[0]!.byGender.MALE = figures({ capacity: beds, confirmed: beds + 1, free: -1 })
+    it.each([1, 3, 8])(
+      "uses a labelled ratio in the over-capacity warning for %i beds",
+      async (beds) => {
+        const over = structuredClone(gendered)
+        over.terms[0]!.byGender.MALE = figures({ capacity: beds, confirmed: beds + 1, free: -1 })
 
-      await act(() => i18n.changeLanguage("cs"))
-      renderPage(over, 200, { termId: "t1" })
-      expect(
-        await screen.findByText(
-          `Muži: potvrzeno ${beds + 1} na ${beds} ${cs}. Kapacita je překročena o 1.`,
-        ),
-      ).toBeVisible()
-      cleanup()
+        await act(() => i18n.changeLanguage("cs"))
+        renderPage(over, 200, { termId: "t1" })
+        expect(
+          await screen.findByText(`Muži · Potvrzeno: ${beds + 1} / ${beds} · Nad kapacitu: 1`),
+        ).toBeVisible()
+        cleanup()
 
-      await act(() => i18n.changeLanguage("en"))
-      renderPage(over, 200, { termId: "t1" })
-      expect(
-        await screen.findByText(
-          `Men: ${beds + 1} confirmed for ${beds} ${en}. Capacity exceeded by 1.`,
-        ),
-      ).toBeVisible()
-    })
+        await act(() => i18n.changeLanguage("en"))
+        renderPage(over, 200, { termId: "t1" })
+        expect(
+          await screen.findByText(`Men · Confirmed: ${beds + 1} / ${beds} · Over capacity: 1`),
+        ).toBeVisible()
+      },
+    )
   })
 
   it("explains an unfinished event without terms and offers to add one", async () => {

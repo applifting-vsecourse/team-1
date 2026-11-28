@@ -112,12 +112,11 @@ describe("EventList", () => {
     ) as HTMLElement
     expect(within(row).getByText("Published")).toHaveAttribute("data-variant", "success")
     expect(
-      within(row).getByText("Kemp Lipno · 2 terms · July 2027 · Lipno nad Vltavou"),
+      within(row).getByText("Kemp Lipno · Terms: 2 · July 2027 · Lipno nad Vltavou"),
     ).toBeInTheDocument()
     expect(row.querySelector('[data-slot="date-tile"]')).toHaveTextContent("12")
-    expect(within(row).getByText("79 / 120")).toHaveClass("tabular-nums")
-    expect(within(row).getByText("confirmed")).toHaveClass("text-muted-foreground")
-    expect(within(row).getByRole("progressbar", { name: "79/120 confirmed" })).toBeInTheDocument()
+    expect(within(row).getByText("Beds: 79 / 120")).toHaveClass("tabular-nums")
+    expect(within(row).getByRole("progressbar", { name: "Beds: 79 / 120" })).toBeInTheDocument()
   })
 
   // Every bar is as long as the others: the cell has a fixed width and the bar spans all of it,
@@ -129,10 +128,7 @@ describe("EventList", () => {
     const cells = document.querySelectorAll('[data-slot="occupancy"]')
     expect(cells).toHaveLength(2)
     for (const cell of cells) expect(cell).toHaveClass("w-full", "lg:w-50", "lg:shrink-0")
-    expect(screen.getByRole("progressbar", { name: "79/120 confirmed" })).toHaveClass(
-      "h-1",
-      "w-full",
-    )
+    expect(screen.getByRole("progressbar", { name: "Beds: 79 / 120" })).toHaveClass("h-1", "w-full")
     const empty = screen
       .getByRole("heading", { name: draft.name })
       .closest("a")

@@ -126,7 +126,9 @@ describe("ParticipantTermChange", () => {
       })
 
       expect(
-        await screen.findByText(/You paid .* of .*You don’t need to pay the rest\./),
+        await screen.findByText(
+          "You’ve paid CZK 2,000. Total price: CZK 4,900. You don’t need to pay the rest.",
+        ),
       ).toBeVisible()
     })
 

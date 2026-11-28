@@ -372,9 +372,9 @@ describe("ApplicationsPage", () => {
     setup(Array.from({ length: 21 }, (_, index) => ({ ...application, id: `a${index}` })))
     const user = userEvent.setup()
     await user.click(await screen.findByRole("button", { name: "Next page" }))
-    expect(screen.getByText("21–21 of 21 results")).toBeInTheDocument()
+    expect(screen.getByText("21–21 / 21")).toBeInTheDocument()
     await user.type(screen.getByRole("searchbox"), "jana")
-    expect(await screen.findByText("1–20 of 21 results")).toBeInTheDocument()
+    expect(await screen.findByText("1–20 / 21")).toBeInTheDocument()
   })
   describe("page in the URL (#734)", () => {
     const rows = Array.from({ length: 41 }, (_, index) => ({ ...application, id: `a${index}` }))
@@ -391,7 +391,7 @@ describe("ApplicationsPage", () => {
 
     it("shows the page the URL holds, as after a reload or a shared link", async () => {
       setup(rows, false, undefined, null, { page: 3 })
-      expect(await screen.findByText("41–41 of 41 results")).toBeInTheDocument()
+      expect(await screen.findByText("41–41 / 41")).toBeInTheDocument()
     })
 
     it("returns to the first page when a filter or the search changes", async () => {
@@ -403,7 +403,7 @@ describe("ApplicationsPage", () => {
 
     it("falls back to the last existing page when the page is past the end", async () => {
       const change = setup(rows, false, undefined, null, { page: 9 })
-      expect(await screen.findByText("41–41 of 41 results")).toBeInTheDocument()
+      expect(await screen.findByText("41–41 / 41")).toBeInTheDocument()
       await waitFor(() => expect(change).toHaveBeenCalledWith({ page: 3 }, { isPush: false }))
     })
   })

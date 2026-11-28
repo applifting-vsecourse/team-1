@@ -68,7 +68,11 @@ export function BulkEvaluateDialog({
   const isStaleError = apiErrorCode(evaluate.error) === EVALUATION_PLAN_CHANGED
   return (
     <BulkActionDialog
-      title={t("bulkEvaluation.title", { count: data?.selected.total ?? applications.length })}
+      title={
+        hasRest && (data?.confirm.total ?? 0) > 0
+          ? t("bulkEvaluation.action")
+          : t("bulkEvaluation.title", { count: data?.selected.total ?? applications.length })
+      }
       isFullScreenOnMobile={false}
       isBusy={evaluate.isPending}
       onClose={onClose}
@@ -110,7 +114,7 @@ export function BulkEvaluateDialog({
               />
             </>
           ) : (
-            <p>{t("bulkEvaluation.confirmAll", { count: data.confirm.total })}</p>
+            <p>{t("bulkEvaluation.confirmAll")}</p>
           )}
         </>
       )}
@@ -133,8 +137,8 @@ function RestWarning({ data }: { data: BulkEvaluationPreview }) {
       <TriangleAlert aria-hidden="true" />
       <AlertTitle className="line-clamp-none">
         {confirm.total === 0
-          ? t("bulkEvaluation.confirmNone", { of: selected.total })
-          : t("bulkEvaluation.restWarning", { count: confirm.total, of: selected.total })}
+          ? t("bulkEvaluation.confirmNone")
+          : t("bulkEvaluation.restWarning", { confirmed: confirm.total, selected: selected.total })}
       </AlertTitle>
     </Alert>
   )

@@ -25,10 +25,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { usePagination } from "@/hooks/usePagination"
+import { formatDateRange, formatMonthRange } from "@/lib/date"
 import { cn } from "@/lib/utils"
 
 import { eventsQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
-import { termsSummary } from "@/features/events/lib/terms-summary"
 
 /**
  * The organizer's events: the H1 with the one primary „Vytvořit akci“ and the BrandDivider, a
@@ -239,7 +239,7 @@ function FilteredEvents({
 }
 
 /**
- * One event: the date tile, the name, „organization · dates · place“ (without the organization
+ * One event: the date tile, the name, organization, term count, dates and place (without the organization
  * while the list is filtered to one), whether applications are open and how full it is. A phone
  * stacks the status and the occupancy under the name and drops the chevron.
  */
@@ -247,7 +247,15 @@ function EventRow({ event, hasOrganization }: { event: OrganizerEvent; hasOrgani
   const { t } = useTranslation("events")
   const meta = [
     hasOrganization ? event.organizationName : null,
-    termsSummary(event, t),
+    event.startsOn && event.endsOn
+      ? t("list.termsSummary", {
+          count: event.termCount,
+          months:
+            event.termCount === 1
+              ? formatDateRange(event.startsOn, event.endsOn, { shouldShowYear: true })
+              : formatMonthRange(event.startsOn, event.endsOn),
+        })
+      : t("header.noTerms"),
     event.location,
   ]
     .filter(Boolean)
@@ -290,11 +298,7 @@ function EventRow({ event, hasOrganization }: { event: OrganizerEvent; hasOrgani
   )
 }
 
-/**
- * Confirmed of all beds across the terms: „152 / 160“ in tabular figures and „potvrzených“ muted, with
- * a 4 px bar under it. The cell has a fixed width (200 px from `lg`, the content width on a phone), so
- * every bar is as long as the others whatever the count says; a dash until there are terms and rooms.
- */
+/** Occupancy, with a fixed-width bar when rooms have been configured. */
 function Occupancy({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
   const confirmed = event.terms.reduce((sum, term) => sum + term.confirmedCount, 0)
@@ -309,11 +313,8 @@ function Occupancy({ event }: { event: OrganizerEvent }) {
         <span className="text-sm">{t("list.noCapacity")}</span>
       ) : (
         <>
-          <p className="text-sm">
-            <span className="font-medium tabular-nums">
-              {t("list.occupancyCount", { confirmed, capacity })}
-            </span>{" "}
-            <span className="text-muted-foreground">{t("list.occupancyUnit")}</span>
+          <p className="text-sm font-medium tabular-nums">
+            {t("list.occupancyConfirmed", { confirmed, capacity })}
           </p>
           <Progress
             value={(confirmed / capacity) * 100}

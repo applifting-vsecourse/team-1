@@ -196,7 +196,7 @@ describe("paged rooms in the view Rooms (#728)", () => {
     const { user, search, history } = renderAt("/rooms?termId=t1&view=overview")
     await screen.findByRole("navigation", { name: "Pagination" })
     expect(onScreen()).toEqual(range(1, 20))
-    expect(pagination()).toHaveTextContent("1–20 of 300 results")
+    expect(pagination()).toHaveTextContent("1–20 / 300")
 
     await goToPage(user, 2)
     await waitFor(() => expect(onScreen()).toEqual(range(21, 40)))
@@ -294,7 +294,7 @@ describe("paged rooms in the room assignment (#728)", () => {
     await waitFor(() => expect(search().page).toBeUndefined())
     expect(inTable(200)).toBeInTheDocument()
     expect(inTable(220)).not.toBeInTheDocument()
-    expect(pagination()).toHaveTextContent("1–20 of 100 results")
+    expect(pagination()).toHaveTextContent("1–20 / 100")
 
     await goToPage(user, 3)
     await waitFor(() => expect(search().page).toBe(3))
