@@ -88,7 +88,6 @@ export function ApplicationDetail({ applicationId, boardEntry }: ApplicationDeta
             <Button
               asChild
               variant="outline"
-              className="w-55 max-w-full"
             >
               <Link
                 to={ROUTES.participant.editApplication}
