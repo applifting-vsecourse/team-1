@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { format } from "date-fns"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -17,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { usePagination } from "@/hooks/usePagination"
 import { formatDate, formatDateRange } from "@/lib/date"
+import { todayIsoInAppZone } from "@/lib/date-input"
 import { formatCzk } from "@/lib/money"
 import { termTitle } from "@/lib/term-label"
 
@@ -54,7 +54,8 @@ export function ApplicationList({ renderBoardBadge }: ApplicationListProps) {
   const [view, setView] = useState<View>("upcoming")
   const title = t("applications.title")
 
-  if (data?.length === 0) {
+  // A failed refetch keeps the cached data: an empty list from before is an error now, not "no applications".
+  if (data?.length === 0 && !error) {
     return (
       <>
         <BrandPageHeader
@@ -81,7 +82,8 @@ export function ApplicationList({ renderBoardBadge }: ApplicationListProps) {
     )
   }
 
-  const today = format(new Date(), "yyyy-MM-dd")
+  // Terms are Prague days (D-110), whatever the browser's zone.
+  const today = todayIsoInAppZone()
   const content = isPending ? (
     <ListSkeleton />
   ) : error ? (

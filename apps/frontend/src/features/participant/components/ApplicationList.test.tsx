@@ -11,11 +11,23 @@ import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { MyApplication } from "@/features/participant/api/applications"
+import type * as DateInput from "@/lib/date-input"
+
+import {
+  myApplicationsQueryOptions,
+  type MyApplication,
+} from "@/features/participant/api/applications"
 import { ApplicationList } from "@/features/participant/components/ApplicationList"
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get } }))
+
+// The app's (Prague) day: the real one, unless a test pins it.
+const appDay = vi.hoisted(() => ({ pinned: undefined as string | undefined }))
+vi.mock("@/lib/date-input", async (importOriginal) => {
+  const actual = await importOriginal<typeof DateInput>()
+  return { ...actual, todayIsoInAppZone: () => appDay.pinned ?? actual.todayIsoInAppZone() }
+})
 
 const application = (overrides: Partial<MyApplication> = {}): MyApplication => ({
   id: "a1",
@@ -70,12 +82,13 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   ...overrides,
 })
 
-const renderList = (renderBoardBadge?: (applicationId: string) => ReactNode) => {
+const renderList = (
+  renderBoardBadge?: (applicationId: string) => ReactNode,
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+) => {
   const root = createRootRoute({
     component: () => (
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-      >
+      <QueryClientProvider client={client}>
         <ApplicationList renderBoardBadge={renderBoardBadge} />
       </QueryClientProvider>
     ),
@@ -100,7 +113,10 @@ describe("ApplicationList", () => {
     vi.useFakeTimers({ toFake: ["Date"] })
     vi.setSystemTime(new Date("2026-11-28T10:00:00Z"))
   })
-  afterEach(() => vi.useRealTimers())
+  afterEach(() => {
+    vi.useRealTimers()
+    appDay.pinned = undefined
+  })
 
   it("puts the badge of the board under the participant's name, in the row", async () => {
     respondWith([application()])
@@ -146,6 +162,37 @@ describe("ApplicationList", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't load your applications")
     expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument()
+  })
+
+  it("shows the error, not the empty state, when a refetch of an empty list fails", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    client.setQueryData(myApplicationsQueryOptions().queryKey, [])
+    get.mockReturnValue({ json: () => Promise.reject(new Error("Boom")) })
+    renderList(undefined, client)
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't load your applications")
+    expect(screen.queryByText("You don't have any applications yet")).not.toBeInTheDocument()
+  })
+
+  it("splits upcoming and past by the Prague day, not the browser's", async () => {
+    // Noon UTC on 10 July is 10 July in the browser, whatever its zone; the app's (Prague) day
+    // says 11 July, so a term ending on 10 July is over.
+    vi.setSystemTime(new Date("2027-07-10T12:00:00Z"))
+    appDay.pinned = "2027-07-11"
+    respondWith([
+      application({
+        paymentDetails: null,
+        terms: [{ ...application().terms[0]!, endsOn: "2027-07-10" }],
+      }),
+    ])
+    const user = userEvent.setup()
+    renderList()
+
+    expect(
+      await screen.findByText("No upcoming applications. You will find past ones under Past."),
+    ).toBeVisible()
+    await user.click(screen.getByRole("tab", { name: "Past" }))
+    expect(await screen.findByRole("link", { name: /Jana Nováková/ })).toBeVisible()
   })
 
   it("has no to-do card when the domain returns no payment details", async () => {
