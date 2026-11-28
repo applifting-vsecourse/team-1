@@ -8,10 +8,7 @@ import {
   StatementRow,
   UnmatchedReason,
 } from "@/modules/payments/domain/bank-statement"
-import {
-  PaidTermNotice,
-  PaymentsRepository,
-} from "@/modules/payments/repositories/payments.repository"
+import { PaymentsRepository } from "@/modules/payments/repositories/payments.repository"
 import { Injectable } from "@nestjs/common"
 
 export type StoredBankTransaction = {
@@ -129,9 +126,8 @@ export class BankTransactionsRepository {
    * and then finds it matched; the payment lock of `PaymentsRepository.record` is per application
    * only. The amount and currency are read from the locked row, so a re-import that changed them
    * meanwhile is honoured. Nothing is written when the transaction is not unmatched any more.
-   * @returns the terms the payment closed (for the e-mail, sent after the commit), "NOT_ASSIGNABLE"
-   * when the locked row is not in whole crowns, or null when the transaction is not an unmatched
-   * one of this event and organization.
+   * @returns "ASSIGNED", "NOT_ASSIGNABLE" when the locked row is not in whole crowns, or null when
+   * the transaction is not an unmatched one of this event and organization.
    */
   async assign(input: {
     id: string
@@ -141,7 +137,7 @@ export class BankTransactionsRepository {
     applicationId: string
     termId: string
     previousReceiptId: string | null
-  }): Promise<PaidTermNotice[] | "NOT_ASSIGNABLE" | null> {
+  }): Promise<"ASSIGNED" | "NOT_ASSIGNABLE" | null> {
     return this.prisma.$transaction(async (tx) => {
       const locked = await tx.$queryRaw<
         { amountCents: number; currency: string }[]
@@ -153,7 +149,7 @@ export class BankTransactionsRepository {
       // matching a transaction again after cancellation.
       const receiptId = `bank-manual:${randomUUID()}`
       // The application is locked by recordWithin before the row gets a foreign key to it.
-      const paid = await this.payments.recordWithin(tx, {
+      await this.payments.recordWithin(tx, {
         applicationId: input.applicationId,
         organizationId: input.organizationId,
         recordedById: input.recordedById,
@@ -171,7 +167,7 @@ export class BankTransactionsRepository {
           receiptId,
         },
       })
-      return paid
+      return "ASSIGNED"
     })
   }
 
@@ -182,8 +178,7 @@ export class BankTransactionsRepository {
    * after `recordWithin` locked the application: the foreign key check would otherwise hold a shared
    * lock on the application in two parallel imports and both would then wait for the exclusive one
    * (deadlock).
-   * @returns the terms the payment closed, or null when a parallel upload or assignment stored or
-   * matched the row first.
+   * @returns false when a parallel upload or assignment stored or matched the row first.
    */
   async saveMatched(input: {
     organizationId: string
@@ -195,7 +190,7 @@ export class BankTransactionsRepository {
     termId?: string
     amountCzk: number
     receiptId: string
-  }): Promise<PaidTermNotice[] | null> {
+  }): Promise<boolean> {
     const data = {
       ...this.rowData(input),
       status: "MATCHED" as const,
@@ -210,7 +205,7 @@ export class BankTransactionsRepository {
           const locked = await tx.$queryRaw<
             { id: string }[]
           >`SELECT id FROM bank_transaction WHERE id = ${input.retryOf} AND "organizationId" = ${input.organizationId} AND status = 'UNMATCHED' AND "receiptId" IS NULL FOR UPDATE`
-          if (!locked.length) return null
+          if (!locked.length) return false
           id = input.retryOf
           await tx.bankTransaction.update({ where: { id }, data })
         } else {
@@ -223,7 +218,7 @@ export class BankTransactionsRepository {
             select: { id: true },
           }))
         }
-        const paid = await this.payments.recordWithin(tx, {
+        await this.payments.recordWithin(tx, {
           applicationId: input.applicationId,
           organizationId: input.organizationId,
           recordedById: input.importedById,
@@ -236,11 +231,11 @@ export class BankTransactionsRepository {
           where: { id },
           data: { applicationId: input.applicationId },
         })
-        return paid
+        return true
       })
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002")
-        return null
+        return false
       throw error
     }
   }

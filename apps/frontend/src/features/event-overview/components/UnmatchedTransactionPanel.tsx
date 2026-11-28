@@ -26,6 +26,14 @@ import {
 import { preselectedTermId } from "@/features/event-overview/lib/assignment"
 
 const SEARCH_DELAY_MS = 250
+/** The DESIGN.md tone of each term status. */
+const STATUS_TONE = {
+  TO_EVALUATE: "neutral",
+  CONFIRMED: "positive",
+  WAITLISTED: "waitlist",
+  CANCELLED: "inactive",
+  ARCHIVED: "neutral",
+} as const
 const choiceOf = (applicationId: string, termId: string) => `${applicationId}:${termId}`
 
 /**
@@ -175,7 +183,9 @@ export function UnmatchedTransactionPanel({
                       className="flex flex-1 flex-wrap items-center gap-x-3 gap-y-1 font-normal"
                     >
                       <TermLabel term={term} />
-                      <Badge>{t(`termStatus.state.${term.status}`)}</Badge>
+                      <Badge variant={STATUS_TONE[term.status]}>
+                        {t(`termStatus.state.${term.status}`)}
+                      </Badge>
                       {term.owedCzk > 0 ? (
                         <span className="text-sm text-muted-foreground">
                           {t("bankStatement.unmatchedList.owed", {

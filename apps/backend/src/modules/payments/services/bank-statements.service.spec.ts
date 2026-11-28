@@ -1,12 +1,21 @@
+import { QueuedEmailDispatcher } from "@/modules/participants/services/queued-email.dispatcher"
 import { BankTransactionsRepository } from "@/modules/payments/repositories/bank-transactions.repository"
-import { PaymentsService } from "@/modules/payments/services/payments.service"
 import { Identity } from "@/shared/auth/domain/identity"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
-import { Logger } from "@nestjs/common"
 import { BankStatementsService } from "./bank-statements.service"
 
+const user = { id: "u1" } as Identity
+
+const build = (repository: object, kick: jest.Mock): BankStatementsService =>
+  new BankStatementsService(
+    repository as BankTransactionsRepository,
+    { kick } as unknown as QueuedEmailDispatcher,
+    {
+      assertCanAccessEvent: jest.fn().mockResolvedValue({ organizationId: "org" }),
+    } as unknown as OrganizationAccessService,
+  )
+
 describe("BankStatementsService.match (US-562)", () => {
-  const user = { id: "u1" } as Identity
   const unmatched = {
     id: "t1",
     status: "UNMATCHED" as const,
@@ -17,27 +26,20 @@ describe("BankStatementsService.match (US-562)", () => {
   let repository: jest.Mocked<
     Pick<BankTransactionsRepository, "findTransaction" | "applicationBelongsToEvent" | "assign">
   >
-  let notify: jest.Mock
+  let kick: jest.Mock
   let service: BankStatementsService
 
   beforeEach(() => {
     repository = {
       findTransaction: jest.fn().mockResolvedValue(unmatched),
       applicationBelongsToEvent: jest.fn().mockResolvedValue(true),
-      assign: jest.fn().mockResolvedValue([]),
+      assign: jest.fn().mockResolvedValue("ASSIGNED"),
     }
-    notify = jest.fn().mockResolvedValue(undefined)
-    service = new BankStatementsService(
-      repository as unknown as BankTransactionsRepository,
-      { notifyPaymentReceived: notify } as unknown as PaymentsService,
-      {
-        assertCanAccessEvent: jest.fn().mockResolvedValue({ organizationId: "org" }),
-      } as unknown as OrganizationAccessService,
-    )
+    kick = jest.fn()
+    service = build(repository, kick)
   })
 
-  it("assigns the payment in one write and e-mails after it", async () => {
-    repository.assign.mockResolvedValue([{ name: null, startsOn: new Date(), endsOn: new Date() }])
+  it("assigns the payment in one write and starts the e-mail queue after it", async () => {
     await service.match(user, "e1", "t1", "a1", "term1")
     expect(repository.assign).toHaveBeenCalledWith({
       id: "t1",
@@ -48,7 +50,10 @@ describe("BankStatementsService.match (US-562)", () => {
       termId: "term1",
       previousReceiptId: null,
     })
-    expect(notify).toHaveBeenCalledWith("a1", "org", expect.any(Array))
+    expect(kick).toHaveBeenCalledTimes(1)
+    expect(kick.mock.invocationCallOrder[0]).toBeGreaterThan(
+      repository.assign.mock.invocationCallOrder[0],
+    )
   })
 
   it.each([
@@ -73,7 +78,7 @@ describe("BankStatementsService.match (US-562)", () => {
     await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
       response: { code: "BANK_TRANSACTION_ALREADY_MATCHED" },
     })
-    expect(notify).not.toHaveBeenCalled()
+    expect(kick).not.toHaveBeenCalled()
   })
 
   it("refuses with a conflict when the locked row turned out not to be assignable", async () => {
@@ -81,21 +86,13 @@ describe("BankStatementsService.match (US-562)", () => {
     await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
       response: { code: "BANK_TRANSACTION_NOT_ASSIGNABLE" },
     })
-    expect(notify).not.toHaveBeenCalled()
+    expect(kick).not.toHaveBeenCalled()
   })
 
-  it("finishes with success when the e-mail after the commit fails", async () => {
-    repository.assign.mockResolvedValue([{ name: null, startsOn: new Date(), endsOn: new Date() }])
-    notify.mockRejectedValue(new Error("mail context failed"))
-    jest.spyOn(Logger.prototype, "error").mockImplementation(() => undefined)
-    await expect(service.match(user, "e1", "t1", "a1", "term1")).resolves.toBeUndefined()
-    expect(Logger.prototype.error).toHaveBeenCalled()
-  })
-
-  it("sends no e-mail when the write fails", async () => {
+  it("leaves the e-mail queue alone when the write fails", async () => {
     repository.assign.mockRejectedValue(new Error("boom"))
     await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toThrow("boom")
-    expect(notify).not.toHaveBeenCalled()
+    expect(kick).not.toHaveBeenCalled()
   })
 
   it("refuses an application of another event and an unknown transaction", async () => {
@@ -107,5 +104,37 @@ describe("BankStatementsService.match (US-562)", () => {
     await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
       status: 403,
     })
+  })
+})
+
+describe("BankStatementsService.import e-mails (#737)", () => {
+  const statement = [
+    "ID operace;Datum;Objem;Měna;Protiúčet;Název protiúčtu;Kód banky;Název banky;KS;VS;SS;Poznámka;Zpráva pro příjemce;Typ",
+    "r1;05.05.2026;100;CZK;1;Test Payer;800;CS;;7001;;;;Platba",
+    "r2;05.05.2026;200;CZK;1;Test Payer;800;CS;;7001;;;;Platba",
+  ].join("\r\n")
+
+  it("starts the queue for each payment it wrote and not for a row a parallel upload took", async () => {
+    const saveMatched = jest.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false)
+    const kick = jest.fn()
+    const service = build(
+      {
+        find: jest.fn().mockResolvedValue(null),
+        findApplication: jest.fn().mockResolvedValue({
+          id: "a1",
+          number: 7,
+          terms: [{ termId: "term1", termNumber: 1, status: "CONFIRMED", owedCzk: 300 }],
+        }),
+        saveMatched,
+      },
+      kick,
+    )
+
+    await expect(service.import(user, "e1", statement, "cs")).resolves.toMatchObject({
+      matchedCount: 1,
+      duplicateCount: 1,
+    })
+    expect(saveMatched).toHaveBeenCalledTimes(2)
+    expect(kick).toHaveBeenCalledTimes(1)
   })
 })

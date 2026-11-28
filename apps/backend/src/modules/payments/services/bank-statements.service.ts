@@ -1,5 +1,6 @@
 import { Locale } from "@/core/email/locale"
 import { parseVariableSymbol } from "@/modules/applications/domain/variable-symbol"
+import { QueuedEmailDispatcher } from "@/modules/participants/services/queued-email.dispatcher"
 import {
   CandidateWithAfterPayment,
   findCandidates,
@@ -17,12 +18,10 @@ import {
   BankTransactionsRepository,
   StoredBankTransaction,
 } from "@/modules/payments/repositories/bank-transactions.repository"
-import { PaidTermNotice } from "@/modules/payments/repositories/payments.repository"
-import { PaymentsService } from "@/modules/payments/services/payments.service"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
-import { HttpStatus, Injectable, Logger } from "@nestjs/common"
+import { HttpStatus, Injectable } from "@nestjs/common"
 
 export type StatementImportResult = {
   matchedCount: number
@@ -45,11 +44,9 @@ export type StatementImportResult = {
 
 @Injectable()
 export class BankStatementsService {
-  private readonly logger = new Logger(BankStatementsService.name)
-
   constructor(
     private readonly repository: BankTransactionsRepository,
-    private readonly payments: PaymentsService,
+    private readonly emailQueue: QueuedEmailDispatcher,
     private readonly access: OrganizationAccessService,
   ) {}
 
@@ -121,7 +118,7 @@ export class BankStatementsService {
       }
       // Deterministic receipt id: the row and its payment commit together, a retry adds nothing.
       const receiptId = `bank:${organizationId}:${row.externalId}`
-      const paid = await this.repository.saveMatched({
+      const isSaved = await this.repository.saveMatched({
         organizationId,
         eventId,
         importedById: user.id,
@@ -132,12 +129,13 @@ export class BankStatementsService {
         amountCzk: decision.amountCzk,
         receiptId,
       })
-      if (!paid) {
+      if (!isSaved) {
         result.duplicateCount++
         outcomes.set(record, { kind: "duplicate" })
         continue
       }
-      await this.notifyAfterCommit(decision.applicationId, organizationId, paid)
+      // #737: the payment queued its e-mail in the same transaction.
+      this.emailQueue.kick()
       // A matched decision always comes with the application it was looked up for.
       if (application)
         outcomes.set(record, {
@@ -193,7 +191,7 @@ export class BankStatementsService {
    * US-562: the organizer assigns an unmatched transaction to one term of an application. The payment
    * is written like an import writes it, under the same receipt id, so an upload of the statement
    * later counts the row as a duplicate. The payment and the matched status commit together under a
-   * lock of the transaction row; the e-mail follows the commit.
+   * lock of the transaction row, together with the queued e-mail no. 8.
    */
   async match(
     user: Identity,
@@ -217,7 +215,7 @@ export class BankStatementsService {
       throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_NOT_ASSIGNABLE")
     if (!(await this.repository.applicationBelongsToEvent(eventId, applicationId)))
       throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-    const paid = await this.repository.assign({
+    const outcome = await this.repository.assign({
       id: transaction.id,
       eventId,
       organizationId,
@@ -227,26 +225,10 @@ export class BankStatementsService {
       previousReceiptId,
     })
     // The row was matched or moved to another event after it was read.
-    if (!paid) throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")
+    if (!outcome) throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")
     // Amount or currency changed by a re-import after it was read.
-    if (paid === "NOT_ASSIGNABLE")
+    if (outcome === "NOT_ASSIGNABLE")
       throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_NOT_ASSIGNABLE")
-    await this.notifyAfterCommit(applicationId, organizationId, paid)
-  }
-
-  /** The payment is committed: a failing e-mail is logged and never fails the request. */
-  private async notifyAfterCommit(
-    applicationId: string,
-    organizationId: string,
-    paid: PaidTermNotice[],
-  ): Promise<void> {
-    try {
-      await this.payments.notifyPaymentReceived(applicationId, organizationId, paid)
-    } catch (error) {
-      this.logger.error(
-        `Payment received e-mail for application ${applicationId} failed after the payment was saved`,
-        error instanceof Error ? error.stack : String(error),
-      )
-    }
+    this.emailQueue.kick()
   }
 }

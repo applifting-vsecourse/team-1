@@ -79,6 +79,26 @@ describe("bank statement import (US-42)", () => {
     return application.number
   }
 
+  /**
+   * E-mail no. 8 of a bank payment goes through the queue (#737). Waits until no job of the
+   * recipient is waiting, so a second queued e-mail cannot hide behind the first one.
+   */
+  const expectOnePaymentEmail = async (email: string): Promise<void> => {
+    const jobs = () => prisma.emailJob.findMany({ where: { recipient: email } })
+    const deadline = Date.now() + 10_000
+    let queued = await jobs()
+    while (queued.some((job) => job.status === "PENDING" || job.status === "SENDING")) {
+      if (Date.now() > deadline) throw new Error("The queue did not send the e-mails in time")
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      queued = await jobs()
+    }
+    expect(queued).toMatchObject([{ template: "PAYMENT_RECEIVED", status: "SENT", attempts: 1 }])
+    await latestEmailTo(email)
+    // Time for a second e-mail sent around the queue to reach the console.
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    expect(allEmailsTo(email)).toHaveLength(1)
+  }
+
   beforeAll(async () => {
     prisma = await connectTestPrisma()
     await resetAndSeed(prisma)
@@ -189,6 +209,16 @@ describe("bank statement import (US-42)", () => {
     expect(second[1]).toBe(`${original[1]};Skipped: already imported earlier`)
     expect(second[2]).toBe(`${original[2]};Unmatched: no variable symbol`)
     expect(second[3]).toBe(`${original[3]};Skipped: outgoing transaction`)
+  })
+
+  it("sends exactly one e-mail through the queue for an imported payment of one term", async () => {
+    const number = await createApplication(true, "Import e-mail")
+    const { email } = await prisma.application.findFirstOrThrow({ where: { eventId, number } })
+    const csv = statement(`mail${Date.now()}-`, [[6900, String(number * 1000 + firstTerm.number)]])
+    expect(await (await upload(csv)).json()).toMatchObject({ matchedCount: 1 })
+    await expectOnePaymentEmail(email)
+    expect(await (await upload(csv)).json()).toMatchObject({ duplicateCount: 1 })
+    await expectOnePaymentEmail(email)
   })
 
   it("imports parallel statements for one application without a deadlock", async () => {
@@ -318,11 +348,7 @@ describe("bank statement import (US-42)", () => {
         { term: application.termNumbers[1], amountCzk: 500 },
       ])
       // #737: the e-mail of a bank import goes through the queue, so it arrives after the answer.
-      await latestEmailTo(application.email)
-      expect(allEmailsTo(application.email)).toHaveLength(1)
-      expect(
-        await prisma.emailJob.findMany({ where: { recipient: application.email } }),
-      ).toMatchObject([{ template: "PAYMENT_RECEIVED" }])
+      await expectOnePaymentEmail(application.email)
       expect(await (await upload(csv)).json()).toMatchObject({ matchedCount: 0, duplicateCount: 1 })
       expect(await rowsOf(application.number)).toHaveLength(2)
       expect(allEmailsTo(application.email)).toHaveLength(1)
@@ -397,6 +423,16 @@ describe("bank statement import (US-42)", () => {
       })
     const applicationOf = async (number: number) =>
       prisma.application.findFirstOrThrow({ where: { eventId, number } })
+
+    it("sends exactly one e-mail through the queue for a manual assignment", async () => {
+      const application = await applicationOf(await createApplication(true, "Match e-mail"))
+      const { id } = await importUnmatched(6900)
+      const body = { applicationId: application.id, termId: firstTerm.id }
+      expect((await match(id, body)).status).toBe(204)
+      await expectOnePaymentEmail(application.email)
+      expect((await match(id, body)).status).toBe(409)
+      await expectOnePaymentEmail(application.email)
+    })
 
     it("records a BANK_IMPORT payment for a manual assignment and marks the transaction", async () => {
       const number = await createApplication(true)
