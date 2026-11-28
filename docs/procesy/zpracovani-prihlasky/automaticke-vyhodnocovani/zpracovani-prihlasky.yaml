@@ -34,6 +34,14 @@ nodes:
       label: "Od data schvalování požadavků účastníků přidá termín přihlašovatel žádostí (zadost-o-zmenu). Platby se při změně termínu nepřevádějí (D-051, D-088), vratka se nevytváří (D-134).",
     }
 
+  - { id: e_obnoveni, type: event, label: Organizátor obnoví zrušený termín přihlášky }
+  - { id: g_obnoveni, type: gateway, kind: x }
+  - {
+      id: n_obnoveni,
+      type: note,
+      label: "Jen nezrušený termín akce do jeho posledního dne (D-137, D-228), nad kapacitu jen vědomě (D-134). Dřívější platby u termínu zůstávají.",
+    }
+
   - { id: s_zrusena, type: end, label: "Přihláška v termínu: zrušená" }
   - { id: s_nahradnik, type: state, label: "Přihláška v termínu: náhradník" }
   - { id: s_potvrzena_dluh, type: state, label: "Přihláška v termínu: potvrzená s dluhem" }
@@ -152,6 +160,12 @@ flows:
   - { from: g_pridani, to: s_potvrzena_dluh, label: přihlašovatel přidá termín a je volné lůžko }
   - { from: g_pridani, to: s_nahradnik, label: přihlašovatel přidá termín a volné lůžko není }
   - { from: n_pridani, to: e_pridani_terminu, dashed: true }
+
+  # obnovení zrušeného termínu organizátorem (D-228)
+  - { from: e_obnoveni, to: g_obnoveni }
+  - { from: g_obnoveni, to: s_potvrzena_dluh, label: platby nepokrývají částku k úhradě }
+  - { from: g_obnoveni, to: s_potvrzena_zaplacena, label: platby pokrývají částku k úhradě }
+  - { from: n_obnoveni, to: e_obnoveni, dashed: true }
 
   # náhradník čeká na jednu z pěti událostí
   - { from: s_nahradnik, to: uvolni_se_luzko }

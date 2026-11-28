@@ -28,5 +28,7 @@ stateDiagram-v2
   n_nahradnik --> n_zrusena : Organizátor zruší termín<br/>akce / cancel()
   n_potvrzena_dluh --> n_zrusena : Organizátor zruší termín<br/>akce / cancel()
   n_potvrzena_zaplacena --> n_zrusena : Organizátor zruší termín<br/>akce / cancel()
+  n_zrusena --> n_potvrzena_dluh : Organizátor obnoví zrušený<br/>termín přihlášky a platby<br/>u něj nepokrývají částku k<br/>úhradě / addTerm()
+  n_zrusena --> n_potvrzena_zaplacena : Organizátor obnoví zrušený<br/>termín přihlášky a platby<br/>u něj pokrývají částku k<br/>úhradě / addTerm()
   n_zrusena --> [*]
   n_archivovana --> [*]

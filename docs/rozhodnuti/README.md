@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**221 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**224 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -109,6 +109,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-227](#d-227) | Organizátor vrátí „Nemám žádné zdravotní omezení“ na nevyplněný údaj | 2026-11-28 | `pm` | produkt |
 | [D-220](#d-220) | Přání, příjezd a odjezd a první zdravotní omezení se po konci termínu uzavírají | 2026-11-28 | `pm` | produkt |
 | [D-209](#d-209) | Počty po kombinacích omezení jako samostatný ticket | 2026-11-26 | `pm` | produkt |
 | [D-207](#d-207) | Souhrn pro kuchyni po dnech: tři jídla s pevnými časy | 2026-11-26 | `pm` | produkt |
@@ -203,6 +204,8 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-228](#d-228) | Organizátor přidá termín a obnoví zrušený v téže přihlášce | 2026-11-28 | `pm` | produkt |
+| [D-226](#d-226) | Organizátor zadá odhlášku i u náhradníka a u přihlášky K vyhodnocení | 2026-11-28 | `pm` | produkt |
 | [D-205](#d-205) | Katalog ukazuje jen akce s funkčním přihlašováním | 2026-11-26 | `pm` | produkt |
 | [D-203](#d-203) | Zápis organizátora za účastníka: souhlas, historie, bez upozornění | 2026-11-26 | `pm` | produkt |
 | [D-196](#d-196) | Organizátor nemění e-mail přihlášky | 2026-11-26 | `pm` | produkt |
@@ -2811,3 +2814,40 @@ _Nic._
 - **Text:** Nové heslo se při obnově zadává dvakrát. Když se hesla neshodují, heslo se neuloží a zobrazí se „Hesla se neshodují.“ / „The passwords don't match.“
 - **Dotčené US:** [#844](https://github.com/applifting-vsecourse/team-1/issues/844)
 - **Zdroj:** [rozhodnutí PM 28. 11. 2026 v #844](https://github.com/applifting-vsecourse/team-1/issues/844#issuecomment-7239200881)
+
+<a id="d-226"></a>
+
+### D-226 – Organizátor zadá odhlášku i u náhradníka a u přihlášky K vyhodnocení
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** Organizátor má akci „Odhlásit“ i u přihlášky v termínu ve stavu Náhradník a K vyhodnocení, i když přihláška nemá žádný potvrzený termín. Přihláška v termínu přejde do Zrušené a přihlašovatel dostane souhrnný e-mail o změně přihlášky jako u D-127, ne e-mail o zrušení organizátorem ani o zamítnutí.
+- **Dotčené US:** [#867](https://github.com/applifting-vsecourse/team-1/issues/867)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026, audit #662 (PR #782)](https://github.com/applifting-vsecourse/team-1/pull/782#issuecomment-7242168026)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/rucni-vyhodnocovani/`: hotovo (d320cdcd), odhláška ze stavu K vyhodnocení v procesu a životním cyklu
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/README.md`: hotovo (d320cdcd), pravidlo o odhlášce
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (d320cdcd), e-mail u odhlášky z K vyhodnocení
+- **Poznámka:** Doplňuje D-127.
+
+<a id="d-227"></a>
+
+### D-227 – Organizátor vrátí „Nemám žádné zdravotní omezení“ na nevyplněný údaj
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** Organizátor může potvrzení „Nemám žádné zdravotní omezení“ vzít zpět a vrátit údaj na nevyplněný, stejně jako přihlašovatel.
+- **Dotčené US:** [#868](https://github.com/applifting-vsecourse/team-1/issues/868)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026, audit #662 (PR #782)](https://github.com/applifting-vsecourse/team-1/pull/782#issuecomment-7242168026)
+- **Poznámka:** Uložené zdravotní poznámky se netýká (D-122).
+
+<a id="d-228"></a>
+
+### D-228 – Organizátor přidá termín a obnoví zrušený v téže přihlášce
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** přihlašování na akce
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** Organizátor může v téže přihlášce samostatnou akcí přidat další termín a obnovit zrušený, bez odebrání jiného. Platí pro nezrušený termín akce do jeho posledního dne (D-137). Stav a kapacita se řídí D-134 (Potvrzená s dluhem, nad kapacitu jen vědomě); dřívější platby zrušeného termínu u něj zůstávají.
+- **Dotčené US:** [#869](https://github.com/applifting-vsecourse/team-1/issues/869)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026, audit #662 (PR #782)](https://github.com/applifting-vsecourse/team-1/pull/782#issuecomment-7242168026)
+- **Dokumentace:** `docs/procesy/zpracovani-prihlasky/`: hotovo (d320cdcd), obnovení zrušeného termínu v procesech a životních cyklech obou režimů
+- **Dokumentace:** `docs/SLOVNIK.md`: hotovo (d320cdcd), Zrušená není vždy koncová
