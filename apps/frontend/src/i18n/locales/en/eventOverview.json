@@ -177,6 +177,7 @@
       "noResults": "No application matches",
       "owed": "owed {{amount}}",
       "payer": "Payer and message",
+      "previewOutdated": "The payment changed",
       "reason": "Reason",
       "reasons": {
         "AMOUNT_NOT_WHOLE": "The amount is not in whole crowns",

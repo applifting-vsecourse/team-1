@@ -81,9 +81,26 @@ class CandidateDto {
 }
 
 export class ApplicationCandidatesResponseDto {
+  @ApiProperty({
+    nullable: true,
+    type: Number,
+    description:
+      "Amount of the requested transaction the preview was computed from, hundredths of the currency",
+  })
+  previewAmountCents!: number | null
+
   @ApiProperty({ type: [CandidateDto] }) candidates!: CandidateDto[]
 
-  static fromDomain(rows: CandidateWithAfterPayment[]): ApplicationCandidatesResponseDto {
-    return { candidates: rows.map((row) => ({ ...row, terms: row.terms.map((t) => ({ ...t })) })) }
+  static fromDomain({
+    previewAmountCents,
+    candidates,
+  }: {
+    previewAmountCents: number | null
+    candidates: CandidateWithAfterPayment[]
+  }): ApplicationCandidatesResponseDto {
+    return {
+      previewAmountCents,
+      candidates: candidates.map((row) => ({ ...row, terms: row.terms.map((t) => ({ ...t })) })),
+    }
   }
 }

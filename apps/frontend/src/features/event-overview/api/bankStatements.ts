@@ -75,6 +75,8 @@ export async function uploadBankStatement(
 }
 
 const candidatesSchema = z.object({
+  /** The amount the backend computed `afterPayment` from. */
+  previewAmountCents: z.number().int().nullable(),
   candidates: z.array(
     z.object({
       id: z.string(),
@@ -133,7 +135,7 @@ export const applicationCandidatesQueryOptions = (
             searchParams: { q: query, transactionId },
           })
           .json(),
-      ).candidates,
+      ),
   })
 
 /** `POST …/bank-transactions/:id/match` — the payment of the transaction goes to one term. */

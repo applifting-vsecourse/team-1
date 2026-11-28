@@ -613,11 +613,13 @@ describe("bank statement import (US-42)", () => {
     })
 
     it.each([
-      [null, "NO_VARIABLE_SYMBOL"],
-      ["xyz", "UNKNOWN_VARIABLE_SYMBOL"],
+      ["missing", () => null, "NO_VARIABLE_SYMBOL"],
+      ["foreign", () => "xyz", "UNKNOWN_VARIABLE_SYMBOL"],
+      ["of another term", (number: number) => `${number}999`, "UNKNOWN_VARIABLE_SYMBOL"],
+      ["of the summary", (number: number) => `${number}000`, "UNKNOWN_VARIABLE_SYMBOL"],
     ])(
-      "reopens an older manual match when the reference %s proves its origin",
-      async (vs, reason) => {
+      "reopens an older manual match when a %s symbol proves its origin",
+      async (_name, symbolOf, reason) => {
         const application = await applicationOf(
           await createApplication(true, "Legacy manual match"),
         )
@@ -632,7 +634,11 @@ describe("bank statement import (US-42)", () => {
         })
         await prisma.bankTransaction.update({
           where: { id },
-          data: { receiptId: legacyReceiptId, reason: null, variableSymbol: vs },
+          data: {
+            receiptId: legacyReceiptId,
+            reason: null,
+            variableSymbol: symbolOf(application.number),
+          },
         })
         expect((await cancel(application.id, legacyReceiptId)).status).toBe(204)
         expect(await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).toMatchObject({
@@ -883,6 +889,20 @@ describe("bank statement import (US-42)", () => {
         })
       }
       expect((await search("")).candidates).toEqual([])
+      // The preview names the amount it was computed from, also after a re-import changed it.
+      const { id } = await importUnmatched(500)
+      const preview = async () =>
+        (await (
+          await fetch(
+            api(
+              `/organizer/events/${eventId}/bank-transactions/application-candidates?q=bank&transactionId=${id}`,
+            ),
+            { headers: { Cookie: cookie } },
+          )
+        ).json()) as { previewAmountCents: number }
+      expect((await preview()).previewAmountCents).toBe(50000)
+      await prisma.bankTransaction.update({ where: { id }, data: { amountCents: 90000 } })
+      expect((await preview()).previewAmountCents).toBe(90000)
       expect((await search("bank")).candidates.length).toBeLessThanOrEqual(10)
       const foreign = await signIn("organizator2@example.com", "password2")
       const denied = await fetch(

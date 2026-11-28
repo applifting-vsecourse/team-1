@@ -71,8 +71,14 @@ export function UnmatchedTransactionPanel({
     ...applicationCandidatesQueryOptions(eventId, query, transaction),
     enabled: query !== "",
   })
+  // A re-import between the list and the search: the preview is not of the amount that would be sent.
+  const isOutdated =
+    candidates.data !== undefined && candidates.data.previewAmountCents !== transaction.amountCents
   // Nor does the one kept after a failed refresh: the error hides the list, so nothing of it is sent.
-  const found = query === "" || !isSettled || candidates.isError ? [] : (candidates.data ?? [])
+  const found =
+    query === "" || !isSettled || candidates.isError || isOutdated
+      ? []
+      : (candidates.data?.candidates ?? [])
 
   // The choice of the organizer, else the term the symbol points to or the only one there is.
   const fallback = (() => {
@@ -149,6 +155,12 @@ export function UnmatchedTransactionPanel({
           title={t("bankStatement.unmatchedList.searchError")}
           error={candidates.error}
           onRetry={() => void candidates.refetch()}
+        />
+      ) : isOutdated ? (
+        <ErrorState
+          title={t("bankStatement.unmatchedList.previewOutdated")}
+          error={new Error(t("BANK_TRANSACTION_CHANGED", { ns: "errors" }))}
+          onRetry={() => void queryClient.invalidateQueries({ queryKey: ["eventOverview"] })}
         />
       ) : found.length === 0 ? (
         <p className="text-muted-foreground">{t("bankStatement.unmatchedList.noResults")}</p>
@@ -243,7 +255,7 @@ export function UnmatchedTransactionPanel({
           type="submit"
           size="lg"
           isPending={assign.isPending}
-          disabled={candidates.isError}
+          disabled={candidates.isError || isOutdated}
         >
           {t("bankStatement.unmatchedList.submit")}
         </PendingButton>

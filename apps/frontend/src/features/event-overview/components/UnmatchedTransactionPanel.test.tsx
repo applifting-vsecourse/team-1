@@ -69,6 +69,8 @@ function renderPage(options: {
   /** Candidate searches fail while this says so. */
   isSearchDown?: () => boolean
   match?: () => Response
+  /** The amount the preview is computed from; else the one of the row. */
+  previewCents?: () => number | undefined
   /** The amount a re-import gives the rows while the match request runs. */
   reimportedCents?: number
   /** The match request answers only after this promise settles. */
@@ -85,7 +87,10 @@ function renderPage(options: {
         searchFailures--
         return Promise.resolve(json({ statusCode: 500, code: "INTERNAL", message: "x" }, 500))
       }
-      return Promise.resolve(json({ candidates: options.candidates ?? [] }))
+      const id = new URL(request.url).searchParams.get("transactionId")
+      const previewAmountCents =
+        options.previewCents?.() ?? rows.find((row) => row.id === id)?.amountCents ?? null
+      return Promise.resolve(json({ previewAmountCents, candidates: options.candidates ?? [] }))
     }
     if (request.url.endsWith("/match")) {
       const response = options.match?.() ?? new Response(null, { status: 204 })
@@ -257,6 +262,29 @@ describe("manual match of an unmatched payment (US-562)", () => {
     expect(await screen.findByText(/changed in the meantime/)).toBeVisible()
     expect(await screen.findByText(/9,000/)).toBeVisible()
     await waitFor(() => expect(searches().length).toBeGreaterThan(before))
+  })
+
+  it("sends nothing while the preview was computed from another amount than the row", async () => {
+    let previewCents: number | undefined = 900000
+    const calls = renderPage({
+      rows: [transaction("b1")],
+      candidates: [jana],
+      previewCents: () => previewCents,
+    })
+    await userEvent.click(await screen.findByRole("button", { name: /^Assign/ }))
+    await userEvent.type(screen.getByLabelText("Find an application"), "Jana")
+    const alert = await screen.findByRole("alert")
+    expect(within(alert).getByText("The payment changed")).toBeVisible()
+    expect(screen.queryByRole("radio")).toBeNull()
+    expect(screen.queryByText("After saving")).toBeNull()
+    expect(screen.getByRole("button", { name: "Assign payment" })).toBeDisabled()
+    await userEvent.type(screen.getByLabelText("Find an application"), "{Enter}")
+    expect(calls.some((request) => request.url.endsWith("/match"))).toBe(false)
+
+    previewCents = undefined
+    await userEvent.click(within(alert).getByRole("button", { name: "Try again" }))
+    expect(await screen.findByRole("radio")).toBeChecked()
+    expect(screen.getByRole("button", { name: "Assign payment" })).toBeEnabled()
   })
 
   it("does not send the old selection while the changed search is still waiting", async () => {

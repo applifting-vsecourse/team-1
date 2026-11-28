@@ -168,9 +168,10 @@ export class BankStatementsService {
     eventId: string,
     query: string,
     transactionId?: string,
-  ): Promise<CandidateWithAfterPayment[]> {
+  ): Promise<{ previewAmountCents: number | null; candidates: CandidateWithAfterPayment[] }> {
     const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
     let amountCzk: number | null = null
+    let previewAmountCents: number | null = null
     if (transactionId) {
       const transaction = await this.repository.findTransaction(
         transactionId,
@@ -178,13 +179,12 @@ export class BankStatementsService {
         organizationId,
       )
       if (!transaction) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      previewAmountCents = transaction.amountCents
       if (isAssignable(transaction)) amountCzk = transaction.amountCents / 100
     }
-    if (query.trim() === "") return []
-    return withAfterPayment(
-      findCandidates(await this.repository.listCandidateSources(eventId), query),
-      amountCzk,
-    )
+    if (query.trim() === "") return { previewAmountCents, candidates: [] }
+    const found = findCandidates(await this.repository.listCandidateSources(eventId), query)
+    return { previewAmountCents, candidates: withAfterPayment(found, amountCzk) }
   }
 
   /**

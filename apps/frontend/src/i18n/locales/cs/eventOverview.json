@@ -177,6 +177,7 @@
       "noResults": "Žádná přihláška neodpovídá hledání",
       "owed": "dluh {{amount}}",
       "payer": "Plátce a zpráva",
+      "previewOutdated": "Platba se změnila",
       "reason": "Důvod",
       "reasons": {
         "AMOUNT_NOT_WHOLE": "Částka není v celých korunách",

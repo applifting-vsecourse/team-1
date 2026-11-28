@@ -552,15 +552,34 @@ export class PaymentsRepository {
           status: "MATCHED" as const,
         }
         // A legacy `bank:` receipt is shared with the automatic import: it is reopened only when
-        // the symbol shows that the import could not have made the match.
+        // the symbol and the original receipt show that the import could not have made the match.
         let legacyReason: UnmatchedReason | null = null
         if (assignmentReceipt.startsWith("bank:")) {
           const row = await tx.bankTransaction.findFirst({
             where,
             select: { variableSymbol: true, application: { select: { number: true } } },
           })
-          if (row?.application)
-            legacyReason = manualMatchReason(row.variableSymbol, row.application.number)
+          if (row?.application) {
+            const original = await tx.payment.findMany({
+              where: {
+                receiptId: assignmentReceipt,
+                organizationId,
+                applicationTerm: { applicationId },
+              },
+              select: {
+                isSummary: true,
+                applicationTerm: { select: { term: { select: { number: true } } } },
+              },
+            })
+            legacyReason = manualMatchReason(
+              row.variableSymbol,
+              row.application.number,
+              original.map((payment) => ({
+                isSummary: payment.isSummary,
+                termNumber: payment.applicationTerm.term.number,
+              })),
+            )
+          }
         }
         if (assignmentReceipt.startsWith("bank-manual:") || legacyReason)
           await tx.bankTransaction.updateMany({
