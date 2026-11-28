@@ -223,6 +223,7 @@
     "changeTitle": "Requested term change",
     "createdDate": "Submitted {{date}}",
     "current": "Original term",
+    "currentAttendance": "Current participation",
     "loadError": "Couldn't load change requests",
     "message": {
       "APPROVED": {
@@ -235,12 +236,13 @@
       }
     },
     "onlyTerms": "Only {{terms}}",
-    "pendingDescription": "Sent {{date}}. Until approval, terms, bed and payments do not change.",
-    "pendingDescriptionWithoutBed": "Sent {{date}}. Until approval, terms and payments do not change.",
-    "pendingTitle": "Request awaiting the organizer's decision",
+    "pendingAttendance": "Your original participation remains valid for now.",
+    "pendingCancelTitle": "Term cancellation",
+    "pendingChangeTitle": "Term change",
     "reason": "Reason",
     "request": "Request",
     "requested": "New term",
+    "requestedTerm": "Requested term",
     "reviewedDate": "Reviewed {{date}}",
     "status": {
       "APPROVED": "Approved",

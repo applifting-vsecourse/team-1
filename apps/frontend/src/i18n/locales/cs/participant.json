@@ -223,6 +223,7 @@
     "changeTitle": "Požadovaná změna termínu",
     "createdDate": "Podáno {{date}}",
     "current": "Původní termín",
+    "currentAttendance": "Aktuální účast",
     "loadError": "Žádosti se nepodařilo načíst",
     "message": {
       "APPROVED": {
@@ -235,12 +236,13 @@
       }
     },
     "onlyTerms": "Pouze {{terms}}",
-    "pendingDescription": "Odesláno {{date}}. Do schválení se termíny, lůžko ani platby nemění.",
-    "pendingDescriptionWithoutBed": "Odesláno {{date}}. Do schválení se termíny ani platby nemění.",
-    "pendingTitle": "Žádost čeká na rozhodnutí organizátora",
+    "pendingAttendance": "Vaše původní účast zatím zůstává platná.",
+    "pendingCancelTitle": "Odhlášení z termínu",
+    "pendingChangeTitle": "Změna termínu",
     "reason": "Důvod",
     "request": "Žádost",
     "requested": "Nový termín",
+    "requestedTerm": "Požadovaný termín",
     "reviewedDate": "Vyřízeno {{date}}",
     "status": {
       "APPROVED": "Schváleno",

@@ -2,6 +2,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { termDatesLine } from "@/lib/term-label"
+
 import type { MyApplicationTerm } from "@/features/participant/api/applications"
 import { ChangeRequestNotice } from "@/features/participant/components/ChangeRequestNotice"
 
@@ -23,7 +25,7 @@ const request = (overrides: Record<string, unknown> = {}) => ({
   terms: [
     { id: "t1", name: "1. týden", startsOn: "2027-07-12", endsOn: "2027-07-19", priceCzk: 4900 },
     { id: "t2", name: "2. týden", startsOn: "2027-07-19", endsOn: "2027-07-26", priceCzk: 5600 },
-  ],
+  ] as const,
   ...overrides,
 })
 
@@ -50,77 +52,21 @@ const renderNotice = (
 describe("ChangeRequestNotice", () => {
   beforeEach(() => get.mockReset())
 
-  it("shows a pending cancellation as an alert and a structured card", async () => {
+  it("shows one amber pending chip for a cancellation and lists the affected terms", async () => {
     renderNotice([request()])
 
-    expect(await screen.findByText("Request awaiting the organizer's decision")).toBeInTheDocument()
-    expect(screen.getByText(/Until approval, terms, bed and payments do not change/)).toBeVisible()
-    expect(screen.getByRole("heading", { name: "Requested cancellation" })).toBeInTheDocument()
-    expect(screen.getByText("Request")).toBeInTheDocument()
-    expect(screen.getByText("Whole application · all terms (2)")).toBeInTheDocument()
-    expect(screen.queryByText(/released only after approval/)).not.toBeInTheDocument()
-    expect(screen.queryByText("Awaiting approval")).not.toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "Term cancellation" })).toBeVisible()
+    expect(screen.getByText("Awaiting approval")).toHaveAttribute("data-variant", "warning")
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    expect(screen.getByText("Current participation")).toBeVisible()
+    const attendance = request()
+      .terms.map((term) => `${termDatesLine(term)} · Confirmed`)
+      .join(", ")
+    expect(screen.getByText(attendance)).toBeVisible()
+    expect(screen.getByText("Your original participation remains valid for now.")).toBeVisible()
   })
 
-  it("shows a partial cancellation as a cancellation of the removed term, not as a term change", async () => {
-    renderNotice([request({ currentTermIds: ["t1", "t2"], requestedTermIds: ["t2"] })])
-
-    expect(await screen.findByRole("heading", { name: "Requested cancellation" })).toBeVisible()
-    expect(screen.queryByRole("heading", { name: "Requested term change" })).not.toBeInTheDocument()
-    expect(screen.getByText(/^Only 1. týden/)).toBeInTheDocument()
-    expect(screen.queryByText("New term")).not.toBeInTheDocument()
-    expect(screen.queryByText(/Whole application/)).not.toBeInTheDocument()
-    expect(screen.queryByText(/^2. týden/)).not.toBeInTheDocument()
-  })
-
-  it("shows the original and the new term of a pending term change", async () => {
-    renderNotice([request({ currentTermIds: ["t1"], requestedTermIds: ["t2"] })])
-
-    expect(await screen.findByRole("heading", { name: "Requested term change" })).toBeVisible()
-    expect(screen.getByText("Original term")).toBeInTheDocument()
-    expect(screen.getByText("New term")).toBeInTheDocument()
-  })
-
-  it.each(["TO_EVALUATE", "WAITLISTED", "CONFIRMED"] as const)(
-    "mentions a bed only for cancellation of a CONFIRMED term, not %s",
-    async (status) => {
-      renderNotice(
-        [request({ currentTermIds: ["t1"], requestedTermIds: [] })],
-        [{ termId: "t1", status }],
-      )
-
-      await screen.findByRole("heading", { name: "Requested cancellation" })
-      if (status === "CONFIRMED") {
-        expect(screen.getByText(/Until approval, terms, bed and payments/)).toBeVisible()
-      } else {
-        expect(screen.queryAllByText(/bed/i)).toHaveLength(0)
-        expect(screen.getByText(/Until approval, terms and payments do not change/)).toBeVisible()
-      }
-    },
-  )
-
-  it.each(["TO_EVALUATE", "WAITLISTED", "CONFIRMED"] as const)(
-    "mentions a bed only for change of a CONFIRMED term, not %s",
-    async (status) => {
-      renderNotice(
-        [request({ currentTermIds: ["t1"], requestedTermIds: ["t2"] })],
-        [
-          { termId: "t1", status },
-          { termId: "t2", status: "CONFIRMED" },
-        ],
-      )
-
-      await screen.findByRole("heading", { name: "Requested term change" })
-      if (status === "CONFIRMED") {
-        expect(screen.getByText(/Until approval, terms, bed and payments/)).toBeVisible()
-      } else {
-        expect(screen.queryAllByText(/bed/i)).toHaveLength(0)
-        expect(screen.getByText(/Until approval, terms and payments do not change/)).toBeVisible()
-      }
-    },
-  )
-
-  it("does not mention a bed when only an unconfirmed term is removed and a confirmed term is kept", async () => {
+  it("shows only the affected term for a partial cancellation", async () => {
     renderNotice(
       [request({ requestedTermIds: ["t2"] })],
       [
@@ -129,8 +75,44 @@ describe("ChangeRequestNotice", () => {
       ],
     )
 
-    await screen.findByRole("heading", { name: "Requested cancellation" })
-    expect(screen.queryAllByText(/bed/i)).toHaveLength(0)
+    expect(await screen.findByRole("heading", { name: "Term cancellation" })).toBeVisible()
+    expect(screen.getByText(`${termDatesLine(request().terms[0])} · Waitlisted`)).toBeVisible()
+    expect(
+      screen.queryByText(termDatesLine(request().terms[1]), { exact: false }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByText("Requested term")).not.toBeInTheDocument()
+  })
+
+  it("distinguishes named terms with the same dates in a pending change", async () => {
+    const [current, next] = request().terms
+    const requested = { ...next, startsOn: current.startsOn, endsOn: current.endsOn }
+    renderNotice(
+      [request({ currentTermIds: ["t1"], requestedTermIds: ["t2"], terms: [current, requested] })],
+      [{ termId: "t1", status: "CONFIRMED" }],
+    )
+
+    expect(await screen.findByRole("heading", { name: "Term change" })).toBeVisible()
+    expect(screen.getByText("Awaiting approval")).toHaveAttribute("data-variant", "warning")
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    expect(screen.getByText("Requested term")).toBeVisible()
+    expect(screen.getByText(termDatesLine(requested))).toBeVisible()
+    expect(screen.getByText("Current participation")).toBeVisible()
+    expect(screen.getByText(`${termDatesLine(current)} · Confirmed`)).toBeVisible()
+  })
+
+  it("omits the participation reassurance when any affected term is unconfirmed", async () => {
+    renderNotice(
+      [request()],
+      [
+        { termId: "t1", status: "CONFIRMED" },
+        { termId: "t2", status: "WAITLISTED" },
+      ],
+    )
+
+    expect(await screen.findByRole("heading", { name: "Term cancellation" })).toBeVisible()
+    expect(
+      screen.queryByText("Your original participation remains valid for now."),
+    ).not.toBeInTheDocument()
   })
 
   it("keeps the status and the reason of a declined request", async () => {
@@ -140,7 +122,7 @@ describe("ChangeRequestNotice", () => {
     const reason = screen.getByText("Reason")
     expect(reason.parentElement).toHaveTextContent("Full")
     expect(reason.parentElement?.parentElement).toContainElement(screen.getByText("Request"))
-    expect(screen.queryByText("Request awaiting the organizer's decision")).not.toBeInTheDocument()
+    expect(screen.queryByText("Awaiting approval")).not.toBeInTheDocument()
   })
 
   it.each([
@@ -151,13 +133,5 @@ describe("ChangeRequestNotice", () => {
 
     const chip = await screen.findByText(label)
     expect(chip).toHaveAttribute("data-variant", variant)
-  })
-
-  it("shows no result chip while the request is pending", async () => {
-    renderNotice([request()])
-
-    await screen.findByText("Request awaiting the organizer's decision")
-    expect(screen.queryByText("Approved")).not.toBeInTheDocument()
-    expect(screen.queryByText("Declined")).not.toBeInTheDocument()
   })
 })
