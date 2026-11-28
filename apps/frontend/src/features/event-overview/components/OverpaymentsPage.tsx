@@ -6,10 +6,9 @@ import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
 import { BackLink } from "@/components/atoms/BackLink"
-import { HeadingBand } from "@/components/atoms/HeadingBand"
-import { LogoSymbol } from "@/components/atoms/Logo"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
 import { Seo } from "@/components/atoms/Seo"
+import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
 import { Pagination } from "@/components/molecules/Pagination"
@@ -36,18 +35,25 @@ import {
 } from "@/components/ui/table"
 import { usePagination } from "@/hooks/usePagination"
 import { formatCzk } from "@/lib/money"
+import { notify } from "@/lib/notify"
 import { termDates, termTitle } from "@/lib/term-label"
 
 import {
   overpaymentsQueryOptions,
   type Overpayment,
 } from "@/features/event-overview/api/overpayments"
-import { paymentQueryOptions } from "@/features/event-overview/api/payments"
-import { PaymentEditor } from "@/features/event-overview/components/PaymentEditor"
+import {
+  paymentQueryOptions,
+  type PaymentApplication,
+} from "@/features/event-overview/api/payments"
+import { PaymentEditor, type RecordType } from "@/features/event-overview/components/PaymentEditor"
 
 const ALL_TERMS = "all"
 
 type TermOption = { id: string; name: string | null; startsOn: string; endsOn: string }
+
+const rowKey = (entry: Pick<Overpayment, "applicationId" | "termId">) =>
+  `${entry.applicationId}:${entry.termId}`
 
 const normalizeSearch = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
 
@@ -67,6 +73,7 @@ export function OverpaymentsPage({
   const [search, setSearch] = useState("")
   const [termId, setTermId] = useState(ALL_TERMS)
   const [editor, setEditor] = useState<Overpayment | null>(null)
+  const [refundedKey, setRefundedKey] = useState<string | null>(null)
   const [pageSize, setPageSize] = useState(20)
   const entries = query.data ?? []
   const options = new Map(terms.map((term) => [term.id, term]))
@@ -81,13 +88,18 @@ export function OverpaymentsPage({
     }
   }
   const words = normalizeSearch(search.trim()).split(/\s+/).filter(Boolean)
+  const exactSymbols = new Set(
+    words.filter((word) => entries.some((entry) => entry.variableSymbol === word)),
+  )
   const matches = entries.filter(
     (entry) =>
       (termId === ALL_TERMS || entry.termId === termId) &&
       words.every((word) =>
-        normalizeSearch(`${entry.firstName} ${entry.lastName} ${entry.variableSymbol}`).includes(
-          word,
-        ),
+        exactSymbols.has(word)
+          ? entry.variableSymbol === word
+          : normalizeSearch(
+              `${entry.firstName} ${entry.lastName} ${entry.variableSymbol}`,
+            ).includes(word),
       ),
   )
   const total = entries.reduce((sum, entry) => sum + entry.amountCzk, 0)
@@ -95,21 +107,25 @@ export function OverpaymentsPage({
   const isFiltered = words.length > 0 || termId !== ALL_TERMS
   const pagination = usePagination(matches, JSON.stringify([search, termId, pageSize]), pageSize)
   const { pageItems } = pagination
+  const openRefund = (entry: Overpayment) => {
+    setRefundedKey(null)
+    setEditor(entry)
+  }
   return (
     <section className="flex min-w-0 flex-col gap-6">
       <Seo title={t("overpayments.title")} />
-      <HeadingBand motif={entries.length > 0 ? "finance" : "planning"}>
-        <div className="flex flex-col items-start gap-4">
-          <BackLink
-            to={ROUTES.organizer.eventPayments}
-            params={{ eventId }}
-          >
-            {t("overpayments.back")}
-          </BackLink>
-          <h1 className="text-2xl font-bold tracking-tight">{t("overpayments.title")}</h1>
+      <div className="flex items-start gap-3 md:gap-4">
+        <BackLink
+          to={ROUTES.organizer.eventPayments}
+          params={{ eventId }}
+        >
+          {t("overpayments.back")}
+        </BackLink>
+        <div className="flex min-w-0 flex-col gap-2 wrap-anywhere">
+          <h2 className="text-2xl font-bold tracking-tight">{t("overpayments.title")}</h2>
           {eventName ? <p>{eventName}</p> : null}
         </div>
-      </HeadingBand>
+      </div>
 
       {query.isPending ? (
         <LoadingState />
@@ -143,7 +159,10 @@ export function OverpaymentsPage({
                 aria-label={t("overpayments.search")}
                 placeholder={t("overpayments.search")}
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => {
+                  setRefundedKey(null)
+                  setSearch(event.target.value)
+                }}
                 className="bg-card pl-11"
               />
             </div>
@@ -151,7 +170,10 @@ export function OverpaymentsPage({
               <Label htmlFor="overpayments-term">{t("overpayments.term")}</Label>
               <Select
                 value={termId}
-                onValueChange={setTermId}
+                onValueChange={(value) => {
+                  setRefundedKey(null)
+                  setTermId(value)
+                }}
               >
                 <SelectTrigger
                   id="overpayments-term"
@@ -184,6 +206,7 @@ export function OverpaymentsPage({
               <Button
                 variant="ghost"
                 onClick={() => {
+                  setRefundedKey(null)
                   setSearch("")
                   setTermId(ALL_TERMS)
                 }}
@@ -210,12 +233,14 @@ export function OverpaymentsPage({
                   </TableHeader>
                   <TableBody>
                     {pageItems.map((entry) => (
-                      <TableRow key={`${entry.applicationId}:${entry.termId}`}>
+                      <TableRow
+                        key={rowKey(entry)}
+                        className={refundedKey === rowKey(entry) ? "bg-accent" : undefined}
+                      >
                         <TableCell className="whitespace-normal">
-                          <ApplicationLink
-                            eventId={eventId}
-                            entry={entry}
-                          />
+                          <p className="wrap-anywhere">
+                            {entry.firstName} {entry.lastName}
+                          </p>
                           <p className="text-sm text-muted-foreground">
                             #{entry.applicationNumber}
                           </p>
@@ -234,12 +259,18 @@ export function OverpaymentsPage({
                           {t("overpayments.symbol", { symbol: entry.variableSymbol })}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            onClick={() => setEditor(entry)}
-                          >
-                            {t("overpayments.refund")}
-                          </Button>
+                          <div className="flex justify-end gap-2">
+                            <ApplicationLink
+                              eventId={eventId}
+                              entry={entry}
+                            />
+                            <Button
+                              variant="ghost"
+                              onClick={() => openRefund(entry)}
+                            >
+                              {t("overpayments.refund")}
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -248,14 +279,15 @@ export function OverpaymentsPage({
               </div>
               <ul className="flex flex-col gap-4 md:hidden">
                 {pageItems.map((entry) => (
-                  <li key={`${entry.applicationId}:${entry.termId}`}>
-                    <Card className="gap-3 p-4">
-                      <h2 className="text-xl font-bold">
-                        <ApplicationLink
-                          eventId={eventId}
-                          entry={entry}
-                        />
-                      </h2>
+                  <li key={rowKey(entry)}>
+                    <Card
+                      className={
+                        refundedKey === rowKey(entry) ? "gap-3 bg-accent p-4" : "gap-3 p-4"
+                      }
+                    >
+                      <h3 className="text-xl font-bold wrap-anywhere">
+                        {entry.firstName} {entry.lastName}
+                      </h3>
                       <p>{[entry.termName, termDates(entry)].filter(Boolean).join(" · ")}</p>
                       <StatusBadge status={entry.status} />
                       <AmountRow
@@ -263,13 +295,19 @@ export function OverpaymentsPage({
                         amount={entry.amountCzk}
                       />
                       <p>{t("overpayments.symbol", { symbol: entry.variableSymbol })}</p>
-                      <Button
-                        className="self-start"
-                        size="lg"
-                        onClick={() => setEditor(entry)}
-                      >
-                        {t("overpayments.refund")}
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <ApplicationLink
+                          eventId={eventId}
+                          entry={entry}
+                          isMobile
+                        />
+                        <Button
+                          size="lg"
+                          onClick={() => openRefund(entry)}
+                        >
+                          {t("overpayments.refund")}
+                        </Button>
+                      </div>
                     </Card>
                   </li>
                 ))}
@@ -303,17 +341,10 @@ export function OverpaymentsPage({
               </div>
             </>
           ) : (
-            <Card className="items-center gap-4 px-6 py-16 text-center shadow-none">
-              <LogoSymbol className="empty-state-symbol size-14 text-primary" />
-              <h2 className="text-2xl font-bold">
-                {t(isFiltered ? "overpayments.noMatches" : "overpayments.emptyTitle")}
-              </h2>
-              {!isFiltered && (
-                <p className="max-w-sm text-muted-foreground">
-                  {t("overpayments.emptyDescription")}
-                </p>
-              )}
-            </Card>
+            <EmptyState
+              title={t(isFiltered ? "overpayments.noMatches" : "overpayments.emptyTitle")}
+              message={isFiltered ? undefined : t("overpayments.emptyDescription")}
+            />
           )}
         </>
       )}
@@ -321,21 +352,42 @@ export function OverpaymentsPage({
         <RefundEditor
           entry={editor}
           onClose={() => setEditor(null)}
+          onRecorded={(type, termId) => {
+            if (type === "refund" && termId) {
+              notify.success(t("overpayments.refundRecorded"))
+              setRefundedKey(rowKey({ applicationId: editor.applicationId, termId }))
+            }
+          }}
         />
       ) : null}
     </section>
   )
 }
 
-function ApplicationLink({ eventId, entry }: { eventId: string; entry: Overpayment }) {
+function ApplicationLink({
+  eventId,
+  entry,
+  isMobile = false,
+}: {
+  eventId: string
+  entry: Overpayment
+  isMobile?: boolean
+}) {
+  const { t } = useTranslation("eventOverview")
   return (
-    <Link
-      to={ROUTES.organizer.application}
-      params={{ eventId, applicationId: entry.applicationId }}
-      className="wrap-anywhere hover:underline focus-visible:underline"
+    <Button
+      variant={isMobile ? "outline" : "ghost"}
+      size={isMobile ? "lg" : "default"}
+      asChild
     >
-      {entry.firstName} {entry.lastName}
-    </Link>
+      <Link
+        to={ROUTES.organizer.application}
+        params={{ eventId, applicationId: entry.applicationId }}
+        aria-label={t("overpayments.detailFor", { name: `${entry.firstName} ${entry.lastName}` })}
+      >
+        {t("overpayments.detail")}
+      </Link>
+    </Button>
   )
 }
 
@@ -359,22 +411,43 @@ function StatusBadge({ status }: { status: Overpayment["status"] }) {
         status === "CONFIRMED" ? "positive" : status === "WAITLISTED" ? "warning" : "neutral"
       }
     >
-      {t(`overpayments.statuses.${status}`)}
+      {t(`termStatus.state.${status}`)}
     </Badge>
   )
 }
 
-function RefundEditor({ entry, onClose }: { entry: Overpayment; onClose: () => void }) {
+function RefundEditor({
+  entry,
+  onClose,
+  onRecorded,
+}: {
+  entry: Overpayment
+  onClose: () => void
+  onRecorded: (type: RecordType, termId?: string) => void
+}) {
   const { t } = useTranslation("eventOverview")
-  const query = useQuery({ ...paymentQueryOptions(entry.applicationId), staleTime: 0 })
+  const query = useQuery({ ...paymentQueryOptions(entry.applicationId), refetchOnMount: "always" })
+  // Seed the form only from a fresh response. Keep its mutation state mounted while
+  // later refetches update the limit, including when the refund removes the overpayment.
+  const [initialData, setInitialData] = useState<PaymentApplication | null>(null)
   const term = query.data?.terms.find((item) => item.termId === entry.termId)
-  if (query.data && term && term.refundableCzk > 0) {
+  if (
+    !initialData &&
+    query.isFetchedAfterMount &&
+    query.isSuccess &&
+    term &&
+    term.refundableCzk > 0
+  ) {
+    setInitialData(query.data)
+  }
+  if (initialData) {
     return (
       <PaymentEditor
-        application={query.data}
-        term={term}
+        application={query.data ?? initialData}
+        term={initialData.terms.find((item) => item.termId === entry.termId)}
         initialType="refund"
         onClose={onClose}
+        onRecorded={onRecorded}
       />
     )
   }
@@ -387,7 +460,7 @@ function RefundEditor({ entry, onClose }: { entry: Overpayment; onClose: () => v
     >
       <DialogContent aria-describedby={undefined}>
         <DialogTitle>{t("payment.refundTitle")}</DialogTitle>
-        {query.isPending ? (
+        {!query.isFetchedAfterMount || query.isFetching ? (
           <LoadingState />
         ) : query.isError ? (
           <ErrorState

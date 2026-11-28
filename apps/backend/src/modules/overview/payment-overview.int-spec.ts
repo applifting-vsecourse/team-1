@@ -7,8 +7,8 @@ describe("payment overview API", () => {
   let prisma: PrismaService
   let cookie: string
   let eventId: string
-  const get = (session = cookie, id = eventId) =>
-    fetch(api(`/organizer/events/${id}/payments`), { headers: { Cookie: session } })
+  const get = (session = cookie, id = eventId, suffix = "") =>
+    fetch(api(`/organizer/events/${id}/payments${suffix}`), { headers: { Cookie: session } })
 
   beforeAll(async () => {
     prisma = await connectTestPrisma()
@@ -178,6 +178,24 @@ describe("payment overview API", () => {
         variableSymbol: variableSymbol(application.number, first.term.number),
       }),
     ])
+    const cancelledPaymentId = randomUUID()
+    expect(
+      (
+        await write("/payments", "POST", {
+          requestId: cancelledPaymentId,
+          termId: first.termId,
+          amountCzk: 200,
+        })
+      ).status,
+    ).toBe(204)
+    expect(await forApplication()).toEqual([expect.objectContaining({ amountCzk: 900 })])
+    const cancelledPayment = await fetch(
+      api(`/organizer/applications/${application.id}/payments/${cancelledPaymentId}`),
+      { method: "DELETE", headers: { Cookie: cookie } },
+    )
+    expect(cancelledPayment.status).toBe(204)
+    expect(await forApplication()).toEqual([expect.objectContaining({ amountCzk: 700 })])
+
     const otherDebt = (await (await get()).json()).entries.find(
       (entry: { applicationId: string; termId: string }) =>
         entry.applicationId === application.id && entry.termId === secondTerm.id,
@@ -207,14 +225,18 @@ describe("payment overview API", () => {
     )
   })
 
-  it("requires an organizer with access to the event", async () => {
-    expect((await get("")).status).toBe(401)
-    expect((await get(await signIn("ucastnik@example.com", "password4"))).status).toBe(403)
-    const foreign = await prisma.event.findUniqueOrThrow({
-      where: { publicToken: "demo-horsky-vikend-2027" },
-    })
-    const response = await get(cookie, foreign.id)
-    expect(response.status).toBe(403)
-    expect(await response.text()).not.toContain(foreign.name)
-  })
+  it.each(["", "/overpayments"])(
+    "requires an organizer with access to /payments%s",
+    async (suffix) => {
+      expect((await get("", eventId, suffix)).status).toBe(401)
+      const participant = await signIn("ucastnik@example.com", "password4")
+      expect((await get(participant, eventId, suffix)).status).toBe(403)
+      const foreign = await prisma.event.findUniqueOrThrow({
+        where: { publicToken: "demo-horsky-vikend-2027" },
+      })
+      const response = await get(cookie, foreign.id, suffix)
+      expect(response.status).toBe(403)
+      expect(await response.text()).not.toContain(foreign.name)
+    },
+  )
 })

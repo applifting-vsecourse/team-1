@@ -42,6 +42,7 @@ import {
 type Props = {
   application: PaymentApplication
   onClose: () => void
+  onRecorded?: (type: RecordType, termId?: string) => void
   /** Term preselected in the dialog (US-110); without it the summary of the application. */
   term?: PaymentTerm
   /** Opens the dialog on the refund of the overpayment (#399) instead of on a payment. */
@@ -80,6 +81,7 @@ const WHOLE_APPLICATION = "all"
 export function PaymentEditor({
   application,
   onClose,
+  onRecorded,
   term: initialTerm,
   initialType = "payment",
 }: Props) {
@@ -166,6 +168,7 @@ export function PaymentEditor({
         client.invalidateQueries({ queryKey: ["eventOverview"] }),
         client.invalidateQueries({ queryKey: ["participant", "applications"] }),
       ])
+      onRecorded?.(type, term?.termId)
       onClose()
     },
   })
