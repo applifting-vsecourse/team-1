@@ -10,6 +10,8 @@ import { EVENT_SECTION_GROUPS } from "@/features/events/lib/event-sections"
  * current one is the nav A marker of the sidebar item (grey surface, Semi Bold, the orange bar).
  * `compact` is the contextual sidebar, `touch` the phone's bottom sheet.
  */
+// Figma (Design system v2): F5 / Navigation / Sidebar organizátora · Kontext=Akce · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27890-4721
+// Figma (Design system v2): F5 / Navigation / Spodní panel sekcí · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27892-4897
 export function EventSectionLinks({
   eventId,
   size,
