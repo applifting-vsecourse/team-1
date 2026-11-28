@@ -1,3 +1,4 @@
+import type { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import { PaymentOverview } from "@/modules/overview/domain/payment-overview"
 import { ApiProperty } from "@nestjs/swagger"
 
@@ -60,4 +61,19 @@ export class PaymentOverviewResponseDto {
       })),
     }
   }
+}
+
+export class OutstandingOverpaymentDto {
+  @ApiProperty() applicationId!: string
+  @ApiProperty() applicationNumber!: number
+  @ApiProperty() firstName!: string
+  @ApiProperty() lastName!: string
+  @ApiProperty() termId!: string
+  @ApiProperty({ nullable: true, type: String }) termName!: string | null
+  @ApiProperty() startsOn!: string
+  @ApiProperty() endsOn!: string
+  @ApiProperty({ enum: ["CONFIRMED", "WAITLISTED", "TO_EVALUATE", "CANCELLED", "ARCHIVED"] })
+  status!: ApplicationTermStatus
+  @ApiProperty() variableSymbol!: string
+  @ApiProperty() amountCzk!: number
 }

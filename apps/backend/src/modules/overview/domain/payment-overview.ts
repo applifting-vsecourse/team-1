@@ -1,6 +1,9 @@
+import type { ApplicationTermStatus } from "@/modules/applications/domain/evaluation"
 import { computeOverviewPaymentDeadline } from "@/modules/applications/domain/payment-deadline"
 import {
   computePayableAmount,
+  computeRefundableAmount,
+  computeTermDue,
   computeTermOwed,
   computeTermPaid,
   computeTermPaymentStatus,
@@ -25,6 +28,28 @@ export type PaymentOverviewTerm = {
   paymentPeriodStartedAt: Date | null
   paymentReminderSentAt: Date | null
   payments: { amountCzk: number }[]
+}
+
+export type OutstandingOverpaymentTerm = Omit<
+  PaymentOverviewTerm,
+  "evaluatedAt" | "confirmedAt" | "paymentPeriodStartedAt" | "paymentReminderSentAt"
+> & { status: ApplicationTermStatus }
+
+export function outstandingOverpayments(terms: OutstandingOverpaymentTerm[]) {
+  return terms.flatMap(({ termNumber, priceCzk, payments, ...term }) => {
+    const amountCzk = computeRefundableAmount(
+      computeTermDue({ status: term.status, priceCzk }),
+      computeTermPaid(payments),
+    )
+    if (amountCzk === 0) return []
+    return [
+      {
+        ...term,
+        variableSymbol: variableSymbol(term.applicationNumber, termNumber),
+        amountCzk,
+      },
+    ]
+  })
 }
 
 export type PaymentOverviewEntry = {
