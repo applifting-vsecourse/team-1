@@ -112,7 +112,8 @@ describe("EventList", () => {
     ) as HTMLElement
     expect(within(row).getByText("Published")).toHaveAttribute("data-variant", "success")
     expect(
-      within(row).getByText("Kemp Lipno · 2 terms · July 2027 · Lipno nad Vltavou"),
+      // One organization: its name would repeat on every row, so the row leaves it out.
+      within(row).getByText("2 terms · July 2027 · Lipno nad Vltavou"),
     ).toBeInTheDocument()
     expect(row.querySelector('[data-slot="date-tile"]')).toHaveTextContent("12")
     expect(within(row).getByText("79 / 120")).toHaveClass("tabular-nums")
@@ -153,10 +154,21 @@ describe("EventList", () => {
         .map((radio) => radio.textContent),
     ).toEqual(["All", "Open", "Inactive"])
     expect(within(status).getByRole("radio", { name: "All" })).toBeChecked()
+    // One organization: nothing to filter by, so no organization filter (and no „Filters“ on a phone).
+    expect(screen.queryByRole("combobox", { name: "Organization" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /^Filters/ })).not.toBeInTheDocument()
+  })
+
+  it("offers the organization filter to an organizer in more than one organization", async () => {
+    renderList([event, { ...draft, organizationId: "o2", organizationName: "Summit Events" }])
     // The organization select has no label above it; it names itself.
-    expect(screen.getByRole("combobox", { name: "Organization" })).toHaveTextContent(
+    expect(await screen.findByRole("combobox", { name: "Organization" })).toHaveTextContent(
       "All organizations",
     )
+    expect(screen.getByRole("button", { name: "Filters" })).toBeInTheDocument()
+    // Several organizations: each row says whose event it is.
+    const row = screen.getByRole("heading", { name: event.name }).closest("a") as HTMLElement
+    expect(within(row).getByText(/^Kemp Lipno · /)).toBeInTheDocument()
   })
 
   it("filters the events by status", async () => {
@@ -180,7 +192,7 @@ describe("EventList", () => {
       "li",
     )
     expect(item).toHaveAttribute("data-created", "true")
-    expect(within(item as HTMLElement).getByText("Kemp Lipno · No term yet")).toBeInTheDocument()
+    expect(within(item as HTMLElement).getByText("No term yet")).toBeInTheDocument()
     expect(item?.querySelector('[data-slot="date-tile"]')).toBeNull()
     expect(within(item as HTMLElement).getByText("—", { selector: "[aria-hidden]" })).toBeVisible()
     expect(within(item as HTMLElement).queryByRole("progressbar")).not.toBeInTheDocument()

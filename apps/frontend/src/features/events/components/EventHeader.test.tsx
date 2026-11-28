@@ -69,14 +69,16 @@ function renderHeader(path: string) {
 afterEach(() => vi.restoreAllMocks())
 
 describe("EventHeader sections", () => {
-  it("labels the icon on focus and returns to the event list with Enter", async () => {
+  it("below lg returns to the event list with a quiet text link, not the round back control", async () => {
     const user = userEvent.setup()
     const router = renderHeader("/organizer/events/e1/capacity")
     const back = await screen.findByRole("link", { name: "All events" })
 
+    // From lg the sidebar's „All events“ is the way back, so the header's link is phone-only.
+    expect(back).toHaveClass("lg:hidden", "min-h-11", "text-muted-foreground")
+    expect(back).not.toHaveClass("rounded-full")
     await user.tab()
     expect(back).toHaveFocus()
-    expect(await screen.findByRole("tooltip")).toHaveTextContent("All events")
     await user.keyboard("{Enter}")
     await vi.waitFor(() => expect(router.state.location.pathname).toBe("/organizer/events"))
   })

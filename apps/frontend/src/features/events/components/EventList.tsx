@@ -115,6 +115,8 @@ function FilteredEvents({
   const organizations = new Map(
     events.map((event) => [event.organizationId, event.organizationName]),
   )
+  // An organizer in one organization has nothing to filter by: no organization filter then.
+  const hasOrganizationFilter = organizations.size > 1
 
   const needle = query.trim().toLocaleLowerCase()
   const shown = events.filter(
@@ -144,70 +146,72 @@ function FilteredEvents({
           />
         </div>
         {/* From lg the organization is a Select without a label above it (Figma F5): its value names it. */}
-        <div className="hidden items-center gap-3 lg:flex">
-          <Select
-            value={organizationId}
-            onValueChange={setOrganizationId}
-          >
-            <SelectTrigger
-              aria-label={t("list.organizationFilter")}
-              className="w-60 text-start"
+        {hasOrganizationFilter ? (
+          <div className="hidden items-center gap-3 lg:flex">
+            <Select
+              value={organizationId}
+              onValueChange={setOrganizationId}
             >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("list.organizationAll")}</SelectItem>
-              {Array.from(organizations, ([id, name]) => (
-                <SelectItem
-                  key={id}
-                  value={id}
-                >
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {organizationId === "all" ? null : (
-            <Button
-              type="button"
-              variant="ghost"
-              className="shrink-0"
-              onClick={() => setOrganizationId("all")}
-            >
-              {t("list.clearOrganization")}
-            </Button>
-          )}
-        </div>
+              <SelectTrigger
+                aria-label={t("list.organizationFilter")}
+                className="w-60 text-start"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("list.organizationAll")}</SelectItem>
+                {Array.from(organizations, ([id, name]) => (
+                  <SelectItem
+                    key={id}
+                    value={id}
+                  >
+                    {name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {organizationId === "all" ? null : (
+              <Button
+                type="button"
+                variant="ghost"
+                className="shrink-0"
+                onClick={() => setOrganizationId("all")}
+              >
+                {t("list.clearOrganization")}
+              </Button>
+            )}
+          </div>
+        ) : null}
         {/* Below lg one row: the status segment, which scrolls sideways when it doesn't fit (never wraps),
             and „Filtry (n)“. */}
         {/* Figma (Design system v2): F5 / Events / Filtry seznamu akcí · Mobil · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15376-98 (component 27893-4901) */}
         <div className="flex min-w-0 items-center gap-2 lg:ml-auto">
-          <div className="-m-1 min-w-0 flex-1 overflow-x-auto p-1 lg:flex-none">
-            <ViewToggleGroup
-              isScrollable
-              aria-label={t("list.statusFilter")}
-              value={status}
-              onValueChange={(value) => {
-                const next = STATUSES.find((option) => option === value)
-                if (next) setStatus(next)
-              }}
-            >
-              {STATUSES.map((option) => (
-                <ViewToggleGroupItem
-                  key={option}
-                  value={option}
-                >
-                  {t(`list.segment.${option}`)}
-                </ViewToggleGroupItem>
-              ))}
-            </ViewToggleGroup>
-          </div>
-          <EventFiltersSheet
-            organizations={organizations}
-            organizationId={organizationId}
-            onOrganizationChange={setOrganizationId}
-            className="lg:hidden"
-          />
+          <ViewToggleGroup
+            className="flex-1 lg:flex-none"
+            aria-label={t("list.statusFilter")}
+            value={status}
+            onValueChange={(value) => {
+              const next = STATUSES.find((option) => option === value)
+              if (next) setStatus(next)
+            }}
+          >
+            {STATUSES.map((option) => (
+              <ViewToggleGroupItem
+                key={option}
+                value={option}
+              >
+                {t(`list.segment.${option}`)}
+              </ViewToggleGroupItem>
+            ))}
+          </ViewToggleGroup>
+          {hasOrganizationFilter ? (
+            <EventFiltersSheet
+              organizations={organizations}
+              organizationId={organizationId}
+              onOrganizationChange={setOrganizationId}
+              className="lg:hidden"
+            />
+          ) : null}
         </div>
         {organizationId === "all" ? null : (
           <div
@@ -259,7 +263,7 @@ function FilteredEvents({
               >
                 <EventRow
                   event={event}
-                  hasOrganization={organizationId === "all"}
+                  hasOrganization={hasOrganizationFilter && organizationId === "all"}
                 />
               </li>
             ))}
@@ -275,8 +279,8 @@ function FilteredEvents({
 }
 
 /**
- * One event: the date tile, the name, „organization · dates · place“ (without the organization
- * while the list is filtered to one), whether applications are open and how full it is. A phone
+ * One event: the date tile, the name, „organization · dates · place“ (the organization only when the
+ * events belong to several and the list isn't filtered to one), whether applications are open and how full it is. A phone
  * stacks the status and the occupancy under the name and drops the chevron.
  */
 function EventRow({ event, hasOrganization }: { event: OrganizerEvent; hasOrganization: boolean }) {

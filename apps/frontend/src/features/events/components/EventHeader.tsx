@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { ChevronDown, X } from "lucide-react"
+import { Link } from "@tanstack/react-router"
+import { ArrowLeft, ChevronDown, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
 import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -16,11 +16,13 @@ import { useCurrentEventSection } from "@/features/events/lib/event-sections"
 import { termsSummary } from "@/features/events/lib/terms-summary"
 
 /**
- * Head of every event page, the same on all sections: the round back button, the event name with
- * whether the application is open, „organization · dates“ and the orange BrandDivider (no band, no
+ * Head of every event page, the same on all sections: the event name with whether the application is
+ * open, „organization · dates“ and the orange BrandDivider (no band, no
  * illustration). From `lg` the sections are in the contextual sidebar (EventSidebarNav); below it one
  * button with the current section sticks under the 56 px header and opens a bottom sheet with all of
- * them, so any section is two taps away.
+ * them, so any section is two taps away. The way back to all events is the sidebar's first item
+ * from `lg`; below it a quiet text link above the name (not the round back control, which stays for
+ * the sub-pages' „Zpět na …“, so a phone never shows two circles stacked).
  */
 // Figma (Design system v2): F5 / Přehled akce · záhlaví · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15398-536 (mobile 15398-598)
 // Figma (Design system v2): Navigace A / Spodní panel sekcí akce · Mobil · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18359-20490 (component 27892-4897)
@@ -31,8 +33,17 @@ export function EventHeader({ eventId }: { eventId: string }) {
   return (
     <>
       <header className="flex min-w-0 flex-col gap-3">
-        <div className="flex items-start gap-3 md:gap-4">
-          <BackLink to={ROUTES.organizer.events}>{t("header.allEvents")}</BackLink>
+        <Link
+          to={ROUTES.organizer.events}
+          className="-my-3 inline-flex min-h-11 items-center gap-1.5 self-start rounded-control text-sm text-muted-foreground transition-colors duration-(--duration-fast) ease-(--ease-standard) hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring lg:hidden"
+        >
+          <ArrowLeft
+            aria-hidden
+            className="size-4"
+          />
+          {t("header.allEvents")}
+        </Link>
+        <div className="flex items-start">
           {event ? (
             <div className="flex min-w-0 flex-col gap-2 wrap-anywhere md:gap-1">
               <div className="flex flex-col items-start gap-2 md:flex-row md:flex-wrap md:items-center md:gap-x-3">
