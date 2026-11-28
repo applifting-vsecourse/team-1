@@ -189,7 +189,10 @@ for (const viewport of [
         const guestPage = await guest.newPage()
         await signIn(guestPage, "participant", PARTICIPANT)
         await expect(guestPage).toHaveURL(/\/participant$/)
-        const applicationLink = guestPage.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ })
+        const applicationLink = guestPage
+          .getByRole("region", { name: /Letní kemp 2027(?! – demo)/ })
+          .getByRole("link")
+          .first()
         const applicationPath = await applicationLink.getAttribute("href")
         const applicationId = applicationPath!.split("/").at(-1)!
         await expect(

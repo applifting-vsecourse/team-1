@@ -108,9 +108,10 @@ describe("NotificationCenter", () => {
     expect(await screen.findByRole("button", { name: "Notifications, 2 unread" })).toBeVisible()
     expect(screen.getAllByRole("button", { name: /^Notifications/ })).toHaveLength(1)
     const panel = within(await open())
-    const articles = await panel.findAllByRole("article")
-    expect(articles).toHaveLength(2)
-    expect(articles[0]).toHaveTextContent("Change request approved")
+    await panel.findByText("Change request approved")
+    const rows = panel.getAllByRole("listitem")
+    expect(rows).toHaveLength(2)
+    expect(rows[0]).toHaveTextContent("Change request approved")
     await userEvent.click(
       panel.getByRole("button", { name: /Change request approved.*Application detail/ }),
     )
@@ -175,17 +176,20 @@ describe("NotificationCenter", () => {
     expect(await screen.findByRole("button", { name: "Notifications" })).toBeVisible()
   })
 
-  it("lists the notifications, unread ones with the new badge", async () => {
+  it("lists the notifications as rows that open, unread ones marked with the dot", async () => {
     serve([notification("1"), notification("2", { readAt: "2027-03-12T08:00:00.000Z" })])
     renderCenter()
     const panel = within(await open())
 
     expect(await panel.findAllByText("Application confirmed")).toHaveLength(2)
-    expect(panel.getAllByRole("article")).toHaveLength(2)
-    expect(panel.getByText("New")).toBeVisible()
-    expect(panel.getByText("Read")).toBeVisible()
+    const [unread, read] = panel.getAllByRole("button", { name: /^Application confirmed/ })
+    expect(unread).toHaveAccessibleName(/New, Application detail$/)
+    expect(unread).toHaveAttribute("data-unread", "true")
+    expect(read).toHaveAccessibleName(/Read, Application detail$/)
+    expect(read).toHaveAttribute("data-unread", "false")
     expect(panel.getByRole("button", { name: "Mark all as read" })).toBeVisible()
-    expect(panel.getAllByRole("button", { name: "Mark as read" })).toHaveLength(1)
+    // Opening a notification marks it as read; there is no separate action per row (Figma F4).
+    expect(panel.queryByRole("button", { name: "Mark as read" })).not.toBeInTheDocument()
   })
 
   it("shows the loading state while the list is fetched", async () => {
@@ -228,19 +232,8 @@ describe("NotificationCenter", () => {
     renderCenter()
     const panel = within(await open())
 
-    expect(await panel.findByText("Read")).toBeVisible()
+    expect(await panel.findByRole("button", { name: /Read, Application detail$/ })).toBeVisible()
     expect(panel.queryByRole("button", { name: "Mark all as read" })).not.toBeInTheDocument()
-    expect(panel.queryByRole("button", { name: "Mark as read" })).not.toBeInTheDocument()
-  })
-
-  it("marks one notification as read", async () => {
-    serve([notification("n1"), notification("n2")])
-    renderCenter()
-    const panel = within(await open())
-
-    await userEvent.click((await panel.findAllByRole("button", { name: "Mark as read" }))[0]!)
-
-    expect(post).toHaveBeenCalledWith("notifications/n1/read")
   })
 
   it("marks all as read", async () => {
@@ -317,9 +310,14 @@ describe("NotificationCenter", () => {
     renderCenter()
     const dialog = await open()
 
-    // At 360 px the panel stays a modal that fits the screen and scrolls; from `md` up it is a card
-    // under the bell.
-    expect(dialog).toHaveClass("max-h-[calc(100svh-2rem)]", "overflow-hidden", "sm:max-w-110")
+    // At 360 px the panel is a card under the header that fits the screen and scrolls; from `md` up
+    // it is a card next to the sidebar, by the bell.
+    expect(dialog).toHaveClass(
+      "top-16",
+      "max-h-[calc(100svh-5rem)]",
+      "overflow-hidden",
+      "md:left-62",
+    )
     expect(await within(dialog).findByRole("button", { name: /Application detail/ })).toBeVisible()
   })
 })

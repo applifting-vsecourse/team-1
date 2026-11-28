@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -34,14 +34,13 @@ describe("PreferencesCard", () => {
     mutateAsync.mockReset()
   })
 
-  it("shows the current theme and applies a chosen one at once", async () => {
+  it("shows the current theme as the chosen segment and applies another one at once", async () => {
     render(<PreferencesCard user={user} />)
 
-    const select = screen.getByRole("combobox", { name: "Theme" })
-    expect(select).toHaveTextContent("Light")
+    const themes = screen.getByRole("radiogroup", { name: "Appearance" })
+    expect(within(themes).getByRole("radio", { name: "Light" })).toBeChecked()
 
-    await userEvent.click(select)
-    await userEvent.click(await screen.findByRole("option", { name: "Dark" }))
+    await userEvent.click(within(themes).getByRole("radio", { name: "Dark" }))
     expect(setTheme).toHaveBeenCalledWith("dark")
   })
 

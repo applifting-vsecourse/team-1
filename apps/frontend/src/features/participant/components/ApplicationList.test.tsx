@@ -8,13 +8,26 @@ import {
   RouterProvider,
 } from "@tanstack/react-router"
 import { render, screen, within } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import userEvent from "@testing-library/user-event"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { MyApplication } from "@/features/participant/api/applications"
+import type * as DateInput from "@/lib/date-input"
+
+import {
+  myApplicationsQueryOptions,
+  type MyApplication,
+} from "@/features/participant/api/applications"
 import { ApplicationList } from "@/features/participant/components/ApplicationList"
 
 const { get } = vi.hoisted(() => ({ get: vi.fn() }))
 vi.mock("@/lib/api-client", () => ({ api: { get } }))
+
+// The app's (Prague) day: the real one, unless a test pins it.
+const appDay = vi.hoisted(() => ({ pinned: undefined as string | undefined }))
+vi.mock("@/lib/date-input", async (importOriginal) => {
+  const actual = await importOriginal<typeof DateInput>()
+  return { ...actual, todayIsoInAppZone: () => appDay.pinned ?? actual.todayIsoInAppZone() }
+})
 
 const application = (overrides: Partial<MyApplication> = {}): MyApplication => ({
   id: "a1",
@@ -69,12 +82,13 @@ const application = (overrides: Partial<MyApplication> = {}): MyApplication => (
   ...overrides,
 })
 
-const renderList = (renderBoardBadge?: (applicationId: string) => ReactNode) => {
+const renderList = (
+  renderBoardBadge?: (applicationId: string) => ReactNode,
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+) => {
   const root = createRootRoute({
     component: () => (
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-      >
+      <QueryClientProvider client={client}>
         <ApplicationList renderBoardBadge={renderBoardBadge} />
       </QueryClientProvider>
     ),
@@ -93,17 +107,25 @@ const renderList = (renderBoardBadge?: (applicationId: string) => ReactNode) => 
 const respondWith = (value: unknown) => get.mockReturnValue({ json: () => Promise.resolve(value) })
 
 describe("ApplicationList", () => {
-  beforeEach(() => get.mockReset())
+  beforeEach(() => {
+    get.mockReset()
+    // The upcoming / past split reads today's date.
+    vi.useFakeTimers({ toFake: ["Date"] })
+    vi.setSystemTime(new Date("2026-11-28T10:00:00Z"))
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+    appDay.pinned = undefined
+  })
 
-  it("puts the badge of the board under the participant's data, not beside the name (360 px)", async () => {
+  it("puts the badge of the board under the participant's name, in the row", async () => {
     respondWith([application()])
     renderList(() => <span>Nové příspěvky</span>)
 
     const badge = await screen.findByText("Nové příspěvky")
-    const heading = screen.getByRole("heading", { level: 3, name: /Jana Nováková/ })
-    // In the column of the name it can never take width away from it (Figma C5).
-    expect(heading.parentElement).toContainElement(badge)
-    expect(heading.parentElement).not.toContainElement(screen.getByText("Unpaid"))
+    const row = screen.getByRole("link", { name: /Jana Nováková/ })
+    const name = within(row).getByTitle("Jana Nováková")
+    expect(name.parentElement).toContainElement(badge)
   })
 
   it("puts the badge of the board on each application", async () => {
@@ -114,29 +136,66 @@ describe("ApplicationList", () => {
     expect(screen.getByText("Nové příspěvky a2")).toBeVisible()
   })
 
-  it("shows a loading state first", async () => {
+  it("shows a loading state under the title first", async () => {
     get.mockReturnValue({ json: () => new Promise(() => undefined) })
     renderList()
 
-    expect(await screen.findByRole("status")).toBeInTheDocument()
+    expect(await screen.findByRole("status")).toHaveTextContent("Loading")
+    expect(screen.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
   })
 
-  it("says what would appear when there is no application", async () => {
+  it("says what would appear when there is no application and leads to the catalog", async () => {
     respondWith([])
     renderList()
 
-    expect(await screen.findByText(/You have no applications yet/)).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: "You don't have any applications yet" }),
+    ).toBeInTheDocument()
+    expect(screen.getByText("Once you apply for an event, it will show up here.")).toBeVisible()
+    expect(screen.getByRole("link", { name: "Find an event" })).toHaveAttribute("href", "/catalog")
+    expect(screen.queryByRole("tab")).not.toBeInTheDocument()
   })
 
   it("shows the error with a way to retry", async () => {
     get.mockReturnValue({ json: () => Promise.reject(new Error("Boom")) })
     renderList()
 
-    expect(await screen.findByText("Couldn't load your applications")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /Try again|Retry/i })).toBeInTheDocument()
+    expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't load your applications")
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument()
   })
 
-  it("shows no payable amount when the domain returns no payment details", async () => {
+  it("shows the error, not the empty state, when a refetch of an empty list fails", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    client.setQueryData(myApplicationsQueryOptions().queryKey, [])
+    get.mockReturnValue({ json: () => Promise.reject(new Error("Boom")) })
+    renderList(undefined, client)
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't load your applications")
+    expect(screen.queryByText("You don't have any applications yet")).not.toBeInTheDocument()
+  })
+
+  it("splits upcoming and past by the Prague day, not the browser's", async () => {
+    // Noon UTC on 10 July is 10 July in the browser, whatever its zone; the app's (Prague) day
+    // says 11 July, so a term ending on 10 July is over.
+    vi.setSystemTime(new Date("2027-07-10T12:00:00Z"))
+    appDay.pinned = "2027-07-11"
+    respondWith([
+      application({
+        paymentDetails: null,
+        terms: [{ ...application().terms[0]!, endsOn: "2027-07-10" }],
+      }),
+    ])
+    const user = userEvent.setup()
+    renderList()
+
+    expect(
+      await screen.findByText("No upcoming applications. You will find past ones under Past."),
+    ).toBeVisible()
+    await user.click(screen.getByRole("tab", { name: "Past" }))
+    expect(await screen.findByRole("link", { name: /Jana Nováková/ })).toBeVisible()
+  })
+
+  it("has no to-do card when the domain returns no payment details", async () => {
     const data = application()
     respondWith([
       application({
@@ -146,15 +205,28 @@ describe("ApplicationList", () => {
       }),
     ])
     renderList()
-    expect(await screen.findByRole("link")).toHaveTextContent("—")
+    await screen.findByRole("link", { name: /Jana Nováková/ })
     expect(screen.queryByRole("note")).not.toBeInTheDocument()
   })
 
-  it("lists every application with its variable symbol, term statuses and a link to the detail", async () => {
+  it("puts what is left to pay in one to-do card per application, with the way to the payment details", async () => {
+    respondWith([application()])
+    renderList()
+
+    const note = await screen.findByRole("note")
+    expect(within(note).getByText("CZK 2,500 left to pay")).toBeVisible()
+    expect(within(note).getByRole("link", { name: "Payment details" })).toHaveAttribute(
+      "href",
+      "/participant/applications/a1",
+    )
+  })
+
+  it("groups the applications by event in rows with the code, term dates and statuses", async () => {
     respondWith([
       application(),
       application({
         id: "a2",
+        eventId: "e2",
         eventName: "Horský víkend 2027",
         variableSymbol: "0051",
         code: "HV-0051",
@@ -162,59 +234,88 @@ describe("ApplicationList", () => {
     ])
     renderList()
 
-    expect(await screen.findByRole("heading", { name: "Letní kemp 2027" })).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Horský víkend 2027" })).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: /Jana Nováková · LKL-0048/ })).toBeVisible()
-    expect(screen.getByRole("heading", { name: /Jana Nováková · HV-0051/ })).toBeVisible()
-    expect(screen.getAllByText("4–10 Jul 2027")).toHaveLength(2)
-    expect(screen.getAllByText("1. týden")).toHaveLength(2)
-    expect(screen.getAllByText("Confirmed")).toHaveLength(2)
-    expect(screen.getAllByText("Waitlisted")).toHaveLength(2)
-    expect(screen.getAllByText("Unpaid")).toHaveLength(2)
+    const summer = await screen.findByRole("region", { name: "Letní kemp 2027" })
+    const mountain = screen.getByRole("region", { name: "Horský víkend 2027" })
+    expect(within(summer).getByText("Letní kemp z. s. · 4–17 Jul 2027")).toBeVisible()
+    const row = within(summer).getByRole("link", { name: /^Jana Nováková.*LKL-0048/ })
+    expect(row).toHaveAttribute("href", "/participant/applications/a1")
+    expect(within(row).getByText("4–10 Jul")).toBeVisible()
+    expect(within(row).getByText("Confirmed")).toBeVisible()
+    expect(within(row).getByText("Waitlisted")).toBeVisible()
+    expect(within(mountain).getByRole("link", { name: /HV-0051/ })).toBeVisible()
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
-    expect(screen.getAllByRole("link")[0]).toHaveAttribute("href", "/participant/applications/a1")
   })
 
-  it("is one link whose parts follow the hierarchy: person and payment, terms with statuses, amounts", async () => {
-    respondWith([application()])
+  it("says Paid in the row once nothing is left, and nothing while something is owed", async () => {
+    respondWith([
+      application(),
+      application({ id: "a2", code: "LKL-0049", paymentStatus: "PAID", paymentDetails: null }),
+    ])
     renderList()
 
-    const link = await screen.findByRole("link")
-    expect(screen.getAllByRole("link")).toHaveLength(1)
-    expect(within(link).queryByRole("button")).not.toBeInTheDocument()
-    const heading = within(link).getByRole("heading", { name: /Jana Nováková/ })
-    const unpaid = within(link).getByText("Unpaid")
-    const confirmed = within(link).getByText("Confirmed")
-    const price = within(link).getByText("Term price")
-    const follows = (a: Node, b: Node) =>
-      Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)
-    expect(follows(heading, unpaid)).toBe(true)
-    expect(follows(unpaid, confirmed)).toBe(true)
-    expect(follows(confirmed, price)).toBe(true)
-    // Each term row keeps its date next to its own status chip.
-    const row = within(link).getByText("1. týden").closest("li")!
-    expect(within(row).getByText("Confirmed")).toBeVisible()
-    expect(within(row).queryByText("Waitlisted")).not.toBeInTheDocument()
-    expect(within(link).getByText("Remaining to pay")).toBeInTheDocument()
+    expect(
+      within(await screen.findByRole("link", { name: /LKL-0049/ })).getByText("Paid"),
+    ).toBeVisible()
+    expect(
+      within(screen.getByRole("link", { name: /LKL-0048/ })).queryByText(/Paid|Unpaid/),
+    ).not.toBeInTheDocument()
   })
 
-  it("clamps a very long name and term name, and keeps the full text available (#733)", async () => {
-    const name = "Maximiliána".repeat(10)
-    const termName = "Velmi dlouhý název termínu ".repeat(12)
+  it("moves an application whose terms are over to the past tab", async () => {
+    const user = userEvent.setup()
     respondWith([
+      application(),
       application({
-        firstName: name,
-        lastName: "Nováková",
-        terms: [{ ...application().terms[0]!, name: termName }],
+        id: "old",
+        eventId: "e-old",
+        eventName: "Kemp 2025",
+        code: "K-0001",
+        paymentDetails: null,
+        terms: [{ ...application().terms[0]!, endsOn: "2025-07-10", status: "ARCHIVED" }],
       }),
     ])
     renderList()
-    const link = await screen.findByRole("link")
-    const heading = within(link).getByRole("heading", { level: 3 })
-    expect(heading).toHaveAttribute("title", expect.stringContaining(name))
-    expect(heading.querySelector(".line-clamp-2")).toHaveTextContent(name)
-    const termLabel = within(link).getByTitle(termName.trim())
-    expect(termLabel).toHaveClass("line-clamp-2", "wrap-anywhere")
-    expect(termLabel).toHaveTextContent(termName.trim())
+
+    expect(await screen.findByRole("tab", { name: "Upcoming" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    )
+    expect(screen.queryByText("Kemp 2025")).not.toBeInTheDocument()
+    await user.click(screen.getByRole("tab", { name: "Past" }))
+    expect(await screen.findByRole("region", { name: "Kemp 2025" })).toBeVisible()
+    expect(screen.getByText("Archived")).toBeVisible()
+    expect(screen.queryByText("Letní kemp 2027")).not.toBeInTheDocument()
+  })
+
+  it("keeps applications cancelled in every term behind a button", async () => {
+    const user = userEvent.setup()
+    respondWith([
+      application(),
+      application({
+        id: "gone",
+        code: "LKL-0050",
+        paymentDetails: null,
+        terms: application().terms.map((term) => ({ ...term, status: "CANCELLED" as const })),
+      }),
+    ])
+    renderList()
+
+    await screen.findByRole("link", { name: /LKL-0048/ })
+    expect(screen.queryByRole("link", { name: /LKL-0050/ })).not.toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Show cancelled applications (1)" }))
+    expect(screen.getByRole("link", { name: /LKL-0050/ })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Hide cancelled applications" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    )
+  })
+
+  it("clamps a very long name and keeps the full text available (#733)", async () => {
+    const name = "Maximiliána".repeat(10)
+    respondWith([application({ firstName: name, lastName: "Nováková" })])
+    renderList()
+    const link = await screen.findByRole("link", { name: new RegExp(name) })
+    const title = within(link).getByTitle(`${name} Nováková`)
+    expect(title).toHaveClass("line-clamp-2", "wrap-anywhere")
   })
 })

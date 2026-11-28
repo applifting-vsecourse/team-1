@@ -17,12 +17,18 @@ type AreaLayoutProps = {
   context?: string
   /** The signed-in account at the bottom of the sidebar and the drawer (a slot: `components/` never imports from `features/`). */
   account: ReactNode
-  /** `reading` for participant pages, `wide` (1200 px) for organizer tables. */
+  /** `reading` for participant pages, `wide` (1200 px) for organizer tables; with `mobileMenu` the column is 800 px. */
   width: "reading" | "wide"
   /** Where the logo leads; the landing page by default, which sends a signed-in user to their area's start. */
   logoTo?: string
   /** The notification bell, the only control at the right of the top bar. */
   notifications?: ReactNode
+  /**
+   * The participant area (Figma F4) has no top bar: the bell sits next to the logo in the sidebar,
+   * and below `md` a 56 px header carries the logo, the bell and this account menu (the avatar),
+   * which also holds the navigation, so there is no drawer.
+   */
+  mobileMenu?: ReactNode
   children: ReactNode
 }
 
@@ -32,8 +38,9 @@ type AreaLayoutProps = {
  * above the page. The bar carries the role label and the notification bell;
  * language and theme also live with the sidebar account. Below `md` the sidebar
  * moves into a sheet opened from the bar (the account stays at its bottom),
- * so the page starts right under the 56 px bar: menu, logo and the bell. Organizer and participant layouts differ only in
- * navigation and content width, so they share this template; the route
+ * so the page starts right under the 56 px bar: menu, logo and the bell. With
+ * `mobileMenu` (the participant area) there is no top bar and no drawer: the
+ * bell sits next to the logo and the content is one centred column. The route
  * layouts (`routes/organizer/_app.tsx`, `routes/participant/_app.tsx`) fill
  * the slots.
  */
@@ -46,6 +53,7 @@ export function AreaLayout({
   width,
   logoTo,
   notifications,
+  mobileMenu,
   children,
 }: AreaLayoutProps) {
   const { t } = useTranslation()
@@ -60,6 +68,39 @@ export function AreaLayout({
       delete document.body.dataset.layer
     }
   }, [])
+
+  if (mobileMenu) {
+    return (
+      // Figma (Design system v2): F4 / Navigation / Sidebar přihlašovatele · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-2 (mobile header: 15649-122, account menu open: 27681-33558)
+      <div className="flex min-h-svh">
+        <aside
+          aria-label={t("nav.main")}
+          className="sticky top-0 hidden h-svh w-60 shrink-0 flex-col gap-6 overflow-y-auto border-r border-sidebar-border bg-sidebar p-4 text-sidebar-foreground md:flex"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <Logo to={logoTo} />
+            {notifications}
+          </div>
+          <nav className="flex flex-col gap-2">{nav}</nav>
+          <div className="mt-auto border-t border-sidebar-border pt-6">{account}</div>
+        </aside>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-1 border-b border-border bg-card px-4 md:hidden">
+            <Logo to={logoTo} />
+            <div className="flex items-center gap-1">
+              {notifications}
+              {mobileMenu}
+            </div>
+          </header>
+          <main className="min-w-0 px-4 pt-6 pb-12 md:px-8 md:pt-8">
+            <div className="mx-auto flex w-full max-w-200 flex-col gap-8">
+              <EmbeddedPageContext.Provider value>{children}</EmbeddedPageContext.Provider>
+            </div>
+          </main>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-svh">
