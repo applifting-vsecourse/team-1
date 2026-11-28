@@ -89,5 +89,4 @@ describe("room proposal draft", () => {
       expect(beds.map((bed) => bed.room.id)).toEqual(["regular"])
     },
   )
-
 })
