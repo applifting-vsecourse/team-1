@@ -304,20 +304,26 @@ describe("NotificationCenter", () => {
     expect(navigate).toHaveBeenCalledWith({ to: "/organizer/events" })
   })
 
-  it("is a modal that fits the screen at 360 px", async () => {
-    window.innerWidth = 360
-    serve([notification("1")])
-    renderCenter()
-    const dialog = await open()
+  // Both areas share the shell without a top bar (Figma F4 and F5), so the bell is next to the logo.
+  it.each(["participant", "organizer"] as const)(
+    "is a modal that fits the screen at 360 px (%s)",
+    async (area) => {
+      window.innerWidth = 360
+      serve([notification("1")])
+      renderCenter(undefined, area)
+      const dialog = await open()
 
-    // At 360 px the panel is a card under the header that fits the screen and scrolls; from `md` up
-    // it is a card next to the sidebar, by the bell.
-    expect(dialog).toHaveClass(
-      "top-16",
-      "max-h-[calc(100svh-5rem)]",
-      "overflow-hidden",
-      "md:left-62",
-    )
-    expect(await within(dialog).findByRole("button", { name: /Application detail/ })).toBeVisible()
-  })
+      // At 360 px the panel is a card under the header that fits the screen and scrolls; from `md` up
+      // it is a card next to the sidebar, by the bell.
+      expect(dialog).toHaveClass(
+        "top-16",
+        "max-h-[calc(100svh-5rem)]",
+        "overflow-hidden",
+        "md:left-62",
+      )
+      expect(
+        await within(dialog).findByRole("button", { name: /Application detail/ }),
+      ).toBeVisible()
+    },
+  )
 })

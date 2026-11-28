@@ -141,7 +141,10 @@ export function RoomsPage({
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("rooms.title")} />
-        <SectionHeader title={t("rooms.title")} />
+        <SectionHeader
+          isTitleHidden
+          title={t("rooms.title")}
+        />
         <p className="text-sm text-muted-foreground">{t("rooms.noTerms")}</p>
       </div>
     )
@@ -231,7 +234,10 @@ export function RoomsPage({
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("rooms.title")} />
-        <SectionHeader title={t("rooms.title")} />
+        <SectionHeader
+          isTitleHidden
+          title={t("rooms.title")}
+        />
         {viewBar}
         <IndividualRequestsCard
           key={selected.id}
@@ -329,7 +335,10 @@ export function RoomsPage({
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("rooms.title")} />
-      <SectionHeader title={t("rooms.title")} />
+      <SectionHeader
+        isTitleHidden
+        title={t("rooms.title")}
+      />
       {query.isError ? (
         <ErrorState
           title={t("rooms.loadFailed")}

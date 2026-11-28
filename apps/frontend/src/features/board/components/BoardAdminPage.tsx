@@ -39,6 +39,7 @@ export function BoardAdminPage({ eventId }: { eventId: string }) {
     <div className="flex flex-col gap-6">
       <Seo title={t("admin.title")} />
       <SectionHeader
+        isTitleHidden
         title={t("admin.title")}
         actions={
           <Button

@@ -152,6 +152,7 @@ export function PaymentsOverviewPage({
     <section className="flex flex-col gap-6">
       <Seo title={t("paymentsOverview.title")} />
       <SectionHeader
+        isTitleHidden
         title={t("paymentsOverview.title")}
         actions={
           <>

@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { currentLanguage } from "@/i18n"
-import { cn } from "@/lib/utils"
 
 import {
   useMarkRead,
@@ -130,22 +129,10 @@ export function NotificationCenter({
       >
         <DialogContent
           showCloseButton={false}
-          className={cn(
-            "flex max-h-[calc(100svh-2rem)] flex-col content-start gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-110",
-            area === "participant"
-              ? // Figma F4: a card by the bell — under the 56 px header on a phone, next to the sidebar on a desktop.
-                "top-16 max-h-[calc(100svh-5rem)] translate-y-0 rounded-xl md:top-4 md:left-62 md:max-h-[calc(100svh-2rem)] md:translate-x-0"
-              : "md:top-0 md:right-0 md:left-auto md:h-svh md:max-h-svh md:translate-x-0 md:translate-y-0 md:rounded-l-2xl md:rounded-r-none",
-          )}
+          // Figma F4 and F5: a card by the bell — under the 56 px header on a phone, next to the sidebar on a desktop.
+          className="top-16 flex max-h-[calc(100svh-5rem)] translate-y-0 flex-col content-start gap-0 overflow-hidden rounded-xl p-0 sm:max-w-110 md:top-4 md:left-62 md:max-h-[calc(100svh-2rem)] md:translate-x-0"
         >
-          <div
-            className={cn(
-              "flex shrink-0 items-center gap-4",
-              area === "participant"
-                ? "pt-4 pr-3 pb-1 pl-4 md:pt-6 md:pr-4 md:pl-6"
-                : "p-4 pb-5 md:p-6 md:pb-5",
-            )}
-          >
+          <div className="flex shrink-0 items-center gap-4 pt-4 pr-3 pb-1 pl-4 md:pt-6 md:pr-4 md:pl-6">
             <DialogTitle className="flex-1 text-2xl font-bold">{t("panel.title")}</DialogTitle>
             <DialogClose asChild>
               <Button

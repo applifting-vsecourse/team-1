@@ -15,7 +15,7 @@ Tento soubor popisuje, jak se obrazovky Togeny převádějí do nového vzhledu.
 
 - písmo je všude Inter (DS / Display 60/64 Bold, H1 36/44 Bold, H2 24/32 Semi Bold, H3 18/26 Semi Bold, Lead 18/28),
 - karty mají 1px hranu `color/border/strong` (ink), radius 12 (`radius/lg`), žádný stín a odsazení 24; nadpis karty je H3,
-- kostra aplikace: sidebar bez rámečků u položek, horní lišta 64 px, záhlaví stránky s nadpisem a popisem vlevo a hlavní akcí vpravo,
+- kostra aplikace: sidebar bez rámečků u položek, bez horní lišty (od 28. 11. 2026, viz „Přihlášené části“), záhlaví stránky s nadpisem vlevo, hlavní akcí vpravo a oranžovým BrandDividerem pod nimi,
 - tabulky z řádků mají šedé záhlaví sloupců a řádky oddělené hairline,
 - stavové panely vypadají jako DS / Alert: podklad `status/*-bg`, rámeček v barvě tónu na 30 %, radius 12,
 - dekorativní kompozice z loga zmizely (přihlášení, boční panel přihlášky); landing má od 25. 11. 2026 značkové ilustrace (viz Značka).
@@ -26,17 +26,18 @@ Tento soubor popisuje, jak se obrazovky Togeny převádějí do nového vzhledu.
 
 Dva oblouky z loga (DS / Graphic / Active corners `13134:19498`) označují **jednu aktivní věc** na obrazovce:
 
-- **ano:** aktivní záložka sekce akce (O / Event tabs), vybraná nebo aktuální karta akce (O01),
-- **ne:** aktivní položka sidebaru a aktuální krok stepperu (od 27. 11. 2026 navigace A, viz níže), řádky tabulek, stránkování, ovládací prvky, štítky, tlačítka, hover, prázdné stavy, dekorace, seznamy bez výběru (U01).
+- **ano:** vybraná nebo aktuální karta akce (O01),
+- **ne:** aktivní položka sidebaru a aktuální krok stepperu (od 27. 11. 2026 navigace A, viz níže), aktivní záložka sekce akce (od 28. 11. 2026 také navigace A, F5), řádky tabulek, stránkování, ovládací prvky, štítky, tlačítka, hover, prázdné stavy, dekorace, seznamy bez výběru (U01).
 
-Oblouky loga uvnitř značkové ilustrace jsou kresba, ne marker, a jsou povolené. Když je otevřená konkrétní akce, položka „Akce“ v sidebaru zůstává aktivní (navigace A) a rohy loga má aktivní záložka sekce.
+Oblouky loga uvnitř značkové ilustrace jsou kresba, ne marker, a jsou povolené. Když je otevřená konkrétní akce, položka „Akce“ v sidebaru zůstává aktivní (navigace A) a aktivní záložka sekce má také značku navigace A, bez rohů loga.
 
 ## Aktivní položka navigace a krok stepperu (navigace A, 2026-11-27)
 
 Schválil uživatel 27. 11. 2026 ([porovnání](https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27751-33229), specimen světlý / tmavý `27763:190215`; vzor GitHub Primer NavList, IBM Carbon). Kit: Togena / Navigation / Nav item `15219:4340` (Active `15219:4322`, ActiveFocus `15273:7540`), Stepper `15207:1976`.
 
 - **Položka sidebaru:** neutrální plocha `color/nav/active` (`#e6eced`, tmavý `#22403f`), popisek Semi Bold a ikona v inkoustu, uvnitř levého okraje lišta 4 × 24 px `color/nav/indicator` (`#c4621f`, tmavý `#f5a05f`). Bez rohů loga, bez mintové a bez oranžové výplně. Hover `bg/subtle` na 60 % (slabší než aktivní), fokus teal obrys s odsazením. Funguje i ve sbaleném sidebaru (lišta je uvnitř položky).
-- **Aktuální krok stepperu** (přihláška, registrace US-69, nastavení akce US-12): stejná šedá plocha, Semi Bold a podtržení 20 × 3 px `color/nav/indicator` (odspodu 4, zleva 12), bez rohů.
+- **Aktuální krok stepperu** (přihláška, registrace US-69): stejná šedá plocha, Semi Bold a podtržení 20 × 3 px `color/nav/indicator` (odspodu 4, zleva 12), bez rohů. Karta „Příprava přihlášky“ v přehledu akce (US-12, od 28. 11. 2026 F5) není stepper, ale seznam úkolů: aktuální krok má značku sidebaru, šedou plochu s lištou 4 × 24.
+- **Aktivní záložka sekce akce** (od 28. 11. 2026, F5; kit Tab `15187:24`): stejná šedá plocha, Semi Bold a podtržení 20 × 3 px `color/nav/indicator` uprostřed, 2 px nad spodní hranou, bez rohů loga.
 - V kódu: tokeny `--nav-active` a `--nav-indicator`, atom `SidebarLink`; pravidla v [`DESIGN.md`](../DESIGN.md) („Colour“).
 
 **Animace:** rohy přijedou z odsazení 6 px a zároveň se objeví (180 ms, ease-out). Při `prefers-reduced-motion` se jen objeví. V kódu je to atom `ActiveCorners`, který se zobrazí uvnitř prvku s `data-status="active"`.
@@ -54,9 +55,9 @@ Schválil uživatel 27. 11. 2026 ([porovnání](https://www.figma.com/design/6Mu
 
 **Landing (Landing page / CZ, `22640:10977` / `22640:11536`):** hero vlevo text (Display, „bez zmatku“ v ink se zvýrazňovačem `color/brand/warm`), jedna věta, „Vytvořit akci“ (primary) a vedle „Najít akci →“ (secondary, stejná výška) s mikrotextem „Přihlásíte se bez registrace.“, vpravo ilustrace Tábor s čipem termínu a nálepkou; na mobilu tlačítka pod sebou přes celou šířku. Pak pás `bg/subtle` „Co v Togeně vyřídíte“ s širokou kartou „Potvrzení a náhradníky“ a třemi kartami s motivy, závěr se stejnými tlačítky a statickým Táborem, zápatí s horní hairline.
 
-**Přihlášené části:** sidebar 240 px (`bg/subtle`, pravá hairline; aktivní položka viz „Aktivní položka navigace“) jen s položkami Akce / Organizace (DS / App sidebar; dashboard se zrušil 25. 10.) a dole s účtem (N / Sidebar account, od 25. 10.), horní lišta 64 px (role, jazyk, vzhled; DS / App top bar), obsah s odsazením 32 / 32 / 48 a mezerami 24. Pod 768 px se sidebar schová do vysouvacího panelu (shadcn Sheet, 288 px, překryv černá 50 %; DS / Mobile drawer) otevíraného tlačítkem menu v horní liště: M08 (zavřeno) a M09 (otevřeno) na stránce 06 Mobil. Horní lišta na mobilu (DS / Mobile top bar, 56 px) má menu, logo, jazyk a vzhled (stejné komponenty jako na desktopu); účet je dole v draweru.
+**Přihlášené části** (od 28. 11. 2026 stejný shell pro přihlašovatele F4 a organizátora F5, vzor Cal.com): **bez horní lišty**, stránka začíná nadpisem. Sidebar 240 px (`bg/subtle`, pravá hairline; aktivní položka viz „Aktivní položka navigace“) nese nahoře logo a vedle něj zvonek, pak navigaci oblasti (organizátor jen „Akce“, vytvoření akce je primární tlačítko stránky; přihlašovatel „Moje přihlášky“ a „Katalog akcí“) a dole účet (avatar, jméno, role; menu se otevírá nahoru). Obsah má odsazení 32 / 32 / 48 a mezery 24, na mobilu 16 / 16 / 32 a 16. Pod 768 px je hlavička 56 px s logem, zvonkem a avatarem; avatar otevírá menu účtu (identita, navigace oblasti, Nastavení účtu, Odhlásit se). Drawer ani tlačítko menu nejsou. Jazyk a vzhled jsou jen v Nastavení účtu. Záhlaví stránky: H1, vpravo jediná primární akce a pod nimi oranžový BrandDivider, bez pásu Slope a motivu.
 
-**Detail akce (organizátor):** sekce akce (Přehled, Přihlášky, Kapacity, Platby, Ubytování, Nastavení) nejsou v sidebaru ani v draweru, ale v záložkách pod záhlavím akce (O / Event tabs) na všech šířkách. Záhlaví: „← Všechny akce“ (Button Quiet), H1 název + štítek stavu přihlášky, meta řádek, záložky. V sidebaru zůstává „Akce“ aktivní (navigace A: šedá plocha a oranžová lišta), rohy loga má aktivní záložka. Na mobilu (< 768 px) záložky nahrazuje sticky tlačítko pod horní lištou s názvem aktuální sekce a šipkou („Přehled“), které otevře DropdownMenu se všemi sekcemi (N8 / N9, N / Event section switcher); drawer v detailu akce položky akce nemá (M11). Drobečková navigace na stránkách akce není, podstránky mají „← Zpět na …“ a nadpis H2.
+**Detail akce (organizátor):** sekce akce (Přehled, Přihlášky, Kapacity, Platby, Ubytování, Nastavení) nejsou v sidebaru ani v draweru, ale v záložkách pod záhlavím akce (O / Event tabs) na všech šířkách. Záhlaví (od 28. 11. 2026 stejné na všech 11 sekcích, F5 `15398:536`): kulaté tlačítko zpět, H1 název a štítek stavu přihlášky v jednom řádku, meta „organizace · data“, oranžový BrandDivider a pod ním záložky. Pás Slope s motivem na stránkách akce není. Záložky jsou kit Tab `15187:24` (44 px); vybraná má značku navigace A (šedá plocha, Semi Bold, podtržení 20 × 3 px 2 px nad spodní hranou), **bez rohů loga** a bez mintové výplně. V sidebaru zůstává „Akce“ aktivní (navigace A: šedá plocha a oranžová lišta). Na mobilu (< 768 px) záložky nahrazuje sticky tlačítko pod hlavičkou s ikonou a názvem aktuální sekce a šipkou („Přehled“), které otevře menu se všemi sekcemi s ikonami; aktuální sekce má značku navigace A (lišta 4 × 24) místo fajfky (F5 `18359:20490`). Drobečková navigace na stránkách akce není, podstránky mají „← Zpět na …“ a nadpis H2.
 
 **Obsah stránek:** jedna primární akce na pohled (vpravo v záhlaví sekce nebo karty), další akce Secondary / Quiet. Souhrny jako řada DS / Metric. Tabulky: záhlaví sloupců `bg/subtle` 40 px, řádky min. 56 px s hairline, částky vpravo, akce v řádku jako ikonová tlačítka (DS / Icon button: pencil, trash, ⋯ pro DropdownMenu, chevron pro detail). Filtry jsou toolbar nad tabulkou (hledání + Selecty). Potvrzení úspěchu je toast (Sonner, vpravo dole; na mobilu dole přes šířku), ne alert v obsahu; změněný řádek se zvýrazní `bg/selected`.
 

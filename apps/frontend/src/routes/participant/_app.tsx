@@ -49,7 +49,6 @@ function ParticipantLayout() {
       <Seo title={t("area.participant")} />
       <AreaLayout
         width="reading"
-        roleLabel={t("accountRole.PARTICIPANT")}
         nav={nav.map(({ label, ...link }) => (
           <SidebarLink
             key={label}

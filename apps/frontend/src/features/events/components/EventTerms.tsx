@@ -83,7 +83,10 @@ export function EventTerms({ eventId }: { eventId: string }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <SectionHeader title={t("terms.title")} />
+      <SectionHeader
+        isTitleHidden
+        title={t("terms.title")}
+      />
       {cancelResult ? (
         <CancelledResult
           eventId={eventId}

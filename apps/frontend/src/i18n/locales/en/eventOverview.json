@@ -813,9 +813,6 @@
     "takenHint": "{{name}} stays a substitute. The capacity is not exceeded.",
     "title": "Filling freed beds"
   },
-  "switcher": {
-    "label": "Event"
-  },
   "termChange": {
     "cancel": "Cancel",
     "done": {
