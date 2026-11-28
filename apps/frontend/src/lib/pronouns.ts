@@ -1,0 +1,1 @@
+export const MAX_PRONOUNS_LENGTH = 100

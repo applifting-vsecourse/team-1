@@ -10,6 +10,7 @@ export const EDITABLE_FIELDS = [
   "firstName",
   "lastName",
   "birthDate",
+  "pronouns",
   "phone",
   "individualAccommodation",
   "accommodationRequest",
@@ -40,6 +41,17 @@ const historyEntrySchema = z.discriminatedUnion("kind", [
         to: z.string().nullable().optional(),
       }),
     ),
+  }),
+  z.object({
+    ...base,
+    kind: z.literal("LOGISTICS"),
+    /** What the organizer wrote for the participant (D-191); never the text of the health note. */
+    field: z.enum(["transport", "roomWishes", "stay", "health"]),
+    termName: z.string().nullable().optional(),
+    startsOn: z.string().optional(),
+    endsOn: z.string().optional(),
+    from: z.string().nullable().optional(),
+    to: z.string().nullable().optional(),
   }),
   z.object({
     ...base,

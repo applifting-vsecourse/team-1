@@ -5,6 +5,7 @@ import {
   api,
   connectTestPrisma,
   hasSentNothingTo,
+  latestEmailTo,
   resetAndSeed,
   signIn,
 } from "@/test/integration/test-api"
@@ -291,6 +292,7 @@ describe("bank statement import (US-42)", () => {
       expect(new Set(rows.map((row) => row.receiptId)).size).toBe(1)
       expect(rows.every((row) => row.source === "BANK_IMPORT" && row.isSummary)).toBe(true)
       // E-mail no. 8 once for the application, naming both terms that were closed.
+      await latestEmailTo(application.email)
       expect(allEmailsTo(application.email)).toHaveLength(1)
       const notifications = await prisma.notification.findMany({
         where: {
@@ -315,7 +317,12 @@ describe("bank statement import (US-42)", () => {
         { term: application.termNumbers[0], amountCzk: 1000 },
         { term: application.termNumbers[1], amountCzk: 500 },
       ])
+      // #737: the e-mail of a bank import goes through the queue, so it arrives after the answer.
+      await latestEmailTo(application.email)
       expect(allEmailsTo(application.email)).toHaveLength(1)
+      expect(
+        await prisma.emailJob.findMany({ where: { recipient: application.email } }),
+      ).toMatchObject([{ template: "PAYMENT_RECEIVED" }])
       expect(await (await upload(csv)).json()).toMatchObject({ matchedCount: 0, duplicateCount: 1 })
       expect(await rowsOf(application.number)).toHaveLength(2)
       expect(allEmailsTo(application.email)).toHaveLength(1)

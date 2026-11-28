@@ -15,16 +15,17 @@ type SignInWithRedirectProps = {
   accountType: AccountType
   /** Area home used when there is no `from`. */
   fallback: string
-  emailHint?: string
-  passwordHint?: string
+  defaultEmail?: string
+  /** „Nemáte heslo?“: switch the card to the sign-in link (participants). */
+  onRequestLink?: (email: string) => void
 }
 
 export function SignInWithRedirect({
   from,
   accountType,
   fallback,
-  emailHint,
-  passwordHint,
+  defaultEmail,
+  onRequestLink,
 }: SignInWithRedirectProps) {
   const { t } = useTranslation("auth")
   const { t: tErrors } = useTranslation("errors")
@@ -48,8 +49,8 @@ export function SignInWithRedirect({
 
   return (
     <SignInForm
-      emailHint={emailHint}
-      passwordHint={passwordHint}
+      defaultEmail={defaultEmail}
+      onRequestLink={onRequestLink}
       isLoading={signIn.isPending}
       errorMessage={errorMessage}
       onSubmit={handleSubmit}

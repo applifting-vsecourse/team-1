@@ -1,56 +1,50 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { EmbeddedPageContext } from "@/components/atoms/EmbeddedPage"
 import { AuthLayout } from "@/components/templates/AuthLayout"
 
-vi.mock("@/components/organisms/Header", () => ({ Header: () => <header>Public header</header> }))
+const { header } = vi.hoisted(() => ({ header: vi.fn() }))
+
+vi.mock("@/components/organisms/Header", () => ({
+  Header: (props: { hasSignIn?: boolean; action?: React.ReactNode }) => {
+    header(props)
+    return <header>{props.action}</header>
+  },
+}))
+vi.mock("@/components/organisms/PublicFooter", () => ({
+  PublicFooter: ({ isMinimal }: { isMinimal?: boolean }) => (
+    <footer>{isMinimal ? "minimal footer" : "full footer"}</footer>
+  ),
+}))
 
 describe("AuthLayout", () => {
-  it("renders the public header and main on its own", () => {
+  it("puts the content in one card between the public header without Sign in and the minimal footer", () => {
     render(
-      <AuthLayout
-        title="Title"
-        description="Description"
-      >
-        <p>Body</p>
+      <AuthLayout>
+        <h1>Sign-in</h1>
       </AuthLayout>,
     )
 
-    expect(screen.getByText("Public header")).toBeInTheDocument()
-    expect(screen.getByRole("main")).toBeInTheDocument()
-  })
-
-  it("renders only the content inside an area layout", () => {
-    render(
-      <EmbeddedPageContext.Provider value>
-        <AuthLayout
-          title="Title"
-          description="Description"
-        >
-          <p>Body</p>
-        </AuthLayout>
-      </EmbeddedPageContext.Provider>,
+    expect(header).toHaveBeenCalledWith(expect.objectContaining({ hasSignIn: false }))
+    expect(screen.getByRole("main")).toContainElement(
+      screen.getByRole("heading", { level: 1, name: "Sign-in" }),
     )
-
-    expect(screen.getByRole("heading", { name: "Title" })).toBeInTheDocument()
-    expect(screen.queryByText("Public header")).not.toBeInTheDocument()
-    expect(screen.queryByRole("main")).not.toBeInTheDocument()
+    expect(screen.getByRole("contentinfo")).toHaveTextContent("minimal footer")
   })
 
-  it("renders the back link above the heading", () => {
+  it("puts the header action in place of Sign in and the extra content under the card", () => {
     render(
       <AuthLayout
-        title="Title"
-        description="Description"
-        back={<a href="/">Home</a>}
+        headerAction={<button type="button">Sign out</button>}
+        below={<p>dots</p>}
       >
-        <p>Body</p>
+        <h1>Organization</h1>
       </AuthLayout>,
     )
 
-    const link = screen.getByRole("link", { name: "Home" })
-    const heading = screen.getByRole("heading", { name: "Title" })
-    expect(link.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByRole("banner")).toContainElement(
+      screen.getByRole("button", { name: "Sign out" }),
+    )
+    expect(screen.getByRole("main")).toContainElement(screen.getByText("dots"))
   })
 })

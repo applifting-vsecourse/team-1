@@ -72,7 +72,7 @@ export function RoomModeDialog({
       }}
     >
       <DialogContent
-        className="max-h-[90dvh] max-w-full overflow-y-auto bg-card shadow-md sm:max-w-220"
+        className="max-h-[90dvh] max-w-full overflow-y-auto bg-card sm:max-w-220"
         onOpenAutoFocus={(e) => {
           e.preventDefault()
           cancelRef.current?.focus()

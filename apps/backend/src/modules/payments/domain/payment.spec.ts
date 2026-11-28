@@ -34,6 +34,7 @@ const application = (terms: PaymentTerm[]): PaymentApplication => ({
   bankAccount: "123456789/0800",
   number: 12,
   firstName: "Adam",
+  pronouns: null,
   lastName: "Test",
   individualAccommodation: false,
   accommodationRequest: null,

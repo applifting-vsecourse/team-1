@@ -3,13 +3,10 @@
     "label": "Upozornění",
     "labelUnread": "Upozornění, nepřečtených: {{count}}"
   },
-  "change": {
-    "label": "Stav"
-  },
   "item": {
-    "markRead": "Označit jako přečtené",
     "new": "Nové",
     "open": "Detail přihlášky",
+    "openPost": "Otevřít příspěvek",
     "read": "Přečtené"
   },
   "note": {
@@ -26,15 +23,9 @@
     "retry": "Zkusit znovu",
     "title": "Upozornění"
   },
-  "status": {
-    "ARCHIVED": "Archivováno",
-    "CANCELLED": "Zrušeno",
-    "CONFIRMED": "Potvrzeno",
-    "TO_EVALUATE": "Čeká na vyhodnocení",
-    "WAITLISTED": "Náhradník"
-  },
   "title": {
     "APPLICATION_EDITED": "Přihlašovatel upravil přihlášku",
+    "BOARD_POST_PUBLISHED": "Nový příspěvek na nástěnce",
     "CANCELLED": "Odhlášení bylo potvrzeno",
     "CANCELLED_BY_ORGANIZER": "Přihlášku zrušil organizátor",
     "CONFIRMED": "Přihláška byla potvrzena",

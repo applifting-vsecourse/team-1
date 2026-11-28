@@ -196,7 +196,7 @@ function UnmatchedTransactions({ eventId }: { eventId: string }) {
         <EmptyState message={t("bankStatement.unmatchedList.empty")} />
       ) : (
         // Below md the rows stack into cards (no sideways scroll).
-        <div className="rounded-lg border bg-card">
+        <div className="rounded-lg border border-border-strong bg-card nested:border-border">
           <Table className="md:min-w-190">
             <caption className="sr-only">{t("bankStatement.unmatchedList.list")}</caption>
             <TableHeader className="bg-muted max-md:sr-only">
@@ -248,6 +248,7 @@ function UnmatchedTransactions({ eventId }: { eventId: string }) {
                         {isAssignable && !isOpen ? (
                           <Button
                             variant="outline"
+                            size="sm"
                             onClick={() => setOpenId(row.id)}
                             aria-label={`${t("bankStatement.unmatchedList.assign")} ${row.counterpartyName ?? row.variableSymbol ?? ""}`.trim()}
                           >

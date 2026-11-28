@@ -1,29 +1,25 @@
 import { expect, test } from "@playwright/test"
 import { PARTICIPANT } from "./support/accounts"
-import { latestMagicLinkToken } from "./support/magic-link"
+import { latestMagicLinkToken, requestSignInLink } from "./support/magic-link"
 import { latestEmailSubject } from "./support/mail"
 
 // US-01: the participant asks for a link, opens it from the e-mail and is signed in. Phone-first.
 test.describe("Magic link", { tag: "@mobile" }, () => {
   test("participant requests a link, opens it and gets to the application", async ({ page }) => {
-    await page.goto("/participant/magic-link")
-    await page.getByLabel("E-mail").fill(PARTICIPANT.email)
-    await page.getByRole("button", { name: "Send me a link" }).click()
-    await expect(page.getByRole("status")).toContainText("Check your e-mail")
+    await requestSignInLink(page, PARTICIPANT.email)
+    await expect(page.getByRole("heading", { level: 1, name: "Check your e-mail" })).toBeFocused()
 
     const token = await latestMagicLinkToken()
     await page.goto(`/participant/magic-link?token=${token}`)
-    await page.getByRole("button", { name: "Continue" }).click()
+    await page.getByRole("button", { name: "Sign in" }).click()
 
     // The seeded participant already has a password, so no password step follows.
     await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
   })
 
   test("the e-mail is in English when asked for from the English UI", async ({ page }) => {
-    await page.goto("/participant/magic-link")
-    await page.getByLabel("E-mail").fill(PARTICIPANT.email)
-    await page.getByRole("button", { name: "Send me a link" }).click()
-    await expect(page.getByRole("status")).toContainText("Check your e-mail")
+    await requestSignInLink(page, PARTICIPANT.email)
+    await expect(page.getByRole("heading", { level: 1, name: "Check your e-mail" })).toBeFocused()
 
     await expect
       .poll(() => latestEmailSubject(PARTICIPANT.email))
@@ -37,9 +33,10 @@ test.describe("Magic link in Czech", { tag: "@mobile" }, () => {
   test.use({ locale: "cs-CZ" })
 
   test("the e-mail is in Czech when asked for from the Czech UI", async ({ page }) => {
-    await page.goto("/participant/magic-link")
-    await page.getByLabel("E-mail").fill(PARTICIPANT.email)
-    await page.getByRole("button", { name: "Poslat odkaz" }).click()
+    await requestSignInLink(page, PARTICIPANT.email, {
+      noPassword: "Nemáte heslo?",
+      send: "Poslat přihlašovací odkaz",
+    })
 
     await expect
       .poll(() => latestEmailSubject(PARTICIPANT.email))

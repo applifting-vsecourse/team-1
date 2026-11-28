@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState, type ReactNode } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { BedDouble, FilterX, Plus, Search } from "lucide-react"
@@ -204,9 +204,11 @@ export function ApplicationsPage({
       </>
     )
   }
-  const views = (
-    <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-bold">
+  // The selected tab names the section, so its `h2` is only for screen readers (DESIGN.md, event
+  // header); the section's one primary action ends the segment row.
+  const views = (action?: ReactNode) => (
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+      <h2 className="sr-only">
         {t(
           automaticTerm
             ? "automaticCapacity.heading"
@@ -224,13 +226,14 @@ export function ApplicationsPage({
           onFiltersChange(next)
         }}
       />
+      {action}
     </div>
   )
   if (filters.view === "CHANGE_REQUESTS") {
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("applications.title")} />
-        {views}
+        {views()}
         <ChangeRequestsPanel eventId={eventId} />
       </div>
     )
@@ -239,7 +242,7 @@ export function ApplicationsPage({
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("applications.title")} />
-        {views}
+        {views()}
         <SubstituteTaken
           {...taken}
           onRefresh={() => {
@@ -253,21 +256,22 @@ export function ApplicationsPage({
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
-      {views}
-      {automaticTerm ? <AutomaticCapacity term={automaticTerm} /> : null}
-      <Button
-        asChild
-        size="lg"
-        className="self-start"
-      >
-        <Link
-          to={ROUTES.organizer.newApplication}
-          params={{ eventId }}
+      {views(
+        <Button
+          asChild
+          size="lg"
+          className="max-sm:w-full"
         >
-          <Plus className="size-4" />
-          {t("manual.add")}
-        </Link>
-      </Button>
+          <Link
+            to={ROUTES.organizer.newApplication}
+            params={{ eventId }}
+          >
+            <Plus className="size-4" />
+            {t("manual.add")}
+          </Link>
+        </Button>,
+      )}
+      {automaticTerm ? <AutomaticCapacity term={automaticTerm} /> : null}
       {substituteTerm && (
         <SubstitutesPanel
           hasWaitlistedParticipants={(query.data?.length ?? 0) > 0}
@@ -346,7 +350,7 @@ export function ApplicationsPage({
         ) : (
           <section
             aria-busy={query.isFetching}
-            className="flex flex-col gap-4 md:rounded-lg md:border md:bg-card md:p-6"
+            className="flex flex-col gap-4 md:rounded-lg md:border md:border-border-strong md:bg-card md:p-6"
           >
             <div className="flex flex-wrap justify-between gap-2">
               <h2 className="text-lg font-semibold">
@@ -517,7 +521,7 @@ export function ApplicationsPage({
                             <Button
                               asChild
                               variant="outline"
-                              size="lg"
+                              size="sm"
                             >
                               <Link
                                 to={ROUTES.organizer.application}
@@ -541,7 +545,7 @@ export function ApplicationsPage({
                     <li
                       key={row.id}
                       className={cn(
-                        "flex flex-col gap-1 rounded-lg border bg-card px-3",
+                        "flex flex-col gap-1 rounded-lg border border-border-strong bg-card px-3 nested:border-border",
                         selectedIds.has(row.id) && "bg-accent",
                       )}
                     >
@@ -569,7 +573,7 @@ export function ApplicationsPage({
                         <Button
                           asChild
                           variant="outline"
-                          size="lg"
+                          size="sm"
                           className="ms-auto h-auto min-h-11 max-w-full whitespace-normal"
                         >
                           <Link
@@ -719,11 +723,11 @@ function SelectRow({
 
 // Each status has its own colour; the waitlist and the cancelled ones use tokens the badge has no variant for.
 const STATUS_BADGE = {
-  TO_EVALUATE: { variant: "warning", className: undefined },
+  TO_EVALUATE: { variant: "neutral", className: undefined },
   CONFIRMED: { variant: "success", className: undefined },
-  WAITLISTED: { variant: "secondary", className: "bg-status-waitlist-bg text-status-waitlist" },
+  WAITLISTED: { variant: "waitlist", className: undefined },
   ARCHIVED: { variant: "secondary", className: undefined },
-  CANCELLED: { variant: "secondary", className: "bg-destructive/10 text-destructive" },
+  CANCELLED: { variant: "inactive", className: undefined },
 } as const
 
 const STATUS_LABEL = {

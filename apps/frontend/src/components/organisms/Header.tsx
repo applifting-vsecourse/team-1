@@ -1,38 +1,77 @@
 import type { ReactNode } from "react"
+import { Link } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 
+import { ROUTES } from "@/app/routes"
 import { Logo } from "@/components/atoms/Logo"
-import { PublicPreferences } from "@/components/molecules/PublicPreferences"
+import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher"
+import { ThemeSwitcher } from "@/components/molecules/ThemeSwitcher"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type HeaderProps = {
-  /** Area navigation (organizer / participant). Omitted on public pages. */
-  nav?: ReactNode
-  // Auth-aware menu (user dropdown). Passed as a slot so `components/`
-  // doesn't have to import from `features/auth`.
-  userMenu?: ReactNode
-  /** Content width of the landing (1200 px) instead of the 896 px of the other public pages. */
-  isWide?: boolean
+  /** „Přihlásit se“ on the right. Off on the sign-in and system pages. */
+  hasSignIn?: boolean
+  /** Another action in its place, e.g. „Odhlásit se“ in the registration wizard (a slot: `components/` never imports from `features/`). */
+  action?: ReactNode
+  /** Width of the page's content column the header lines up with; 1200 px by default. */
   contentClassName?: string
 }
 
-/** Public header: logo on the left, language and theme switchers on the right. */
-// Figma v2: organizer sign-in (desktop and mobile) — https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22456-10919
-// Figma (Design system): V08 Veřejná hlavička · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12734-1365
-export function Header({ nav, userMenu, isWide = false, contentClassName }: HeaderProps) {
+/**
+ * The public header (Luma): logo, „Katalog akcí“ and „Pro organizátory“ on the left; language,
+ * theme and „Přihlásit se“ on the right. On a phone only the logo and „Přihlásit se“ stay: the
+ * hero entries lead on, and language and theme move to the top of the footer.
+ */
+// Figma (Design system v2): Togena / Navigation / Public header · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27609-4438 (desktop 27609-4370, mobile 27609-4424)
+export function Header({ hasSignIn = true, action, contentClassName = "max-w-300" }: HeaderProps) {
+  const { t } = useTranslation()
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-card">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-card px-4 md:px-8">
       <div
         className={cn(
-          "mx-auto flex w-full items-center gap-4 px-4 py-4 md:px-8",
-          isWide && nav && "max-w-320",
+          "mx-auto flex h-14 w-full items-center gap-4 md:h-18 md:gap-10",
           contentClassName,
         )}
       >
         <Logo />
-        {nav ? <nav className="flex items-center gap-1">{nav}</nav> : null}
-        <div className="ml-auto flex items-center gap-1">
-          {userMenu}
-          <PublicPreferences />
+        <nav
+          aria-label={t("nav.main")}
+          className="hidden items-center gap-2 md:flex"
+        >
+          <Button
+            asChild
+            variant="ghost"
+          >
+            <Link to={ROUTES.catalog}>{t("publicHeader.catalog")}</Link>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+          >
+            <Link
+              to={ROUTES.home}
+              hash="organizers"
+            >
+              {t("publicHeader.organizers")}
+            </Link>
+          </Button>
+        </nav>
+        <div className="ml-auto flex items-center gap-4">
+          <div className="hidden items-center gap-4 md:flex">
+            <LanguageSwitcher />
+            <ThemeSwitcher />
+          </div>
+          {action ??
+            (hasSignIn ? (
+              <Button
+                asChild
+                variant="outline"
+              >
+                <Link to={ROUTES.participant.login}>{t("publicHeader.signIn")}</Link>
+              </Button>
+            ) : null)}
         </div>
       </div>
     </header>

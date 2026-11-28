@@ -3,6 +3,7 @@ import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
+import { OrganizerMealRoster } from "./OrganizerMealDetails"
 import { OrganizerMealEditor } from "./OrganizerMealEditor"
 
 const person = {
@@ -81,5 +82,46 @@ describe("organizer meal editor", () => {
   it("hides the action when the application is read-only", () => {
     renderEditor(false)
     expect(screen.queryByRole("button")).not.toBeInTheDocument()
+  })
+})
+
+describe("organizer meal roster", () => {
+  it("filters the participant table with the shared view controls and keeps editing available", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json([
+        person,
+        {
+          ...person,
+          applicationId: "b",
+          firstName: "Eva",
+          lastName: "Malá",
+          selectedOptionIds: ["veg"],
+        },
+      ]),
+    )
+    const user = userEvent.setup()
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <OrganizerMealRoster
+          eventId="camp"
+          termId="week-one"
+        />
+      </QueryClientProvider>,
+    )
+    const filters = await screen.findByRole("radiogroup", { name: "Meal preferences status" })
+    expect(within(filters).getByRole("radio", { name: "All · 2" })).toBeChecked()
+    const restricted = within(filters).getByRole("radio", { name: "With restrictions · 1" })
+    await user.click(restricted)
+    expect(restricted).toBeChecked()
+    const table = within(screen.getByRole("table", { name: "Participants" }))
+    expect(table.getByRole("columnheader", { name: "Diet" })).toBeVisible()
+    expect(table.queryByText("Adam Dvořák")).not.toBeInTheDocument()
+    expect(table.getByText("Vegetarian")).toBeVisible()
+    await user.click(restricted)
+    expect(restricted).toBeChecked()
+    await user.click(table.getByRole("button", { name: "Edit meals for Eva Malá" }))
+    expect(screen.getByRole("dialog", { name: "Edit meal preferences" })).toBeVisible()
   })
 })

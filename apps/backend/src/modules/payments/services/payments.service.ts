@@ -6,7 +6,9 @@ import {
 import { termLabel } from "@/modules/applications/domain/term-label"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
+import { QueuedEmailDispatcher } from "@/modules/participants/services/queued-email.dispatcher"
 import { paymentSummary, PaymentSummary } from "@/modules/payments/domain/payment"
+import { paymentReceivedMessage } from "@/modules/payments/domain/payment-confirmation"
 import {
   PaidTermNotice,
   PaymentDebtNotice,
@@ -25,6 +27,7 @@ export class PaymentsService {
     private readonly access: OrganizationAccessService,
     private readonly mailer: ApplicationConfirmationMailer,
     private readonly config: Config,
+    private readonly emailQueue: QueuedEmailDispatcher,
   ) {}
 
   async get(user: Identity, applicationId: string): Promise<PaymentSummary> {
@@ -92,7 +95,9 @@ export class PaymentsService {
       termId,
       source,
     })
-    await this.sendPaymentReceived(applicationId, organizationId, paid)
+    // #737: a bank import pays many applications; the repository queued the e-mail.
+    if (source === "BANK_IMPORT") this.emailQueue.kick()
+    else await this.sendPaymentReceived(applicationId, organizationId, paid)
   }
 
   /**
@@ -188,16 +193,7 @@ export class PaymentsService {
     if (!terms.length) return
     const context = await this.repository.findEmailContext(applicationId, organizationId)
     if (!context) return
-    // One e-mail for the application, even when a summary payment closed several terms (EMAILY.md).
-    await this.mailer.sendPaymentReceived({
-      email: context.email,
-      accessToken: context.accessToken,
-      locale: context.locale,
-      eventName: context.eventName,
-      organizationName: context.organizationName,
-      participant: `${context.firstName} ${context.lastName}`,
-      termName: terms.map((term) => termLabel(term, context.locale)).join(", "),
-    })
+    await this.mailer.sendPaymentReceived(paymentReceivedMessage(context, terms))
   }
 
   private async sendDebtNotice(

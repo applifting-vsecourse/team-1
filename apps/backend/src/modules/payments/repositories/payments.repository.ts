@@ -1,4 +1,6 @@
+import { createHash } from "node:crypto"
 import { Locale } from "@/core/email/locale"
+import { PrismaEmailJobRepository } from "@/core/email/queue/prisma-email-job.repository"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computePaymentDeadline } from "@/modules/applications/domain/payment-deadline"
@@ -15,8 +17,12 @@ import {
 } from "@/modules/applications/domain/pricing"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
+import { queuedEmailJob } from "@/modules/participants/domain/queued-email"
 import { PaymentApplication } from "@/modules/payments/domain/payment"
-import { planPaymentConfirmations } from "@/modules/payments/domain/payment-confirmation"
+import {
+  paymentReceivedMessage,
+  planPaymentConfirmations,
+} from "@/modules/payments/domain/payment-confirmation"
 import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
@@ -44,6 +50,7 @@ const toDomain = (row: Row): PaymentApplication => ({
   number: row.number,
   firstName: row.firstName,
   lastName: row.lastName,
+  pronouns: row.pronouns,
   individualAccommodation: row.individualAccommodation,
   accommodationRequest: row.accommodationRequest,
   birthDate: row.birthDate,
@@ -121,6 +128,7 @@ export class PaymentsRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsRepository,
+    private readonly emailJobs: PrismaEmailJobRepository,
   ) {}
 
   async find(applicationId: string, organizationId: string): Promise<PaymentApplication | null> {
@@ -148,52 +156,85 @@ export class PaymentsRepository {
     return this.prisma.$transaction((tx) => this.recordWithin(tx, input))
   }
 
-  /** `record` inside the transaction of the caller, so the payment commits together with its other writes. */
+  /**
+   * `record` inside the transaction of the caller, so the payment commits together with its other
+   * writes. A payment of a bank transaction (`BANK_IMPORT`) also queues e-mail no. 8 here and the
+   * caller starts the queue after the commit; for the other sources the caller sends it.
+   */
   async recordWithin(
     tx: Prisma.TransactionClient,
     input: RecordPaymentInput,
   ): Promise<PaidTermNotice[]> {
     const { applicationId, organizationId, requestId, termId, isRefund = false } = input
-    {
-      const locked = await tx.$queryRaw<
-        { id: string }[]
-      >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
-      if (!locked.length) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    const locked = await tx.$queryRaw<
+      { id: string }[]
+    >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
+    if (!locked.length) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
 
-      const existing = await tx.payment.findMany({
-        where: { receiptId: requestId },
-        include: { applicationTerm: { select: { applicationId: true, termId: true } } },
-      })
-      if (existing.length) {
-        if (
-          existing.some(
-            (row) =>
-              row.organizationId !== organizationId ||
-              row.applicationTerm.applicationId !== applicationId,
-          )
-        )
-          throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-        const total = existing.reduce((sum, row) => sum + row.amountCzk, 0)
-        const sameTerm = existing.every(
+    const existing = await tx.payment.findMany({
+      where: { receiptId: requestId },
+      include: { applicationTerm: { select: { applicationId: true, termId: true } } },
+    })
+    if (existing.length) {
+      if (
+        existing.some(
           (row) =>
-            row.isSummary === (termId === undefined) &&
-            (termId === undefined || row.applicationTerm.termId === termId),
+            row.organizationId !== organizationId ||
+            row.applicationTerm.applicationId !== applicationId,
         )
-        if (
-          total < 0 !== isRefund ||
-          existing.some((row) => row.correctsReceiptId !== null) ||
-          !sameTerm ||
-          (input.amountCzk !== undefined &&
-            total !== (isRefund ? -input.amountCzk : input.amountCzk))
-        )
-          throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
-        return []
-      }
-
-      const owedBefore = await this.confirmedTermBalances(tx, applicationId)
-      await this.createReceipt(tx, input)
-      return this.closedDebts(tx, applicationId, owedBefore)
+      )
+        throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      const total = existing.reduce((sum, row) => sum + row.amountCzk, 0)
+      const sameTerm = existing.every(
+        (row) =>
+          row.isSummary === (termId === undefined) &&
+          (termId === undefined || row.applicationTerm.termId === termId),
+      )
+      if (
+        total < 0 !== isRefund ||
+        existing.some((row) => row.correctsReceiptId !== null) ||
+        !sameTerm ||
+        (input.amountCzk !== undefined && total !== (isRefund ? -input.amountCzk : input.amountCzk))
+      )
+        throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
+      return []
     }
+
+    const owedBefore = await this.confirmedTermBalances(tx, applicationId)
+    await this.createReceipt(tx, input)
+    const paid = await this.closedDebts(tx, applicationId, owedBefore)
+    if (input.source === "BANK_IMPORT") await this.queuePaymentReceived(tx, input, paid)
+    return paid
+  }
+
+  private async queuePaymentReceived(
+    tx: Prisma.TransactionClient,
+    { applicationId, organizationId, requestId }: RecordPaymentInput,
+    paid: PaidTermNotice[],
+  ): Promise<void> {
+    if (!paid.length) return
+    const context = await this.findEmailContext(applicationId, organizationId, tx)
+    if (!context) return
+    const { eventId } = await tx.application.findUniqueOrThrow({
+      where: { id: applicationId },
+      select: { eventId: true },
+    })
+    const covered = await tx.applicationTerm.findMany({
+      where: { applicationId, status: "CONFIRMED", payments: { some: { receiptId: requestId } } },
+      include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
+    })
+    const settledTermIds = covered
+      .filter((term) => computeTermOwed(term, term.payments) === 0)
+      .map((term) => term.id)
+    // Hashed: a receipt id of a bank row can be longer than a provider's idempotency key.
+    const receipt = createHash("sha256").update(`${applicationId}:${requestId}`).digest("hex")
+    await this.emailJobs.enqueue(tx, [
+      queuedEmailJob({ organizationId, eventId, applicationId }, `payment-received:${receipt}`, {
+        template: "PAYMENT_RECEIVED",
+        data: paymentReceivedMessage(context, paid),
+        basis: { receiptId: requestId, settledTermIds },
+      }),
+    ])
   }
 
   /** A correction cancels and replaces a whole receipt under the same application lock. */
@@ -339,6 +380,7 @@ export class PaymentsRepository {
   async findEmailContext(
     applicationId: string,
     organizationId: string,
+    client: Prisma.TransactionClient = this.prisma,
   ): Promise<{
     email: string
     locale: Locale
@@ -350,7 +392,7 @@ export class PaymentsRepository {
     firstName: string
     lastName: string
   } | null> {
-    const application = await this.prisma.application.findFirst({
+    const application = await client.application.findFirst({
       where: { id: applicationId, organizationId },
       include: {
         user: { select: { locale: true } },
@@ -359,7 +401,7 @@ export class PaymentsRepository {
     })
     if (!application) return null
     const first = application.userId
-      ? await this.prisma.application.findFirst({
+      ? await client.application.findFirst({
           where: { userId: application.userId },
           orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
           select: { locale: true },

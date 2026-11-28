@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Search, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { Pagination } from "@/components/molecules/Pagination"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -22,6 +23,7 @@ import { useRoomAssignmentActions } from "@/features/events/components/RoomAssig
 import { RoomDndLayer, useRoomDnd } from "@/features/events/components/RoomDnd"
 import { RoomWarningsSummary, warningsOfRoom } from "@/features/events/components/RoomWarnings"
 import { CountBadge, UnassignedPanel } from "@/features/events/components/UnassignedPanel"
+import { useRoomPaging, type RoomPaging } from "@/features/events/hooks/useRoomPaging"
 
 type Term = { eventId: string; termId: string; startsOn: string; endsOn: string }
 
@@ -46,17 +48,21 @@ function useScrolledOut(element: HTMLElement | null): boolean {
 // Figma (Design system): Přetažení · tažení / cíl / upuštění a toast · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23441-97663 · 23441-98374 · 23441-99087 (mobile 23445-99874)
 // Figma (Design system): Přiřazený účastník · nabídka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23444-99101 (mobile 23445-100202)
 // Figma (Design system): Termín bez pokojů · bez potvrzených · všichni přiřazení · nerozděluje se · společné pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=23444-100486
+// Approved pattern (#728, no frame): paged rooms · https://github.com/applifting-vsecourse/team-1/issues/728#issuecomment-7219623249
 // Approved improvements over the frames (US-35 review): structured summary, separate name and
 // gender columns, louder count, paged unassigned list, drag on touch, restructured dialog.
 export function RoomAssignmentsCard({
   term,
   roomActions,
   onAddRoom,
+  paging,
 }: {
   term: Term
   /** Edit / delete / extra-bed buttons of one room, owned by the rooms page. */
   roomActions: (roomId: string) => ReactNode
   onAddRoom: () => void
+  /** The page of the rooms (#728). */
+  paging?: RoomPaging
 }) {
   const { t } = useTranslation("events")
   const query = useQuery(roomAssignmentsQueryOptions(term.eventId, term.termId))
@@ -75,6 +81,22 @@ export function RoomAssignmentsCard({
   const dnd = useRoomDnd(actions, query.data)
   const { removeFromRoom } = actions
   const data = query.data
+  const listRef = useRef<HTMLDivElement>(null)
+  const matchingRooms = (data?.rooms ?? []).filter((room) =>
+    room.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
+  )
+  // Pages are for the screen only: this view prints the sheet RoomsPage renders (RoomsOverview with
+  // isPrintOnly), which has every room.
+  const pages = useRoomPaging({
+    rooms: matchingRooms,
+    total: query.isFetching ? undefined : data?.rooms.length,
+    paging,
+    resetKey: search,
+  })
+  const changeSearch = (next: string) => {
+    setSearch(next)
+    if (paging && paging.page > 0) paging.onPageChange(0, { isReplace: true })
+  }
   if (!data) {
     return query.isError ? (
       <ErrorState
@@ -92,9 +114,6 @@ export function RoomAssignmentsCard({
   const hasRooms = data.rooms.length > 0
   const regularRooms = data.rooms.filter((room) => !room.individual)
   const isNobodyAssigned = data.rooms.every((room) => room.participants.length === 0)
-  const visibleRooms = data.rooms.filter((room) =>
-    room.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()),
-  )
   const unassigned = data.unassigned
   const isAllDone = unassigned.length === 0 && !isNobodyAssigned
 
@@ -117,7 +136,7 @@ export function RoomAssignmentsCard({
   })
 
   const roomsEmpty = (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-border p-10 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-lg border border-border-strong p-10 text-center nested:border-border">
       <EmptyState message={t("rooms.empty")} />
       <Button
         size="lg"
@@ -143,7 +162,7 @@ export function RoomAssignmentsCard({
           <div
             role="status"
             aria-label={t("roomAssignments.unassignedTitle")}
-            className="sticky top-29 z-10 -mx-4 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 shadow-sm md:top-19 xl:hidden"
+            className="sticky top-29 z-10 -mx-4 flex items-center gap-2 border-b border-border bg-card px-4 py-2.5 md:top-0 xl:hidden"
           >
             <span className="flex-1 text-sm font-medium">
               {t("roomAssignments.unassignedTitle")}
@@ -165,7 +184,10 @@ export function RoomAssignmentsCard({
             className="xl:sticky xl:top-20 xl:w-72"
             onAssign={(participant) => actions.openAssign(participant, null)}
           />
-          <div className="flex min-w-0 flex-1 flex-col gap-3">
+          <div
+            ref={listRef}
+            className="flex min-w-0 flex-1 scroll-mt-32 flex-col gap-3 md:scroll-mt-24"
+          >
             {hasRooms ? (
               <>
                 <div className="relative w-full lg:w-85">
@@ -179,7 +201,7 @@ export function RoomAssignmentsCard({
                     placeholder={t("roomAssignments.searchPlaceholder")}
                     className="h-12.5 px-11 [&::-webkit-search-cancel-button]:hidden"
                     value={search}
-                    onChange={(event) => setSearch(event.target.value)}
+                    onChange={(event) => changeSearch(event.target.value)}
                   />
                   {search && (
                     <Button
@@ -188,16 +210,16 @@ export function RoomAssignmentsCard({
                       size="icon"
                       className="absolute top-1/2 right-0 size-11 -translate-y-1/2"
                       aria-label={t("roomAssignments.clearSearch")}
-                      onClick={() => setSearch("")}
+                      onClick={() => changeSearch("")}
                     >
                       <X aria-hidden />
                     </Button>
                   )}
                 </div>
-                {visibleRooms.length === 0 ? (
+                {matchingRooms.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("roomAssignments.noMatch")}</p>
                 ) : null}
-                <div className="hidden overflow-hidden rounded-lg border border-border lg:block">
+                <div className="hidden overflow-hidden rounded-lg border border-border-strong lg:block nested:border-border">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -210,7 +232,7 @@ export function RoomAssignmentsCard({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {visibleRooms.map((room) => (
+                      {pages.pageItems.map((room) => (
                         <RoomTableRow
                           key={room.id}
                           {...roomProps(room)}
@@ -220,13 +242,24 @@ export function RoomAssignmentsCard({
                   </Table>
                 </div>
                 <ul className="flex flex-col gap-3 lg:hidden">
-                  {visibleRooms.map((room) => (
+                  {pages.pageItems.map((room) => (
                     <RoomCard
                       key={room.id}
                       {...roomProps(room)}
                     />
                   ))}
                 </ul>
+                <Pagination
+                  isCompact
+                  page={pages.page}
+                  pageCount={pages.pageCount}
+                  pageSize={pages.pageSize}
+                  total={pages.total}
+                  onPageChange={(next) => {
+                    pages.setPage(next)
+                    listRef.current?.scrollIntoView?.({ block: "start" })
+                  }}
+                />
               </>
             ) : (
               roomsEmpty

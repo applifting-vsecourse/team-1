@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { formatDateRange, formatMonthRange } from "@/lib/date"
+import { formatDateRange, formatMonthRange, formatMonthShort } from "@/lib/date"
 
 describe("formatDateRange", () => {
   it("writes a week inside one month the way the price list does (cs)", () => {
@@ -42,5 +42,13 @@ describe("formatMonthRange", () => {
 
   it("keeps both years across New Year", () => {
     expect(formatMonthRange("2027-12-28", "2028-01-03", "en")).toBe("December 2027–January 2028")
+  })
+})
+
+describe("formatMonthShort", () => {
+  it("abbreviates the month for the date tile", () => {
+    expect(formatMonthShort("2027-07-12", "cs")).toBe("čvc")
+    expect(formatMonthShort("2027-09-17", "cs")).toBe("zář")
+    expect(formatMonthShort("2027-07-12", "en")).toBe("Jul")
   })
 })
