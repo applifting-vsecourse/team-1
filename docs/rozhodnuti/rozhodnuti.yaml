@@ -1995,6 +1995,8 @@ rozhodnuti:
   - label: US-31
     url: https://github.com/applifting-vsecourse/team-1/issues/31
   stav: platne
+  zmeneno_v:
+  - D-243
   z_otazek:
   - Q-PRI-02
   dokumentace:
@@ -2364,6 +2366,7 @@ rozhodnuti:
   stav: platne
   zmeneno_v:
   - D-179
+  - D-245
   z_otazek:
   - Q-NAS-07
   dokumentace: []
@@ -2564,6 +2567,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-240
   z_otazek:
   - Q-LOG-03
   dokumentace: []
@@ -2916,6 +2921,7 @@ rozhodnuti:
   stav: platne
   zmeneno_v:
   - D-179
+  - D-245
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit podle #466 a odpovědět na dva dotazy v #80.'
@@ -3354,7 +3360,8 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/485
   rozhodl:
   - pm
-  stav: platne
+  stav: nahrazene
+  nahrazeno_v: D-239
   zmeneno_v:
   - D-191
   - D-207
@@ -3746,7 +3753,8 @@ rozhodnuti:
     url: https://github.com/applifting-vsecourse/team-1/issues/623
   rozhodl:
   - pm
-  stav: platne
+  stav: nahrazene
+  nahrazeno_v: D-245
   meni:
   - D-115
   - D-139
@@ -4373,6 +4381,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-230
   z_otazek: []
   dokumentace: []
 - id: D-214
@@ -4657,3 +4667,377 @@ rozhodnuti:
     popis: Zrušená není vždy koncová
     stav: hotovo
     commit: d320cdcd
+- id: D-229
+  nazev: Výdaj bez položky patří vždy do kategorie Ostatní
+  text: Výdaj bez nákladové položky spadá v přehledu kategorií vždy pod „Ostatní“; organizátor u něj kategorii nevolí.
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #820'
+    url: https://github.com/applifting-vsecourse/team-1/issues/820
+  us:
+  - label: '#820'
+    url: https://github.com/applifting-vsecourse/team-1/issues/820
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: Zodpovídá Q-EKO-04. Doplňuje D-211.
+- id: D-230
+  nazev: Kategorii „Ostatní“ nejde odebrat ani přejmenovat
+  text: Organizátor přidává, upravuje a odebírá kategorie nákladů kromě „Ostatní“; tu nejde odebrat ani přejmenovat.
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #823'
+    url: https://github.com/applifting-vsecourse/team-1/issues/823#issuecomment-7242956895
+  us:
+  - label: '#823'
+    url: https://github.com/applifting-vsecourse/team-1/issues/823
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-213
+  z_otazek: []
+  dokumentace: []
+- id: D-231
+  nazev: 'Fotka účtenky: databáze, JPG/PNG do 5 MB, jedna u výdaje'
+  text: U výdaje je nejvýš jedna fotka účtenky, JPG nebo PNG do 5 MB, uložená v databázi; uchovává se, dokud existuje výdaj. Víc fotek u výdaje je navazující požadavek s nízkou prioritou.
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #824'
+    url: https://github.com/applifting-vsecourse/team-1/issues/824
+  us:
+  - label: '#824'
+    url: https://github.com/applifting-vsecourse/team-1/issues/824
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  navazne_tickety:
+  - popis: Víc fotek u jednoho výdaje
+    url: https://github.com/applifting-vsecourse/team-1/issues/873
+- id: D-232
+  nazev: Další příjmy se počítají i do očekávaného výsledku
+  text: Ručně zapsané příjmové položky se počítají do skutečného i do očekávaného výsledku akce.
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #831'
+    url: https://github.com/applifting-vsecourse/team-1/issues/831
+  us:
+  - label: '#831'
+    url: https://github.com/applifting-vsecourse/team-1/issues/831
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: Doplňuje D-210.
+- id: D-233
+  nazev: 'Co kdyby bez potvrzených: výchozí počet je kapacita všech termínů'
+  text: Dokud akce nemá potvrzené ani archivované přihlášky v termínu, je výchozí počet účastníků ve scénáři Co kdyby součet kapacit všech nezrušených termínů.
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #832'
+    url: https://github.com/applifting-vsecourse/team-1/issues/832
+  us:
+  - label: '#832'
+    url: https://github.com/applifting-vsecourse/team-1/issues/832
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: Doplňuje D-215 a D-216.
+- id: D-234
+  nazev: 'Příjmová položka: jen jeden druh, datum povinné'
+  text: Příjmová položka má název, částku větší než 0 a povinné datum předvyplněné dnešním dnem. Plánované příjmy se zvlášť neevidují; zapsaná položka se počítá hned.
+  typ: produkt
+  oblast: ekonomika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #835'
+    url: https://github.com/applifting-vsecourse/team-1/issues/835
+  us:
+  - label: '#835'
+    url: https://github.com/applifting-vsecourse/team-1/issues/835
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: Zodpovídá Q-EKO-05.
+- id: D-235
+  nazev: 'Obsazenost po nocích: hranice noci je v 6:00'
+  text: Noc se v přehledu obsazených lůžek počítá podle data. Příjezd před 6:00 patří ještě do předchozí noci, odjezd před 6:00 znamená, že účastník tu noc nespí; příjezd v 6:00 a později se do předchozí noci nepočítá.
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #658'
+    url: https://github.com/applifting-vsecourse/team-1/issues/658
+  us:
+  - label: '#658'
+    url: https://github.com/applifting-vsecourse/team-1/issues/658
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: Doplňuje D-208.
+- id: D-236
+  nazev: 'Ubytování: pohled Přání jako přehled, blok přání zůstává'
+  text: Ubytování má třetí pohled Přání, jen přehled s filtrem a odkazem do přihlášky; D-174 se na něj nevztahuje. Blok přání zůstává v pohledech Rozřazování a Pokoje.
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #692'
+    url: https://github.com/applifting-vsecourse/team-1/issues/692#issuecomment-7242957146
+  us:
+  - label: '#692'
+    url: https://github.com/applifting-vsecourse/team-1/issues/692
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: D-174 platí beze změny pro Rozřazování a Pokoje.
+- id: D-237
+  nazev: 'Souhrn pro kuchyni: nuly, bez řádku Celkem, příjezdy v tisku'
+  text: Jídlo bez porcí ukazuje 0. Řádek kombinace omezení, která má v daný den u všech jídel 0, se skryje. Tabulka nemá řádek Celkem. Tisk obsahuje i jmenné pozdější příjezdy a dřívější odjezdy.
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #630'
+    url: https://github.com/applifting-vsecourse/team-1/issues/630#issuecomment-7242957404
+  us:
+  - label: '#630'
+    url: https://github.com/applifting-vsecourse/team-1/issues/630
+  - label: '#804'
+    url: https://github.com/applifting-vsecourse/team-1/issues/804
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: Doplňuje D-207 a D-209.
+- id: D-238
+  nazev: 'Jídla a časy podle organizátora: sloupce, výchozí jídla a umístění'
+  text: Sloupce souhrnu pro kuchyni jsou jídla akce seřazená podle času; nová akce má snídani 8:00, oběd 12:00 a večeři 18:00. Bez nastavení je první jídlo termínu oběd prvního dne a poslední oběd posledního dne; když oběd chybí, bere se jídlo nejblíž 12:00. „Jídla a časy“ jsou druhý pohled záložky Stravování.
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #805'
+    url: https://github.com/applifting-vsecourse/team-1/issues/805
+  us:
+  - label: '#805'
+    url: https://github.com/applifting-vsecourse/team-1/issues/805
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: Doplňuje D-207.
+- id: D-239
+  nazev: 'Příjezd a odjezd: jmenný přehled a denní výpočty'
+  text: U přihlášky v termínu jde volitelně zadat pozdější příjezd nebo dřívější odjezd účastníka (datum a čas v rozsahu termínu). Organizátor ho vidí v souhrnu pro kuchyni a ve jmenném přehledu příjezdů a odjezdů, kam patří jen potvrzené přihlášky v termínu (po skončení archivované); čas se nebere z odjezdu spoje. Aplikace z údaje počítá jídla po dnech a obsazená lůžka po nocích. Údaj nemění cenu, kapacitu ani stav.
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #661'
+    url: https://github.com/applifting-vsecourse/team-1/issues/661
+  us:
+  - label: '#661'
+    url: https://github.com/applifting-vsecourse/team-1/issues/661
+  - label: '#630'
+    url: https://github.com/applifting-vsecourse/team-1/issues/630
+  - label: '#658'
+    url: https://github.com/applifting-vsecourse/team-1/issues/658
+  rozhodl:
+  - pm
+  stav: platne
+  nahrazuje:
+  - D-159
+  z_otazek: []
+  dokumentace: []
+  poznamka: Kdo údaj zapisuje, řídí D-191; do kdy, D-220.
+- id: D-240
+  nazev: 'Doprava: kapacita autobusu jen informativně a seznam „v autobusu nebudou“'
+  text: 'Organizátor zadá u autobusu kapacitu; je jen informativní a výběr dopravy neblokuje. U spoje a v tisku je seznam účastníků, kteří v autobusu nebudou (pozdější příjezd nebo dřívější odjezd, vlastní doprava, nevybraná doprava), s důvodem. Je to navazující ticket (Nice to have); #760 mění jen vzhled karet, bez kapacity a směru Tam / Zpět.'
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #760'
+    url: https://github.com/applifting-vsecourse/team-1/issues/760#issuecomment-7242957660
+  us:
+  - label: '#760'
+    url: https://github.com/applifting-vsecourse/team-1/issues/760
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-124
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/SLOVNIK.md
+    popis: 'Doprava: kapacita jen informativní (zatím není v aplikaci)'
+    stav: ceka
+  navazne_tickety:
+  - popis: Kapacita autobusu a seznam „v autobusu nebudou“
+    url: https://github.com/applifting-vsecourse/team-1/issues/874
+- id: D-241
+  nazev: 'Tiskové sestavy: zatím dvě, bez záznamu exportů'
+  text: 'Tisknou se dvě sestavy: seznam účastníků termínu a seznam pro spoj. Další sestavy čekají na odpověď PO (Q-PRE-03). Exporty se nezaznamenávají, protože US-79 se nedělá. Export seznamu do tabulky patří do #736.'
+  typ: produkt
+  oblast: přehledy
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #55'
+    url: https://github.com/applifting-vsecourse/team-1/issues/55#issuecomment-7242957923
+  us:
+  - label: '#55'
+    url: https://github.com/applifting-vsecourse/team-1/issues/55
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-242
+  nazev: 'Export: jen XLSX jedním kliknutím, jednotně'
+  text: Přihlášky, platby, souhrn pro kuchyni a doprava se stahují jen jako XLSX, jedním kliknutím bez dialogu a výběru sloupců, stejně na všech seznamech a podle aktivních filtrů. Sloupce jsou pevné a obsahují i kontakty. Alergie a speciální požadavky jsou jen v exportu pro kuchyni; zdravotní omezení a individuální ubytování nejsou v žádném exportu.
+  typ: produkt
+  oblast: přehledy
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #736'
+    url: https://github.com/applifting-vsecourse/team-1/issues/736#issuecomment-7242958138
+  us:
+  - label: '#736'
+    url: https://github.com/applifting-vsecourse/team-1/issues/736
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-243
+  nazev: 'Lhůta na zaplacení: počet dní, nebo pevné datum u termínu'
+  text: Organizátor u akce zvolí, zda se splatnost počítá jako počet dní od potvrzení, nebo jako pevné datum. V režimu pevného data má každý termín povinně vlastní datum splatnosti, které nejde uložit v minulosti. Přihláška v termínu potvrzená po tomto datu je rovnou po splatnosti. Změna režimu ani data nemění splatnost dříve potvrzených.
+  typ: produkt
+  oblast: platby
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #500'
+    url: https://github.com/applifting-vsecourse/team-1/issues/500#issuecomment-7242958373
+  us:
+  - label: '#500'
+    url: https://github.com/applifting-vsecourse/team-1/issues/500
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-099
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/PROJEKT.md
+    popis: volba režimu splatnosti a datum u termínu
+    stav: ceka
+  - soubor: docs/SLOVNIK.md
+    popis: pojem Lhůta na zaplacení
+    stav: ceka
+  - soubor: docs/procesy/zpracovani-prihlasky/README.md
+    popis: poznámka o lhůtě v procesech obou režimů (YAML a generované diagramy)
+    stav: ceka
+- id: D-244
+  nazev: Duplikace a série termínů, hromadná změna ceny
+  text: Duplikace termínu zkopíruje režim pokojů a pokoje, ne přihlášky, program ani dopravu. Série má nejvýš 100 termínů. Termíny se smějí datem překrývat bez kontroly. Datum a cena jsou povinné, název nepovinný. Cenu jde hromadně změnit i u termínů s přihláškami; vyhodnoceným cena zůstává (D-015). Zrušené termíny nejde vybrat.
+  typ: produkt
+  oblast: nastavení akce
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #735'
+    url: https://github.com/applifting-vsecourse/team-1/issues/735#issuecomment-7242958617
+  us:
+  - label: '#735'
+    url: https://github.com/applifting-vsecourse/team-1/issues/735
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-245
+  nazev: 'Kopírování pokojů: přistýlky jen na volbu'
+  text: Při kopírování pokojů z jiného termínu i při duplikaci termínu dialog nabídne zkopírování přistýlek; ve výchozím stavu se nekopírují. Uvedená kapacita odpovídá zvolené možnosti.
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #735'
+    url: https://github.com/applifting-vsecourse/team-1/issues/735#issuecomment-7242958617
+  us:
+  - label: '#735'
+    url: https://github.com/applifting-vsecourse/team-1/issues/735
+  - label: '#875'
+    url: https://github.com/applifting-vsecourse/team-1/issues/875
+  rozhodl:
+  - pm
+  stav: platne
+  meni:
+  - D-115
+  - D-139
+  nahrazuje:
+  - D-179
+  z_otazek: []
+  dokumentace: []
+  navazne_tickety:
+  - popis: Volba zkopírovat i přistýlky při kopírování pokojů
+    url: https://github.com/applifting-vsecourse/team-1/issues/875
+- id: D-246
+  nazev: 'Obnova hesla organizátora: texty z návrhu schváleny'
+  text: Platí texty z návrhu obnovy hesla organizátora (Design system v2) včetně nápovědy „Alespoň 8 znaků.“; druhé pole a chybu neshody určuje D-225.
+  typ: design
+  oblast: design
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #844'
+    url: https://github.com/applifting-vsecourse/team-1/issues/844#issuecomment-7242958931
+  us:
+  - label: '#844'
+    url: https://github.com/applifting-vsecourse/team-1/issues/844
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-247
+  nazev: Účastník na úvodní stránce, přihlašovatel u účtu
+  text: Nadpis „Pro účastníky“ na úvodní stránce zůstává a slovník se nemění. Nepoužívaný název typu účtu „Účastník“ v cs/common.json se při nejbližší příležitosti opraví na „Přihlašovatel“.
+  typ: design
+  oblast: design
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 k otázkám designu, #844'
+    url: https://github.com/applifting-vsecourse/team-1/issues/844#issuecomment-7242958931
+  us:
+  - label: '#844'
+    url: https://github.com/applifting-vsecourse/team-1/issues/844
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
