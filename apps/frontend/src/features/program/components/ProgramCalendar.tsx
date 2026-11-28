@@ -20,7 +20,7 @@ import { calendarDays, formatDayHeader, timeRange } from "@/features/program/lib
 import { ProgramDayAgenda } from "./ProgramDayAgenda"
 import { ProgramDayColumn, useProgramDrag } from "./ProgramDrag"
 
-const DAY_MIN_WIDTH = 150
+const BLOCK_COLUMN_MIN_WIDTH = 150
 const AGENDA_QUERY = "(width < 48rem)"
 
 function subscribeToAgendaViewport(onChange: () => void) {
@@ -69,7 +69,18 @@ function ProgramTimeline({ term, onSelect, onMove, isSaving = false }: CalendarP
   const days = calendarDays(term)
   const { from, to } = hourRange(term.blocks)
   const hours = Array.from({ length: to - from }, (_, index) => from + index)
-  const columns = `var(--time-column) repeat(${String(days.length)}, minmax(0, 1fr))`
+  // Keep overlapping blocks readable by letting the existing calendar scroll by day.
+  const dayLayouts = days.map((day) => {
+    const blocks = placeBlocks(term.blocks.filter((block) => block.date === day))
+    const columns = blocks.reduce((max, block) => Math.max(max, block.columns), 1)
+    return { day, blocks, minWidth: columns * BLOCK_COLUMN_MIN_WIDTH }
+  })
+  const columns = [
+    "var(--time-column)",
+    ...dayLayouts.map(({ minWidth }) => `minmax(${String(minWidth)}px, 1fr)`),
+  ].join(" ")
+
+  const daysMinWidth = dayLayouts.reduce((sum, day) => sum + day.minWidth, 0)
 
   // Shared time tracks can grow to fit a short block's name and touch target on every day.
   const boundaries = [
@@ -97,7 +108,7 @@ function ProgramTimeline({ term, onSelect, onMove, isSaving = false }: CalendarP
     >
       <div
         className="[--time-column:3rem] md:[--time-column:3.5rem]"
-        style={{ minWidth: `calc(var(--time-column) + ${String(days.length * DAY_MIN_WIDTH)}px)` }}
+        style={{ minWidth: `calc(var(--time-column) + ${String(daysMinWidth)}px)` }}
       >
         <div
           className="grid border-b"
@@ -145,14 +156,14 @@ function ProgramTimeline({ term, onSelect, onMove, isSaving = false }: CalendarP
               {String(hour).padStart(2, "0")}:00
             </span>
           ))}
-          {days.map((day, index) => (
+          {dayLayouts.map(({ day, blocks }, index) => (
             <ProgramDayColumn
               key={day}
               date={day}
               index={index}
               isReadOnly={!onMove || day < term.startsOn || day > term.endsOn}
             >
-              {placeBlocks(term.blocks.filter((block) => block.date === day)).map((item) => (
+              {blocks.map((item) => (
                 <CalendarBlock
                   key={item.block.id}
                   {...item}

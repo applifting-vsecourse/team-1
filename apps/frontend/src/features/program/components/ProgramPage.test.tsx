@@ -99,6 +99,25 @@ describe("ProgramPage", () => {
     expect(screen.queryByText("10:00–12:00")).not.toBeInTheDocument()
   })
 
+  it("keeps twenty overlapping blocks readable in aligned, scrollable day columns", async () => {
+    const blocks = Array.from({ length: 20 }, (_, i) => ({
+      ...term.blocks[0],
+      id: String(i),
+      name: `Workshop ${String(i)}`,
+    }))
+    renderPage(program([{ ...term, blocks }]))
+
+    const calendar = await screen.findByRole("region", { name: "Program calendar" })
+    const timeline = calendar.firstElementChild
+    const columns = "var(--time-column) minmax(150px, 1fr) minmax(3000px, 1fr) minmax(150px, 1fr)"
+    expect(timeline).toHaveStyle({ minWidth: "calc(var(--time-column) + 3300px)" })
+    expect(timeline?.firstElementChild).toHaveStyle({ gridTemplateColumns: columns })
+    expect(timeline?.lastElementChild).toHaveStyle({ gridTemplateColumns: columns })
+    expect(
+      within(calendar).getAllByRole("button", { name: /Show details of Workshop/ }),
+    ).toHaveLength(20)
+  })
+
   it("previews a keyboard move, warns about overlaps and only writes on confirmation", async () => {
     const onPut = vi.fn()
     const fetchMock = renderPage(
