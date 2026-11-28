@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // System B (DESIGN.md, Colour): solid orange with ink content marks „you are here / this is yours“.
 describe("orange roles in the kit", () => {
-  it("fills the selected pill tab orange with ink text and the ink edge; line tabs stay ink", () => {
+  it("marks the selected pill tab with the nav A marker, not an orange fill; line tabs stay ink", () => {
     render(
       <>
         <Tabs defaultValue="upcoming">
@@ -26,16 +26,19 @@ describe("orange roles in the kit", () => {
     )
 
     const selected = screen.getByRole("tab", { name: "Upcoming" })
+    expect(selected).toHaveAttribute("aria-selected", "true")
     expect(selected).toHaveAttribute("data-state", "active")
     expect(selected).toHaveClass(
-      "group-data-[variant=default]/tabs-list:data-[state=active]:bg-brand-warm",
-      "group-data-[variant=default]/tabs-list:data-[state=active]:text-brand-warm-foreground",
-      "group-data-[variant=default]/tabs-list:data-[state=active]:border-border-strong",
+      "group-data-[variant=default]/tabs-list:data-[state=active]:bg-nav-active",
+      "group-data-[variant=default]/tabs-list:data-[state=active]:font-semibold",
+      "group-data-[variant=default]/tabs-list:data-[state=active]:after:bg-nav-indicator",
+      "group-data-[variant=default]/tabs-list:data-[state=active]:after:w-5",
     )
+    expect(selected.className).not.toMatch(/brand-warm|border-strong/)
     expect(screen.getByRole("tab", { name: "Line" })).toHaveClass("after:bg-foreground")
   })
 
-  it("fills the chosen view of a view toggle orange with ink text and the ink edge", () => {
+  it("marks the chosen view of a view toggle with the nav A marker", () => {
     render(
       <ViewToggleGroup
         value="list"
@@ -47,12 +50,21 @@ describe("orange roles in the kit", () => {
     )
 
     const chosen = screen.getByRole("radio", { name: "List" })
+    expect(chosen).toHaveAttribute("aria-checked", "true")
     expect(chosen).toHaveAttribute("data-state", "on")
     expect(chosen).toHaveClass(
-      "data-[state=on]:bg-brand-warm",
-      "data-[state=on]:text-brand-warm-foreground",
-      "data-[state=on]:border-border-strong",
+      "data-[state=on]:bg-nav-active",
+      "data-[state=on]:font-semibold",
+      "data-[state=on]:text-foreground",
+      "data-[state=on]:after:bg-nav-indicator",
+      "data-[state=on]:after:w-5",
+      "data-[state=on]:after:h-0.75",
+      "px-4",
+      "py-3",
     )
+    expect(chosen.className).not.toMatch(/brand-warm|border-strong/)
+    // The bold ghost label reserves the width of the selected state.
+    expect(screen.getByText("List")).toHaveAttribute("data-label", "List")
   })
 
   it("puts the avatar initials in ink Medium 14 / 20 on orange, without an edge", () => {
