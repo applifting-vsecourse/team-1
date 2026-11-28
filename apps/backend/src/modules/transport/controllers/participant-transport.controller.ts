@@ -50,6 +50,7 @@ export class ParticipantTransportController {
     summary: "Choose the transport to one term of the application",
   })
   @ApiResponse({ status: 204 })
+  @ApiResponse({ status: 409, description: "TRANSPORT_EDIT_CLOSED: the term is over (D-192)" })
   async choose(
     @User() user: Identity,
     @Param("applicationId") applicationId: string,

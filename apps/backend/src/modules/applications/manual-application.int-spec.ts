@@ -81,6 +81,21 @@ describe("organizer adds an application (US-83)", () => {
     expect((await create(body, foreignCookie)).status).toBe(403)
   })
 
+  it("validates and stores optional pronouns when the organizer creates an application", async () => {
+    expect((await create(input("WAITLISTED", { pronouns: "x".repeat(101) }))).status).toBe(400)
+    for (const [pronouns, expected] of [
+      ["  they/them  ", "they/them"],
+      ["   ", null],
+    ] as const) {
+      const response = await create(input("WAITLISTED", { pronouns }))
+      expect(response.status).toBe(201)
+      const { applicationId } = (await response.json()) as Created
+      expect(
+        await prisma.application.findUniqueOrThrow({ where: { id: applicationId } }),
+      ).toMatchObject({ pronouns: expected })
+    }
+  })
+
   it("validates consent, birth date and term choices", async () => {
     expect((await create(input("CONFIRMED", { consent: false }))).status).toBe(400)
     expect((await create(input("CONFIRMED", { birthDate: "2000-02-30" }))).status).toBe(400)

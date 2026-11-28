@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next"
 
 import { TermPrice } from "@/components/atoms/MoneyAmount"
+import { COMPACT_LIMITS, compactList } from "@/lib/compact-list"
 import { formatDateRange, formatMonthRange } from "@/lib/date"
 import { termName } from "@/lib/term-label"
 
@@ -9,12 +10,14 @@ import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 // Figma (Design system): "Akce a ceny termínů" in
 // V07 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914
 // M02 https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-1033
+// #732 first three terms and "and N more": https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27413-15688 (mobile 27413-16520)
 
 /** The event with the dates and prices of its terms — what the applicant chooses from. */
 export function EventSummary({ event }: { event: PublicEvent }) {
   const { t } = useTranslation("applicationForm")
   const first = event.terms[0]
   const last = event.terms[event.terms.length - 1]
+  const { visible, hiddenCount } = compactList(event.terms, COMPACT_LIMITS.formSummary)
   const where = [
     event.location,
     first && last ? formatMonthRange(first.startsOn, last.endsOn) : null,
@@ -25,12 +28,12 @@ export function EventSummary({ event }: { event: PublicEvent }) {
   return (
     <section
       aria-label={t("form.heading", { event: event.name })}
-      className="flex flex-col gap-2 rounded-xl border border-border bg-secondary p-4"
+      className="flex flex-col gap-2 rounded-lg border border-border-strong bg-secondary p-4 nested:border-border"
     >
       <h2 className="text-sm font-medium">{event.name}</h2>
       {where ? <p className="text-sm text-muted-foreground">{where}</p> : null}
       <ul className="flex flex-col">
-        {event.terms.map((term) => (
+        {visible.map((term) => (
           <li
             key={term.id}
             className="flex items-center justify-between gap-4 py-1"
@@ -54,6 +57,11 @@ export function EventSummary({ event }: { event: PublicEvent }) {
           </li>
         ))}
       </ul>
+      {hiddenCount > 0 ? (
+        <p className="text-sm text-muted-foreground">
+          {t("form.moreTerms", { count: hiddenCount })}
+        </p>
+      ) : null}
     </section>
   )
 }

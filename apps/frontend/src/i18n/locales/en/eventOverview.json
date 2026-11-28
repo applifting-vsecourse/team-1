@@ -436,7 +436,22 @@
       "firstName": "First name",
       "individualAccommodation": "Individual accommodation",
       "lastName": "Last name",
-      "phone": "Phone"
+      "phone": "Phone",
+      "pronouns": "Pronouns"
+    },
+    "logistics": {
+      "arrival": "arrival {{value}}",
+      "departure": "departure {{value}}",
+      "field": {
+        "health": "Health restriction",
+        "roomWishes": "Roommate wishes",
+        "stay": "Later arrival and earlier departure",
+        "transport": "Transport"
+      },
+      "noRestriction": "No restriction (entered by the organiser)",
+      "noWishes": "No wishes",
+      "own": "Own transport",
+      "written": "entered by the organiser"
     },
     "no": "no",
     "noteChanged": "Accommodation note: changed",
@@ -511,7 +526,8 @@
     "female": "Female",
     "gender": "Gender",
     "male": "Male",
-    "phone": "Phone"
+    "phone": "Phone",
+    "pronouns": "Pronouns"
   },
   "payment": {
     "afterCorrection": "After saving",
@@ -519,6 +535,7 @@
     "amountRequired": "Amount *",
     "applicant": "Applicant",
     "applicationCode": "application {{code}}",
+    "arrangementsLink": "Roommate wishes and stay",
     "back": "Back to applications",
     "backToPayments": "Back to payments",
     "cancelAllAllocations": "If the receipt is split across several terms, all its rows are cancelled.",
@@ -583,6 +600,7 @@
     "newShort": "New",
     "nothingDueDescription": "The application has no confirmed term, so nothing is due yet. Record a payment once a place is confirmed.",
     "nothingDueTitle": "Nothing due yet",
+    "onBehalf": "Entries for the participant",
     "originalShort": "Original",
     "originalValue": "Original record",
     "overpaid": "Overpayment",
@@ -629,6 +647,7 @@
     "termLabel": "Term",
     "termRequired": "Term *",
     "title": "Payment and application details",
+    "transportLink": "Participant’s transport",
     "typeChoice": "Record type",
     "typePayment": "Payment",
     "typeRefund": "Refund",
@@ -761,9 +780,6 @@
     "takenHint": "{{name}} stays a substitute. The capacity is not exceeded.",
     "title": "Filling freed beds"
   },
-  "switcher": {
-    "label": "Event"
-  },
   "termChange": {
     "cancel": "Cancel",
     "done": {
@@ -859,8 +875,8 @@
       "TO_EVALUATE": "Awaiting evaluation",
       "WAITLISTED": "Waitlisted"
     },
-    "summary": "Occupancy: {{occupied}} / {{capacity}} · Price: {{price}} · Amount due: {{debt}}",
-    "summaryWithoutPrice": "Occupancy: {{occupied}} / {{capacity}} · Amount due: {{debt}}",
+    "summary": "Occupancy: {{occupied}} / {{capacity}} · Price: {{price}} · Debt: {{debt}}",
+    "summaryWithoutPrice": "Occupancy: {{occupied}} / {{capacity}} · Debt: {{debt}}",
     "system": "System",
     "title": "Status by term",
     "waitlistImpact": "Nothing is payable for this term yet.",

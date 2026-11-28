@@ -75,7 +75,9 @@ for (const viewport of [
       await expectCompactHeading(title)
       await expect(page.getByRole("heading", { name: /1\. týden · Confirmed/ })).toBeVisible()
       await expect(page.getByRole("heading", { name: firstTermDates }).first()).toBeVisible()
-      expect(eventHeight).toBeLessThanOrEqual(touch ? 180 : 100)
+      // On a phone the occupancy count sits above its fixed-width bar (user decision 2026-11-28), one
+      // 10 px line more than the count and bar side by side.
+      expect(eventHeight).toBeLessThanOrEqual(touch ? 190 : 100)
     })
 
     test("keeps occupancy and room actions available when participants are collapsed", async ({
@@ -189,7 +191,10 @@ for (const viewport of [
         const guestPage = await guest.newPage()
         await signIn(guestPage, "participant", PARTICIPANT)
         await expect(guestPage).toHaveURL(/\/participant$/)
-        const applicationLink = guestPage.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ })
+        const applicationLink = guestPage
+          .getByRole("region", { name: /Letní kemp 2027(?! – demo)/ })
+          .getByRole("link")
+          .first()
         const applicationPath = await applicationLink.getAttribute("href")
         const applicationId = applicationPath!.split("/").at(-1)!
         await expect(

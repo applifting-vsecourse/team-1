@@ -36,7 +36,6 @@ const renderForm = (props: { from?: string; accountType?: "ORGANIZER" | "PARTICI
       <SignInWithRedirect
         accountType="ORGANIZER"
         fallback="/organizer"
-        emailHint="Use the e-mail of your account."
         {...props}
       />
     </QueryClientProvider>,
@@ -91,9 +90,7 @@ describe("SignInWithRedirect", () => {
     await submit("nobody@example.com", "whatever")
     const unknownEmail = (await screen.findByRole("alert")).textContent
 
-    expect(wrongPassword).toContain(
-      "The e-mail or password is incorrect. Check your details and try again.",
-    )
+    expect(wrongPassword).toContain("The e-mail or password is incorrect.")
     expect(unknownEmail).toBe(wrongPassword)
     expect(navigate).not.toHaveBeenCalled()
   })
@@ -120,7 +117,7 @@ describe("SignInWithRedirect", () => {
     await submit("ucastnik@example.com", "password4")
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "The e-mail or password is incorrect. Check your details and try again.",
+      "The e-mail or password is incorrect.",
     )
     expect(signOut).toHaveBeenCalledOnce()
     expect(navigate).not.toHaveBeenCalled()

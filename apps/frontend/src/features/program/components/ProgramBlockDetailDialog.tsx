@@ -39,7 +39,7 @@ export function ProgramBlockDetailDialog({
         if (!isOpen) onClose()
       }}
     >
-      <DialogContent className="max-h-[90dvh] gap-0 overflow-y-auto bg-card p-0 shadow-md sm:max-w-130">
+      <DialogContent className="max-h-[90dvh] gap-0 overflow-y-auto bg-card p-0 sm:max-w-130">
         <div className="flex flex-col gap-1 p-6 pr-14">
           <DialogTitle className="text-lg leading-snug tracking-tight break-words">
             {block.name}

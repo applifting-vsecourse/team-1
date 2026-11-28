@@ -37,7 +37,7 @@ const base = {
   cancellationTerms: null,
   evaluationModeLocked: false,
   hasApplications: false,
-  missing: ["TERM", "ROOM", "EVALUATION_MODE"],
+  missing: ["TERM", "EVALUATION_MODE"],
   evaluationModePending: true,
   terms: [],
 }
@@ -89,15 +89,54 @@ describe("EventSetup", () => {
   it("shows the setup steps without offering a copy action", async () => {
     renderSetup(base)
 
-    expect(
-      await screen.findByRole("heading", { name: "Done: 0 / 3 · Application setup" }),
-    ).toBeInTheDocument()
-    expect(screen.getByText("The event is created")).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Now · 1. Term and price" })).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Next · 2. Capacity" })).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Next · 3. Evaluation mode" })).toBeInTheDocument()
-    expect(screen.getByText("1. Term").closest("li")).toHaveAttribute("aria-current", "step")
+    // Figma F5 (15398:536): one to-do card with the title and the count, no alert above it.
+    expect(await screen.findByRole("heading", { name: "Application setup" })).toBeInTheDocument()
+    expect(screen.getByText("Done: 0 / 3")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Term and price" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Capacity" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Evaluation mode" })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Term and price" }).closest("li")).toHaveAttribute(
+      "aria-current",
+      "step",
+    )
     expect(screen.queryByRole("button", { name: /Copy/ })).not.toBeInTheDocument()
+  })
+
+  // Nav A (Figma F5 15398:536): the current step is the grey surface with the 4 × 24 orange bar and
+  // one sentence; the card carries the 4 px to-do strip.
+  it("marks only the current step, with the grey surface and the orange bar", async () => {
+    renderSetup(base)
+
+    const current = (await screen.findByRole("heading", { name: "Term and price" })).closest("li")
+    expect(current).toHaveClass("bg-nav-active")
+    expect(screen.getByRole("heading", { name: "Term and price" })).toHaveClass("font-semibold")
+    expect(current?.querySelector('[data-slot="step-indicator"]')).toHaveClass(
+      "bg-nav-indicator",
+      "h-6",
+      "w-1",
+    )
+    expect(document.querySelectorAll('[data-slot="step-indicator"]')).toHaveLength(1)
+    expect(document.querySelectorAll('[data-slot="task-strip"]')).toHaveLength(1)
+    expect(
+      screen.getByText("Enter the start and end of the term and the price for taking part."),
+    ).toBeVisible()
+    expect(screen.getByRole("heading", { name: "Capacity" })).toHaveClass("text-muted-foreground")
+    expect(screen.getByRole("heading", { name: "Capacity" }).closest("li")).not.toHaveClass(
+      "bg-nav-active",
+    )
+  })
+
+  // The API names ROOM only for a term without a room; a new event is „0/3“ in the frame.
+  it("counts the capacity as not done while the event has no term", async () => {
+    renderSetup({ ...base, missing: ["TERM", "EVALUATION_MODE"] })
+
+    expect(await screen.findByText("Done: 0 / 3")).toBeInTheDocument()
+    expect(screen.queryByText("Done")).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Term and price" }).closest("li")).toHaveAttribute(
+      "aria-current",
+      "step",
+    )
   })
 
   it("offers one action: the step to do now", async () => {
@@ -111,11 +150,15 @@ describe("EventSetup", () => {
   it("marks the finished step done and moves on to the capacity", async () => {
     renderSetup({ ...base, termCount: 1, missing: ["ROOM", "EVALUATION_MODE"] })
 
-    expect(
-      await screen.findByRole("heading", { name: "Done: 1 / 3 · Capacity setup" }),
-    ).toBeInTheDocument()
-    expect(screen.getByText("The term and price are saved")).toBeInTheDocument()
-    expect(screen.getByText("Done")).toBeInTheDocument()
+    expect(await screen.findByText("Done: 1 / 3")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Term and price" }).closest("li")).toHaveTextContent(
+      "Done",
+    )
+    expect(screen.getAllByText("Done")).toHaveLength(1)
+    expect(screen.getByRole("heading", { name: "Capacity" }).closest("li")).toHaveAttribute(
+      "aria-current",
+      "step",
+    )
     expect(screen.queryByRole("link", { name: "Add a term and price" })).not.toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Set capacity" }).className).toContain("bg-primary")
   })
@@ -147,9 +190,7 @@ describe("EventSetup", () => {
   it("offers both modes in the third step with nothing preselected and the button off", async () => {
     renderSetup({ ...base, termCount: 1, missing: ["EVALUATION_MODE"] })
 
-    expect(
-      await screen.findByRole("heading", { name: "Done: 2 / 3 · Evaluation mode" }),
-    ).toBeInTheDocument()
+    expect(await screen.findByText("Done: 2 / 3")).toBeInTheDocument()
     expect(screen.getByRole("radio", { name: "Automatic" })).not.toBeChecked()
     expect(screen.getByRole("radio", { name: "Manual" })).not.toBeChecked()
     expect(screen.getByRole("radio", { name: "Automatic" })).toHaveAccessibleDescription(
@@ -188,10 +229,10 @@ describe("EventSetup", () => {
   it("shows the chosen mode as a done step with a link to change it", async () => {
     renderSetup({ ...base, evaluationModePending: false, missing: ["TERM", "ROOM"] })
 
-    expect(
-      await screen.findByRole("heading", { name: "Done: 1 / 3 · Application setup" }),
-    ).toBeInTheDocument()
-    expect(screen.getByText("Evaluation mode: Automatic")).toBeInTheDocument()
+    expect(await screen.findByText("Done: 1 / 3")).toBeInTheDocument()
+    const mode = screen.getByRole("heading", { name: "Evaluation mode" }).closest("li")
+    expect(mode).toHaveTextContent("Automatic · Change")
+    expect(mode).toHaveTextContent("Done")
     expect(screen.getByRole("link", { name: "Change" })).toBeInTheDocument()
     expect(screen.queryByRole("radio")).not.toBeInTheDocument()
   })
@@ -204,7 +245,8 @@ describe("EventSetup", () => {
       evaluationModeLocked: true,
       missing: ["ROOM"],
     })
-    expect(await screen.findByText("Evaluation mode: Manual")).toBeInTheDocument()
+    const mode = (await screen.findByRole("heading", { name: "Evaluation mode" })).closest("li")
+    expect(mode).toHaveTextContent("Manual")
     expect(screen.queryByRole("link", { name: "Change" })).not.toBeInTheDocument()
   })
 })

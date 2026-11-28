@@ -1,30 +1,38 @@
 import type { ReactNode } from "react"
 import type { LinkProps } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BackLink } from "@/components/atoms/BackLink"
-import { SystemStatusLayout } from "@/components/templates/SystemStatusLayout"
+import { SystemPageLayout } from "@/components/templates/SystemPageLayout"
+import { Button } from "@/components/ui/button"
 
 type Props = {
-  title?: string
-  description?: string
+  /** The one way on: the account's own start. The events list by default (an organizer in the participant area). */
   back?: { to: NonNullable<LinkProps["to"]>; label: string }
+  /** A quiet second action under it (the participant: sign in with another account). */
   accountAction?: ReactNode
 }
 
-// Figma: 403 přihlašovatel a cizí záznam · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15377-161 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18602-22496
-export function ForbiddenPage({ title, description, back, accountAction }: Props) {
+// Figma: 403 přihlašovatel · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15377-161 (mobil 15377-183)
+// Figma: 403 organizátor, cizí záznam · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18602-22496 (mobil 18602-22571)
+export function ForbiddenPage({ back, accountAction }: Props) {
   const { t } = useTranslation()
   return (
-    <SystemStatusLayout
-      code={403}
-      variant={accountAction ? "compact" : "band"}
-      title={title ?? t("pages.forbidden.title")}
-      description={description ?? t("pages.forbidden.description")}
+    <SystemPageLayout
+      illustration="lost"
+      title={t("pages.forbidden.title")}
     >
-      <BackLink to={back?.to ?? ROUTES.home}>{back?.label ?? t("pages.forbidden.action")}</BackLink>
+      <Button
+        asChild
+        size="lg"
+        className="w-full"
+      >
+        <Link to={back?.to ?? ROUTES.organizer.events}>
+          {back?.label ?? t("pages.actions.events")}
+        </Link>
+      </Button>
       {accountAction}
-    </SystemStatusLayout>
+    </SystemPageLayout>
   )
 }

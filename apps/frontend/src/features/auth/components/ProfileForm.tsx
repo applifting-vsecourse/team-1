@@ -7,6 +7,7 @@ import { z } from "zod"
 
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -42,7 +43,14 @@ type FormValues = z.infer<ReturnType<typeof schema>>
  */
 // Figma (Design system): US-124 / Nastavení účtu · Profil a jazyk · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2145 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2228 (mobil)
 // Figma (Design system): US-124 / Nastavení účtu · Uložený jazyk English · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2279 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2366 (mobil)
-export function ProfileForm({ user }: { user: SessionUser }) {
+export function ProfileForm({
+  user,
+  onClose,
+}: {
+  user: SessionUser
+  /** Inline in a settings row: the label is the row's, „Zrušit“ closes it and so does a save. */
+  onClose?: () => void
+}) {
   const { t } = useTranslation(["auth", "common"])
   const { t: tErrors } = useTranslation("errors")
   const update = useUpdateProfile()
@@ -57,6 +65,7 @@ export function ProfileForm({ user }: { user: SessionUser }) {
       const saved = await update.mutateAsync({ name: values.name })
       form.reset({ name: saved.name ?? "" })
       notify.success(t("profile.savedDetails"))
+      onClose?.()
     } catch {
       // The Alert below shows it; the form keeps its data.
     }
@@ -75,7 +84,9 @@ export function ProfileForm({ user }: { user: SessionUser }) {
             name="name"
             render={({ field }) => (
               <FormItem className="flex-1">
-                <FormLabel>{t("profile.name")}</FormLabel>
+                <FormLabel className={onClose ? "sr-only" : undefined}>
+                  {t("profile.name")}
+                </FormLabel>
                 <FormControl>
                   <Input
                     autoComplete="name"
@@ -96,14 +107,27 @@ export function ProfileForm({ user }: { user: SessionUser }) {
           </Alert>
         ) : null}
 
-        <PendingButton
-          type="submit"
-          size="lg"
-          className={cn("w-full md:w-45 md:self-start", BUTTON)}
-          isPending={update.isPending}
-        >
-          {update.isPending ? t("state.saving", { ns: "common" }) : t("profile.submit")}
-        </PendingButton>
+        <div className="flex flex-col gap-3 md:flex-row">
+          <PendingButton
+            type="submit"
+            size="lg"
+            className={cn("w-full md:w-45 md:self-start", BUTTON)}
+            isPending={update.isPending}
+          >
+            {update.isPending ? t("state.saving", { ns: "common" }) : t("profile.submit")}
+          </PendingButton>
+          {onClose ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="lg"
+              className={BUTTON}
+              onClick={onClose}
+            >
+              {t("account.cancel")}
+            </Button>
+          ) : null}
+        </div>
       </form>
     </Form>
   )

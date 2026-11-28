@@ -103,7 +103,10 @@ export function ProgramPage({ eventId }: { eventId: string }) {
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("title")} />
-        <SectionHeader title={t("title")} />
+        <SectionHeader
+          isTitleHidden
+          title={t("title")}
+        />
         <EmptyState
           message={t("noTerms")}
           action={
@@ -135,7 +138,10 @@ export function ProgramPage({ eventId }: { eventId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("title")} />
-      <SectionHeader title={t("title")} />
+      <SectionHeader
+        isTitleHidden
+        title={t("title")}
+      />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-2">
           <Label htmlFor="program-term">{t("termLabel")}</Label>

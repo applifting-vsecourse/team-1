@@ -82,7 +82,7 @@ export function CopyProgramDialog({
       }}
     >
       <DialogContent
-        className="bg-card shadow-md sm:max-w-170"
+        className="bg-card sm:max-w-170"
         aria-describedby={undefined}
         onOpenAutoFocus={(e) => {
           e.preventDefault()

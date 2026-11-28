@@ -26,7 +26,9 @@ test.describe("Event setup", () => {
       .getByRole("navigation", { name: "Event sections" })
       .getByRole("link", { name: "Overview" })
       .click()
-    await expect(page.getByRole("heading", { name: "Done: 1 / 3 · Capacity setup" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Application setup" })).toBeVisible()
+    await expect(page.getByText("Done: 1 / 3")).toBeVisible()
+    await expect(page.getByRole("link", { name: "Set capacity" })).toBeVisible()
     await expect(page.getByRole("button", { name: /Copy/ })).toHaveCount(0)
   })
 

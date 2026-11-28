@@ -41,6 +41,8 @@ export const ROUTES = {
     eventTransportParticipants: "/organizer/events/$eventId/transport/$transportId/participants",
     application: "/organizer/events/$eventId/applications/$applicationId",
     applicationHealth: "/organizer/events/$eventId/applications/$applicationId/health",
+    applicationTransport: "/organizer/events/$eventId/applications/$applicationId/transport",
+    applicationArrangements: "/organizer/events/$eventId/applications/$applicationId/arrangements",
     account: "/organizer/account",
   },
 
