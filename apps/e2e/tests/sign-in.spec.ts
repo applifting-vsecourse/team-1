@@ -44,15 +44,23 @@ test.describe("Sign-in", () => {
   test("organizer lands on the overview of the event opened last (US-51)", async ({ page }) => {
     await signIn(page, "organizer", ORGANIZER)
     await openEventList(page)
+    await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
+    await expect(page.getByRole("heading", { level: 1, name: "Letní kemp 2027" })).toBeVisible()
+    await expect(page.getByRole("combobox", { name: "Event", exact: true })).toHaveCount(0)
+    await page.getByRole("link", { name: "All events", exact: true }).click()
+    await expect(page).toHaveURL(/\/organizer\/events$/)
+
     const remembered = page.waitForResponse(
       (response) =>
         response.request().method() === "PUT" && response.url().endsWith("/last-opened"),
     )
-    await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
+    await page.getByRole("link", { name: /Letní kemp 2027 – demo/ }).click()
     await expect(page).toHaveURL(/\/organizer\/events\/[^/]+$/)
     expect((await remembered).status()).toBe(204)
     const eventUrl = page.url()
-    await expect(page.getByRole("combobox", { name: "Event" })).toBeVisible()
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Letní kemp 2027 – demo" }),
+    ).toBeVisible()
 
     await signOut(page, ORGANIZER)
     await expect(page).toHaveURL(/\/$/)
@@ -104,17 +112,22 @@ test.describe("Sign-in", () => {
 test.describe("Organizer workspace at 360 px", () => {
   test.use({ viewport: { width: 360, height: 800 } })
 
-  test("opens the account drawer and the program editor from the mobile workspace", async ({
+  // Figma F5: no drawer — the avatar in the 56 px header opens the account menu with the navigation.
+  test("opens the account menu and the program editor from the mobile workspace", async ({
     page,
   }) => {
     await signIn(page, "organizer", ORGANIZER)
     await openEventList(page)
-    const openMenu = page.getByRole("button", { name: "Open navigation" })
+    await expect(page.getByRole("button", { name: "Open navigation" })).toHaveCount(0)
+    const openMenu = page
+      .getByRole("banner")
+      .getByRole("button", { name: /organizator@example\.com/ })
     await openMenu.click()
-    const drawer = page.getByRole("dialog")
-    await expect(drawer.getByRole("button", { name: /organizator@example\.com/ })).toBeVisible()
+    const menu = page.getByRole("menu")
+    await expect(menu.getByRole("menuitem", { name: "Events" })).toBeVisible()
+    await expect(menu.getByRole("menuitem", { name: "Account settings" })).toBeVisible()
     await page.keyboard.press("Escape")
-    await expect(drawer).toBeHidden()
+    await expect(menu).toBeHidden()
 
     const eventId = await eventIdByPublicToken("demo-letni-kemp-2027")
     await page.goto(`/organizer/events/${eventId}/program`)

@@ -24,17 +24,21 @@ export type AccountMenuItem = Pick<LinkProps, "to" | "activeOptions"> & {
 const ITEM = "h-12 gap-4 rounded-sm px-3 text-base [&_svg:not([class*='size-'])]:size-5"
 
 /**
- * The avatar in the participant's mobile header and the menu it opens: who is signed in, the area
+ * The avatar in the mobile header of both areas and the menu it opens: who is signed in, the area
  * navigation (the active page as in the sidebar: grey surface, Semi Bold and the orange bar), the
  * account settings and sign-out. On a phone it replaces the drawer, so there is no menu icon.
  */
 // Figma (Design system v2): US-54 / Moje přihlášky · menu účtu otevřené / Mobil · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27681-33558
+// Figma (Design system v2): F5 / Akce · menu účtu otevřené / Mobil · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18471-20359
 export function AccountMenu({ items }: { items: AccountMenuItem[] }) {
   const { t } = useTranslation("auth")
   const { user } = useSession()
   const signOut = useSignOut()
 
   if (!user) return null
+
+  const accountRoute =
+    user.accountType === "ORGANIZER" ? ROUTES.organizer.account : ROUTES.participant.account
 
   return (
     <DropdownMenu>
@@ -84,7 +88,7 @@ export function AccountMenu({ items }: { items: AccountMenuItem[] }) {
           asChild
           className={ITEM}
         >
-          <Link to={ROUTES.participant.account}>
+          <Link to={accountRoute}>
             <Settings />
             {t("menu.accountSettings")}
           </Link>

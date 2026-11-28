@@ -281,11 +281,11 @@
 
 @layer base {
   :root {
-    --workspace-inset: 18px;
+    --workspace-inset: 16px; /* the AreaLayout content padding (px-4 md:px-8); HeadingBand bleeds by it */
   }
   @media (min-width: 48rem) {
     :root {
-      --workspace-inset: 42px;
+      --workspace-inset: 32px;
     }
   }
   * {

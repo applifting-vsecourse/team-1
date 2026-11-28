@@ -15,13 +15,12 @@ import { AreaLayout } from "@/components/templates/AreaLayout"
 
 vi.mock("@/hooks/useTheme", () => ({ useTheme: () => ({ theme: "light", setTheme: vi.fn() }) }))
 
-function renderLayout(mobileMenu?: React.ReactNode) {
+function renderLayout(width: "reading" | "wide" = "wide") {
   const root = createRootRoute({
     component: () => (
       <AreaLayout
-        roleLabel="Organizer"
-        width="wide"
-        mobileMenu={mobileMenu}
+        width={width}
+        mobileMenu={<button type="button">Account menu</button>}
         notifications={<button type="button">Notifications</button>}
         account={<button type="button">Eva Malá</button>}
         nav={
@@ -78,27 +77,11 @@ describe("AreaLayout sidebar", () => {
     expect(within(sidebar).getByRole("button", { name: "Eva Malá" })).toBeInTheDocument()
     expect(screen.getAllByRole("button", { name: "Eva Malá" })).toHaveLength(1)
   })
-
-  it("exposes navigation and the account in the mobile drawer", async () => {
-    const user = userEvent.setup()
-    renderLayout()
-
-    expect(
-      await screen.findByRole("complementary", { name: "Main navigation" }),
-    ).toBeInTheDocument()
-
-    await user.click(screen.getByRole("button", { name: "Open navigation" }))
-    const drawer = await screen.findByRole("dialog")
-    expect(within(drawer).getByRole("button", { name: "Eva Malá" })).toBeInTheDocument()
-    expect(within(drawer).getByRole("link", { name: "Events" })).toBeInTheDocument()
-    await user.keyboard("{Escape}")
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
-  })
 })
 
-describe("AreaLayout with an account menu (participant area)", () => {
+describe("AreaLayout without a top bar (Figma F4 and F5)", () => {
   it("has no top bar or drawer: the bell is next to the logo and the menu in the mobile header", async () => {
-    renderLayout(<button type="button">Account menu</button>)
+    renderLayout()
 
     const sidebar = await screen.findByRole("complementary", { name: "Main navigation" })
     expect(within(sidebar).getByRole("button", { name: "Notifications" })).toBeInTheDocument()
@@ -109,14 +92,16 @@ describe("AreaLayout with an account menu (participant area)", () => {
     expect(within(header).getByRole("button", { name: "Account menu" })).toBeInTheDocument()
     expect(within(header).getByRole("button", { name: "Notifications" })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Open navigation" })).not.toBeInTheDocument()
-    // The page heading is the only title: the role label is not repeated in a bar above it.
-    expect(screen.queryByText("Organizer")).not.toBeInTheDocument()
   })
 
-  it("centres the content in one column", async () => {
-    renderLayout(<button type="button">Account menu</button>)
-
+  it("centres the content in one column, 800 px for reading and 1200 px for organizer tables", async () => {
+    const { unmount } = renderLayout("reading")
     const heading = await screen.findByRole("heading", { name: "Event overview" })
     expect(heading.parentElement).toHaveClass("mx-auto", "max-w-200")
+    unmount()
+
+    renderLayout("wide")
+    const wide = await screen.findByRole("heading", { name: "Event overview" })
+    expect(wide.parentElement).toHaveClass("mx-auto", "max-w-300")
   })
 })
