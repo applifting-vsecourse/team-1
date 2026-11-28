@@ -40,8 +40,16 @@ test("participant submits a cancellation request and organizer declines it at 36
   await dialog.getByRole("button", { name: "Send request" }).click()
   await expect(page.getByText("Cancellation request sent", { exact: true })).toBeVisible()
   await expect(dialog).toBeHidden()
-  await expect(page.getByRole("heading", { name: "Requested cancellation" })).toBeVisible()
-  await expect(page.getByText("Request awaiting the organizer's decision")).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Term cancellation", exact: true })).toBeVisible()
+  const chip = page.getByText("Awaiting approval", { exact: true })
+  await expect(chip).toBeVisible()
+  await expect(chip).toHaveAttribute("data-variant", "warning")
+  const pendingRequest = page.locator('[data-slot="card"]').filter({ has: chip })
+  await expect(pendingRequest.getByText("Current participation")).toBeVisible()
+  await expect(pendingRequest.getByText(/1\. týden · Confirmed/)).toBeVisible()
+  await expect(
+    pendingRequest.getByText("Your original participation remains valid for now."),
+  ).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
   await signOut(page, PARTICIPANT)
   await expect(page).toHaveURL(/\/$/)

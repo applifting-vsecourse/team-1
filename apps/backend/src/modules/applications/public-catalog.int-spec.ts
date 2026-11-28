@@ -41,7 +41,7 @@ describe("public catalog (integration)", () => {
     expect(body.events).toHaveLength(published)
   })
 
-  it("lists only organizations that have a published event", async () => {
+  it("lists only organizations that have an event listed in the catalog", async () => {
     const body = (await (await fetch(api("/public/catalog"))).json()) as CatalogBody
 
     const withEvents = new Set(body.events.map((event) => event.organizationName))
@@ -151,7 +151,7 @@ describe("public catalog (integration)", () => {
     expect(again.status).toBe(304)
   })
 
-  it("lists an event without a working link, but its page is a 404", async () => {
+  it("omits a published event without a working link and keeps its page unavailable", async () => {
     const organization = await prisma.organization.findFirstOrThrow({
       where: { name: "Letní kemp z. s." },
     })
@@ -177,10 +177,9 @@ describe("public catalog (integration)", () => {
     const list = (await (await fetch(api("/public/catalog"))).json()) as CatalogBody
     const detail = await fetch(api("/public/events/catalog-bez-pokoju/page"))
 
-    expect(list.events.find((event) => event.name === "Bez pokojů")?.isOpenForApplications).toBe(
-      false,
-    )
+    expect(list.events.map((event) => event.publicToken)).not.toContain("catalog-bez-pokoju")
     expect(detail.status).toBe(404)
+    expect(await detail.json()).toMatchObject({ statusCode: 404, code: "NOT_FOUND" })
   })
 
   it("drops an event from the catalog once unpublished, but its page stays open", async () => {
