@@ -130,7 +130,7 @@ export function NotificationCenter({
         <DialogContent
           showCloseButton={false}
           // Figma F4 and F5: a card by the bell — under the 56 px header on a phone, next to the sidebar on a desktop.
-          className="top-16 flex max-h-[calc(100svh-5rem)] translate-y-0 flex-col content-start gap-0 overflow-hidden rounded-xl p-0 sm:max-w-110 md:top-4 md:left-62 md:max-h-[calc(100svh-2rem)] md:translate-x-0"
+          className="top-16 flex max-h-[calc(100svh-5rem)] translate-y-0 flex-col content-start gap-0 overflow-hidden rounded-xl p-0 sm:max-w-110 lg:top-4 lg:left-62 lg:max-h-[calc(100svh-2rem)] lg:translate-x-0"
         >
           <div className="flex shrink-0 items-center gap-4 pt-4 pr-3 pb-1 pl-4 md:pt-6 md:pr-4 md:pl-6">
             <DialogTitle className="flex-1 text-2xl font-bold">{t("panel.title")}</DialogTitle>

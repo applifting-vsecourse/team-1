@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
+import { createFileRoute, Outlet, redirect, useMatchRoute } from "@tanstack/react-router"
 import { Calendar } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -15,6 +15,7 @@ import { AccountMenu, type AccountMenuItem } from "@/features/auth/components/Ac
 import { OrganizerAreaError } from "@/features/auth/components/OrganizerAreaError"
 import { SidebarAccount } from "@/features/auth/components/SidebarAccount"
 import { requireAccount } from "@/features/auth/lib/require-account"
+import { EventSidebarNav } from "@/features/events/components/EventSidebarNav"
 import { NotificationCenter } from "@/features/notifications/components/NotificationCenter"
 
 // Every /organizer/* page except the login sits under this layout.
@@ -42,11 +43,15 @@ export const Route = createFileRoute("/organizer/_app")({
 
 function OrganizerLayout() {
   const { t } = useTranslation()
+  const matchRoute = useMatchRoute()
   // Figma F5: the sidebar has only „Akce“; creating an event is the page's primary button, and the
-  // „Přehled“ item stays out (#394). „Akce“ stays marked on an event's pages.
+  // „Přehled“ item stays out (#394). „Akce“ stays marked in the phone's account menu on an event's pages.
   const nav: AccountMenuItem[] = [
     { to: ROUTES.organizer.events, icon: Calendar, label: t("nav.events") },
   ]
+  // Navigation A (D-038): inside an event the sidebar switches to the event's sections.
+  const isNewEvent = Boolean(matchRoute({ to: ROUTES.organizer.newEvent }))
+  const eventMatch = isNewEvent ? false : matchRoute({ to: ROUTES.organizer.event, fuzzy: true })
 
   return (
     <>
@@ -54,14 +59,20 @@ function OrganizerLayout() {
       <AreaLayout
         width="wide"
         logoTo={ROUTES.organizer.events}
-        nav={nav.map(({ label, ...link }) => (
-          <SidebarLink
-            key={label}
-            {...link}
-          >
-            {label}
-          </SidebarLink>
-        ))}
+        nav={
+          eventMatch ? (
+            <EventSidebarNav eventId={eventMatch.eventId} />
+          ) : (
+            nav.map(({ label, ...link }) => (
+              <SidebarLink
+                key={label}
+                {...link}
+              >
+                {label}
+              </SidebarLink>
+            ))
+          )
+        }
         account={
           <SidebarAccount
             subtitle={t("accountRole.ORGANIZER")}

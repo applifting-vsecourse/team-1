@@ -65,8 +65,9 @@ async function applyForTerm(page: Page, firstName: string, unique: string) {
 
 async function evaluateOnPhone(page: Page, unique: string) {
   const sections = page.getByRole("navigation", { name: "Event sections" })
+  const sectionSheet = page.getByRole("dialog", { name: "Event sections" })
   await sections.getByRole("button", { name: "Overview" }).tap()
-  await page.getByRole("menuitem", { name: "Applications" }).tap()
+  await sectionSheet.getByRole("link", { name: "Applications" }).tap()
   await expect(sections.getByRole("button", { name: "Applications" })).toBeVisible()
   await page.getByRole("radio", { name: "Awaiting evaluation" }).tap()
 
@@ -97,7 +98,7 @@ async function evaluateOnPhone(page: Page, unique: string) {
   await confirmation.getByRole("button", { name: "Move to the waitlist" }).tap()
   await expect(page.getByText("2 applications moved to the waitlist")).toBeVisible()
   await sections.getByRole("button", { name: "Applications" }).tap()
-  await page.getByRole("menuitem", { name: "Capacity" }).tap()
+  await sectionSheet.getByRole("link", { name: "Capacity" }).tap()
   await expect(sections.getByRole("button", { name: "Capacity" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Occupancy of all terms" })).toBeVisible()
 }

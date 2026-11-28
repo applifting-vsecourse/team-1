@@ -341,7 +341,9 @@ describe("accommodation by term", () => {
     expect(await screen.findByRole("button", { name: "Print overview" })).toHaveClass(
       "max-sm:w-full",
     )
-    expect(screen.getByRole("radiogroup")).toHaveClass("w-fit")
+    // The view segment is one row that scrolls sideways instead of wrapping.
+    expect(screen.getByRole("radiogroup")).toHaveClass("w-max", "flex-nowrap")
+    expect(screen.getByRole("radiogroup").parentElement).toHaveClass("overflow-x-auto")
   })
 
   it("shows the extra beds in the title only when a room has some, without a +0", async () => {

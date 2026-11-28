@@ -48,7 +48,9 @@ for (const viewport of [
       const term = page.getByRole("heading", { name: firstTermDates })
       await expectFitsViewport(page, eventTitle, occupancy, term)
       await expectCompactHeading(eventTitle)
-      await expect(page.getByText("Applications open", { exact: true })).toBeVisible()
+      await expect(
+        page.getByRole("main").getByText("Applications open", { exact: true }),
+      ).toBeVisible()
       await expect(page.getByRole("progressbar", { name: "Occupied" }).first()).toBeVisible()
 
       await page.goto(`${eventPath}/applications?q=${encodeURIComponent(participant)}`)

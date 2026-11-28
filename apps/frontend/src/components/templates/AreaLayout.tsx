@@ -6,6 +6,7 @@ import { Logo } from "@/components/atoms/Logo"
 import { cn } from "@/lib/utils"
 
 type AreaLayoutProps = {
+  /** The area navigation, or the sections of an open event (the organizer's contextual sidebar). */
   nav: ReactNode
   /** The signed-in account at the bottom of the sidebar (a slot: `components/` never imports from `features/`). */
   account: ReactNode
@@ -23,8 +24,8 @@ type AreaLayoutProps = {
 /**
  * Chrome of the signed-in areas (Figma F4 and F5): no top bar. The sidebar carries the logo with
  * the bell next to it, the area navigation and the account at the bottom; the page starts with its
- * own heading. Below `md` a 56 px header carries the logo, the bell and the account menu (the
- * avatar). The route layouts (`routes/organizer/_app.tsx`, `routes/participant/_app.tsx`) fill
+ * own heading. Below `lg` (1024 px; the sidebar and an event's sections need the width) a 56 px
+ * header carries the logo, the bell and the account menu (the avatar). The route layouts (`routes/organizer/_app.tsx`, `routes/participant/_app.tsx`) fill
  * the slots.
  */
 // Figma (Design system v2): F4 / Navigation / Sidebar přihlašovatele · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-2 (mobile header: 15649-122, account menu open: 27681-33558)
@@ -52,7 +53,7 @@ export function AreaLayout({
     <div className="flex min-h-svh">
       <aside
         aria-label={t("nav.main")}
-        className="sticky top-0 hidden h-svh w-60 shrink-0 flex-col gap-6 overflow-y-auto border-r border-sidebar-border bg-sidebar p-4 text-sidebar-foreground md:flex"
+        className="sticky top-0 hidden h-svh w-60 shrink-0 flex-col gap-6 overflow-y-auto border-r border-sidebar-border bg-sidebar p-4 text-sidebar-foreground lg:flex"
       >
         <div className="flex items-center justify-between gap-2">
           <Logo to={logoTo} />
@@ -62,7 +63,7 @@ export function AreaLayout({
         <div className="mt-auto border-t border-sidebar-border pt-6">{account}</div>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-1 border-b border-border bg-card px-4 md:hidden">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-1 border-b border-border bg-card px-4 lg:hidden">
           <Logo to={logoTo} />
           <div className="flex items-center gap-1">
             {notifications}

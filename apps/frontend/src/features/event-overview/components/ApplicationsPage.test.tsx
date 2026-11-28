@@ -195,8 +195,11 @@ describe("ApplicationsPage", () => {
       setup([application])
       const views = await screen.findByRole("radiogroup", { name: "Application views" })
       const add = screen.getByRole("link", { name: "Add application" })
-      expect(views.parentElement).toBe(add.parentElement)
-      expect(views.parentElement).toHaveClass("justify-between")
+      // The segment sits in its sideways scroll strip, which shares the row with the action.
+      const strip = views.parentElement!
+      expect(strip).toHaveClass("overflow-x-auto")
+      expect(strip.parentElement).toBe(add.parentElement)
+      expect(strip.parentElement).toHaveClass("justify-between")
       expect(screen.getByRole("heading", { level: 2, name: "Applications" })).toHaveClass("sr-only")
     })
 

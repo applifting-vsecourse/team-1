@@ -313,13 +313,13 @@ describe("NotificationCenter", () => {
       renderCenter(undefined, area)
       const dialog = await open()
 
-      // At 360 px the panel is a card under the header that fits the screen and scrolls; from `md` up
+      // At 360 px the panel is a card under the header that fits the screen and scrolls; from `lg` up
       // it is a card next to the sidebar, by the bell.
       expect(dialog).toHaveClass(
         "top-16",
         "max-h-[calc(100svh-5rem)]",
         "overflow-hidden",
-        "md:left-62",
+        "lg:left-62",
       )
       expect(
         await within(dialog).findByRole("button", { name: /Application detail/ }),

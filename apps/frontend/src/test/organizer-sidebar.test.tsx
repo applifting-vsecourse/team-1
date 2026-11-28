@@ -54,20 +54,44 @@ function renderAt(entry: string) {
 
 afterEach(() => cleanup())
 
+// Sidebar items carry the nav A bar; the logo link (to the area's home) is not one of them.
+const activeItems = (sidebar: HTMLElement) =>
+  within(sidebar)
+    .getAllByRole("link")
+    .filter(
+      (link) =>
+        link.getAttribute("data-status") === "active" &&
+        link.querySelector('[data-slot="nav-indicator"]'),
+    )
+    .map((link) => link.textContent)
+
 describe("organizer sidebar", () => {
-  it.each(["/organizer/events", "/organizer/events/e1", "/organizer/events/e1/applications"])(
-    "highlights exactly one item, Events, on %s",
-    async (entry) => {
-      renderAt(entry)
-      const links = await screen.findAllByRole("link", { name: /^Events$/ })
-      const active = links.filter((link) => link.getAttribute("data-status") === "active")
-      expect(active.map((link) => link.textContent)).toEqual(["Events"])
-      // Figma F5: the bell sits next to the logo in the sidebar (and in the phone header).
-      expect(
-        within(screen.getByRole("complementary")).getByRole("button", { name: "Notifications" }),
-      ).toBeInTheDocument()
-      // "Overview" is left out for now (#394).
-      expect(screen.queryByRole("link", { name: "Overview" })).not.toBeInTheDocument()
-    },
-  )
+  it("highlights exactly one item, Events, on the events list", async () => {
+    renderAt("/organizer/events")
+    const sidebar = await screen.findByRole("complementary")
+    await within(sidebar).findByRole("link", { name: "Events" })
+    expect(activeItems(sidebar)).toEqual(["Events"])
+    // Figma F5: the bell sits next to the logo in the sidebar (and in the phone header).
+    expect(within(sidebar).getByRole("button", { name: "Notifications" })).toBeInTheDocument()
+    expect(within(sidebar).queryByRole("navigation", { name: "Event sections" })).toBeNull()
+  })
+
+  // Navigation A (Figma 27890:4721): inside an event the sidebar switches to the event's sections.
+  it.each([
+    ["/organizer/events/e1", "Overview"],
+    ["/organizer/events/e1/applications", "Applications"],
+  ])("inside an event on %s marks only the current section, %s", async (entry, current) => {
+    renderAt(entry)
+    const sidebar = await screen.findByRole("complementary")
+    const sections = await within(sidebar).findByRole("navigation", { name: "Event sections" })
+    expect(activeItems(sidebar)).toEqual([current])
+    expect(within(sections).getByRole("link", { name: current })).toHaveAttribute(
+      "aria-current",
+      "page",
+    )
+    expect(within(sidebar).getByRole("link", { name: "All events" })).not.toHaveAttribute(
+      "data-status",
+    )
+    expect(within(sidebar).queryByRole("link", { name: /^Events$/ })).toBeNull()
+  })
 })

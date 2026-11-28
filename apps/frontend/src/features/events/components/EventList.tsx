@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { ChevronRight, Plus, Search } from "lucide-react"
+import { ChevronRight, Plus, Search, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -28,6 +28,7 @@ import { usePagination } from "@/hooks/usePagination"
 import { cn } from "@/lib/utils"
 
 import { eventsQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
+import { EventFiltersSheet } from "@/features/events/components/EventFiltersSheet"
 import { termsSummary } from "@/features/events/lib/terms-summary"
 
 /**
@@ -114,6 +115,8 @@ function FilteredEvents({
   const organizations = new Map(
     events.map((event) => [event.organizationId, event.organizationName]),
   )
+  // An organizer in one organization has nothing to filter by: no organization filter then.
+  const hasOrganizationFilter = organizations.size > 1
 
   const needle = query.trim().toLocaleLowerCase()
   const shown = events.filter(
@@ -128,74 +131,110 @@ function FilteredEvents({
   return (
     <section className="flex flex-col gap-4 md:gap-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center">
-        <div className="relative lg:w-80">
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
-          />
-          <Input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t("list.searchPlaceholder")}
-            aria-label={t("list.search")}
-            className="w-full ps-11"
-          />
+        {/* Below lg the search and the filter icon share one row; the status segment gets its own. */}
+        <div className="flex min-w-0 items-center gap-2 lg:w-80">
+          <div className="relative min-w-0 flex-1">
+            <Search
+              aria-hidden
+              className="pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("list.searchPlaceholder")}
+              aria-label={t("list.search")}
+              className="w-full ps-11"
+            />
+          </div>
+          {hasOrganizationFilter ? (
+            <EventFiltersSheet
+              organizations={organizations}
+              organizationId={organizationId}
+              onOrganizationChange={setOrganizationId}
+              className="lg:hidden"
+            />
+          ) : null}
         </div>
-        {/* No label above the select (Figma F5): its value names it, „Všechny organizace“. */}
-        <div className="flex items-center gap-3">
-          <Select
-            value={organizationId}
-            onValueChange={setOrganizationId}
-          >
-            <SelectTrigger
-              aria-label={t("list.organizationFilter")}
-              className="min-w-0 flex-1 text-start lg:w-60 lg:flex-none"
+        {/* From lg the organization is a Select without a label above it (Figma F5): its value names it. */}
+        {hasOrganizationFilter ? (
+          <div className="hidden items-center gap-3 lg:flex">
+            <Select
+              value={organizationId}
+              onValueChange={setOrganizationId}
             >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("list.organizationAll")}</SelectItem>
-              {Array.from(organizations, ([id, name]) => (
-                <SelectItem
-                  key={id}
-                  value={id}
-                >
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {organizationId === "all" ? null : (
+              <SelectTrigger
+                aria-label={t("list.organizationFilter")}
+                className="w-60 text-start"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("list.organizationAll")}</SelectItem>
+                {Array.from(organizations, ([id, name]) => (
+                  <SelectItem
+                    key={id}
+                    value={id}
+                  >
+                    {name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {organizationId === "all" ? null : (
+              <Button
+                type="button"
+                variant="ghost"
+                className="shrink-0"
+                onClick={() => setOrganizationId("all")}
+              >
+                {t("list.clearOrganization")}
+              </Button>
+            )}
+          </div>
+        ) : null}
+        {/* Figma (Design system v2): F5 / Events / Filtry seznamu akcí · Mobil · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15376-98 (component 27893-4901) */}
+        <ViewToggleGroup
+          className="lg:ml-auto"
+          aria-label={t("list.statusFilter")}
+          value={status}
+          onValueChange={(value) => {
+            const next = STATUSES.find((option) => option === value)
+            if (next) setStatus(next)
+          }}
+        >
+          {STATUSES.map((option) => (
+            <ViewToggleGroupItem
+              key={option}
+              value={option}
+            >
+              {t(`list.segment.${option}`)}
+            </ViewToggleGroupItem>
+          ))}
+        </ViewToggleGroup>
+        {organizationId === "all" ? null : (
+          <div
+            role="group"
+            aria-label={t("list.activeFilters")}
+            className="flex flex-wrap gap-2 lg:hidden"
+          >
             <Button
-              type="button"
-              variant="ghost"
-              className="shrink-0"
+              variant="outline"
+              size="lg"
+              className="h-auto min-h-11 max-w-full"
+              aria-label={t("list.removeFilter", { filter: organizations.get(organizationId) })}
               onClick={() => setOrganizationId("all")}
             >
-              {t("list.clearOrganization")}
+              <span className="min-w-0 text-left break-words whitespace-normal">
+                {organizations.get(organizationId)}
+              </span>
+              <X
+                aria-hidden
+                className="size-4 shrink-0"
+              />
             </Button>
-          )}
-        </div>
-        <div className="lg:ml-auto">
-          <ViewToggleGroup
-            aria-label={t("list.statusFilter")}
-            value={status}
-            onValueChange={(value) => {
-              const next = STATUSES.find((option) => option === value)
-              if (next) setStatus(next)
-            }}
-          >
-            {STATUSES.map((option) => (
-              <ViewToggleGroupItem
-                key={option}
-                value={option}
-              >
-                {t(`list.segment.${option}`)}
-              </ViewToggleGroupItem>
-            ))}
-          </ViewToggleGroup>
-        </div>
+          </div>
+        )}
       </div>
       {shown.length === 0 ? (
         <EmptyState message={t("list.noMatch")} />
@@ -223,7 +262,7 @@ function FilteredEvents({
               >
                 <EventRow
                   event={event}
-                  hasOrganization={organizationId === "all"}
+                  hasOrganization={hasOrganizationFilter && organizationId === "all"}
                 />
               </li>
             ))}
@@ -239,8 +278,8 @@ function FilteredEvents({
 }
 
 /**
- * One event: the date tile, the name, „organization · dates · place“ (without the organization
- * while the list is filtered to one), whether applications are open and how full it is. A phone
+ * One event: the date tile, the name, „organization · dates · place“ (the organization only when the
+ * events belong to several and the list isn't filtered to one), whether applications are open and how full it is. A phone
  * stacks the status and the occupancy under the name and drops the chevron.
  */
 function EventRow({ event, hasOrganization }: { event: OrganizerEvent; hasOrganization: boolean }) {

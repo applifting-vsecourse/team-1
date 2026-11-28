@@ -112,7 +112,8 @@ describe("EventList", () => {
     ) as HTMLElement
     expect(within(row).getByText("Published")).toHaveAttribute("data-variant", "success")
     expect(
-      within(row).getByText("Kemp Lipno · 2 terms · July 2027 · Lipno nad Vltavou"),
+      // One organization: its name would repeat on every row, so the row leaves it out.
+      within(row).getByText("2 terms · July 2027 · Lipno nad Vltavou"),
     ).toBeInTheDocument()
     expect(row.querySelector('[data-slot="date-tile"]')).toHaveTextContent("12")
     expect(within(row).getByText("79 / 120")).toHaveClass("tabular-nums")
@@ -153,10 +154,21 @@ describe("EventList", () => {
         .map((radio) => radio.textContent),
     ).toEqual(["All", "Open", "Inactive"])
     expect(within(status).getByRole("radio", { name: "All" })).toBeChecked()
+    // One organization: nothing to filter by, so no organization filter (and no „Filters“ on a phone).
+    expect(screen.queryByRole("combobox", { name: "Organization" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: /^Filters/ })).not.toBeInTheDocument()
+  })
+
+  it("offers the organization filter to an organizer in more than one organization", async () => {
+    renderList([event, { ...draft, organizationId: "o2", organizationName: "Summit Events" }])
     // The organization select has no label above it; it names itself.
-    expect(screen.getByRole("combobox", { name: "Organization" })).toHaveTextContent(
+    expect(await screen.findByRole("combobox", { name: "Organization" })).toHaveTextContent(
       "All organizations",
     )
+    expect(screen.getByRole("button", { name: "Filters" })).toBeInTheDocument()
+    // Several organizations: each row says whose event it is.
+    const row = screen.getByRole("heading", { name: event.name }).closest("a") as HTMLElement
+    expect(within(row).getByText(/^Kemp Lipno · /)).toBeInTheDocument()
   })
 
   it("filters the events by status", async () => {
@@ -180,7 +192,7 @@ describe("EventList", () => {
       "li",
     )
     expect(item).toHaveAttribute("data-created", "true")
-    expect(within(item as HTMLElement).getByText("Kemp Lipno · No term yet")).toBeInTheDocument()
+    expect(within(item as HTMLElement).getByText("No term yet")).toBeInTheDocument()
     expect(item?.querySelector('[data-slot="date-tile"]')).toBeNull()
     expect(within(item as HTMLElement).getByText("—", { selector: "[aria-hidden]" })).toBeVisible()
     expect(within(item as HTMLElement).queryByRole("progressbar")).not.toBeInTheDocument()
@@ -203,6 +215,35 @@ describe("EventList", () => {
     expect(search).toHaveValue("jarní")
     expect(screen.getByText("Summit Events · No term yet")).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Clear filter" })).not.toBeInTheDocument()
+  })
+
+  // Navigation A (Figma 15376:98, 15376:244, 15376:361): below lg the organization is in the „Filters“
+  // bottom sheet behind an icon button next to the search (the status segment has its own row, so it
+  // fits 360 px whole), applies at once and shows as a removable chip.
+  it("filters by organization in the bottom sheet and removes it with the chip", async () => {
+    const user = userEvent.setup()
+    renderList([event, { ...draft, organizationId: "o2", organizationName: "Summit Events" }])
+    const filters = await screen.findByRole("button", { name: "Filters" })
+    expect(filters).toHaveClass("lg:hidden")
+    expect(filters.parentElement).toContainElement(
+      screen.getByRole("searchbox", { name: "Search event name" }),
+    )
+    expect(screen.getByRole("radiogroup", { name: "Event status" }).parentElement).toHaveClass(
+      "overflow-x-auto",
+    )
+
+    await user.click(filters)
+    const sheet = await screen.findByRole("dialog", { name: "Filters" })
+    expect(within(sheet).getByRole("radio", { name: "All organizations" })).toBeChecked()
+    await user.click(within(sheet).getByRole("radio", { name: "Summit Events" }))
+    expect(screen.queryByRole("heading", { name: event.name })).not.toBeInTheDocument()
+    await user.click(within(sheet).getByRole("button", { name: "Close filters" }))
+
+    expect(await screen.findByRole("button", { name: "Filters (1)" })).toBeInTheDocument()
+    const applied = screen.getByRole("group", { name: "Applied filters" })
+    await user.click(within(applied).getByRole("button", { name: "Remove filter Summit Events" }))
+    expect(screen.getByRole("heading", { name: event.name })).toBeInTheDocument()
+    expect(screen.queryByRole("group", { name: "Applied filters" })).not.toBeInTheDocument()
   })
 
   it("narrows the list by name", async () => {

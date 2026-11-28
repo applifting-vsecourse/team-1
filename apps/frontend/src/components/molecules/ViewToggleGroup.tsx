@@ -1,7 +1,8 @@
-import type { ComponentProps } from "react"
+import { useEffect, useRef, type ComponentProps } from "react"
 
 import { SelectedLabel } from "@/components/atoms/SelectedLabel"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { cn } from "@/lib/utils"
 
 type GroupProps = Omit<
   Extract<ComponentProps<typeof ToggleGroup>, { type: "single" }>,
@@ -10,16 +11,43 @@ type GroupProps = Omit<
 
 // Brand look A (specimen, Záložka · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27538-3708):
 // pills; the active view is the nav A marker (nav-active surface, Semi Bold ink, 20 × 3 orange underline), the others
-// show a hairline on hover. No lift.
-export function ViewToggleGroup(props: GroupProps) {
+// show a hairline on hover. No lift. Always one row: on a phone it scrolls sideways instead of wrapping.
+export function ViewToggleGroup({
+  className,
+  ...props
+}: GroupProps & {
+  /** Classes of the scroll strip around the group (e.g. its share of a toolbar row). */
+  className?: string
+}) {
+  const strip = useRef<HTMLDivElement>(null)
+
+  // The selected view is always in sight, also when it is further right than a phone shows.
+  useEffect(() => {
+    const element = strip.current
+    const selected = element?.querySelector<HTMLElement>('[data-state="on"]')
+    if (!element || !selected || element.scrollWidth <= element.clientWidth) return
+    const right = selected.offsetLeft + selected.offsetWidth
+    if (selected.offsetLeft < element.scrollLeft) element.scrollLeft = selected.offsetLeft
+    else if (right > element.scrollLeft + element.clientWidth) {
+      element.scrollLeft = right - element.clientWidth
+    }
+  }, [props.value])
+
   return (
-    <ToggleGroup
-      {...props}
-      type="single"
-      variant="default"
-      spacing={1}
-      className="max-w-full flex-wrap justify-start"
-    />
+    // One row that scrolls sideways and never wraps (DESIGN.md, list filters on a phone); the 4 px
+    // padding keeps the focus outline inside the strip.
+    <div
+      ref={strip}
+      className={cn("-m-1 max-w-full min-w-0 overflow-x-auto p-1", className)}
+    >
+      <ToggleGroup
+        {...props}
+        type="single"
+        variant="default"
+        spacing={1}
+        className="w-max flex-nowrap justify-start"
+      />
+    </div>
   )
 }
 
