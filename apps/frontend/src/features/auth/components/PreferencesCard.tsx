@@ -1,9 +1,8 @@
-import type { ReactNode } from "react"
-import { Globe, Monitor, Moon, Sun } from "lucide-react"
+import { Globe } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
-import { Card } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
+import { SettingsRow, SettingsSection } from "@/components/molecules/SettingsRows"
+import { ThemeSegmentedControl } from "@/components/molecules/ThemeSegmentedControl"
 import {
   Select,
   SelectContent,
@@ -11,118 +10,68 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useTheme } from "@/hooks/useTheme"
 import { LANGUAGES } from "@/i18n"
 
 import type { SessionUser } from "@/features/auth/api/authSessionQueryOptions"
 import { useAccountLanguage } from "@/features/auth/hooks/useAccountLanguage"
 
-const THEMES = [
-  { value: "light", icon: Sun },
-  { value: "dark", icon: Moon },
-  { value: "system", icon: Monitor },
-] as const
-
-const CONTROL = "h-12 w-full rounded-lg text-base md:text-base"
-
-/** One preference: the name and what it does on the left, the control on the right. */
-function PreferenceRow({
-  id,
-  label,
-  description,
-  children,
-}: {
-  id: string
-  label: string
-  description: string
-  children: ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-3 border-t border-border pt-4 first:border-t-0 first:pt-0 md:flex-row md:items-center md:justify-between md:gap-8">
-      <div className="flex flex-col gap-1">
-        <Label htmlFor={id}>{label}</Label>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      <div className="md:w-64 md:shrink-0">{children}</div>
-    </div>
-  )
-}
-
 /**
- * The „Předvolby“ tab of the account settings: language and colour theme, each a select in a row.
- * They moved here from the top bar of the signed-in areas, which keeps only the notification bell.
- * Both apply at once, so there is no save button: the theme is kept in this browser, the language
- * is saved to the account (it is also the language of e-mails, D-069).
+ * „Předvolby“ of the account settings: the language and the appearance, each a row with its control
+ * at the right — the participant area has them only here (Figma F4). Both apply at once, so there is
+ * no save button: the theme is kept in this browser, the language is saved to the account (it is
+ * also the language of e-mails, D-069). An account without a language says so until one is chosen.
  */
+// Figma (Design system v2): Sekce · Předvolby · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27652-34087
 export function PreferencesCard({ user }: { user: SessionUser }) {
   const { t } = useTranslation("auth")
   const { t: tCommon } = useTranslation("common")
-  const { theme, setTheme } = useTheme()
   const { changeLanguage, isPending } = useAccountLanguage(user.locale)
 
   return (
-    <Card className="max-w-196 gap-4 p-4 md:p-6">
-      <h2 className="text-2xl font-bold">{t("appearance.title")}</h2>
-      <PreferenceRow
+    <SettingsSection
+      id="account-preferences"
+      title={t("appearance.title")}
+    >
+      <SettingsRow
         id="preference-language"
+        isControlBelowOnMobile
         label={t("profile.language")}
-        description={t("profile.languageHint")}
-      >
-        <Select
-          value={user.locale ?? ""}
-          onValueChange={(value) => void changeLanguage(value)}
-          disabled={isPending}
-        >
-          <SelectTrigger
-            id="preference-language"
-            className={CONTROL}
+        value={t("profile.languageHint")}
+        action={
+          <Select
+            value={user.locale ?? ""}
+            onValueChange={(value) => void changeLanguage(value)}
+            disabled={isPending}
           >
-            <SelectValue placeholder={t("profile.languageUnset")} />
-          </SelectTrigger>
-          <SelectContent>
-            {LANGUAGES.map((language) => (
-              // The language names stay in their own language.
-              <SelectItem
-                key={language}
-                value={language}
-                lang={language}
-              >
-                <Globe aria-hidden />
-                {tCommon(`language.${language}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </PreferenceRow>
-
-      <PreferenceRow
+            <SelectTrigger
+              aria-labelledby="preference-language"
+              className="h-10 w-40"
+            >
+              <SelectValue placeholder={t("profile.languageUnset")} />
+            </SelectTrigger>
+            <SelectContent align="end">
+              {LANGUAGES.map((language) => (
+                // The language names stay in their own language.
+                <SelectItem
+                  key={language}
+                  value={language}
+                  lang={language}
+                >
+                  <Globe aria-hidden />
+                  {tCommon(`language.${language}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+      />
+      <SettingsRow
         id="preference-theme"
+        isControlBelowOnMobile
         label={t("appearance.theme")}
-        description={t("appearance.hint")}
-      >
-        <Select
-          value={theme ?? "system"}
-          onValueChange={setTheme}
-        >
-          <SelectTrigger
-            id="preference-theme"
-            className={CONTROL}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {THEMES.map(({ value, icon: Icon }) => (
-              <SelectItem
-                key={value}
-                value={value}
-              >
-                <Icon aria-hidden />
-                {tCommon(`theme.${value}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </PreferenceRow>
-    </Card>
+        value={t("appearance.hint")}
+        action={<ThemeSegmentedControl labelledBy="preference-theme" />}
+      />
+    </SettingsSection>
   )
 }

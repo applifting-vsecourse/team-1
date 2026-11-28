@@ -2,84 +2,96 @@ import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { Badge } from "@/components/ui/badge"
+import { DateTile } from "@/components/atoms/DateTile"
+import { LogoSymbol } from "@/components/atoms/Logo"
+import { PriceTag } from "@/components/atoms/PriceTag"
 import { Card } from "@/components/ui/card"
-import { COMPACT_LIMITS, compactList, SINGLE_COLUMN_TERMS } from "@/lib/compact-list"
-import { formatDateRange } from "@/lib/date"
-import { formatCzk } from "@/lib/money"
-import { termName } from "@/lib/term-label"
+import { formatDate } from "@/lib/date"
+import { formatTermPrice } from "@/lib/money"
+import { cn } from "@/lib/utils"
 
 import { catalogEventPhotoUrl, type CatalogEvent } from "@/features/catalog/api/catalog"
+import { eventDatesSummary } from "@/features/catalog/lib/catalog"
 
-// Figma v2 #732 card with 12 / 100 terms: https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27413-17146 (mobile 27413-17309)
-// Figma v2: public catalog event cards · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-12072 (mobile 22640-12173)
-/** One published event; the whole card opens the event page. */
+// Figma (Design system v2): Karta akce v katalogu · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27420-16517 (mobile 27421-16485)
+// System B (2026-11-27): HF/01 catalog 22640-12072 (mobile 22640-12173), price tag 27719-4276, date tile 27719-4271.
+/**
+ * One published event; the whole card opens the event page. The photo corner carries the start of
+ * the first term as a date tile, the price is an orange price tag; the open status is a tonal pill.
+ */
 export function EventCard({ event }: { event: CatalogEvent }) {
   const { t } = useTranslation("catalog")
-  // Up to three terms the dates sit one under another; more are laid out in two columns, first
-  // four only, and the rest is counted (#732).
-  const isCompact = event.terms.length > SINGLE_COLUMN_TERMS
-  const { visible: visibleTerms, hiddenCount } = compactList(
-    event.terms,
-    COMPACT_LIMITS.catalogCard,
+  const dates = eventDatesSummary(event, (count, months) =>
+    t("list.termsSummary", { count, months }),
   )
+  const hasOneTerm = event.terms.length === 1
+  const firstTerm = event.terms[0]
 
   return (
     <Link
       to={ROUTES.event}
       params={{ publicToken: event.publicToken }}
-      className="group block rounded-lg outline-none"
+      className="group block h-full lift rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid"
     >
-      <Card className="h-full min-h-[214px] gap-0 overflow-hidden p-0 shadow-none transition-colors group-hover:border-field-border group-focus-visible:min-h-[216px] group-focus-visible:border-2 group-focus-visible:border-ring">
-        {event.hasPhoto ? (
-          <img
-            src={catalogEventPhotoUrl(event.publicToken)}
-            alt=""
-            loading="lazy"
-            className="h-44 w-full border-b border-border object-cover"
-          />
-        ) : null}
-        <div className="flex flex-1 flex-col gap-3 p-5">
-          <span className="sr-only">{event.organizationName}</span>
-          <h3 className="text-2xl/8 font-bold">{event.name}</h3>
-          {event.terms.length > 0 ? (
-            <div className="flex flex-col gap-1">
-              <ul className={isCompact ? "grid grid-cols-2 gap-x-3 gap-y-1" : undefined}>
-                {(isCompact ? visibleTerms : event.terms).map((term) => (
-                  <li
-                    key={term.startsOn}
-                    className="flex min-w-0 flex-col"
-                  >
-                    {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-                    {!isCompact && termName(term) ? (
-                      <span className="text-sm text-muted-foreground">{termName(term)}</span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-              {isCompact && hiddenCount > 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {t("list.moreTerms", { count: hiddenCount })}
-                </p>
-              ) : null}
+      <Card className="h-full gap-0 overflow-hidden p-0">
+        <div className="relative h-46 w-full border-b border-border-strong bg-wash md:h-49">
+          {event.hasPhoto ? (
+            <img
+              src={catalogEventPhotoUrl(event.publicToken)}
+              alt=""
+              loading="lazy"
+              className="size-full object-cover"
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center">
+              <LogoSymbol className="size-10 text-logo-symbol" />
             </div>
-          ) : null}
-          {event.location ? (
-            <p className="text-sm text-muted-foreground">{event.location}</p>
-          ) : null}
-          <Badge
-            className={
-              event.isOpenForApplications ? "bg-primary text-primary-foreground" : undefined
-            }
+          )}
+          <span
+            data-open={event.isOpenForApplications}
+            className={cn(
+              "absolute top-3 left-3 flex items-center gap-1.5 rounded-full border py-1 pr-2.5 pl-2 text-xs font-medium",
+              event.isOpenForApplications
+                ? "border-transparent bg-status-success-bg"
+                : "border-border bg-card",
+            )}
           >
-            {event.isOpenForApplications ? t("list.badgeOpen") : t("list.badgePublished")}
-          </Badge>
-          {event.termCount > 0 && event.fromPriceCzk !== null ? (
-            <p className="text-sm text-muted-foreground">
-              {t(event.termCount > 1 ? "list.summaryFrom" : "list.summary", {
-                count: event.termCount,
-                price: formatCzk(event.fromPriceCzk),
-              })}
+            <span
+              aria-hidden
+              className={cn(
+                "size-2 rounded-full",
+                event.isOpenForApplications ? "bg-status-success" : "bg-muted-foreground",
+              )}
+            />
+            {t(event.isOpenForApplications ? "list.statusOpen" : "list.statusClosed")}
+          </span>
+          {firstTerm ? (
+            <DateTile
+              date={firstTerm.startsOn}
+              className="absolute top-3 right-3"
+            />
+          ) : null}
+        </div>
+        <div className="flex flex-col gap-2 p-4">
+          <span className="sr-only">{event.organizationName}</span>
+          <h3 className="truncate text-lg/6.5 font-semibold tracking-tight">{event.name}</h3>
+          <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
+            {dates ? <p>{dates}</p> : null}
+            {/* The date tile is aria-hidden; with several terms its date isn't in the text above. */}
+            {firstTerm && !hasOneTerm ? (
+              <p className="sr-only">
+                {t("list.firstTermStart", { date: formatDate(firstTerm.startsOn) })}
+              </p>
+            ) : null}
+            {event.location ? <p>{event.location}</p> : null}
+          </div>
+          {event.fromPriceCzk !== null ? (
+            <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <PriceTag>
+                {hasOneTerm ? null : `${t("price.from")} `}
+                {formatTermPrice(event.fromPriceCzk)}
+              </PriceTag>{" "}
+              {t("price.perParticipant")}
             </p>
           ) : null}
         </div>

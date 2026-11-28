@@ -17,26 +17,23 @@ const renderPage = (error: Error) =>
 describe("ErrorPage", () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it("explains the problem without the technical message and logs it", () => {
+  it("says something went wrong without the technical message, and logs it", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined)
     const error = new Error("ECONNREFUSED 10.0.0.1:5432")
     renderPage(error)
 
-    expect(screen.getByRole("heading", { name: "Something went wrong" })).toBeInTheDocument()
     expect(
-      screen.getByText(
-        "We couldn’t display this page. Try reloading it, or return to the homepage.",
-      ),
+      screen.getByRole("heading", { level: 1, name: "Something went wrong" }),
     ).toBeInTheDocument()
     expect(screen.queryByText(/ECONNREFUSED/)).not.toBeInTheDocument()
     expect(consoleError).toHaveBeenCalledWith(error)
   })
 
-  it("offers a reload and a link to the home page, without a router", () => {
+  it("offers the one action, a reload, without a router", () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined)
     renderPage(new Error("boom"))
 
     expect(screen.getByRole("button", { name: "Reload page" })).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Go to homepage" })).toHaveAttribute("href", "/")
+    expect(screen.queryByRole("link")).not.toBeInTheDocument()
   })
 })

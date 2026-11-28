@@ -52,6 +52,7 @@ export class BulkDecisionService {
           to: DECISION_TARGET[decision],
           actorId: user.id,
           isOverCapacityConfirmed: false,
+          isEmailQueued: true,
         })
         result.changed.push(applicationId)
       } catch (error) {

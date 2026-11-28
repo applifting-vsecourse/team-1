@@ -72,7 +72,7 @@ export function BoardPostDialog({
         if (!isOpen) onClose()
       }}
     >
-      <DialogContent className="max-h-[92dvh] gap-4 overflow-y-auto bg-card p-4 shadow-md sm:max-w-148 sm:p-6">
+      <DialogContent className="max-h-[92dvh] gap-4 overflow-y-auto bg-card p-4 sm:max-w-148 sm:p-6">
         <DialogTitle className="pr-8 text-2xl">
           {t(postId ? "dialog.editTitle" : "dialog.newTitle")}
         </DialogTitle>

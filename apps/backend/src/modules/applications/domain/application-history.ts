@@ -28,6 +28,7 @@ export type HistoryPaymentRow = {
 export const EDITABLE_FIELDS = [
   "firstName",
   "lastName",
+  "pronouns",
   "birthDate",
   "phone",
   "individualAccommodation",
@@ -35,20 +36,26 @@ export const EDITABLE_FIELDS = [
 ] as const
 export type EditableField = (typeof EDITABLE_FIELDS)[number]
 
+/**
+ * What an organizer can write for the participant (D-191), besides the details. The edit rows of
+ * these are history entries of their own: a value per term, never the health note.
+ */
+export const LOGISTICS_FIELDS = ["transport", "roomWishes", "stay", "health"] as const
+export type LogisticsField = (typeof LOGISTICS_FIELDS)[number]
+
 /** One stored edit of the details: who saved it, which fields and their values before and after. */
 export type HistoryEdit = {
   id: string
   authorName: string
   changedFields: string[]
-  before: Partial<Record<EditableField, string | boolean | null>>
-  after: Partial<Record<EditableField, string | boolean | null>>
+  before: Partial<Record<EditableField | "value" | "termId", string | boolean | null>>
+  after: Partial<Record<EditableField | "value" | "termId", string | boolean | null>>
   changedAt: Date
 }
 
 /**
- * A changed field with its value before and after; a flag is `"true"` / `"false"`. The note about
- * the accommodation is long free text: its history says only that it changed (values stay stored
- * in the edit, they are not listed).
+ * A changed field with its value before and after; a flag is `"true"` / `"false"`.
+ * Accommodation notes are only marked as changed in the displayed history.
  */
 export type HistoryFieldChange =
   | {
@@ -65,6 +72,8 @@ export type ApplicationHistorySource = {
   statusChanges: HistoryStatusChange[]
   paymentRows: HistoryPaymentRow[]
   edits: HistoryEdit[]
+  /** The terms of the application, to name the one a logged value belongs to. */
+  terms: { id: string; name: string | null; startsOn: Date; endsOn: Date }[]
 }
 
 type EntryBase = {
@@ -76,6 +85,14 @@ type EntryBase = {
 
 export type HistoryEntry =
   | (EntryBase & { kind: "EDIT"; changes: HistoryFieldChange[] })
+  | (EntryBase & {
+      kind: "LOGISTICS"
+      field: LogisticsField
+      /** The term the value belongs to; null for the whole application. */
+      term: { name: string | null; startsOn: Date; endsOn: Date } | null
+      from: string | null
+      to: string | null
+    })
   | (EntryBase & { kind: "APPLICATION_CREATED" })
   | (EntryBase & {
       kind: "STATUS_CHANGE"
@@ -143,6 +160,20 @@ export function buildApplicationHistory(source: ApplicationHistorySource): Histo
   }
 
   for (const edit of source.edits) {
+    const logistics = LOGISTICS_FIELDS.find((field) => edit.changedFields.includes(field))
+    if (logistics) {
+      entries.push({
+        kind: "LOGISTICS",
+        id: `edit-${edit.id}`,
+        at: edit.changedAt,
+        author: edit.authorName,
+        field: logistics,
+        term: source.terms.find(({ id }) => id === edit.after.termId) ?? null,
+        from: asText(edit.before.value),
+        to: asText(edit.after.value),
+      })
+      continue
+    }
     entries.push({
       kind: "EDIT",
       id: `edit-${edit.id}`,

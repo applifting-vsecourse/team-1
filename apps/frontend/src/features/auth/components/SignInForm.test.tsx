@@ -10,7 +10,6 @@ describe("SignInForm password visibility", () => {
     const onSubmit = vi.fn()
     render(
       <SignInForm
-        emailHint="Account e-mail"
         isLoading={false}
         onSubmit={onSubmit}
       />,
@@ -49,7 +48,6 @@ describe("SignInForm password visibility", () => {
     const onSubmit = vi.fn()
     render(
       <SignInForm
-        emailHint="Account e-mail"
         isLoading={false}
         onSubmit={onSubmit}
       />,
@@ -71,5 +69,64 @@ describe("SignInForm password visibility", () => {
       { email: "person@example.com", password: "SecretPassword!" },
       expect.anything(),
     )
+  })
+
+  it("keeps the e-mail typed in the other mode of the card", () => {
+    render(
+      <SignInForm
+        defaultEmail="petra@example.com"
+        isLoading={false}
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByLabelText("E-mail")).toHaveValue("petra@example.com")
+  })
+})
+
+describe("SignInForm „No password?“", () => {
+  it("sits next to the password label and hands on the e-mail typed so far", async () => {
+    const user = userEvent.setup()
+    const onRequestLink = vi.fn()
+    render(
+      <SignInForm
+        onRequestLink={onRequestLink}
+        isLoading={false}
+        onSubmit={vi.fn()}
+      />,
+    )
+    await user.type(screen.getByLabelText("E-mail"), " petra@example.com ")
+
+    await user.click(screen.getByRole("button", { name: "No password?" }))
+
+    expect(onRequestLink).toHaveBeenCalledWith("petra@example.com")
+  })
+
+  it("is not offered without a link to switch to (organizers)", () => {
+    render(
+      <SignInForm
+        isLoading={false}
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    expect(screen.queryByRole("button", { name: "No password?" })).not.toBeInTheDocument()
+  })
+
+  it("shows a failure as one line above the button", () => {
+    render(
+      <SignInForm
+        isLoading={false}
+        errorMessage="The e-mail or password is incorrect."
+        onSubmit={vi.fn()}
+      />,
+    )
+
+    const alert = screen.getByRole("alert")
+    expect(alert).toHaveTextContent("The e-mail or password is incorrect.")
+    expect(
+      alert.compareDocumentPosition(screen.getByRole("button", { name: "Sign in" })) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
   })
 })

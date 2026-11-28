@@ -13,6 +13,7 @@ const term = (overrides: Partial<MyApplicationTerm> = {}): MyApplicationTerm => 
   priceCzk: 4500,
   transportOffered: false,
   transportDecided: false,
+  termEditable: true,
   ...overrides,
 })
 

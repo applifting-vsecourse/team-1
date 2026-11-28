@@ -168,7 +168,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
             </div>
             <Button
               variant="outline"
-              size="lg"
+              size="sm"
               className="w-full sm:w-auto"
               onClick={() => {
                 mutation.reset()

@@ -1,18 +1,18 @@
 import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { CircleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { PasswordInput } from "@/components/molecules/PasswordInput"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -33,22 +33,21 @@ const createSchema = (t: TFunction<"auth">) =>
 
 type FormValues = z.infer<ReturnType<typeof createSchema>>
 
-const defaultValues: FormValues = { email: "", password: "" }
-
 type SignInFormProps = {
-  /** Hints under the fields; they differ for organizers and participants. */
-  emailHint?: string
-  passwordHint?: string
+  /** The e-mail typed in the other mode of the same card. */
+  defaultEmail?: string
+  /** „Nemáte heslo?“ next to the password label switches the card to the link (participants only). */
+  onRequestLink?: (email: string) => void
   isLoading: boolean
   errorMessage?: string | null
   onSubmit: (values: FormValues) => void | Promise<void>
 }
 
-// Figma (Design system v2): US-02 / Přihlášení přihlašovatele · chybné údaje · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18571-1482
-// The failed sign-in alert sits above the fields, under the page description.
+// Figma (Design system v2): US-02 / Přihlášení přihlašovatele · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15315-2; chybné údaje 18571-1482 (mobile 18571-1544)
+// E-mail first (Vercel), the way to a link next to the password label (Cal.com); a failure is one Alert above the button.
 export function SignInForm({
-  emailHint,
-  passwordHint,
+  defaultEmail = "",
+  onRequestLink,
   isLoading,
   errorMessage,
   onSubmit,
@@ -57,10 +56,10 @@ export function SignInForm({
   const schema = useMemo(() => createSchema(t), [t])
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues,
+    defaultValues: { email: defaultEmail, password: "" },
   })
 
-  // After a failed attempt the frames (S13, S14) keep the e-mail and empty the password.
+  // After a failed attempt the frames keep the e-mail and empty the password.
   useEffect(() => {
     if (errorMessage) form.resetField("password")
   }, [errorMessage, form])
@@ -72,14 +71,6 @@ export function SignInForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-4"
       >
-        {errorMessage ? (
-          <Alert variant="destructive">
-            <CircleAlert />
-            <AlertTitle>{t("form.errors.failedTitle")}</AlertTitle>
-            <AlertDescription>{errorMessage}</AlertDescription>
-          </Alert>
-        ) : null}
-
         <FormField
           control={form.control}
           name="email"
@@ -95,9 +86,6 @@ export function SignInForm({
                 />
               </FormControl>
               <FormMessage />
-              {emailHint ? (
-                <FormDescription className="text-xs font-medium">{emailHint}</FormDescription>
-              ) : null}
             </FormItem>
           )}
         />
@@ -107,21 +95,36 @@ export function SignInForm({
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("form.password")}</FormLabel>
+              <div className="flex items-baseline justify-between gap-4">
+                <FormLabel>{t("form.password")}</FormLabel>
+                {onRequestLink ? (
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="h-auto p-0 font-normal text-link underline"
+                    onClick={() => onRequestLink(form.getValues("email").trim())}
+                  >
+                    {t("participantLogin.noPassword")}
+                  </Button>
+                ) : null}
+              </div>
               <FormControl>
                 <PasswordInput
-                  placeholder={t("form.passwordPlaceholder")}
                   autoComplete="current-password"
                   {...field}
                 />
               </FormControl>
               <FormMessage />
-              {passwordHint ? (
-                <FormDescription className="text-xs font-medium">{passwordHint}</FormDescription>
-              ) : null}
             </FormItem>
           )}
         />
+
+        {errorMessage ? (
+          <Alert variant="destructive">
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{errorMessage}</AlertTitle>
+          </Alert>
+        ) : null}
 
         <PendingButton
           type="submit"
@@ -129,7 +132,7 @@ export function SignInForm({
           className="w-full"
           isPending={isLoading}
         >
-          {isLoading ? t("state.sending", { ns: "common" }) : t("form.submit")}
+          {t("form.submit")}
         </PendingButton>
       </form>
     </Form>

@@ -2,8 +2,9 @@ import { cn } from "@/lib/utils"
 
 /**
  * The Togena logo corners that mark the one active thing on a screen: the
- * active sidebar item, tab or stepper step, or the current event card. Never
- * on rows, buttons, badges, hover or decoration (docs/FIGMA-REMAKE.md).
+ * current event card or the block being dragged in the program. Never on the
+ * sidebar item, a stepper step or a tab (they have the nav A bar or underline,
+ * DESIGN.md), rows, buttons, badges, hover or decoration (docs/FIGMA-REMAKE.md).
  *
  * Put it inside a `relative group` element; it shows while that element has
  * `data-status="active"` (what the router's Link sets). The corners slide in

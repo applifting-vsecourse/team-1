@@ -1,20 +1,20 @@
-import { useState, type ReactNode } from "react"
+import type { ReactNode } from "react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { Info } from "lucide-react"
+import { Check, Clock, Hourglass, type LucideIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { BrandDivider } from "@/components/atoms/BrandDivider"
+import ConfirmedIllustration from "@/assets/illustrations/confirmed.svg?react"
+import WaitingIllustration from "@/assets/illustrations/waiting.svg?react"
 import { CopyButton } from "@/components/atoms/CopyButton"
 import { MoneyAmount } from "@/components/atoms/MoneyAmount"
+import { Sticker } from "@/components/atoms/Sticker"
 import { PaymentQrDownload } from "@/components/molecules/PaymentQrDownload"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDateRange } from "@/lib/date"
-import { formatCzk } from "@/lib/money"
 import { summaryPaymentSpayd } from "@/lib/payment-qr"
 import { termName } from "@/lib/term-label"
 import { cn } from "@/lib/utils"
@@ -29,7 +29,7 @@ type SubmissionStatusProps = {
   accessToken: string
   /**
    * The signed-in participant account; `null` when nobody (or an organizer) is signed in,
-   * `"loading"` while the session is still being read — the action under the account card
+   * `"loading"` while the session is still being read — the action in the account block
    * waits for it, so a signed-in applicant never sees the sign-in link first.
    */
   signedInParticipant?: SignedInParticipant | "loading" | null
@@ -37,247 +37,290 @@ type SubmissionStatusProps = {
 
 export type SignedInParticipant = { email: string; mustSetPassword: boolean }
 
+type TermStatus = SubmittedApplication["terms"][number]["status"]
+
+/** One state block per state the submission holds, in this order (Figma: Submission state). */
+const STATES = {
+  CONFIRMED: {
+    key: "confirmed",
+    surface: "bg-status-success-bg",
+    mark: "bg-status-success text-card",
+    Icon: Check,
+  },
+  TO_EVALUATE: {
+    key: "toEvaluate",
+    surface: "bg-wash",
+    mark: "border border-border bg-card text-muted-foreground",
+    Icon: Hourglass,
+  },
+  WAITLISTED: {
+    key: "waitlisted",
+    surface: "bg-status-waitlist-bg",
+    mark: "bg-card text-status-waitlist",
+    Icon: Clock,
+  },
+} as const satisfies Partial<
+  Record<
+    TermStatus,
+    {
+      key: "confirmed" | "toEvaluate" | "waitlisted"
+      surface: string
+      mark: string
+      Icon: LucideIcon
+    }
+  >
+>
+
 /**
- * The page right after sending: status of every term of every participant, what to pay and
- * where, and how the applicant gets into their account. A waitlisted term is only "waiting
- * for confirmation" — the place in line is never sent (docs/PROJEKT.md, 2026-10-21).
+ * The page right after sending, one 800 px column: what happened (one block per state), a summary
+ * per participant with the term states and — for a confirmed term — what to pay and where, and how
+ * the applicant gets back. A waitlisted term is never given a place in line (docs/PROJEKT.md, 2026-10-21).
+ * Only a confirmed place is celebrated (Luma, Cal.com): the camp assembles (M31) and the sticker
+ * sticks (M32); otherwise the waiting camp stays still (Figma hides the M04 check by the heading).
  */
-// Figma v2: Po odeslání (K vyhodnocení) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15751-1267 (360 px: 15751-1297)
-// Figma v2: Po odeslání (Potvrzeno, platba) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15314-2
+// Figma v2: K vyhodnocení · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15751-1267 (360 px: 15751-1297)
+// Figma v2: Potvrzené termíny · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15314-2 (360 px: 15314-42)
+// Figma v2: Potvrzený i náhradník · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15546-11026 (360 px: 15546-11084)
+// Figma v2: Vše náhradník · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15546-11142 (360 px: 15546-11172)
 export function SubmissionStatus({
   accessToken,
   signedInParticipant = null,
 }: SubmissionStatusProps) {
   const { t } = useTranslation("applicationForm")
   const { data } = useSuspenseQuery(submissionStatusQueryOptions(accessToken))
-  const [firstApplication] = data.applications
-  if (!firstApplication) return null
-  const payers = data.applications.filter((application) => application.payment)
-  // Manual evaluation mode: nothing is decided yet, so it is not a waitlist (US-102).
-  const isAwaitingEvaluation = data.applications.some((application) =>
-    application.terms.some((term) => term.status === "TO_EVALUATE"),
+  if (data.applications.length === 0) return null
+  const statuses = new Set(
+    data.applications.flatMap((application) => application.terms.map((term) => term.status)),
   )
+  const states = (["CONFIRMED", "TO_EVALUATE", "WAITLISTED"] as const).filter((status) =>
+    statuses.has(status),
+  )
+  const hasConfirmedTerm = statuses.has("CONFIRMED")
+  // A paid (or free) application still has its payment, with nothing left to pay.
+  const hasAmountDue = data.applications.some(hasPayableAmount)
 
   return (
-    <div
-      className={cn(
-        "mx-auto grid w-full grid-cols-1 items-start gap-6 px-4 py-6 md:px-6",
-        payers.length ? "max-w-300 lg:grid-cols-[minmax(0,1fr)_20rem]" : "max-w-[1008px]",
-      )}
-    >
-      <div className="flex min-w-0 flex-col gap-4">
-        <h1 className="text-[32px]/10 font-bold tracking-tight">{t("confirmation.title")}</h1>
-        <p>
-          {isAwaitingEvaluation
-            ? t("confirmation.subtitleToEvaluate", { event: data.eventName })
-            : data.eventName}
-        </p>
-        {isAwaitingEvaluation ? null : <p>{t("confirmation.sentTo", { email: data.email })}</p>}
-        <BrandDivider />
+    <div className="px-4 pt-6 pb-16 md:px-6 md:pt-12">
+      <div className="mx-auto flex w-full max-w-200 flex-col gap-6">
+        {/* Centred like the empty, error and system pages: the illustration above the heading. */}
+        <div className="flex flex-col items-center gap-4 text-center sm:gap-6">
+          <Celebration hasConfirmedTerm={hasConfirmedTerm} />
+          <div className="flex w-full max-w-140 flex-col gap-2">
+            <h1 className="text-2xl font-bold tracking-tight text-balance md:text-[32px]/10">
+              {t("confirmation.title")}
+            </h1>
+            <p className="text-muted-foreground">
+              {t("confirmation.subtitle", { event: data.eventName, email: data.email })}
+            </p>
+          </div>
+        </div>
 
-        <ul className="flex flex-col gap-4">
-          {data.applications.map((application) => (
-            <ApplicationStatusCard
-              key={application.variableSymbol}
-              application={application}
-            />
-          ))}
-        </ul>
-      </div>
-      {payers.length > 0 ? (
-        <aside className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-          <PaymentCard
-            payers={payers}
+        {states.map((status) => (
+          <SubmissionState
+            key={status}
+            status={status}
+            isTextShown={status !== "CONFIRMED" || hasAmountDue}
+          />
+        ))}
+
+        {data.applications.map((application) => (
+          <ApplicationSummary
+            key={application.id}
+            application={application}
             eventName={data.eventName}
           />
-        </aside>
-      ) : isAwaitingEvaluation ? (
-        // Figma v2: Togena / Alert · node-id=15751-1290 (360 px: 15751-1320)
-        <Alert className="bg-secondary">
-          <Info aria-hidden />
-          <AlertTitle>{t("confirmation.toEvaluate.alertTitle")}</AlertTitle>
-          <AlertDescription>{t("confirmation.toEvaluate.alertText")}</AlertDescription>
-        </Alert>
-      ) : (
-        <section className="flex flex-col gap-4 rounded-lg border bg-status-waitlist-bg p-4 sm:p-6">
-          <h2 className="text-2xl font-semibold text-status-waitlist">
-            {t("confirmation.waitlist.title")}
-          </h2>
-          <p>{t("confirmation.waitlist.description")}</p>
-        </section>
-      )}
+        ))}
 
-      <AccountCard
-        data={data}
-        signedInParticipant={signedInParticipant}
+        <AccountBlock
+          data={data}
+          signedInParticipant={signedInParticipant}
+        />
+      </div>
+    </div>
+  )
+}
+
+/** Decoration only: the state is always in the text next to it. */
+// Figma (Design system v2): Oslava · M31 + M32 in 15314-2; Ilustrace · Čekání (statická) in 15751-1267
+function Celebration({ hasConfirmedTerm }: { hasConfirmedTerm: boolean }) {
+  const { t } = useTranslation("applicationForm")
+  if (!hasConfirmedTerm) {
+    return <WaitingIllustration className="h-auto w-40 shrink-0 sm:w-50" />
+  }
+  return (
+    <div
+      aria-hidden
+      className="brand-assemble relative w-40 shrink-0 sm:w-50"
+    >
+      <ConfirmedIllustration className="h-auto w-full" />
+      <Sticker
+        label={t("confirmation.sticker")}
+        isAnimated
+        className="absolute top-[68%] left-[36%]"
       />
     </div>
   )
 }
 
-function statusKey(status: SubmittedApplication["terms"][number]["status"]) {
-  switch (status) {
-    case "CONFIRMED":
-      return "confirmation.status.confirmed"
-    case "ARCHIVED":
-      return "confirmation.status.archived"
-    case "CANCELLED":
-      return "confirmation.status.cancelled"
-    case "TO_EVALUATE":
-      return "confirmation.status.toEvaluate"
-    default:
-      return "confirmation.status.waitlisted"
-  }
-}
-
-// One card per participant: the application number and every chosen term with its status.
-function ApplicationStatusCard({ application }: { application: SubmittedApplication }) {
+// Figma (Design system v2): Togena / Registration / Submission state · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27437-3711
+function SubmissionState({
+  status,
+  isTextShown,
+}: {
+  status: keyof typeof STATES
+  /** The confirmed state tells the applicant to pay, which is wrong once nothing is left to pay. */
+  isTextShown: boolean
+}) {
   const { t } = useTranslation("applicationForm")
-
+  const { key, surface, mark, Icon } = STATES[status]
   return (
-    <li>
-      <Card className="gap-4 p-4">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-2xl font-semibold">
-            {application.firstName} {application.lastName}
-          </h2>
-          <p>{t("confirmation.applicationCode", { code: application.code })}</p>
-        </div>
-        <ul className="flex flex-col gap-4">
-          {application.terms.map((term) => {
-            const isConfirmed = term.status === "CONFIRMED"
-            const note = isConfirmed
-              ? t("confirmation.pricePerConfirmedTerm", { price: formatCzk(term.priceCzk) })
-              : term.status === "TO_EVALUATE"
-                ? t("confirmation.toEvaluate.note")
-                : term.status === "WAITLISTED"
-                  ? t("confirmation.doNotPayYet")
-                  : null
-            return (
-              <li
-                key={term.termId}
-                className="flex flex-col gap-2"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-sm font-medium">
-                    {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
-                    {termName(term) ? <span className="sr-only"> · {termName(term)}</span> : null}
-                  </span>
-                  <Badge
-                    variant={
-                      isConfirmed ? "success" : term.status === "WAITLISTED" ? "warning" : "neutral"
-                    }
-                    className={term.status === "WAITLISTED" ? "border-0" : undefined}
-                  >
-                    {t(statusKey(term.status))}
-                  </Badge>
-                </div>
-                {note ? <p className="text-sm text-muted-foreground">{note}</p> : null}
-              </li>
-            )
-          })}
-        </ul>
-      </Card>
-    </li>
+    <section className={cn("flex flex-col items-center gap-3 rounded-lg p-4 text-center", surface)}>
+      <span className={cn("grid size-10 shrink-0 place-items-center rounded-full", mark)}>
+        <Icon
+          aria-hidden
+          className="size-5"
+        />
+      </span>
+      <div className="flex max-w-140 min-w-0 flex-col gap-1">
+        <h2 className="text-xl font-bold">{t(`confirmation.state.${key}.title`)}</h2>
+        {isTextShown ? <p>{t(`confirmation.state.${key}.text`)}</p> : null}
+      </div>
+    </section>
   )
 }
 
-// One card for the whole submission: the total, the account once, and the summary variable
-// symbol of every paying application. Applications are paid separately (issue #153).
-function PaymentCard({ payers, eventName }: { payers: SubmittedApplication[]; eventName: string }) {
+const BADGES = {
+  CONFIRMED: { variant: "positive", label: "confirmation.status.confirmed" },
+  TO_EVALUATE: { variant: "neutral", label: "confirmation.status.toEvaluate" },
+  WAITLISTED: { variant: "waitlist", label: "confirmation.status.waitlisted" },
+  CANCELLED: { variant: "inactive", label: "confirmation.status.cancelled" },
+  ARCHIVED: { variant: "inactive", label: "confirmation.status.archived" },
+} as const satisfies Record<TermStatus, unknown>
+
+/**
+ * One participant's application (Cal.com What / When): the terms with their states and, once a
+ * term is confirmed, the summary variable symbol of the application with the account and the QR.
+ * Applications are paid separately (issue #153), so every participant has their own block.
+ */
+function ApplicationSummary({
+  application,
+  eventName,
+}: {
+  application: SubmittedApplication
+  eventName: string
+}) {
   const { t } = useTranslation(["applicationForm", "common"])
-  const [first] = payers
-  const payments = payers.flatMap((application) =>
-    application.payment
-      ? [
-          {
-            application,
-            payment: application.payment,
-            spayd: summaryPaymentSpayd(
-              application.payment.bankAccount,
-              application.payment.summary.payableCzk,
-              application.payment.summary.variableSymbol,
-              eventName,
-            ),
-          },
-        ]
-      : [],
-  )
-  if (!first?.payment) return null
-  const hasSeveralPayers = payments.length > 1
-  const total = payments.reduce((sum, { payment }) => sum + payment.summary.payableCzk, 0)
+  const { payment } = application
 
   return (
-    <Card className="gap-4 p-4 sm:p-6">
-      <h2 className="text-2xl font-semibold">{t("confirmation.payment.title")}</h2>
-      <p className="flex items-center justify-between gap-4">
-        <span className="text-sm font-medium">{t("confirmation.payment.total")}</span>
-        <MoneyAmount
-          className="text-2xl"
-          amountCzk={total}
-        />
-      </p>
-      <p className="text-sm text-muted-foreground">
-        {payments.map(({ application, payment }, index) => (
-          <span key={application.variableSymbol}>
-            {index > 0 ? " + " : null}
-            {application.firstName}: <MoneyAmount amountCzk={payment.summary.payableCzk} />
-          </span>
-        ))}
-      </p>
-      <dl className="flex flex-col gap-4">
-        <PaymentCopyField
-          label={t("confirmation.payment.account")}
-          value={first.payment.bankAccount}
-          copyLabel={t("common:clipboard.copyAccount")}
-        />
-        {payments.map(({ application, payment, spayd }) => (
-          <PaymentCopyField
-            key={application.variableSymbol}
-            label={
-              hasSeveralPayers
-                ? t("confirmation.payment.variableSymbolOf", {
-                    name: application.firstName,
-                    amount: formatCzk(payment.summary.payableCzk),
-                  })
-                : t("confirmation.payment.variableSymbol")
-            }
-            value={payment.summary.variableSymbol}
-            copyLabel={t("common:clipboard.copyVariableSymbol")}
-          >
-            {spayd && (
+    <Card className="gap-0 px-4 py-2">
+      <dl className="flex flex-col">
+        <SummaryRow label={t("confirmation.summary.participant")}>
+          {t("confirmation.summary.participantValue", {
+            name: `${application.firstName} ${application.lastName}`,
+            code: application.code,
+          })}
+        </SummaryRow>
+        {application.terms.map((term, index) => {
+          const badge = BADGES[term.status]
+          return (
+            <SummaryRow
+              key={term.termId}
+              label={t("confirmation.summary.term")}
+              isLabelHidden={index > 0}
+              aside={<Badge variant={badge.variant}>{t(badge.label)}</Badge>}
+            >
+              {formatDateRange(term.startsOn, term.endsOn, { shouldShowYear: true })}
+              {/* Figma shows the date only; the name still tells two terms apart for a screen reader. */}
+              {termName(term) ? <span className="sr-only"> · {termName(term)}</span> : null}
+            </SummaryRow>
+          )
+        })}
+        {payment ? (
+          <SummaryRow label={t("confirmation.summary.amountDue")}>
+            <MoneyAmount
+              className="text-xl font-bold"
+              amountCzk={payment.summary.payableCzk}
+            />
+          </SummaryRow>
+        ) : null}
+        {payment && hasPayableAmount(application) ? (
+          <>
+            <SummaryRow
+              label={t("confirmation.summary.variableSymbol")}
+              aside={
+                <CopyButton
+                  value={payment.summary.variableSymbol}
+                  label={t("common:clipboard.copyVariableSymbol")}
+                />
+              }
+            >
+              {payment.summary.variableSymbol}
+            </SummaryRow>
+            <SummaryRow
+              label={t("confirmation.summary.bankAccount")}
+              aside={
+                <CopyButton
+                  value={payment.bankAccount}
+                  label={t("common:clipboard.copyAccount")}
+                />
+              }
+            >
+              {payment.bankAccount}
+            </SummaryRow>
+            <SummaryRow label={t("confirmation.summary.qr")}>
               <PaymentQrDownload
-                key={spayd}
-                spayd={spayd}
+                layout="inline"
+                spayd={summaryPaymentSpayd(
+                  payment.bankAccount,
+                  payment.summary.payableCzk,
+                  payment.summary.variableSymbol,
+                  eventName,
+                )}
                 variableSymbol={payment.summary.variableSymbol}
               />
-            )}
-          </PaymentCopyField>
-        ))}
+            </SummaryRow>
+          </>
+        ) : null}
       </dl>
-      {hasSeveralPayers ? (
-        <p className="text-xs font-medium text-muted-foreground">
-          {t("confirmation.payment.payEachSeparately", {
-            list: payments
-              .map(({ application, payment }) =>
-                t("confirmation.payment.payEachItem", {
-                  name: application.firstName,
-                  amount: formatCzk(payment.summary.payableCzk),
-                  variableSymbol: payment.summary.variableSymbol,
-                }),
-              )
-              .join("; "),
-          })}
-        </p>
-      ) : null}
-      <p>{t("confirmation.payment.note")}</p>
     </Card>
+  )
+}
+
+function hasPayableAmount(application: SubmittedApplication) {
+  return (application.payment?.summary.payableCzk ?? 0) > 0
+}
+
+// Figma (Design system v2): Togena / Registration / Summary row · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27437-3740
+// The label sits left of the value from `sm`, above it on a phone; rows are split by a hairline.
+function SummaryRow({
+  label,
+  isLabelHidden = false,
+  aside,
+  children,
+}: {
+  label: string
+  /** The next term under the first one: the label is read, not shown. */
+  isLabelHidden?: boolean
+  /** A state badge or the copy action at the end of the row. */
+  aside?: ReactNode
+  children: ReactNode
+}) {
+  return (
+    // From `sm` a grid: the label column stays 11rem even when the label is only read (next terms).
+    <div className="flex flex-col gap-1 border-t border-border py-2 first:border-t-0 sm:grid sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+      <dt className={cn("text-sm text-muted-foreground", isLabelHidden && "sr-only")}>{label}</dt>
+      <dd className="flex min-h-8 min-w-0 items-center gap-3 sm:col-start-2">
+        <span className="min-w-0 flex-1 break-words">{children}</span>
+        {aside}
+      </dd>
+    </div>
   )
 }
 
 // Figma v2: "Jak se k přihlášce vrátíte" in 15751-1267 / 15314-2 (new account). The existing-account
 // text keeps its story copy (V06), the frame draws only the new account.
-function AccountCard({
+function AccountBlock({
   data,
   signedInParticipant,
 }: {
@@ -299,23 +342,16 @@ function AccountCard({
   const singleApplicationId = data.applications.length === 1 ? onlyApplication?.id : undefined
 
   return (
-    <>
-      <section className="flex flex-col gap-4 rounded-lg bg-secondary p-4">
-        <h2 className="text-2xl font-semibold">{t("confirmation.account.title")}</h2>
-        <p>{t(`confirmation.account.${kind}`, { email: data.email })}</p>
-        {data.isNewAccount ? (
-          <Alert>
-            <AlertTitle>{t("confirmation.account.firstAccessTitle")}</AlertTitle>
-            <AlertDescription>{t("confirmation.account.firstAccessText")}</AlertDescription>
-          </Alert>
-        ) : null}
-        <p className="text-sm text-muted-foreground">{t("confirmation.account.noEmail")}</p>
-      </section>
+    <section className="flex flex-col items-center gap-2 rounded-lg border border-border-strong bg-wash p-4 text-center">
+      <h2 className="text-xl font-bold">{t("confirmation.account.title")}</h2>
+      <p className="max-w-140">{t(`confirmation.account.${kind}`, { email: data.email })}</p>
+      <p className="text-sm text-muted-foreground">{t("confirmation.account.noEmail")}</p>
       {isSessionLoading ? null : (
         <Button
           asChild
+          variant="outline"
           size="lg"
-          className="w-full sm:w-fit"
+          className="min-w-55"
         >
           {shouldSetPassword ? (
             <Link to={ROUTES.participant.setPassword}>{t("confirmation.account.setPassword")}</Link>
@@ -335,48 +371,6 @@ function AccountCard({
           )}
         </Button>
       )}
-    </>
-  )
-}
-
-// Figma v2: platební údaj po odeslání · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/?node-id=19034-13976
-function PaymentCopyField({
-  label,
-  value,
-  copyLabel,
-  children,
-}: {
-  label: string
-  value: string
-  copyLabel: string
-  children?: ReactNode
-}) {
-  const { t } = useTranslation("common")
-  const [copiedValue, setCopiedValue] = useState<string | null>(null)
-  return (
-    <div className="flex min-w-0 flex-col gap-2">
-      <dt className="text-sm font-medium">{label}</dt>
-      <dd className="flex min-w-0 items-center gap-3">
-        <span className="min-w-0 flex-1 rounded-control border border-field-border bg-card px-4 py-3 text-base break-all">
-          {value}
-        </span>
-        <span className="grid size-12 shrink-0 place-items-center">
-          <CopyButton
-            value={value}
-            label={copyLabel}
-            onCopyResult={(didCopy) => setCopiedValue(didCopy ? value : null)}
-          />
-        </span>
-      </dd>
-      {copiedValue === value && (
-        <dd
-          aria-hidden="true"
-          className="text-sm text-primary dark:text-link"
-        >
-          {t("clipboard.copiedField")}
-        </dd>
-      )}
-      {children && <dd className="mt-2">{children}</dd>}
-    </div>
+    </section>
   )
 }

@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from "react"
+import { useId, useRef, type ReactNode } from "react"
 import { useDraggable, useDroppable } from "@dnd-kit/core"
 import { useQuery } from "@tanstack/react-query"
 import { BedSingle, ChevronDown, GripVertical, MoreHorizontal } from "lucide-react"
@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { EmptyState } from "@/components/molecules/EmptyState"
 import { ErrorState } from "@/components/molecules/ErrorState"
 import { LoadingState } from "@/components/molecules/LoadingState"
+import { Pagination } from "@/components/molecules/Pagination"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -48,6 +49,7 @@ import {
   warningsOfRoom,
 } from "@/features/events/components/RoomWarnings"
 import { UnassignedPanel } from "@/features/events/components/UnassignedPanel"
+import { useRoomPaging, type RoomPaging } from "@/features/events/hooks/useRoomPaging"
 
 // Pokoje (dříve Přehled ubytování): who sleeps where in one term, printable on A4: the rooms as cards
 // like in the room assignment (name, gender, occupancy bar, extra beds) with their beds (people with
@@ -64,6 +66,9 @@ export function RoomsOverview({
   onEditExtraBeds,
   isPrintOnly = false,
   draftView,
+  openRoomIds,
+  onToggleRoom,
+  paging,
 }: {
   term: TermRooms
   /** To the room assignment (Rozřazování): from a term without rooms. */
@@ -73,12 +78,23 @@ export function RoomsOverview({
   /** The sheet for the print button of the other view: invisible on screen, no controls. */
   isPrintOnly?: boolean
   draftView?: ReactNode
+  /** Rooms with their beds listed on screen (#698). */
+  openRoomIds?: ReadonlySet<string>
+  onToggleRoom?: (roomId: string) => void
+  /** The page on screen (#728); the paper always has every room. */
+  paging?: RoomPaging
 }) {
   const { t } = useTranslation("events")
   const query = useQuery(roomAssignmentsQueryOptions(term.eventId, term.termId))
   const actions = useRoomAssignmentActions(term)
   const data = query.data
   const dnd = useRoomDnd(actions, data)
+  const listRef = useRef<HTMLUListElement>(null)
+  const pages = useRoomPaging({
+    rooms: data?.rooms ?? [],
+    total: query.isFetching ? undefined : data?.rooms.length,
+    paging: isPrintOnly ? undefined : paging,
+  })
   if (!data) {
     return query.isError ? (
       <ErrorState
@@ -118,6 +134,7 @@ export function RoomsOverview({
     { label: t("roomOverview.free"), value: totals.free, isWide: false },
   ]
 
+  const roomsOnScreen = new Set(pages.pageItems.map((room) => room.id))
   const isNobodyAssigned = data.rooms.every((room) => room.participants.length === 0)
   const body = (
     <section
@@ -164,60 +181,84 @@ export function RoomsOverview({
             ))}
           </dl>
           {draftView}
-          <div className={draftView ? "hidden print:contents" : "contents"}>
-            <ul className="grid items-start gap-3 md:grid-cols-2 print:block print:columns-2 print:gap-4">
-              {data.rooms.map((room) => (
-                <li
-                  key={room.id}
-                  // A room that fits a page is never split; a longer one takes the whole width (a column spanner) and
-                  // is split between its chunks of beds (see RoomOverviewCard).
-                  className={
-                    isSplitOnPaper(room)
-                      ? "print:mb-4 print:[column-span:all]"
-                      : "print:mb-4 print:break-inside-avoid"
-                  }
-                >
-                  <RoomOverviewCard
-                    room={room}
-                    controls={
-                      isPrintOnly || draftView
-                        ? undefined
-                        : {
-                            isEligible: dnd.isEligible(room),
-                            isDragActive: dnd.dragged !== null,
-                            warnings: warningsOfRoom(data.warnings, room.id),
-                            onAcknowledge: actions.acknowledge,
-                            onEditExtraBeds: () => onEditExtraBeds(room.id),
-                            onMove: (participant) => actions.openAssign(participant, room.id),
-                            onRemove: (participant) =>
-                              actions.removeFromRoom(
-                                participant.applicationTermId,
-                                participantName(participant),
-                              ),
-                          }
-                    }
-                  />
-                </li>
-              ))}
-            </ul>
-            {isPrintOnly || draftView ? null : (
-              <UnassignedPanel
-                className="print:hidden"
-                isFullWidth
-                unassigned={data.unassigned}
-                isAllDone={data.unassigned.length === 0 && !isNobodyAssigned}
-                isNobodyAssigned={isNobodyAssigned}
-                hasRooms={hasRooms}
-                isDragActive={dnd.dragged !== null && dnd.dragged.fromRoomId !== null}
-                onAssign={(person) => actions.openAssign(person, null)}
-              />
+          <ul
+            ref={listRef}
+            className={cn(
+              "scroll-mt-32 items-start gap-3 md:scroll-mt-24 md:grid-cols-2 print:block print:columns-2 print:gap-4",
+              draftView ? "hidden" : "grid",
             )}
-            {/* The paper lists the confirmed people without a room as before. */}
-            {withoutRoom.length > 0 ? <WithoutRoomCard people={withoutRoom} /> : null}
-          </div>
+          >
+            {data.rooms.map((room) => (
+              <li
+                key={room.id}
+                // A room that fits a page is never split; a longer one takes the whole width (a column spanner) and
+                // is split between its chunks of beds (see RoomOverviewCard).
+                className={cn(
+                  isSplitOnPaper(room)
+                    ? "print:mb-4 print:[column-span:all]"
+                    : "print:mb-4 print:break-inside-avoid",
+                  // Rooms of the other pages are only for the paper.
+                  !roomsOnScreen.has(room.id) && "hidden print:block",
+                )}
+              >
+                <RoomOverviewCard
+                  room={room}
+                  controls={
+                    isPrintOnly || draftView || !roomsOnScreen.has(room.id)
+                      ? undefined
+                      : {
+                          isEligible: dnd.isEligible(room),
+                          isDragActive: dnd.dragged !== null,
+                          isBedListOpen: openRoomIds?.has(room.id) ?? false,
+                          onToggleBedList: () => onToggleRoom?.(room.id),
+                          warnings: warningsOfRoom(data.warnings, room.id),
+                          onAcknowledge: actions.acknowledge,
+                          onEditExtraBeds: () => onEditExtraBeds(room.id),
+                          onMove: (participant) => actions.openAssign(participant, room.id),
+                          onRemove: (participant) =>
+                            actions.removeFromRoom(
+                              participant.applicationTermId,
+                              participantName(participant),
+                            ),
+                        }
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+          {isPrintOnly || draftView || pages.pageCount <= 1 ? null : (
+            <div className="print:hidden">
+              <Pagination
+                // Compact: on a phone three page numbers fit one row.
+                isCompact
+                page={pages.page}
+                pageCount={pages.pageCount}
+                pageSize={pages.pageSize}
+                total={pages.total}
+                onPageChange={(next) => {
+                  pages.setPage(next)
+                  listRef.current?.scrollIntoView?.({ block: "start" })
+                }}
+              />
+            </div>
+          )}
+          {isPrintOnly || draftView ? null : (
+            <UnassignedPanel
+              className="print:hidden"
+              isFullWidth
+              unassigned={data.unassigned}
+              isAllDone={data.unassigned.length === 0 && !isNobodyAssigned}
+              isNobodyAssigned={isNobodyAssigned}
+              hasRooms={hasRooms}
+              isDragActive={dnd.dragged !== null && dnd.dragged.fromRoomId !== null}
+              onAssign={(person) => actions.openAssign(person, null)}
+            />
+          )}
+          {/* The paper lists the confirmed people without a room as before. */}
+          {withoutRoom.length > 0 ? <WithoutRoomCard people={withoutRoom} /> : null}
         </>
       ) : (
-        <div className="rounded-lg border border-border px-6 print:hidden">
+        <div className="rounded-lg border border-border-strong px-6 print:hidden nested:border-border">
           <EmptyState
             message={t("rooms.empty")}
             action={
@@ -259,6 +300,8 @@ type RoomControls = {
   /** Something is being dragged and this room can take them. */
   isEligible: boolean
   isDragActive: boolean
+  isBedListOpen: boolean
+  onToggleBedList: () => void
   warnings: RoomWarning[]
   onAcknowledge: (warning: RoomWarning, room: AssignmentRoom) => void
   onEditExtraBeds: () => void
@@ -274,7 +317,7 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
   const share = Math.min(100, Math.round((count / Math.max(1, room.beds)) * 100))
   const chunks = chunkBeds(overviewBeds(room))
   const bedsId = useId()
-  const [isBedListOpen, setIsBedListOpen] = useState(false)
+  const isBedListOpen = controls?.isBedListOpen ?? false
   return (
     <RoomShell
       roomId={room.id}
@@ -382,7 +425,7 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
               aria-expanded={isBedListOpen}
               aria-controls={chunks.map((_, index) => `${bedsId}-${index}`).join(" ")}
               data-beds-open={isBedListOpen}
-              onClick={() => setIsBedListOpen((isOpen) => !isOpen)}
+              onClick={controls.onToggleBedList}
             >
               {t("roomOverview.beds")}
               <ChevronDown
