@@ -58,7 +58,7 @@ function runDir() {
     return path.join(root, name)
   }
   const latest = runs.sort((a, b) => a.localeCompare(b, "en", { numeric: true })).at(-1)
-  if (!latest) throw new Error("Žádné review s review.json. Založ ho: br.mjs new")
+  if (!latest) throw new Error("Žádné review s review.json. Založte ho: br.mjs new")
   return path.join(root, latest)
 }
 export const RUN_DIR = runDir()

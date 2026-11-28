@@ -30,7 +30,7 @@ Vždy platí: jen lokální aplikace, vše v ignorované složce, žádné změn
 4. Tickety bez čeho klikat (testovací, výzkumné) dej do `extra`: `[{ "title", "stories": [n], "look": [] }]`.
 5. Scénáře podle vzoru `engine/example/01-vstup.mjs`:
    - 3–6 scénářů seskupených podle role a dat, ne podle čísel ticketů. Scénáře jsou nezávislé (seedují se souběžně).
-   - Blok = jedna obrazovka nebo flow, i pro víc ticketů. `look` jsou krátké řádky začínající `#číslo`: co udělat a co má být vidět podle zadání, ne podle kódu.
+   - Blok = jedna obrazovka nebo flow, i pro víc ticketů. `look` jsou krátké řádky začínající `#číslo`: co udělat a co má být vidět podle zadání, ne podle kódu. Texty, které čte uživatel (`look`, `label`, `note`), vykají.
    - **Všechno opakované klikání patří do `seed`** (přes API): přihlášky, platby, pokoje, stavy. Uživatel kliká jen to, co posuzuje. Víc kroků před posouzenou akcí udělá `h.act` v zobrazení.
    - Zobrazení = stav na jedno kliknutí (role, adresa, otevřený dialog), včetně 360 px.
    - Akce, která data spotřebuje (storno, spárování, schválení), dostane v seedu náhradní záznamy, ať není potřeba „Čerstvá data“.

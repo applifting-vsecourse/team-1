@@ -95,7 +95,7 @@ export class Harness {
       await fn(this.page)
     } catch (error) {
       throw new Error(
-        `Krok „${name}“ se nepovedl (${String(error.message).split("\n")[0].slice(0, 140)}). Udělej ho ručně.`,
+        `Krok „${name}“ se nepovedl (${String(error.message).split("\n")[0].slice(0, 140)}). Udělejte ho ručně.`,
       )
     }
     await this.settle()

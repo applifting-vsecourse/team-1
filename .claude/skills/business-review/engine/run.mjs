@@ -43,9 +43,12 @@ const AUTO = args.flags.has("auto")
 for (const dir of [OUT_DIR, STATE_DIR]) fs.mkdirSync(dir, { recursive: true })
 
 const scenarios = await loadScenarios()
-const blocks = scenarios.flatMap((scenario) =>
-  scenario.blocks.map((block) => ({ ...block, scenario })),
-)
+const onlyBlocks = args.values.only ? String(args.values.only).split(",") : null
+const wanted = (b) => !onlyBlocks || onlyBlocks.some((x) => b.id === x || b.id.startsWith(`${x}.`))
+const blocks = scenarios
+  .flatMap((scenario) => scenario.blocks.map((block) => ({ ...block, scenario })))
+  .filter(wanted)
+if (!blocks.length) throw new Error(`--only ${args.values.only} neodpovídá žádnému bloku.`)
 
 if (args.flags.has("list")) {
   for (const b of blocks) {
@@ -65,7 +68,7 @@ async function shutdown(code = 0) {
   await harness?.close()
   await panel?.close()
   if (!AUTO && fs.existsSync(NOTES_FILE))
-    console.log(`\nPoznámky jsou uložené v ${NOTES_FILE}. Až skončíš, napiš Claudovi „hotovo“.`)
+    console.log(`\nPoznámky jsou uložené v ${NOTES_FILE}. Až skončíte, napište Claudovi „hotovo“.`)
   if (devServer) {
     try {
       process.kill(-devServer.pid)
@@ -87,10 +90,13 @@ for (const url of [API, FRONTEND_URL]) {
     process.exit(1)
   }
 }
-if (backendEnvFile.RESEND_API_KEY || backendEnvFile.SMTP_HOST) {
+// shortcut: cannot see the environment of an already running backend, only .env and this shell;
+// check the transport through the app if it ever exposes it.
+const mailEnv = { ...backendEnvFile, ...process.env }
+if (mailEnv.RESEND_API_KEY || mailEnv.SMTP_HOST) {
   console.log(
     C.red(
-      "apps/backend/.env má nastavený Resend nebo SMTP – e-maily by mohly odejít doopravdy. Vypni je a spusť znovu.",
+      "V apps/backend/.env nebo v prostředí je nastavený Resend nebo SMTP – e-maily by mohly odejít doopravdy. Vypněte je a spusťte skript znovu.",
     ),
   )
   process.exit(1)
@@ -119,7 +125,9 @@ if (!(await appUp())) {
   for (let i = 0; i < 150 && !exited && !(await appUp()); i++) await sleep(2000)
   if (!(await appUp())) {
     console.log(
-      C.red("Aplikace se nerozběhla. Zkontroluj, že běží Docker/OrbStack, a koukni do logu."),
+      C.red(
+        "Aplikace se nerozběhla. Zkontrolujte, že běží Docker/OrbStack, a podívejte se do logu.",
+      ),
     )
     await shutdown(1)
   }
@@ -192,15 +200,12 @@ function ensureData(scenario) {
   }
   return pendingSeeds.get(scenario.id)
 }
-const onlyBlocks = args.values.only ? String(args.values.only).split(",") : null
-const wanted = (b) => !onlyBlocks || onlyBlocks.some((x) => b.id === x || b.id.startsWith(`${x}.`))
 // Seed order starts at the block where the run begins.
 const start = Math.max(
   0,
   blocks.findIndex((b) => b.id === String(args.values.from ?? saved.block)),
 )
-for (const b of [...blocks.slice(start), ...blocks.slice(0, start)])
-  if (wanted(b)) void ensureData(b.scenario)
+for (const b of [...blocks.slice(start), ...blocks.slice(0, start)]) void ensureData(b.scenario)
 
 // --- Visible part ---
 let at = start
@@ -280,7 +285,7 @@ async function show(blockIndex, viewIndex) {
   saved.block = b.id
   save()
   await render()
-  if (!v) return note("Tady není co klikat – posuď podle bodů v panelu.")
+  if (!v) return note("Tady není co klikat – posuďte podle bodů v panelu.")
   if (!data[b.scenario.id]) note(`Připravuji data scénáře ${b.scenario.id}…`)
   await ensureData(b.scenario)
   const d = data[b.scenario.id]
@@ -288,7 +293,7 @@ async function show(blockIndex, viewIndex) {
   await harness.setMobile(v.mobile ?? harness.userMobile)
   await v.run(harness, d)
   seen.add(`${b.id}/${view}`)
-  if (!log.some((l) => l.kind !== "info")) note("Připraveno – prohlížej a klikej v aplikaci.")
+  if (!log.some((l) => l.kind !== "info")) note("Připraveno – prohlížejte a klikejte v aplikaci.")
 }
 
 /** One action from the panel / terminal; others are ignored meanwhile. */
@@ -302,7 +307,7 @@ async function onAction(action, value) {
     else if (action === "next") {
       if (view < b.views.length - 1) await show(at, view + 1)
       else if (at < blocks.length - 1) await show(at + 1, 0)
-      else note("Tohle bylo poslední zobrazení. Zkontroluj verdikty a skript ukonči (Ctrl+C).")
+      else note("Tohle bylo poslední zobrazení. Zkontrolujte verdikty a ukončete skript (Ctrl+C).")
     } else if (action === "prev") {
       if (view > 0) await show(at, view - 1)
       else if (at > 0) await show(at - 1, Math.max(0, blocks[at - 1].views.length - 1))
@@ -336,7 +341,6 @@ if (AUTO) {
   harness = await Harness.launch({ headless: true, onMessage: note })
   panel = await Panel.launch({ headless: true, onAction, onEdit })
   for (const [i, b] of blocks.entries()) {
-    if (!wanted(b)) continue
     for (const [j, v] of b.views.entries()) {
       busy = true
       try {
@@ -380,7 +384,7 @@ for (const part of [harness, panel]) {
   part.browser.on("disconnected", () => void shutdown(0))
 }
 console.log(
-  `\n${C.bold("Ovládej z levého okna.")} (Alternativa v terminálu: Enter = další, q = konec.) Konec: zavři okno nebo Ctrl+C.`,
+  `\n${C.bold("Ovládejte z levého okna.")} (Alternativa v terminálu: Enter = další, q = konec.) Konec: zavřete okno nebo stiskněte Ctrl+C.`,
 )
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 rl.on("line", (line) => void (line.trim() === "q" ? shutdown(0) : onAction("next")))

@@ -30,21 +30,21 @@ textarea{width:100%;resize:vertical;font:inherit;color:inherit;background:var(--
 </style></head><body>
 <header><select id="jump" aria-label="Blok"></select><div class="muted" id="pos"></div></header>
 <main><div><h1 id="title">Připravuji…</h1></div><div id="stories" style="display:grid;gap:6px"></div>
-<section><h2>Zobrazení – klikni na cokoli</h2><div class="views" id="views"></div></section>
+<section><h2>Zobrazení – klikněte na cokoli</h2><div class="views" id="views"></div></section>
 <section><div id="log" aria-live="polite"></div></section>
 <section><h2>Co zkontrolovat</h2><ul id="look"></ul></section>
 <details><summary>Obecné poznámky</summary><textarea id="general" rows="4" aria-label="Obecné poznámky"></textarea></details></main>
 <footer><textarea id="note" rows="4" aria-label="Poznámky k bloku" placeholder="Poznámky k bloku: bugy, úpravy, nápady"></textarea><div id="error" role="alert"></div>
 <div class="row"><button class="toggle" id="mobile" aria-pressed="false" title="M">360 px</button><button class="toggle" id="lang" aria-pressed="false" title="E">English</button><button id="reload" title="R">↻ Znovu</button><button id="fresh">Čerstvá data</button></div>
 <div class="row"><button id="prev" title="←">← Zpět</button><button id="next" title="→">Další →</button></div>
-<div class="muted">Šipky ←/→ · M mobil · E angličtina · R znovu · Esc z poznámky. Vše se ukládá samo.</div></footer>
+<div class="muted">Šipky ←/→ · M mobil · E angličtina · R znovu · Esc opustí poznámku. Vše se ukládá samo.</div></footer>
 <script>
 const $=(s)=>document.querySelector(s)
 const send=(a,v)=>window.brAction(a,v)
 function el(tag,text,cls){const e=document.createElement(tag);if(text)e.textContent=text;if(cls)e.className=cls;return e}
 const CHOICES=[["verdict","done","Done"],["verdict","back","Vrátit"],["tag","bug","Bug"],["tag","change","Úprava"],["tag","idea","Nápad"]]
 let blockId=null,generalLoaded=false
-const edit=(e)=>window.brEdit(e).then(()=>{$("#error").textContent=""},()=>{$("#error").textContent="Uložení selhalo – poznámku si zkopíruj."})
+const edit=(e)=>window.brEdit(e).then(()=>{$("#error").textContent=""},()=>{$("#error").textContent="Uložení selhalo – poznámku si zkopírujte."})
 $("#note").oninput=(e)=>edit({block:blockId,field:"note",value:e.target.value})
 $("#general").oninput=(e)=>edit({field:"general",value:e.target.value})
 window.render=(s)=>{

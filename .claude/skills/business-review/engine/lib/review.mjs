@@ -39,7 +39,7 @@ export async function loadScenarios() {
     .filter((n) => !covered.has(n))
   if (missing.length)
     throw new Error(
-      `Tickety bez bloku (přidej do scénáře nebo do "extra"): ${missing.map((n) => `#${n}`).join(", ")}`,
+      `Tickety bez bloku (přidejte do scénáře nebo do "extra"): ${missing.map((n) => `#${n}`).join(", ")}`,
     )
   return out
 }
