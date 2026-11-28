@@ -246,6 +246,92 @@ describe("ApplicationList", () => {
     expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
   })
 
+  it("shows the nearest unpaid term even off the first page and keeps the remaining reminders reachable", async () => {
+    const user = userEvent.setup()
+    const template = application()
+    const reminder = (
+      id: string,
+      eventName: string,
+      startsOn: string,
+      endsOn: string,
+    ): MyApplication =>
+      application({
+        id,
+        eventName,
+        terms: [
+          { ...template.terms[0]!, startsOn, endsOn },
+          // An earlier confirmed, paid term does not make this payment reminder more urgent.
+          {
+            ...template.terms[1]!,
+            startsOn: "2099-01-01",
+            endsOn: "2099-01-02",
+            status: "CONFIRMED",
+          },
+        ],
+        paymentDetails: {
+          ...template.paymentDetails!,
+          terms: [
+            {
+              termId: "t1",
+              termNumber: 1,
+              variableSymbol: "48001",
+              dueCzk: 4500,
+              paidCzk: 2000,
+              owedCzk: 2500,
+              paymentStatus: "PARTIALLY_PAID",
+              paymentDeadline: null,
+            },
+            {
+              termId: "t2",
+              termNumber: 2,
+              variableSymbol: "48002",
+              dueCzk: 4900,
+              paidCzk: 4900,
+              owedCzk: 0,
+              paymentStatus: "PAID",
+              paymentDeadline: null,
+            },
+          ],
+        },
+      })
+    respondWith([
+      reminder("later", "Later event", "2099-05-01", "2099-05-03"),
+      reminder("last", "Last event", "2099-06-01", "2099-06-03"),
+      ...Array.from({ length: 18 }, (_, index) =>
+        application({ id: `paid-${index}`, paymentDetails: null }),
+      ),
+      reminder("next", "Next event", "2099-04-01", "2099-04-03"),
+    ])
+    renderList()
+
+    const reminderHref = (note: HTMLElement) =>
+      within(note).getByRole("link", { name: "Payment details" }).getAttribute("href")
+    expect(reminderHref(await screen.findByRole("note"))).toBe("/participant/applications/next")
+    expect(screen.queryByRole("heading", { name: "Next event" })).not.toBeInTheDocument()
+    const toggle = screen.getByRole("button", { name: "Show more (2)" })
+    expect(toggle).toHaveAttribute("aria-expanded", "false")
+    toggle.focus()
+    await user.keyboard("{Enter}")
+    expect(screen.getAllByRole("note").map(reminderHref)).toEqual([
+      "/participant/applications/next",
+      "/participant/applications/later",
+      "/participant/applications/last",
+    ])
+    expect(toggle).toHaveAttribute("aria-expanded", "true")
+    expect(toggle).toHaveFocus()
+    await user.keyboard(" ")
+    expect(reminderHref(screen.getByRole("note"))).toBe("/participant/applications/next")
+    expect(toggle).toHaveAttribute("aria-expanded", "false")
+  })
+
+  it("does not show a disclosure for a single payment reminder", async () => {
+    respondWith([application()])
+    renderList()
+
+    expect(await screen.findByRole("note")).toBeVisible()
+    expect(screen.queryByRole("button", { name: /show more/i })).not.toBeInTheDocument()
+  })
+
   it("says Paid in the row once nothing is left, and nothing while something is owed", async () => {
     respondWith([
       application(),

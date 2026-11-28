@@ -12,6 +12,7 @@ import { Pagination } from "@/components/molecules/Pagination"
 import { TaskCard } from "@/components/molecules/TaskCard"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { usePagination } from "@/hooks/usePagination"
@@ -43,7 +44,7 @@ const isCancelled = (application: MyApplication) =>
 
 /**
  * All applications under the signed-in account, upcoming or past, grouped by event: the page head
- * with the view tabs, one to-do card per application with something to pay, then one card per event.
+ * with the view tabs, a collapsible list of payment reminders, then one card per event.
  * Applications cancelled in every term wait behind a button. Loading, empty and error are drawn here (DESIGN.md).
  */
 // Figma (Design system v2): US-54 / Moje přihlášky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15649-2 (360 px: node-id=15649-122)
@@ -167,43 +168,7 @@ function Applications({
       {shown.length === 0 ? (
         <p className="py-8 text-center text-muted-foreground">{emptyText}</p>
       ) : null}
-      {pageItems.map((application) => {
-        const task = paymentTask(application)
-        if (!task) return null
-        return (
-          <TaskCard
-            key={application.id}
-            role="note"
-            className="md:flex-row md:items-center md:gap-4"
-          >
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <p className="font-semibold">
-                {t("list.remainingAmount", { amount: formatCzk(task.amountCzk) })}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {[
-                  `${application.firstName} ${application.lastName}`,
-                  ...task.terms.map(termTitle),
-                  task.deadline ? t("list.dueOn", { date: formatDate(task.deadline) }) : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-            </div>
-            <Button
-              asChild
-              className="w-55 max-w-full"
-            >
-              <Link
-                to={ROUTES.participant.application}
-                params={{ applicationId: application.id }}
-              >
-                {t("list.paymentDetails")}
-              </Link>
-            </Button>
-          </TaskCard>
-        )
-      })}
+      <PaymentReminders applications={shown} />
       {Array.from(groups, ([id, group]) => {
         const terms = group.flatMap((application) => application.terms)
         const startsOn = terms.map((term) => term.startsOn).sort()[0]
@@ -302,5 +267,101 @@ function ListSkeleton() {
         </div>
       ))}
     </div>
+  )
+}
+
+function PaymentReminders({ applications }: { applications: MyApplication[] }) {
+  const { t } = useTranslation("participant")
+  const [isExpanded, setExpanded] = useState(false)
+  const today = todayIsoInAppZone()
+
+  const reminders = applications.flatMap((application) => {
+    const task = paymentTask(application)
+    if (!task) return []
+
+    let nextDate: string | undefined
+    let lastEnd: string | undefined
+    for (const term of task.terms) {
+      if (term.endsOn >= today) {
+        const date = term.startsOn < today ? today : term.startsOn
+        if (nextDate === undefined || date < nextDate) nextDate = date
+      } else if (lastEnd === undefined || term.endsOn > lastEnd) {
+        lastEnd = term.endsOn
+      }
+    }
+
+    return [{ application, task, nextDate, lastEnd }]
+  })
+  // A current or upcoming debt comes first. Keep past and undated reminders available.
+  reminders.sort(
+    (a, b) =>
+      Number(!a.nextDate) - Number(!b.nextDate) ||
+      (a.nextDate ?? "").localeCompare(b.nextDate ?? "") ||
+      (b.lastEnd ?? "").localeCompare(a.lastEnd ?? ""),
+  )
+
+  const [first, ...more] = reminders
+  if (!first) return null
+
+  const renderReminder = ({ application, task }: (typeof reminders)[number]) => (
+    <TaskCard
+      key={application.id}
+      role="note"
+      className="md:flex-row md:items-center md:gap-4"
+    >
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <p className="font-semibold">
+          {t("list.remainingAmount", { amount: formatCzk(task.amountCzk) })}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {[
+            `${application.firstName} ${application.lastName}`,
+            ...task.terms.map(termTitle),
+            task.deadline ? t("list.dueOn", { date: formatDate(task.deadline) }) : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      </div>
+      <Button
+        asChild
+        className="w-55 max-w-full"
+      >
+        <Link
+          to={ROUTES.participant.application}
+          params={{ applicationId: application.id }}
+        >
+          {t("list.paymentDetails")}
+        </Link>
+      </Button>
+    </TaskCard>
+  )
+
+  return (
+    <Collapsible
+      open={isExpanded}
+      onOpenChange={setExpanded}
+      className="flex flex-col gap-4"
+    >
+      {renderReminder(first)}
+      {more.length > 0 && (
+        <>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="outline"
+              size="lg"
+              className="self-start"
+            >
+              {isExpanded
+                ? t("list.hidePaymentReminders")
+                : t("list.showMorePaymentReminders", { count: more.length })}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="flex flex-col gap-4">{more.map(renderReminder)}</div>
+          </CollapsibleContent>
+        </>
+      )}
+    </Collapsible>
   )
 }
