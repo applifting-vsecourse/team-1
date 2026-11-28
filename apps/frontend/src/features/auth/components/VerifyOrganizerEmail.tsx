@@ -155,8 +155,9 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
       {isExpired ? null : <p className="text-muted-foreground">{t("registration.checkSpam")}</p>}
       <Button
         asChild
-        variant="ghost"
-        className="self-start"
+        variant="outline"
+        size="lg"
+        className="h-12 w-full"
       >
         <Link to={ROUTES.organizer.register}>{t("registration.correctEmail")}</Link>
       </Button>
