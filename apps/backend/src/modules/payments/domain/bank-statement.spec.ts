@@ -1,6 +1,7 @@
 import {
   decideMatch,
   InvalidStatementError,
+  manualMatchReason,
   MatchableApplication,
   parseAmountCents,
   parseBankStatement,
@@ -67,6 +68,24 @@ describe("parsing values", () => {
     expect(parseStatementDate("05.05.2026")).toBe("2026-05-05")
     expect(parseStatementDate("30.02.2026")).toBeNull()
     expect(parseStatementDate("2026-05-05")).toBeNull()
+  })
+})
+
+describe("manualMatchReason", () => {
+  const term = [{ isSummary: false, termNumber: 1 }]
+  const summary = [{ isSummary: true, termNumber: 1 }]
+
+  it("tells a match the import could not have made from one it could", () => {
+    expect(manualMatchReason(null, 12, term)).toBe("NO_VARIABLE_SYMBOL")
+    expect(manualMatchReason("xyz", 12, term)).toBe("UNKNOWN_VARIABLE_SYMBOL")
+    expect(manualMatchReason("13001", 12, term)).toBe("UNKNOWN_VARIABLE_SYMBOL")
+    expect(manualMatchReason("12001", 12, term)).toBeNull()
+    expect(manualMatchReason("0012000", 12, summary)).toBeNull()
+  })
+
+  it("compares what the receipt paid with what the symbol names", () => {
+    expect(manualMatchReason("12002", 12, term)).toBe("UNKNOWN_VARIABLE_SYMBOL")
+    expect(manualMatchReason("12000", 12, term)).toBe("UNKNOWN_VARIABLE_SYMBOL")
   })
 })
 

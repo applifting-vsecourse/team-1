@@ -6,7 +6,6 @@ import {
 import { termLabel } from "@/modules/applications/domain/term-label"
 import { variableSymbol } from "@/modules/applications/domain/variable-symbol"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
-import { QueuedEmailDispatcher } from "@/modules/participants/services/queued-email.dispatcher"
 import { paymentSummary, PaymentSummary } from "@/modules/payments/domain/payment"
 import { paymentReceivedMessage } from "@/modules/payments/domain/payment-confirmation"
 import {
@@ -27,7 +26,6 @@ export class PaymentsService {
     private readonly access: OrganizationAccessService,
     private readonly mailer: ApplicationConfirmationMailer,
     private readonly config: Config,
-    private readonly emailQueue: QueuedEmailDispatcher,
   ) {}
 
   async get(user: Identity, applicationId: string): Promise<PaymentSummary> {
@@ -83,7 +81,6 @@ export class PaymentsService {
     requestId: string,
     amountCzk?: number,
     termId?: string,
-    source?: "MANUAL" | "BANK_IMPORT",
   ): Promise<void> {
     const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
     const paid = await this.repository.record({
@@ -93,11 +90,8 @@ export class PaymentsService {
       requestId,
       amountCzk,
       termId,
-      source,
     })
-    // #737: a bank import pays many applications; the repository queued the e-mail.
-    if (source === "BANK_IMPORT") this.emailQueue.kick()
-    else await this.sendPaymentReceived(applicationId, organizationId, paid)
+    await this.sendPaymentReceived(applicationId, organizationId, paid)
   }
 
   /**

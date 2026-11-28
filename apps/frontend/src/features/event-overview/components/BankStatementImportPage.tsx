@@ -1,6 +1,5 @@
-import { useState } from "react"
+import { Fragment, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
 import { Download } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -32,6 +31,7 @@ import {
   uploadBankStatement,
   type StatementImportResult,
 } from "@/features/event-overview/api/bankStatements"
+import { UnmatchedTransactionPanel } from "@/features/event-overview/components/UnmatchedTransactionPanel"
 import { downloadCsv, resultFileName } from "@/features/event-overview/lib/download-csv"
 
 const MAX_STATEMENT_BYTES = 2 * 1024 * 1024
@@ -174,17 +174,16 @@ function ImportSummary({ result, fileName }: { result: StatementImportResult; fi
   )
 }
 
+// Figma (Design system): Návrh #562 varianta A · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27229-7536 (360 px: 27229-8929)
 function UnmatchedTransactions({ eventId }: { eventId: string }) {
   const { t } = useTranslation("eventOverview")
+  const [openId, setOpenId] = useState<string | null>(null)
   const { data, isPending, error, refetch } = useQuery(unmatchedTransactionsQueryOptions(eventId))
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h3 className="text-xl font-semibold tracking-tight">
-          {t("bankStatement.unmatchedList.title")}
-        </h3>
-        <p className="text-muted-foreground">{t("bankStatement.unmatchedList.hint")}</p>
-      </div>
+      <h3 className="text-xl font-semibold tracking-tight">
+        {t("bankStatement.unmatchedList.title")}
+      </h3>
       {isPending ? (
         <LoadingState />
       ) : error ? (
@@ -196,11 +195,11 @@ function UnmatchedTransactions({ eventId }: { eventId: string }) {
       ) : data.transactions.length === 0 ? (
         <EmptyState message={t("bankStatement.unmatchedList.empty")} />
       ) : (
-        // On a phone the table scrolls sideways, like the Platby list.
+        // Below md the rows stack into cards (no sideways scroll).
         <div className="rounded-lg border border-border-strong bg-card nested:border-border">
-          <Table className="min-w-190">
+          <Table className="md:min-w-190">
             <caption className="sr-only">{t("bankStatement.unmatchedList.list")}</caption>
-            <TableHeader className="bg-muted">
+            <TableHeader className="bg-muted max-md:sr-only">
               <TableRow>
                 <TableHead className="h-12 px-4">{t("bankStatement.unmatchedList.date")}</TableHead>
                 <TableHead className="px-4">
@@ -214,45 +213,69 @@ function UnmatchedTransactions({ eventId }: { eventId: string }) {
                 </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {data.transactions.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell className="px-4 py-4">{formatDate(row.bookedOn)}</TableCell>
-                  <TableCell className="px-4 py-4">{row.variableSymbol ?? "–"}</TableCell>
-                  <TableCell className="px-4 py-4">
-                    {/* Cents stay visible: a statement amount is not rounded to whole crowns. */}
-                    <span className="whitespace-nowrap tabular-nums">
-                      {formatCurrencyAmount(row.amountCents / 100, row.currency)}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-4 py-4 whitespace-normal">
-                    {row.counterpartyName}
-                    {row.message ? (
-                      <span className="block text-muted-foreground">{row.message}</span>
-                    ) : null}
-                  </TableCell>
-                  <TableCell className="px-4 py-4 whitespace-normal">
-                    {t(`bankStatement.unmatchedList.reasons.${row.reason}`)}
-                  </TableCell>
-                  <TableCell className="px-4 py-4">
-                    {row.applicationId ? (
-                      <Button
-                        size="sm"
-                        asChild
-                        variant="ghost"
-                      >
-                        <Link
-                          to={ROUTES.organizer.application}
-                          params={{ eventId, applicationId: row.applicationId }}
-                          aria-label={`${t("bankStatement.unmatchedList.detail")} ${row.applicantName ?? ""}`}
+            <TableBody className="max-md:block">
+              {data.transactions.map((row) => {
+                const isOpen = openId === row.id
+                // Only a payment in whole crowns can be assigned by hand.
+                const isAssignable = row.currency === "CZK" && row.amountCents % 100 === 0
+                return (
+                  <Fragment key={row.id}>
+                    <TableRow
+                      className={
+                        isOpen
+                          ? "bg-accent hover:bg-accent max-md:flex max-md:flex-col"
+                          : "max-md:flex max-md:flex-col"
+                      }
+                    >
+                      <TableCell className="px-4 py-4">{formatDate(row.bookedOn)}</TableCell>
+                      <TableCell className="px-4 py-4">{row.variableSymbol ?? "–"}</TableCell>
+                      <TableCell className="px-4 py-4">
+                        {/* Cents stay visible: a statement amount is not rounded to whole crowns. */}
+                        <span className="whitespace-nowrap tabular-nums">
+                          {formatCurrencyAmount(row.amountCents / 100, row.currency)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-4 py-4 whitespace-normal">
+                        {row.counterpartyName}
+                        {row.message ? (
+                          <span className="block text-muted-foreground">{row.message}</span>
+                        ) : null}
+                      </TableCell>
+                      <TableCell className="px-4 py-4 whitespace-normal">
+                        {t(`bankStatement.unmatchedList.reasons.${row.reason}`)}
+                      </TableCell>
+                      <TableCell className="px-4 py-4">
+                        {isAssignable && !isOpen ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setOpenId(row.id)}
+                            aria-label={`${t("bankStatement.unmatchedList.assign")} ${row.counterpartyName ?? row.variableSymbol ?? ""}`.trim()}
+                          >
+                            {t("bankStatement.unmatchedList.assign")}
+                          </Button>
+                        ) : null}
+                      </TableCell>
+                    </TableRow>
+                    {isOpen ? (
+                      <TableRow className="hover:bg-transparent max-md:block">
+                        <TableCell
+                          colSpan={6}
+                          className="px-4 py-6 whitespace-normal"
                         >
-                          {t("bankStatement.unmatchedList.detail")}
-                        </Link>
-                      </Button>
+                          <UnmatchedTransactionPanel
+                            eventId={eventId}
+                            transaction={row}
+                            onClose={() =>
+                              setOpenId((current) => (current === row.id ? null : current))
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
                     ) : null}
-                  </TableCell>
-                </TableRow>
-              ))}
+                  </Fragment>
+                )
+              })}
             </TableBody>
           </Table>
         </div>

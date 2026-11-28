@@ -18,6 +18,7 @@ import {
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { queuedEmailJob } from "@/modules/participants/domain/queued-email"
+import { manualMatchReason, UnmatchedReason } from "@/modules/payments/domain/bank-statement"
 import { PaymentApplication } from "@/modules/payments/domain/payment"
 import {
   paymentReceivedMessage,
@@ -123,6 +124,9 @@ export type PaidTermNotice = {
   endsOn: Date
 }
 
+/** A paid term with the id of its application term. */
+type ClosedTerm = PaidTermNotice & { id: string }
+
 @Injectable()
 export class PaymentsRepository {
   constructor(
@@ -150,59 +154,67 @@ export class PaymentsRepository {
 
   /**
    * Each submission is one receipt of one or more rows. Balance resolution is serialized by a
-   * lock on the application and retries of the same `requestId` add nothing. A payment of a bank
-   * import also queues e-mail no. 8 here; for the other sources the caller sends it.
+   * lock on the application and retries of the same `requestId` add nothing.
    */
   async record(input: RecordPaymentInput): Promise<PaidTermNotice[]> {
+    return this.prisma.$transaction((tx) => this.recordWithin(tx, input))
+  }
+
+  /**
+   * `record` inside the transaction of the caller, so the payment commits together with its other
+   * writes. A payment of a bank transaction (`BANK_IMPORT`) also queues e-mail no. 8 here and the
+   * caller starts the queue after the commit; for the other sources the caller sends it.
+   */
+  async recordWithin(
+    tx: Prisma.TransactionClient,
+    input: RecordPaymentInput,
+  ): Promise<PaidTermNotice[]> {
     const { applicationId, organizationId, requestId, termId, isRefund = false } = input
-    return this.prisma.$transaction(async (tx) => {
-      const locked = await tx.$queryRaw<
-        { id: string }[]
-      >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
-      if (!locked.length) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    const locked = await tx.$queryRaw<
+      { id: string }[]
+    >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`
+    if (!locked.length) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
 
-      const existing = await tx.payment.findMany({
-        where: { receiptId: requestId },
-        include: { applicationTerm: { select: { applicationId: true, termId: true } } },
-      })
-      if (existing.length) {
-        if (
-          existing.some(
-            (row) =>
-              row.organizationId !== organizationId ||
-              row.applicationTerm.applicationId !== applicationId,
-          )
-        )
-          throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-        const total = existing.reduce((sum, row) => sum + row.amountCzk, 0)
-        const sameTerm = existing.every(
-          (row) =>
-            row.isSummary === (termId === undefined) &&
-            (termId === undefined || row.applicationTerm.termId === termId),
-        )
-        if (
-          total < 0 !== isRefund ||
-          existing.some((row) => row.correctsReceiptId !== null) ||
-          !sameTerm ||
-          (input.amountCzk !== undefined &&
-            total !== (isRefund ? -input.amountCzk : input.amountCzk))
-        )
-          throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
-        return []
-      }
-
-      const owedBefore = await this.confirmedTermBalances(tx, applicationId)
-      await this.createReceipt(tx, input)
-      const paid = await this.closedDebts(tx, applicationId, owedBefore)
-      if (input.source === "BANK_IMPORT") await this.queuePaymentReceived(tx, input, paid)
-      return paid
+    const existing = await tx.payment.findMany({
+      where: { receiptId: requestId },
+      include: { applicationTerm: { select: { applicationId: true, termId: true } } },
     })
+    if (existing.length) {
+      if (
+        existing.some(
+          (row) =>
+            row.organizationId !== organizationId ||
+            row.applicationTerm.applicationId !== applicationId,
+        )
+      )
+        throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+      const total = existing.reduce((sum, row) => sum + row.amountCzk, 0)
+      const sameTerm = existing.every(
+        (row) =>
+          row.isSummary === (termId === undefined) &&
+          (termId === undefined || row.applicationTerm.termId === termId),
+      )
+      if (
+        total < 0 !== isRefund ||
+        existing.some((row) => row.correctsReceiptId !== null) ||
+        !sameTerm ||
+        (input.amountCzk !== undefined && total !== (isRefund ? -input.amountCzk : input.amountCzk))
+      )
+        throw new AppException(HttpStatus.CONFLICT, "PAYMENT_ALREADY_RECORDED")
+      return []
+    }
+
+    const owedBefore = await this.confirmedTermBalances(tx, applicationId)
+    await this.createReceipt(tx, input)
+    const paid = await this.closedDebts(tx, applicationId, owedBefore)
+    if (input.source === "BANK_IMPORT") await this.queuePaymentReceived(tx, input, paid)
+    return paid
   }
 
   private async queuePaymentReceived(
     tx: Prisma.TransactionClient,
     { applicationId, organizationId, requestId }: RecordPaymentInput,
-    paid: PaidTermNotice[],
+    paid: ClosedTerm[],
   ): Promise<void> {
     if (!paid.length) return
     const context = await this.findEmailContext(applicationId, organizationId, tx)
@@ -211,13 +223,8 @@ export class PaymentsRepository {
       where: { id: applicationId },
       select: { eventId: true },
     })
-    const covered = await tx.applicationTerm.findMany({
-      where: { applicationId, status: "CONFIRMED", payments: { some: { receiptId: requestId } } },
-      include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
-    })
-    const settledTermIds = covered
-      .filter((term) => computeTermOwed(term, term.payments) === 0)
-      .map((term) => term.id)
+    // The terms the e-mail names, an overpaid one included.
+    const settledTermIds = paid.map((term) => term.id)
     // Hashed: a receipt id of a bank row can be longer than a provider's idempotency key.
     const receipt = createHash("sha256").update(`${applicationId}:${requestId}`).digest("hex")
     await this.emailJobs.enqueue(tx, [
@@ -331,9 +338,10 @@ export class PaymentsRepository {
     tx: Prisma.TransactionClient,
     applicationId: string,
     before: { id: string; owedCzk: number }[],
-  ): Promise<PaidTermNotice[]> {
+  ): Promise<ClosedTerm[]> {
     const after = await this.confirmedTermBalances(tx, applicationId)
-    return planPaymentConfirmations(before, after).map(({ name, startsOn, endsOn }) => ({
+    return planPaymentConfirmations(before, after).map(({ id, name, startsOn, endsOn }) => ({
+      id,
       name,
       startsOn,
       endsOn,
@@ -494,6 +502,34 @@ export class PaymentsRepository {
     })
   }
 
+  /**
+   * Corrections replace a receipt but keep its lineage. Older bank receipts share a format
+   * across automatic import and manual assignment, so their bank row needs a separate check.
+   */
+  private async findBankReceipt(
+    tx: Prisma.TransactionClient,
+    applicationId: string,
+    organizationId: string,
+    receiptId: string,
+  ): Promise<string | undefined> {
+    const [assignment] = await tx.$queryRaw<{ receiptId: string }[]>`
+      WITH RECURSIVE receipt_chain AS (
+        SELECT p."receiptId", p."correctsReceiptId"
+        FROM payment p JOIN application_term t ON t.id = p."applicationTermId"
+        WHERE p."receiptId" = ${receiptId}
+          AND p."organizationId" = ${organizationId} AND t."applicationId" = ${applicationId}
+        UNION
+        SELECT p."receiptId", p."correctsReceiptId"
+        FROM receipt_chain r JOIN payment p ON p."receiptId" = r."correctsReceiptId"
+        JOIN application_term t ON t.id = p."applicationTermId"
+        WHERE p."organizationId" = ${organizationId} AND t."applicationId" = ${applicationId}
+      )
+      SELECT "receiptId" FROM receipt_chain
+      WHERE "receiptId" LIKE 'bank-manual:%' OR "receiptId" LIKE 'bank:%'
+    `
+    return assignment?.receiptId
+  }
+
   /** Cancels the whole receipt the row belongs to; the rows stay so a retry cannot restore it. */
   async remove(
     applicationId: string,
@@ -501,6 +537,60 @@ export class PaymentsRepository {
     receiptId: string,
   ): Promise<PaymentDebtNotice | null> {
     return this.prisma.$transaction(async (tx) => {
+      const assignmentReceipt = await this.findBankReceipt(
+        tx,
+        applicationId,
+        organizationId,
+        receiptId,
+      )
+      // Match and import lock the bank row before locking the application.
+      if (assignmentReceipt) {
+        const where = {
+          organizationId,
+          applicationId,
+          receiptId: assignmentReceipt,
+          status: "MATCHED" as const,
+        }
+        // A legacy `bank:` receipt is shared with the automatic import: it is reopened only when
+        // the symbol and the original receipt show that the import could not have made the match.
+        let legacyReason: UnmatchedReason | null = null
+        if (assignmentReceipt.startsWith("bank:")) {
+          const row = await tx.bankTransaction.findFirst({
+            where,
+            select: { variableSymbol: true, application: { select: { number: true } } },
+          })
+          if (row?.application) {
+            const original = await tx.payment.findMany({
+              where: {
+                receiptId: assignmentReceipt,
+                organizationId,
+                applicationTerm: { applicationId },
+              },
+              select: {
+                isSummary: true,
+                applicationTerm: { select: { term: { select: { number: true } } } },
+              },
+            })
+            legacyReason = manualMatchReason(
+              row.variableSymbol,
+              row.application.number,
+              original.map((payment) => ({
+                isSummary: payment.isSummary,
+                termNumber: payment.applicationTerm.term.number,
+              })),
+            )
+          }
+        }
+        if (assignmentReceipt.startsWith("bank-manual:") || legacyReason)
+          await tx.bankTransaction.updateMany({
+            where,
+            data: {
+              status: "UNMATCHED",
+              applicationId: null,
+              ...(legacyReason && { reason: legacyReason }),
+            },
+          })
+      }
       const locked = await tx.$queryRaw<
         { id: string }[]
       >`SELECT id FROM application WHERE id = ${applicationId} AND "organizationId" = ${organizationId} FOR UPDATE`

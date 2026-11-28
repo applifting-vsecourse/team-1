@@ -205,6 +205,26 @@ export type MatchDecision =
   | { kind: "unmatched"; reason: UnmatchedReason; applicationId?: string }
 
 /**
+ * The unmatched reason of a match the automatic import could not have made (no variable symbol, one
+ * that does not name this application, or a receipt that paid something else than the symbol names —
+ * `Term.number` never changes, D-086), so it was assigned by hand; null when it could have.
+ */
+export function manualMatchReason(
+  variableSymbol: string | null,
+  applicationNumber: number,
+  receipt: { isSummary: boolean | null; termNumber: number }[],
+): UnmatchedReason | null {
+  if (!variableSymbol) return "NO_VARIABLE_SYMBOL"
+  const parsed = parseVariableSymbol(variableSymbol)
+  const couldBeImported =
+    parsed?.applicationNumber === applicationNumber &&
+    receipt.every((row) =>
+      parsed.termNumber === null ? row.isSummary : row.termNumber === parsed.termNumber,
+    )
+  return couldBeImported ? null : "UNKNOWN_VARIABLE_SYMBOL"
+}
+
+/**
  * Decides one incoming transaction. `findApplication` is looked up by the application number
  * inside the variable symbol (the repository restricts it to the event).
  */
