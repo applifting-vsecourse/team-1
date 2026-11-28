@@ -105,7 +105,7 @@ export function BulkConfirmDialog({
               <AlertDescription>{t("bulk.changedDescription")}</AlertDescription>
             </Alert>
           )}
-          {data && data.skipped.length === 0 && (
+          {data?.skipped.length === 0 && (
             <BulkDetail
               label={t("bulk.selected")}
               value={t("bulk.selectedApplications", { count: data.selectedCount })}
