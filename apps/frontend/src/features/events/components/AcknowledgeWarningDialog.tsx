@@ -69,7 +69,7 @@ export function AcknowledgeWarningDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="max-h-[calc(100dvh-2rem)] min-h-[min(717px,calc(100dvh-2rem))] overflow-y-auto bg-card shadow-md max-sm:top-4 max-sm:translate-y-0 sm:min-h-[min(497px,calc(100dvh-2rem))] sm:max-w-160">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] min-h-[min(717px,calc(100dvh-2rem))] overflow-y-auto bg-card max-sm:top-4 max-sm:translate-y-0 sm:min-h-[min(497px,calc(100dvh-2rem))] sm:max-w-160">
         <DialogTitle className="pr-14 text-2xl leading-8 font-bold">
           {t("acknowledgeDialog.title")}
         </DialogTitle>

@@ -3,30 +3,28 @@
     "account": {
       "existingAccount": "You already have an account for {{email}}. We attached the application to it and sent a sign-in link in the e-mail. We do not send a new password.",
       "existingAccountAction": "Sign in to the application",
-      "firstAccessText": "Open the link from the e-mail and set your password. The link is valid for 7 days.",
-      "firstAccessTitle": "First access to your account",
-      "newAccount": "We created an account for you automatically. You will find the link for your first access in the e-mail. You could submit the application without registering.",
+      "newAccount": "We created an account for you – you'll find the link for your first sign-in in the e-mail. It's valid for 7 days.",
       "newAccountAction": "Go to sign in",
-      "noEmail": "No e-mail? Check your spam and bulk mail folders too.",
+      "noEmail": "No e-mail? Check your spam folder.",
       "setPassword": "Set password",
       "title": "How to get back to your application",
       "viewApplication": "View application",
       "viewApplications": "View applications"
     },
-    "applicationCode": "Application no. {{code}}",
-    "doNotPayYet": "Do not pay yet",
-    "payment": {
-      "account": "Organization bank account",
-      "note": "Pay the amount for the confirmed terms under the variable symbol shown.",
-      "payEachItem": "{{name}} {{amount}} / VS {{variableSymbol}}",
-      "payEachSeparately": "Pay each application separately: {{list}}.",
-      "title": "Payment for the confirmed terms",
-      "total": "Total to pay",
-      "variableSymbol": "Variable symbol",
-      "variableSymbolOf": "{{name}} · {{amount}} · variable symbol"
+    "state": {
+      "confirmed": {
+        "text": "Pay the amount due using the payment details below.",
+        "title": "Your place is confirmed"
+      },
+      "toEvaluate": {
+        "text": "Once the organizer decides, we'll e-mail you the result – don't pay anything until then.",
+        "title": "Awaiting evaluation"
+      },
+      "waitlisted": {
+        "text": "If we confirm your place, we'll e-mail you – don't pay for it until then.",
+        "title": "Added to the waitlist"
+      }
     },
-    "pricePerConfirmedTerm": "{{price}} for the confirmed term",
-    "sentTo": "We sent the confirmation and the status of the terms to {{email}}.",
     "status": {
       "archived": "Archived",
       "cancelled": "Cancelled",
@@ -34,32 +32,32 @@
       "toEvaluate": "Awaiting evaluation",
       "waitlisted": "Waitlisted"
     },
-    "subtitleToEvaluate": "{{event}} · participation not confirmed yet",
-    "title": "We've received your application",
-    "toEvaluate": {
-      "alertText": "The organizer will review each term separately. You will get the result by e-mail and find it under My applications. Don't pay anything yet.",
-      "alertTitle": "What happens next",
-      "note": "The organizer will decide on participation in this term."
+    "sticker": "Confirmed",
+    "subtitle": "{{event}} · we sent the confirmation to {{email}}",
+    "summary": {
+      "amountDue": "Amount due",
+      "bankAccount": "Bank account",
+      "participant": "Participant",
+      "participantValue": "{{name}} · application no. {{code}}",
+      "qr": "QR payment",
+      "term": "Term",
+      "variableSymbol": "Variable symbol"
     },
-    "waitlist": {
-      "description": "You are waitlisted in all the selected terms. You will get the payment details once a place is confirmed.",
-      "title": "Do not pay anything yet"
-    }
+    "title": "We've received your application"
   },
   "form": {
-    "accommodationRequest": "Note for the organizer",
-    "accommodationRequestHint": "Write what would suit you. You don’t have to give reasons.",
+    "accommodationRequest": "Note for the organizer (optional)",
     "addParticipant": "Add another participant",
     "birthDate": "Date of birth *",
-    "clear": "Clear",
+    "clear": "Start over",
     "clearCancel": "Keep it",
-    "clearConfirm": "Clear the form",
-    "clearDescription": "Everything you entered, including all participants and selected terms, will be removed. This cannot be undone.",
-    "clearTitle": "Clear the form?",
+    "clearConfirm": "Start over",
+    "clearDescription": "All participants and selected terms will be deleted. This can't be undone.",
+    "clearTitle": "Start over?",
     "consent": "I agree to the processing of personal data for the purpose of the application. *",
     "contactHeading": "Contact for the whole application",
+    "draftSaved": "Draft saved",
     "email": "Contact e-mail *",
-    "emailHint": "We will send confirmation and access to the applications to this e-mail.",
     "errorSummary": {
       "description": "Correct the marked fields. Details are shown next to each field.",
       "goToFirst": "Go to the first error",
@@ -91,9 +89,7 @@
     "genderPlaceholder": "Select gender",
     "heading": "Application for {{event}}",
     "individualAccommodation": "I’d like individual accommodation",
-    "individualAccommodationFriends": "Roommate wishes come later, in My application.",
     "individualAccommodationHint": "If room assignment by gender doesn’t suit you. Only the organizers will see it.",
-    "intro": "You can apply without registering. Select one or more terms for each participant.",
     "lastName": "Last name *",
     "moreTerms_few": "and {{count}} more terms",
     "moreTerms_many": "and {{count}} more terms",
@@ -104,7 +100,6 @@
     "pronouns": "Pronouns",
     "pronounsPlaceholder": "E.g. she/her",
     "removeParticipantAria": "Remove participant {{number}}",
-    "requiredNote": "* Required fields",
     "showFewerTerms": "Show fewer",
     "showMoreTerms_few": "Show {{count}} more terms",
     "showMoreTerms_many": "Show {{count}} more terms",
@@ -112,35 +107,19 @@
     "showMoreTerms_other": "Show {{count}} more terms",
     "submit": "Submit application",
     "submitting": "Submitting…",
-    "submittingHint": "We're submitting your application. Please wait for the confirmation.",
     "terms": "Choose at least one term *",
     "title": "Application"
-  },
-  "notFound": {
-    "action": "Go to homepage",
-    "description": "The link doesn't exist, or the event isn't accepting applications.",
-    "title": "This page is unavailable."
   },
   "price": {
     "heading": "Price of selected terms",
     "noTerms": "No term",
-    "note": "Only terms with confirmed participation will be payable.",
-    "participants_few": "{{count}} participants",
-    "participants_many": "{{count}} participants",
-    "participants_one": "{{count}} participant",
-    "participants_other": "{{count}} participants",
-    "terms_few": "{{count}} terms",
-    "terms_many": "{{count}} terms",
-    "terms_one": "{{count}} term",
-    "terms_other": "{{count}} terms",
     "total": "Total"
   },
   "review": {
     "accommodation": "Accommodation",
-    "agreed": "Consent confirmed",
     "backToEditing": "Back to editing",
     "birthGender": "Date of birth and gender",
-    "consent": "Consent",
+    "consentGiven": "You agree to the processing of personal data.",
     "contact": "Applicant contact",
     "continue": "Continue to review",
     "detailsStep": "1. Details",
@@ -148,7 +127,6 @@
     "editDetails": "Edit details",
     "email": "We will send confirmation and access to",
     "individual": "Individual arrangement",
-    "intro": "Check the participants, terms and price. You can edit the details before submitting.",
     "removed": "Participant {{number}} was removed from the application.",
     "removedFemale": "{{name}} was removed from the application.",
     "removedMale": "{{name}} was removed from the application.",

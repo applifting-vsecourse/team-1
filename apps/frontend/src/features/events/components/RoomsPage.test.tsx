@@ -19,6 +19,9 @@ import {
   type RoomsView,
 } from "@/features/events/components/RoomsPage"
 
+// CI runners take over 5 s for these accommodation renders.
+vi.setConfig({ testTimeout: 20_000 })
+
 // Radix's radio group measures things jsdom doesn't have.
 vi.stubGlobal(
   "ResizeObserver",

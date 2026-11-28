@@ -3172,6 +3172,8 @@ rozhodnuti:
   rozhodl:
   - pm
   stav: platne
+  zmeneno_v:
+  - D-218
   z_otazek: []
   dokumentace: []
   poznamka: 'Doporučení: schválit a text hlášky potvrdit komentářem v #338.'
@@ -4427,6 +4429,156 @@ rozhodnuti:
     soubor: docs/prototypy/ekonomika/index.html
   - popis: zápis ze statusu s PO 25. 11. 2026
     soubor: docs/zapisy/2026-11-25-sprint-5-planning.md
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-218
+  nazev: 'Limity veřejné přihlášky: IP a e-mail přihlašovatele'
+  text: 'Veřejná přihláška: nejvýš 100 odeslání za minutu a 500 za hodinu z jedné IP adresy a 10 za hodinu na e-mail přihlašovatele. Limit na e-mail počítá i neplatná odeslání. Limity přihlášení a hláška z D-150 platí dál.'
+  typ: technicke
+  oblast: technický základ
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 v #739'
+    url: https://github.com/applifting-vsecourse/team-1/issues/739#issuecomment-7239198964
+  us:
+  - label: '#739'
+    url: https://github.com/applifting-vsecourse/team-1/issues/739
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  meni:
+  - D-150
+  dokumentace:
+  - soubor: docs/SECURITY-REPORT.md
+    popis: 'limity veřejné přihlášky'
+    stav: hotovo
+    commit: 792c6050
+- id: D-219
+  nazev: 'E-maily z hromadných akcí jdou přes frontu'
+  text: 'Přes frontu se odesílají jen e-maily z hromadných akcí organizátora, ostatní hned. Nedoručené e-maily organizátor zatím v aplikaci nevidí (řeší #857). Nejvýš 5 pokusů; po nejistém výsledku přes SMTP se odeslání neopakuje. Zpráva čekající ve frontě, kterou mezitím předběhla novější změna, se neodešle.'
+  typ: produkt
+  oblast: komunikace
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 v #737'
+    url: https://github.com/applifting-vsecourse/team-1/issues/737#issuecomment-7239199274
+  us:
+  - label: '#737'
+    url: https://github.com/applifting-vsecourse/team-1/issues/737
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace:
+  - soubor: docs/emaily/KATALOG.md
+    popis: 'e-maily přes frontu a neodeslání zastaralé zprávy'
+    stav: hotovo
+    commit: 71f6c6cc
+  navazne_tickety:
+  - popis: 'Organizátor vidí nedoručené e-maily'
+    url: https://github.com/applifting-vsecourse/team-1/issues/857
+- id: D-220
+  nazev: 'Přání, příjezd a odjezd a první zdravotní omezení se po konci termínu uzavírají'
+  text: 'Po konci termínu nejde zapsat přání spolubydlení ani pozdější příjezd a dřívější odjezd, po konci všech nezrušených termínů ani první zdravotní omezení; platí pro přihlašovatele i organizátora, v obrazovkách i na serveru. Žádost o změnu uložené zdravotní poznámky zůstává možná (D-122).'
+  typ: produkt
+  oblast: logistika
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 v #790'
+    url: https://github.com/applifting-vsecourse/team-1/issues/790#issuecomment-7239199608
+  us:
+  - label: '#790'
+    url: https://github.com/applifting-vsecourse/team-1/issues/790
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+  poznamka: 'Doplňuje D-202.'
+- id: D-221
+  nazev: 'Ubytování: tlačítko „Rozbalit vše“ a „Sbalit vše“'
+  text: 'V pohledu Pokoje nabízí tlačítko „Sbalit vše“, je-li rozbalený aspoň jeden pokoj, jinak „Rozbalit vše“.'
+  typ: design
+  oblast: design
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 v #698'
+    url: https://github.com/applifting-vsecourse/team-1/issues/698#issuecomment-7239199946
+  us:
+  - label: '#698'
+    url: https://github.com/applifting-vsecourse/team-1/issues/698
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-222
+  nazev: 'Přehled kroků: text u archivovaného termínu'
+  text: 'Archivovaný termín vedle aktivních má v přehledu kroků větu „Termín skončil, už není co vyřizovat.“ / „The term has ended, there is nothing left to arrange.“'
+  typ: design
+  oblast: design
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 v #700'
+    url: https://github.com/applifting-vsecourse/team-1/issues/700#issuecomment-7239200257
+  us:
+  - label: '#700'
+    url: https://github.com/applifting-vsecourse/team-1/issues/700
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-223
+  nazev: 'Stránkování pokojů'
+  text: 'Pohledy Pokoje a Rozřazování ukazují 20 pokojů na stránku a při přepnutí pohledu stránka zůstává. Pokoj s porušeným pravidlem na jiné stránce se dohledá listováním nebo hledáním. Návrh rozdělení se nestránkuje. Číslo stránky je v URL, hledaný text ne. K ověření na velkých datech stačí automatický test se 300 pokoji.'
+  typ: produkt
+  oblast: ubytování
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 v #728'
+    url: https://github.com/applifting-vsecourse/team-1/issues/728#issuecomment-7239200567
+  us:
+  - label: '#728'
+    url: https://github.com/applifting-vsecourse/team-1/issues/728
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-224
+  nazev: 'Texty u zveřejněné akce bez funkčního přihlašování'
+  text: 'U zveřejněné akce bez funkčního přihlašování je štítek „Mimo katalog“ / „Not listed“ a hláška po uložení „Akce se v katalogu zobrazí, až bude přihlašování funkční.“ / „The event will appear in the catalog once registration is working.“'
+  typ: design
+  oblast: design
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 v chatu k #855'
+    url: https://github.com/applifting-vsecourse/team-1/issues/855
+  us:
+  - label: '#855'
+    url: https://github.com/applifting-vsecourse/team-1/issues/855
+  rozhodl:
+  - pm
+  stav: platne
+  z_otazek: []
+  dokumentace: []
+- id: D-225
+  nazev: 'Obnova hesla organizátora vyžaduje zopakování hesla'
+  text: 'Nové heslo se při obnově zadává dvakrát. Když se hesla neshodují, heslo se neuloží a zobrazí se „Hesla se neshodují.“ / „The passwords don''t match.“'
+  typ: produkt
+  oblast: účty
+  datum: '2026-11-28'
+  zdroj:
+  - popis: 'rozhodnutí PM 28. 11. 2026 v #844'
+    url: https://github.com/applifting-vsecourse/team-1/issues/844#issuecomment-7239200881
+  us:
+  - label: '#844'
+    url: https://github.com/applifting-vsecourse/team-1/issues/844
   rozhodl:
   - pm
   stav: platne

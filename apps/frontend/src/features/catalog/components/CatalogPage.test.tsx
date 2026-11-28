@@ -40,6 +40,7 @@ const catalog = {
     event({
       publicToken: "tok2",
       name: "Víkend na Šumavě",
+      terms: [{ name: null, startsOn: "2027-07-12", endsOn: "2027-07-18" }],
       termCount: 1,
       fromPriceCzk: 2900,
       location: null,
@@ -102,13 +103,20 @@ beforeAll(() => {
 afterEach(() => vi.restoreAllMocks())
 
 describe("CatalogPage", () => {
-  it("leads back to the landing page", async () => {
+  it("has one heading and a way back to the home page", async () => {
     renderPage(() => json(catalog))
 
-    expect(await screen.findByRole("link", { name: "Back to home" })).toHaveAttribute("href", "/")
+    expect(await screen.findByRole("heading", { level: 1, name: "Event catalog" })).toBeVisible()
+    expect(screen.getByRole("link", { name: "Back to home page" })).toHaveAttribute("href", "/")
   })
 
-  it("lists the published events as cards that open the event page", async () => {
+  it("keeps the way back to the home page while loading", async () => {
+    renderPage(() => new Promise(() => undefined))
+
+    expect(await screen.findByRole("link", { name: "Back to home page" })).toBeInTheDocument()
+  })
+
+  it("lists the events as cards with the summary of the terms, the place and the price", async () => {
     renderPage(() => json(catalog))
 
     const card = (await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })).closest(
@@ -118,21 +126,50 @@ describe("CatalogPage", () => {
       "href",
       expect.stringContaining("organization=o1"),
     )
+    expect(screen.getByText("2 events")).toBeInTheDocument()
     expect(card).toHaveAttribute("href", "/events/tok")
-    expect(card).toHaveTextContent("Alpine Collective")
-    expect(card).toHaveTextContent("Lipno nad Vltavou")
     expect(card).toHaveTextContent("Applications open")
-    expect(card).toHaveTextContent("12–18 Jul 2027")
-    expect(card).toHaveTextContent("První turnus")
-    expect(card).toHaveTextContent("20–25 Jul 2027")
-    expect(card).toHaveTextContent("2 terms · from")
-    expect(
-      screen.getByRole("heading", { name: "Víkend na Šumavě" }).closest("a"),
-    ).toHaveTextContent("1 term · CZK 2,900")
-    expect(screen.getByText("Published")).toBeInTheDocument()
+    expect(card).toHaveTextContent("2 terms · July 2027")
+    expect(card).toHaveTextContent("Lipno nad Vltavou")
+    expect(card).toHaveTextContent("from CZK 4,900 / participant")
   })
 
-  it("shows the photo of an event that has one", async () => {
+  it("shows the dates and the exact price of an event with one term", async () => {
+    renderPage(() => json(catalog))
+
+    const card = (await screen.findByRole("heading", { name: "Víkend na Šumavě" })).closest("a")
+    expect(card).toHaveTextContent("12–18 Jul 2027")
+    expect(card).toHaveTextContent("CZK 2,900 / participant")
+    expect(card).not.toHaveTextContent("from")
+    expect(card).not.toHaveTextContent("terms")
+  })
+
+  it("names the months an event spans when its terms are in more than one", async () => {
+    renderPage(() =>
+      json({
+        organizations: catalog.organizations,
+        events: [
+          event({
+            terms: [
+              { name: null, startsOn: "2027-07-28", endsOn: "2027-08-03" },
+              { name: null, startsOn: "2027-08-10", endsOn: "2027-08-16" },
+            ],
+          }),
+        ],
+      }),
+    )
+
+    expect(await screen.findByText("2 terms · July–August 2027")).toBeInTheDocument()
+  })
+
+  it("shows the status on the card and no published badge", async () => {
+    renderPage(() => json(catalog))
+
+    expect(await screen.findByText("Applications are not open")).toBeInTheDocument()
+    expect(screen.queryByText("Published")).not.toBeInTheDocument()
+  })
+
+  it("shows the photo of an event that has one, a placeholder for one that has none", async () => {
     renderPage(() => json(catalog))
 
     const card = (await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })).closest(
@@ -146,15 +183,18 @@ describe("CatalogPage", () => {
       .getByRole("heading", { name: "Podzimní konference 2027" })
       .closest("a")
     expect(withoutPhoto?.querySelector("img")).toBeNull()
+    expect(withoutPhoto?.querySelector("svg")).not.toBeNull()
   })
 
-  it("shows the events of the chosen organization only", async () => {
+  it("shows the events of the chosen organization with a way back to the catalog", async () => {
     renderPage(() => json(catalog))
     await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })
 
     await userEvent.click(screen.getByRole("combobox", { name: "Organization" }))
     await userEvent.click(await screen.findByRole("option", { name: "Summit Events" }))
 
+    expect(screen.getByRole("heading", { level: 1, name: "Summit Events" })).toBeVisible()
+    expect(screen.getByRole("link", { name: "Back to catalog" })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Podzimní konference 2027" })).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Letní kemp Lipno 2027" })).not.toBeInTheDocument()
   })
@@ -162,25 +202,28 @@ describe("CatalogPage", () => {
   it("says there are no published events yet", async () => {
     renderPage(() => json({ organizations: [], events: [] }))
 
-    expect(await screen.findByText("No published events yet")).toBeInTheDocument()
+    expect(await screen.findByRole("heading", { name: "No published events yet" })).toBeVisible()
+    expect(screen.getByText(/you will find them in the catalog/)).toBeInTheDocument()
     expect(screen.queryByRole("list")).not.toBeInTheDocument()
   })
 
-  it("shows the loading state until the catalog arrives", async () => {
+  it("shows card skeletons announced to screen readers until the catalog arrives", async () => {
     renderPage(() => new Promise(() => undefined))
 
-    expect(await screen.findByRole("status")).toHaveTextContent("Loading events…")
-    expect(screen.getByRole("heading", { name: "Event catalog" })).toBeInTheDocument()
+    const status = await screen.findByRole("status")
+    expect(status).toHaveTextContent("Loading events…")
+    expect(status).toHaveAttribute("aria-busy", "true")
+    expect(screen.getByRole("heading", { level: 1, name: "Event catalog" })).toBeInTheDocument()
   })
 
-  it("shows the error and loads again on retry", async () => {
+  it("shows the error with one retry action and loads again on it", async () => {
     let attempt = 0
     renderPage(() => {
       attempt += 1
       return attempt === 1 ? Promise.resolve(new Response("{}", { status: 500 })) : json(catalog)
     })
 
-    expect(await screen.findByText("The catalog couldn't be loaded.")).toBeInTheDocument()
+    expect(await screen.findByText("The catalog couldn't be loaded")).toBeInTheDocument()
     await userEvent.click(screen.getByRole("button", { name: "Try again" }))
 
     expect(

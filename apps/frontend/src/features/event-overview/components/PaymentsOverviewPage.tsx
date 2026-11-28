@@ -152,6 +152,7 @@ export function PaymentsOverviewPage({
     <section className="flex flex-col gap-6">
       <Seo title={t("paymentsOverview.title")} />
       <SectionHeader
+        isTitleHidden
         title={t("paymentsOverview.title")}
         actions={
           <>
@@ -194,7 +195,7 @@ export function PaymentsOverviewPage({
         }
       />
       {/* 360 px: the three tiles are rows of one box. */}
-      <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-3 sm:border-0 sm:bg-transparent sm:p-0">
+      <div className="grid gap-4 rounded-lg border border-border-strong bg-card p-4 sm:grid-cols-3 sm:border-0 sm:bg-transparent sm:p-0 nested:border-border">
         {tiles.map((tile) => {
           const content = (
             <>
@@ -209,7 +210,7 @@ export function PaymentsOverviewPage({
             </>
           )
           const box =
-            "flex flex-col gap-1 text-left sm:gap-4 sm:rounded-lg sm:border sm:bg-card sm:p-4"
+            "flex flex-col gap-1 text-left sm:gap-4 sm:rounded-lg sm:border sm:border-border-strong sm:bg-card sm:p-4"
           return tile.onSelect ? (
             <Button
               key={tile.title}
@@ -370,7 +371,7 @@ function PaymentEntries({
   const { pageItems, ...pagination } = usePagination(entries, resetKey)
   return (
     <div className="flex flex-col gap-4">
-      <div className="md:rounded-lg md:border md:bg-card">
+      <div className="md:rounded-lg md:border md:border-border-strong md:bg-card">
         <Table className="block w-full md:table">
           <caption className="sr-only">{t("paymentsOverview.list")}</caption>
           <TableHeader className="sr-only bg-muted md:not-sr-only md:table-header-group">
@@ -499,7 +500,7 @@ function PaymentOverviewRow({ entry, eventId }: { entry: PaymentOverviewEntry; e
         <Button
           asChild
           variant="outline"
-          size="lg"
+          size="sm"
           className="max-w-full whitespace-normal"
         >
           <Link

@@ -49,6 +49,7 @@ function renderHeader(path: string) {
     "/organizer/events",
     "/organizer/events/$eventId",
     "/organizer/events/$eventId/capacity",
+    "/organizer/events/$eventId/settings",
   ]
   const routes = paths.map((routePath) =>
     createRoute({ getParentRoute: () => root, path: routePath }),
@@ -113,4 +114,41 @@ describe("EventHeader sections", () => {
     expect(await screen.findByRole("button", { name: "Capacity" })).toBeVisible()
     expect(screen.queryByRole("menu")).not.toBeInTheDocument()
   })
+
+  // Figma F5 (15398:536): the active tab is nav A — grey surface, Semi Bold and the orange underline,
+  // no mint fill and no logo corners.
+  it("marks the active tab with the nav A marker", async () => {
+    renderHeader("/organizer/events/e1/capacity")
+    const tabs = await screen.findAllByRole("link", { name: "Capacity" })
+    const tab = tabs.find((link) => link.getAttribute("data-status") === "active")!
+
+    expect(tab).toHaveClass(
+      "data-[status=active]:bg-nav-active",
+      "data-[status=active]:font-semibold",
+      "after:bg-nav-indicator",
+      "after:w-5",
+    )
+    expect(tab.className).not.toMatch(/bg-accent/)
+    expect(tab.querySelector("svg")).toBeNull()
+    // The hidden bold copy keeps the width (#851), so the tabs don't shift when one is selected.
+    expect(tab.querySelector("[data-label]")).toHaveAttribute("data-label", "Capacity")
+  })
+})
+
+// Figma F5: every section has the same header — no band or illustration, the BrandDivider under it.
+describe("EventHeader head", () => {
+  it.each(["/organizer/events/e1", "/organizer/events/e1/settings"])(
+    "is the same on %s: name, status, „organization · dates“ and the divider",
+    async (path) => {
+      renderHeader(path)
+
+      const title = await screen.findByRole("heading", { level: 1, name: "Letní kemp Lipno 2027" })
+      const header = title.closest("header")!
+      expect(within(header).getByText("Applications open")).toBeInTheDocument()
+      expect(within(header).getByText("Kemp Lipno · No term yet")).toBeInTheDocument()
+      expect(header.querySelector("svg[focusable=false]")).toBeNull()
+      expect(header.lastElementChild).toHaveAttribute("aria-hidden", "true")
+      expect(header.lastElementChild?.querySelector(".bg-brand-warm")).not.toBeNull()
+    },
+  )
 })

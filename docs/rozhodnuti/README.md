@@ -2,7 +2,7 @@
 
 > Generováno z [`rozhodnuti.yaml`](rozhodnuti.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**213 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
+**221 platných**, 0 návrhů, 4 nahrazených nebo zrušených.
 
 ## Návrhy čekající na PM
 
@@ -48,6 +48,7 @@ _Nic._
 | [D-207](#d-207) | Souhrn pro kuchyni po dnech: tři jídla s pevnými časy | 2026-11-26 | mění [D-159](#d-159) |
 | [D-208](#d-208) | Obsazená lůžka po nocích jen podle pokojů | 2026-11-26 | mění [D-159](#d-159) |
 | [D-209](#d-209) | Počty po kombinacích omezení jako samostatný ticket | 2026-11-26 | mění [D-177](#d-177) |
+| [D-218](#d-218) | Limity veřejné přihlášky: IP a e-mail přihlašovatele | 2026-11-28 | mění [D-150](#d-150) |
 
 ## Platná rozhodnutí podle oblasti
 
@@ -55,6 +56,9 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-224](#d-224) | Texty u zveřejněné akce bez funkčního přihlašování | 2026-11-28 | `pm` | design |
+| [D-222](#d-222) | Přehled kroků: text u archivovaného termínu | 2026-11-28 | `pm` | design |
+| [D-221](#d-221) | Ubytování: tlačítko „Rozbalit vše“ a „Sbalit vše“ | 2026-11-28 | `pm` | design |
 | [D-206](#d-206) | Texty katalogu, stránky akce a nefunkčního odkazu | 2026-11-26 | `pm` | design |
 | [D-204](#d-204) | Texty nového landingu | 2026-11-26 | `pm` | design |
 | [D-187](#d-187) | Nepovinná pole bez dodatku „(nepovinné)“ | 2026-11-25 | `pm` | design |
@@ -81,6 +85,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-219](#d-219) | E-maily z hromadných akcí jdou přes frontu | 2026-11-28 | `pm` | produkt |
 | [D-195](#d-195) | Štítek potvrzeného termínu v e-mailech je „Potvrzeno / Confirmed“ | 2026-11-25 | `pm` | produkt |
 | [D-182](#d-182) | Nástěnka „Informace k akci“: rozsah a viditelnost příspěvků | 2026-11-24 | `pm` | produkt |
 | [D-117](#d-117) | Magic link je i v souhrnném potvrzovacím e-mailu, ne v e-mailu o změně | 2026-11-13 | `pm` | produkt |
@@ -104,6 +109,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-220](#d-220) | Přání, příjezd a odjezd a první zdravotní omezení se po konci termínu uzavírají | 2026-11-28 | `pm` | produkt |
 | [D-209](#d-209) | Počty po kombinacích omezení jako samostatný ticket | 2026-11-26 | `pm` | produkt |
 | [D-207](#d-207) | Souhrn pro kuchyni po dnech: tři jídla s pevnými časy | 2026-11-26 | `pm` | produkt |
 | [D-202](#d-202) | Úpravy dopravy a stravování do posledního dne termínu | 2026-11-26 | `pm` | produkt |
@@ -251,6 +257,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-218](#d-218) | Limity veřejné přihlášky: IP a e-mail přihlašovatele | 2026-11-28 | `pm` | technicke |
 | [D-135](#d-135) | Funkce jen pro staging a demo jsou v produkci vypnuté | 2026-11-09 | `pm` | technicke |
 | [D-150](#d-150) | Omezení počtu požadavků na přihlášku a přihlášení | 2026-11-04 | `pm` | technicke |
 | [D-033](#d-033) | E-maily na stagingu přes Resend | 2026-10-21 | `tech-lead` | technicke |
@@ -284,6 +291,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-223](#d-223) | Stránkování pokojů | 2026-11-28 | `pm` | produkt |
 | [D-208](#d-208) | Obsazená lůžka po nocích jen podle pokojů | 2026-11-26 | `pm` | produkt |
 | [D-201](#d-201) | Tlačítko „Nesplněná přání“ zahrnuje i nesplnitelná | 2026-11-26 | `pm` | produkt |
 | [D-200](#d-200) | Návrh rozdělení nepřidává nikoho k lidem s individuálním ubytováním | 2026-11-26 | `pm` | produkt |
@@ -314,6 +322,7 @@ _Nic._
 
 | ID | Rozhodnutí | Datum | Rozhodl | Typ |
 | --- | --- | --- | --- | --- |
+| [D-225](#d-225) | Obnova hesla organizátora vyžaduje zopakování hesla | 2026-11-28 | `pm` | produkt |
 | [D-189](#d-189) | „Získat nový odkaz“ je ohraničené tlačítko v plné šířce | 2026-11-25 | `pm` | design |
 | [D-147](#d-147) | Jazyk a vzhled se přepínají v Nastavení účtu | 2026-11-08 | `pm` | produkt |
 | [D-109](#d-109) | Registrace organizátora vyžaduje ověření e-mailu odkazem | 2026-11-06 | `pm` | produkt |
@@ -2006,6 +2015,7 @@ _Nic._
 - **Datum:** 2026-11-04 · **Rozhodl:** `pm` · **Navrhl:** `tym`
 - **Text:** Veřejná přihláška: nejvýš 20 odeslání za minutu a 100 za hodinu z jedné IP adresy. Přihlášení: 5 pokusů heslem a 3 žádosti o magic link za minutu z IP adresy. Překročení vrací 429 TOO_MANY_REQUESTS s hláškou „Příliš mnoho pokusů v krátké době. Chvíli počkejte a zkuste to znovu.“
 - **Zdroj:** [ticket #294, PM 4. 11.](https://github.com/applifting-vsecourse/team-1/issues/294); [PR #338](https://github.com/applifting-vsecourse/team-1/pull/338)
+- **Změněno v:** [D-218](#d-218)
 - **Poznámka:** Doporučení: schválit a text hlášky potvrdit komentářem v #338.
 
 <a id="d-151"></a>
@@ -2717,3 +2727,87 @@ _Nic._
 - **Datum:** 2026-11-26 · **Rozhodl:** `pm`
 - **Text:** Pro náklady závislé na délce pobytu (např. porce × dny) nevzniká zvláštní výpočet; organizátor použije cenu × vlastní počet.
 - **Zdroj:** [rozhodnutí PM 26. 11. 2026 v chatu k návrhu ekonomického modulu](../../docs/prototypy/ekonomika/index.html); [zápis ze statusu s PO 25. 11. 2026](../../docs/zapisy/2026-11-25-sprint-5-planning.md)
+
+<a id="d-218"></a>
+
+### D-218 – Limity veřejné přihlášky: IP a e-mail přihlašovatele
+
+- **Stav:** platné · **Typ:** technicke · **Oblast:** technický základ
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** Veřejná přihláška: nejvýš 100 odeslání za minutu a 500 za hodinu z jedné IP adresy a 10 za hodinu na e-mail přihlašovatele. Limit na e-mail počítá i neplatná odeslání. Limity přihlášení a hláška z D-150 platí dál.
+- **Dotčené US:** [#739](https://github.com/applifting-vsecourse/team-1/issues/739)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026 v #739](https://github.com/applifting-vsecourse/team-1/issues/739#issuecomment-7239198964)
+- **Mění:** [D-150](#d-150)
+- **Dokumentace:** `docs/SECURITY-REPORT.md`: hotovo (792c6050), limity veřejné přihlášky
+
+<a id="d-219"></a>
+
+### D-219 – E-maily z hromadných akcí jdou přes frontu
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** komunikace
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** Přes frontu se odesílají jen e-maily z hromadných akcí organizátora, ostatní hned. Nedoručené e-maily organizátor zatím v aplikaci nevidí (řeší #857). Nejvýš 5 pokusů; po nejistém výsledku přes SMTP se odeslání neopakuje. Zpráva čekající ve frontě, kterou mezitím předběhla novější změna, se neodešle.
+- **Dotčené US:** [#737](https://github.com/applifting-vsecourse/team-1/issues/737)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026 v #737](https://github.com/applifting-vsecourse/team-1/issues/737#issuecomment-7239199274)
+- **Dokumentace:** `docs/emaily/KATALOG.md`: hotovo (71f6c6cc), e-maily přes frontu a neodeslání zastaralé zprávy
+
+<a id="d-220"></a>
+
+### D-220 – Přání, příjezd a odjezd a první zdravotní omezení se po konci termínu uzavírají
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** logistika
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** Po konci termínu nejde zapsat přání spolubydlení ani pozdější příjezd a dřívější odjezd, po konci všech nezrušených termínů ani první zdravotní omezení; platí pro přihlašovatele i organizátora, v obrazovkách i na serveru. Žádost o změnu uložené zdravotní poznámky zůstává možná (D-122).
+- **Dotčené US:** [#790](https://github.com/applifting-vsecourse/team-1/issues/790)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026 v #790](https://github.com/applifting-vsecourse/team-1/issues/790#issuecomment-7239199608)
+- **Poznámka:** Doplňuje D-202.
+
+<a id="d-221"></a>
+
+### D-221 – Ubytování: tlačítko „Rozbalit vše“ a „Sbalit vše“
+
+- **Stav:** platné · **Typ:** design · **Oblast:** design
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** V pohledu Pokoje nabízí tlačítko „Sbalit vše“, je-li rozbalený aspoň jeden pokoj, jinak „Rozbalit vše“.
+- **Dotčené US:** [#698](https://github.com/applifting-vsecourse/team-1/issues/698)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026 v #698](https://github.com/applifting-vsecourse/team-1/issues/698#issuecomment-7239199946)
+
+<a id="d-222"></a>
+
+### D-222 – Přehled kroků: text u archivovaného termínu
+
+- **Stav:** platné · **Typ:** design · **Oblast:** design
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** Archivovaný termín vedle aktivních má v přehledu kroků větu „Termín skončil, už není co vyřizovat.“ / „The term has ended, there is nothing left to arrange.“
+- **Dotčené US:** [#700](https://github.com/applifting-vsecourse/team-1/issues/700)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026 v #700](https://github.com/applifting-vsecourse/team-1/issues/700#issuecomment-7239200257)
+
+<a id="d-223"></a>
+
+### D-223 – Stránkování pokojů
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** ubytování
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** Pohledy Pokoje a Rozřazování ukazují 20 pokojů na stránku a při přepnutí pohledu stránka zůstává. Pokoj s porušeným pravidlem na jiné stránce se dohledá listováním nebo hledáním. Návrh rozdělení se nestránkuje. Číslo stránky je v URL, hledaný text ne. K ověření na velkých datech stačí automatický test se 300 pokoji.
+- **Dotčené US:** [#728](https://github.com/applifting-vsecourse/team-1/issues/728)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026 v #728](https://github.com/applifting-vsecourse/team-1/issues/728#issuecomment-7239200567)
+
+<a id="d-224"></a>
+
+### D-224 – Texty u zveřejněné akce bez funkčního přihlašování
+
+- **Stav:** platné · **Typ:** design · **Oblast:** design
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** U zveřejněné akce bez funkčního přihlašování je štítek „Mimo katalog“ / „Not listed“ a hláška po uložení „Akce se v katalogu zobrazí, až bude přihlašování funkční.“ / „The event will appear in the catalog once registration is working.“
+- **Dotčené US:** [#855](https://github.com/applifting-vsecourse/team-1/issues/855)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026 v chatu k #855](https://github.com/applifting-vsecourse/team-1/issues/855)
+
+<a id="d-225"></a>
+
+### D-225 – Obnova hesla organizátora vyžaduje zopakování hesla
+
+- **Stav:** platné · **Typ:** produkt · **Oblast:** účty
+- **Datum:** 2026-11-28 · **Rozhodl:** `pm`
+- **Text:** Nové heslo se při obnově zadává dvakrát. Když se hesla neshodují, heslo se neuloží a zobrazí se „Hesla se neshodují.“ / „The passwords don't match.“
+- **Dotčené US:** [#844](https://github.com/applifting-vsecourse/team-1/issues/844)
+- **Zdroj:** [rozhodnutí PM 28. 11. 2026 v #844](https://github.com/applifting-vsecourse/team-1/issues/844#issuecomment-7239200881)

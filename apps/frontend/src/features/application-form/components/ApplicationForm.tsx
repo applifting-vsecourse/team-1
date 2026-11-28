@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Plus, TriangleAlert } from "lucide-react"
+import { Check, Plus, TriangleAlert } from "lucide-react"
 import { useFieldArray, useForm, useWatch, type FieldErrors, type Resolver } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -14,7 +14,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,6 +21,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { focusFirstInvalidField } from "@/lib/focus-first-invalid"
+import { cn } from "@/lib/utils"
 
 import type { PublicEvent } from "@/features/application-form/api/publicEvent"
 import {
@@ -32,10 +32,13 @@ import { ApplicationSteps } from "@/features/application-form/components/Applica
 import { ClearFormDialog } from "@/features/application-form/components/ClearFormDialog"
 import { EventSummary } from "@/features/application-form/components/EventSummary"
 import { ParticipantFields } from "@/features/application-form/components/ParticipantFields"
-import { PriceSummary } from "@/features/application-form/components/PriceSummary"
+import { PriceBar, PriceSummary } from "@/features/application-form/components/PriceSummary"
+import { useIsWideLayout } from "@/features/application-form/hooks/useIsWideLayout"
 import {
+  canKeepApplicationDrafts,
   clearApplicationDraft,
   emptyApplicationDraft,
+  isEmptyApplicationDraft,
   loadApplicationDraft,
   saveApplicationDraft,
 } from "@/features/application-form/lib/application-draft"
@@ -45,13 +48,19 @@ import {
   type ApplicationFormValues,
   type ParticipantDraft,
 } from "@/features/application-form/lib/application-form-schema"
-import { priceOfSelection, totalPrice } from "@/features/application-form/lib/selection-price"
+import {
+  priceOfSelection,
+  priceRows,
+  totalPrice,
+} from "@/features/application-form/lib/selection-price"
 
 // Figma (Design system): the form part of V07 / V07a (desktop) and M02 / M02a (360 px);
 // errors M03, sending M04.
 // https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15507-914 (mobile 15507-1033)
+// Filled in, with the draft saved: https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15506-66 (mobile 15506-172)
 // Errors with the summary: https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15506-544
-// Review step with "Zpět k úpravám": https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15506-941
+// Review step with "Zpět k úpravám": https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15506-941 (mobile 15506-1081)
+// Draft: „Koncept uložen“ 27443-16688 (mobile 27443-16716), „Začít znovu“ 27443-16693 (mobile 27443-16721)
 
 /** How many fields carry an error: every leaf of the error tree with a message. */
 function countErrors(errors: FieldErrors | undefined): number {
@@ -162,17 +171,20 @@ export function ApplicationForm({
   })
 
   const participants = useWatch({ control: form.control, name: "participants" })
-  const prices = participants.map((participant) =>
-    priceOfSelection(event.terms, participant?.termIds ?? []),
+  const totalCzk = totalPrice(
+    participants.map((participant) => priceOfSelection(event.terms, participant?.termIds ?? [])),
   )
-  const priceRows = prices.map((price, index) => {
-    const participant = participants[index]
-    const name = [participant?.firstName, participant?.lastName].filter(Boolean).join(" ").trim()
-    return {
-      ...price,
-      label: name !== "" ? name : t("form.participantTitle", { number: index + 1 }),
-    }
-  })
+  const rows = priceRows(
+    event.terms,
+    participants.map((participant, index) => {
+      const name = [participant?.firstName, participant?.lastName].filter(Boolean).join(" ").trim()
+      return {
+        label: name !== "" ? name : t("form.participantTitle", { number: index + 1 }),
+        termIds: participant?.termIds ?? [],
+      }
+    }),
+  )
+  const isWide = useIsWideLayout()
 
   const draft = useWatch({ control: form.control })
   useEffect(() => {
@@ -181,6 +193,9 @@ export function ApplicationForm({
     if (isDone) clearApplicationDraft(draftKey)
     else saveApplicationDraft(draftKey, draft as ApplicationFormDraft)
   }, [draft, draftKey, isDone])
+  const [canKeepDraft] = useState(() => Boolean(draftKey) && canKeepApplicationDrafts())
+  const hasEntries = !isEmptyApplicationDraft(draft as ApplicationFormDraft)
+  const isDraftSaved = canKeepDraft && hasEntries && !isDone
 
   const clearForm = () => {
     setRemoved(null)
@@ -193,6 +208,27 @@ export function ApplicationForm({
   // Read on every render: the form state proxy only keeps the errors fresh once they are subscribed to.
   const { errors } = form.formState
   const errorCount = invalidSubmitCount > 0 ? countErrors(errors) : 0
+  const submissionAlert = errorMessage ? (
+    <Alert
+      variant={isRateLimited ? "warning" : "destructive"}
+      tabIndex={-1}
+    >
+      {isRateLimited ? <TriangleAlert aria-hidden /> : null}
+      <AlertDescription>{errorMessage}</AlertDescription>
+    </Alert>
+  ) : null
+  const submitButton = (
+    <PendingButton
+      key={review ? "send" : "review"}
+      type="submit"
+      isPending={isSubmitting && !isDone}
+      disabled={isDone}
+      size="lg"
+      className="w-full"
+    >
+      {t(isSubmitting ? "form.submitting" : review ? "form.submit" : "review.continue")}
+    </PendingButton>
+  )
 
   return (
     <Form {...form}>
@@ -234,11 +270,22 @@ export function ApplicationForm({
             () => setInvalidSubmitCount((count) => count + 1),
           )(submitEvent)
         }
+        // Below `lg` the fixed price bar sets `scroll-padding-bottom` on the page (global.css), so the
+        // field that gets focus never ends up under it (WCAG 2.4.11).
         className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] [&_[data-slot=form-item]]:scroll-mt-24"
         data-invalid-submit={invalidSubmitCount > 0 || undefined}
         data-restored={restoredDraft ? true : undefined}
       >
-        <div className="flex min-w-0 flex-col gap-6">
+        {/* The review step is denser (Figma 18923:4544 / 4624). */}
+        <div className={cn("flex min-w-0 flex-col", review ? "gap-4" : "gap-6")}>
+          {review ? (
+            <BackButton
+              disabled={isSubmitting}
+              onClick={backToEditing}
+            >
+              {t("review.backToEditing")}
+            </BackButton>
+          ) : null}
           <h1
             ref={heading}
             tabIndex={-1}
@@ -246,8 +293,24 @@ export function ApplicationForm({
           >
             {review ? t("review.title") : t("form.heading", { event: event.name })}
           </h1>
-          <ApplicationSteps isReview={Boolean(review)} />
-          <p>{t(review ? "review.intro" : "form.intro")}</p>
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <ApplicationSteps isReview={Boolean(review)} />
+            {/* Always present, so the first save is announced (WCAG 4.1.3); it says it once, not per key. */}
+            <p
+              role="status"
+              className="flex items-center gap-2 text-sm text-muted-foreground"
+            >
+              {isDraftSaved && !review ? (
+                <>
+                  <Check
+                    aria-hidden
+                    className="size-5 text-primary"
+                  />
+                  {t("form.draftSaved")}
+                </>
+              ) : null}
+            </p>
+          </div>
           {review ? (
             <ApplicationReview
               values={review}
@@ -307,7 +370,7 @@ export function ApplicationForm({
               </Button>
 
               {removed && (
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-secondary p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border-strong bg-secondary p-4 nested:border-border">
                   <p role="status">
                     {removed.person.firstName.trim() &&
                     removed.person.lastName.trim() &&
@@ -348,9 +411,6 @@ export function ApplicationForm({
                         />
                       </FormControl>
                       <FormMessage />
-                      <FormDescription className="text-xs font-medium">
-                        {t("form.emailHint")}
-                      </FormDescription>
                     </FormItem>
                   )}
                 />
@@ -379,69 +439,45 @@ export function ApplicationForm({
                 />
               </Card>
 
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs font-medium text-muted-foreground">
-                  {t("form.requiredNote")}
-                </p>
+              {hasEntries ? (
                 <Button
                   type="button"
                   variant="ghost"
+                  size="lg"
+                  className="w-full sm:w-auto sm:self-start"
                   disabled={isSubmitting}
                   onClick={() => setIsClearing(true)}
                 >
                   {t("form.clear")}
                 </Button>
-              </div>
+              ) : null}
             </>
           )}
         </div>
-        <aside className="min-w-0 lg:sticky lg:top-24">
-          <PriceSummary
-            rows={priceRows}
-            totalCzk={totalPrice(prices)}
-          >
-            {errorMessage ? (
-              <Alert
-                variant={isRateLimited ? "warning" : "destructive"}
-                tabIndex={-1}
-              >
-                {isRateLimited ? <TriangleAlert aria-hidden /> : null}
-                <AlertDescription>{errorMessage}</AlertDescription>
-              </Alert>
-            ) : null}
-            <PendingButton
-              key={review ? "send" : "review"}
-              type="submit"
-              isPending={isSubmitting && !isDone}
-              disabled={isDone}
-              size="lg"
-              className="w-full"
-            >
-              {t(isSubmitting ? "form.submitting" : review ? "form.submit" : "review.continue")}
-            </PendingButton>
-            {review ? (
-              <BackButton
-                disabled={isSubmitting}
-                onClick={backToEditing}
-              >
-                {t("review.backToEditing")}
-              </BackButton>
-            ) : null}
-            {isSubmitting ? (
-              <p
-                role="status"
-                className="text-xs font-medium text-muted-foreground"
-              >
-                {t("form.submittingHint")}
-              </p>
-            ) : null}
-          </PriceSummary>
-        </aside>
+        {isWide ? (
+          <aside className="min-w-0 lg:sticky lg:top-24">
+            <PriceSummary
+              rows={rows}
+              totalCzk={totalCzk}
+              isReview={Boolean(review)}
+              alert={submissionAlert}
+              action={submitButton}
+            />
+          </aside>
+        ) : (
+          <PriceBar
+            rows={rows}
+            totalCzk={totalCzk}
+            alert={submissionAlert}
+            action={submitButton}
+          />
+        )}
       </form>
       <ClearFormDialog
         isOpen={isClearing}
         onOpenChange={setIsClearing}
         onConfirm={clearForm}
+        focusAfterClear={() => heading.current?.focus()}
       />
     </Form>
   )

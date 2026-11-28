@@ -178,7 +178,7 @@ export function BulkRoomsDialog({
       }}
     >
       <DialogContent
-        className="max-h-[90dvh] overflow-y-auto bg-card shadow-md sm:max-w-170"
+        className="max-h-[90dvh] overflow-y-auto bg-card sm:max-w-170"
         aria-describedby={undefined}
       >
         <DialogHeader>

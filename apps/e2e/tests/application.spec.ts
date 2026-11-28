@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test"
 import { SUMMER_CAMP_LINK } from "./support/accounts"
-import { expectCompactHeading, expectFitsViewport } from "./support/layout"
-import { latestMagicLinkToken } from "./support/magic-link"
+import { expectFitsViewport } from "./support/layout"
+import { latestMagicLinkToken, requestSignInLink } from "./support/magic-link"
 
 // US-23 application from a link, US-40 price, US-25 / US-27 submit and status. Runs on a phone too (@mobile).
 test.describe("Application from a link", { tag: "@mobile" }, () => {
@@ -25,7 +25,8 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     const terms = page
       .getByRole("group", { name: /Choose at least one term/ })
       .getByRole("checkbox")
-    const total = page.locator("p", { hasText: "Total" })
+    // A panel next to the form on a desktop, a bar at the bottom on a phone: the same region.
+    const total = page.getByRole("region", { name: "Price of selected terms" })
 
     await terms.nth(0).check()
     await expect(total).toContainText("4,500")
@@ -68,19 +69,17 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
       page.getByRole("heading", { level: 1, name: "We've received your application" }),
     ).toBeVisible()
     // US-25: the term status and where to pay.
-    await expect(page.getByText("Confirmed", { exact: true })).toBeVisible()
     await expect(
-      page.getByRole("heading", { name: "Payment for the confirmed terms" }),
+      page.getByRole("heading", { level: 2, name: "Your place is confirmed" }),
     ).toBeVisible()
+    await expect(page.getByText("Amount due", { exact: true })).toBeVisible()
     await expect(page.getByText("2900123456/2010")).toBeVisible()
 
     // The applicant has no password yet: the e-mailed link leads to setting one, then to the application.
-    await page.goto("/participant/magic-link")
-    await page.getByLabel("E-mail").fill(email)
-    await page.getByRole("button", { name: "Send me a link" }).click()
-    await expect(page.getByRole("status")).toContainText("Check your e-mail")
+    await requestSignInLink(page, email)
+    await expect(page.getByRole("heading", { level: 1, name: "Check your e-mail" })).toBeFocused()
     await page.goto(`/participant/magic-link?token=${await latestMagicLinkToken()}`)
-    await page.getByRole("button", { name: "Continue" }).click()
+    await page.getByRole("button", { name: "Sign in" }).click()
     await page.getByLabel("New password", { exact: true }).fill("own-password-1")
     await page.getByRole("button", { name: "Set password", exact: true }).click()
 
@@ -89,13 +88,16 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await expect(page.getByText(/Confirmed|Waitlisted/).first()).toBeVisible()
 
     // US-121: the detail ends with who to call or write to; one tap dials or opens the mail.
-    await page.getByRole("link", { name: /Letní kemp 2027/ }).click()
-    const applicationTitle = page.getByRole("heading", { level: 1, name: "Application details" })
+    await page.getByRole("region", { name: "Letní kemp 2027" }).getByRole("link").first().click()
+    const applicationTitle = page.getByRole("heading", {
+      level: 1,
+      name: `Karel Novotný ${unique}`,
+    })
     const terms = page.getByRole("region", { name: "Terms", exact: true })
     const termStatus = terms.getByText("Confirmed", { exact: true }).first()
     const termDates = terms.getByText(/4.*10 Jul/).first()
+    // The title is the participant's name (Figma F4), so a long one may wrap: only the fit is checked.
     await expectFitsViewport(page, applicationTitle, terms, termStatus, termDates)
-    await expectCompactHeading(applicationTitle)
     await expect(page.getByRole("heading", { name: "Organization contact" })).toBeVisible()
     await expect(page.getByRole("link", { name: "info@letni-kemp.example" })).toHaveAttribute(
       "href",
