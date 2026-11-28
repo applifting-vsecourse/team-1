@@ -103,27 +103,74 @@ function renderList(events: object[], createdEventId?: string) {
 afterEach(() => vi.restoreAllMocks())
 
 describe("EventList", () => {
+  // Figma F5 (15376:2): date tile, name, „organization · dates · place“, tonal badge, occupancy with a bar.
   it("shows each event as a row with its terms, status and occupancy", async () => {
-    renderList([event])
+    renderList([{ ...event, location: "Lipno nad Vltavou" }])
 
-    const card = (await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })).closest(
+    const row = (await screen.findByRole("heading", { name: "Letní kemp Lipno 2027" })).closest(
       "a",
     ) as HTMLElement
-    expect(within(card).getByText("Published")).toBeInTheDocument()
-    expect(within(card).getByText("Kemp Lipno · 2 terms · July 2027")).toBeInTheDocument()
-    expect(within(card).getByText("79/120 confirmed")).toBeInTheDocument()
-    expect(within(card).getByRole("progressbar", { name: "79/120 confirmed" })).toBeInTheDocument()
+    expect(within(row).getByText("Published")).toHaveAttribute("data-variant", "success")
+    expect(
+      within(row).getByText("Kemp Lipno · 2 terms · July 2027 · Lipno nad Vltavou"),
+    ).toBeInTheDocument()
+    expect(row.querySelector('[data-slot="date-tile"]')).toHaveTextContent("12")
+    expect(within(row).getByText("79 / 120")).toHaveClass("tabular-nums")
+    expect(within(row).getByText("confirmed")).toHaveClass("text-muted-foreground")
+    expect(within(row).getByRole("progressbar", { name: "79/120 confirmed" })).toBeInTheDocument()
   })
 
-  it("keeps both filters on one line so they have the same height on a phone (#753)", async () => {
+  // Every bar is as long as the others: the cell has a fixed width and the bar spans all of it,
+  // whatever the count says (152 / 160 or 18 / 24); without a term only the dash, in the same cell.
+  it("draws every occupancy bar across the same fixed-width cell", async () => {
+    renderList([event, draft])
+
+    await screen.findByRole("heading", { name: event.name })
+    const cells = document.querySelectorAll('[data-slot="occupancy"]')
+    expect(cells).toHaveLength(2)
+    for (const cell of cells) expect(cell).toHaveClass("w-full", "lg:w-50", "lg:shrink-0")
+    expect(screen.getByRole("progressbar", { name: "79/120 confirmed" })).toHaveClass(
+      "h-1",
+      "w-full",
+    )
+    const empty = screen
+      .getByRole("heading", { name: draft.name })
+      .closest("a")
+      ?.querySelector('[data-slot="occupancy"]')
+    expect(empty).toHaveTextContent("—")
+    expect(empty?.querySelector('[role="progressbar"]')).toBeNull()
+  })
+
+  it("has one primary action in the header and the status as a segment", async () => {
     renderList([event])
-    const organization = await screen.findByRole("combobox", { name: "Organization" })
-    const status = screen.getByRole("combobox", { name: "Event status" })
-    for (const select of [organization, status]) {
-      expect(select.className).not.toContain("whitespace-normal")
-    }
-    // One filter per row on a phone, so "All organizations" is shown whole.
-    expect(organization.closest(".grid")).toHaveClass("grid-cols-1", "sm:grid-cols-2")
+
+    const status = await screen.findByRole("radiogroup", { name: "Event status" })
+    expect(screen.getByRole("heading", { level: 1, name: "Events" })).toBeInTheDocument()
+    expect(screen.getAllByRole("link", { name: "Create event" })).toHaveLength(1)
+    expect(
+      within(status)
+        .getAllByRole("radio")
+        .map((radio) => radio.textContent),
+    ).toEqual(["All", "Open", "Inactive"])
+    expect(within(status).getByRole("radio", { name: "All" })).toBeChecked()
+    // The organization select has no label above it; it names itself.
+    expect(screen.getByRole("combobox", { name: "Organization" })).toHaveTextContent(
+      "All organizations",
+    )
+  })
+
+  it("filters the events by status", async () => {
+    const user = userEvent.setup()
+    renderList([event, draft])
+    const status = await screen.findByRole("radiogroup", { name: "Event status" })
+
+    await user.click(within(status).getByRole("radio", { name: "Inactive" }))
+    expect(screen.queryByRole("heading", { name: event.name })).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: draft.name })).toBeInTheDocument()
+
+    await user.click(within(status).getByRole("radio", { name: "Open" }))
+    expect(screen.getByRole("heading", { name: event.name })).toBeInTheDocument()
+    expect(screen.queryByRole("heading", { name: draft.name })).not.toBeInTheDocument()
   })
 
   it("highlights the event that was just created and says it has no term yet", async () => {
@@ -134,23 +181,27 @@ describe("EventList", () => {
     )
     expect(item).toHaveAttribute("data-created", "true")
     expect(within(item as HTMLElement).getByText("Kemp Lipno · No term yet")).toBeInTheDocument()
+    expect(item?.querySelector('[data-slot="date-tile"]')).toBeNull()
+    expect(within(item as HTMLElement).getByText("—", { selector: "[aria-hidden]" })).toBeVisible()
     expect(within(item as HTMLElement).queryByRole("progressbar")).not.toBeInTheDocument()
     expect(within(item as HTMLElement).getByText("Application inactive")).toBeInTheDocument()
   })
 
-  it("clears the organization filter while keeping the name search", async () => {
+  // Figma F5 (15376:300): the filtered list leaves the organization out of the row meta.
+  it("filters by organization, drops it from the rows and clears it while keeping the search", async () => {
     const user = userEvent.setup()
     renderList([event, { ...draft, organizationId: "o2", organizationName: "Summit Events" }])
     const organization = await screen.findByRole("combobox", { name: "Organization" })
     await user.click(organization)
     await user.click(screen.getByRole("option", { name: "Summit Events" }))
     expect(screen.queryByRole("heading", { name: event.name })).not.toBeInTheDocument()
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("1 event · Summit Events")
+    expect(screen.getByText("No term yet")).toBeInTheDocument()
+    expect(screen.queryByText(/Summit Events ·/)).not.toBeInTheDocument()
     const search = screen.getByRole("searchbox")
     await user.type(search, "jarní")
     await user.click(screen.getByRole("button", { name: "Clear filter" }))
     expect(search).toHaveValue("jarní")
-    expect(screen.getByRole("heading", { name: /1 event.*1 organization/ })).toBeVisible()
+    expect(screen.getByText("Summit Events · No term yet")).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Clear filter" })).not.toBeInTheDocument()
   })
 
@@ -164,6 +215,14 @@ describe("EventList", () => {
 
     expect(screen.getByRole("heading", { name: "Jarní víkend Lipno 2027" })).toBeInTheDocument()
     expect(screen.queryByRole("heading", { name: "Letní kemp Lipno 2027" })).not.toBeInTheDocument()
-    expect(screen.getByText("1 event")).toBeInTheDocument()
+  })
+
+  // Figma F5 (27777:148660): first run is the illustration, one sentence and one CTA; no header button.
+  it("shows the first run with one call to action and no button in the header", async () => {
+    renderList([])
+
+    expect(await screen.findByRole("heading", { name: "There are no events yet." })).toBeVisible()
+    expect(screen.getAllByRole("link", { name: "Create event" })).toHaveLength(1)
+    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument()
   })
 })

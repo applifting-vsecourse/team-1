@@ -6,6 +6,15 @@ Krok 5 plánu ([PLAN.md](PLAN.md)), zahájeno 5. 11. 2026. Podklady: schválený
 
 Aktuální mapu rámců E01–E20, šablon a odesílatelů uvádí [katalog](KATALOG.md#figma-a-místo-v-kódu). Společný vzhled je v [`email-kit.tsx`](../../apps/backend/src/core/email/email-kit.tsx). Potvrzení platby E15 odesílá `PaymentsService` a oznámení o zrušeném termínu E12 odesílá `TermStatusService`. Šablona E14 je dostupná v náhledu jako [`payment-overdue.tsx`](../../apps/backend/src/core/email/templates/payment-overdue.tsx). Odesílání čeká na [#46](https://github.com/applifting-vsecourse/team-1/issues/46). E07 a E11 používají evidované platby zrušeného termínu pro podmíněnou zprávu o vrácení. Souhrn E13 uvádí stavy dotčených termínů a u potvrzení podle platebních pravidel také celkovou částku přihlášky. Následující plán zachycuje stav původní realizace z 5. 11.
 
+## Fronta e-mailů z hromadných akcí (27. 11. 2026, #737)
+
+- Úloha v tabulce `email_job` vzniká v transakci se změnou (`TermStatusRepository.changeStatus` a `cancelTerm`, `PaymentsRepository.record` u importu z banky). Klíč `dedupeKey` je jedinečný pro událost a zprávu a slouží i jako idempotenční klíč pro Resend.
+- Odesílá `QueuedEmailDispatcher` hned po akci a každých `EMAIL_QUEUE_INTERVAL_MS` (výchozí 30 s), jednu zprávu po druhé.
+- Nejvýš 5 pokusů (po 1 min, 15 min, 2 h a 12 h). Stav `FAILED` = jistě nedoručeno, `UNCERTAIN` = mohlo být doručeno, proto se neopakuje. Po odeslání se z úlohy mažou data i obsah zprávy; u nedoručených zůstávají.
+- Zprávu, kterou mezitím překonala novější změna (jiný stav v termínu, zrušená nebo vrácená platba), worker neodešle a zapíše k úloze důvod (`QueuedEmailRepository.isOutdated`). Oznámení o zrušeném termínu se posílá vždy.
+- Jednotlivé akce, potvrzení po podání přihlášky a e-maily k účtu se odesílají hned jako dřív.
+- Nedoručené e-maily jsou vidět jen v databázi a v logu serveru.
+
 ## Vývojové úkoly
 
 | #   | Úkol                                                        | Rozsah                                                                                                                                                                                                                                                                                                                                                                                                     | Hotovo, když                                                                                                    | Návaznost                                                                                                                                                            |

@@ -1,16 +1,14 @@
 import { useId } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
-import { HeadingBand } from "@/components/atoms/HeadingBand"
-import { LogoSymbol } from "@/components/atoms/Logo"
+import Empty from "@/assets/illustrations/empty.svg?react"
+import Loading from "@/assets/illustrations/loading.svg?react"
 import { BackLink } from "@/components/molecules/BackLink"
-import { LoadingState } from "@/components/molecules/LoadingState"
+import { EmptyState } from "@/components/molecules/EmptyState"
 import { Pagination } from "@/components/molecules/Pagination"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -25,11 +23,12 @@ import { usePagination } from "@/hooks/usePagination"
 import { cn } from "@/lib/utils"
 
 import { catalogQueryOptions } from "@/features/catalog/api/catalog"
+import { CatalogSkeleton } from "@/features/catalog/components/CatalogSkeleton"
 import { EventCard } from "@/features/catalog/components/EventCard"
 import { eventsOf, knownOrganizationId } from "@/features/catalog/lib/catalog"
 
 const ALL = "all"
-const CONTENT = "mx-auto w-full max-w-300 px-4 md:px-6"
+const CONTENT = "mx-auto w-full max-w-299 px-4 md:px-12"
 
 type CatalogPageProps = {
   /** The chosen organization; without one, all events are listed. */
@@ -37,8 +36,8 @@ type CatalogPageProps = {
   onOrganizationChange: (organizationId: string | undefined) => void
 }
 
-// Figma v2 · public catalog · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-12072 (mobile 22640-12173).
-// States: empty 19404-4819, loading 19404-4897, error 19404-4994.
+// Figma (Design system v2): Katalog · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-12072 (mobile 22640-12173)
+// Organization 19404-4476 / 19404-4536, loading 19404-4933, empty 27422-16549, error 27422-16611.
 // US-123. Organization and event are a step-by-step choice on one page: the select narrows the cards
 // (Figma draws a search field instead; the select stays until #366).
 export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPageProps) {
@@ -92,103 +91,86 @@ export function CatalogPage({ organizationId, onOrganizationChange }: CatalogPag
   )
 
   return (
-    <>
-      <section
-        className={cn(
-          CONTENT,
-          "pt-4 [--workspace-inset:1rem] md:pt-8 md:[--workspace-inset:1.5rem]",
+    <div className={cn(CONTENT, "flex flex-col gap-6 pt-6 pb-12 md:pt-8")}>
+      <header className="flex flex-col items-start gap-3">
+        {selectedOrganization ? (
+          <BackLink to={ROUTES.catalog}>{t("event.back")}</BackLink>
+        ) : (
+          <BackLink to={ROUTES.home}>{t("list.back")}</BackLink>
         )}
-      >
-        <HeadingBand>
-          <div className="flex items-start gap-3 md:gap-4">
-            <BackLink to={selectedOrganization ? ROUTES.catalog : ROUTES.home}>
-              {t(selectedOrganization ? "event.back" : "list.backHome")}
-            </BackLink>
-            <h1 className="min-w-0 self-center text-2xl/8 font-bold tracking-tight wrap-anywhere md:text-4xl">
-              {selectedOrganization?.name ?? t("list.title")}
-            </h1>
-          </div>
-          {selectedOrganization ? null : (
-            <p className="mt-3 text-muted-foreground">{t("list.description")}</p>
-          )}
-        </HeadingBand>
-      </section>
+        <h1 className="text-2xl font-bold tracking-tight wrap-anywhere md:text-[32px]/10">
+          {selectedOrganization?.name ?? t("list.title")}
+        </h1>
+      </header>
 
-      <div className={cn(CONTENT, "flex flex-col gap-6 pt-8 pb-12 md:pt-12 md:pb-20")}>
-        {isPending ? <LoadingState label={t("list.loading")} /> : null}
+      {isPending ? <CatalogSkeleton /> : null}
 
-        {isError ? (
-          <Alert variant="destructive">
-            <TriangleAlert aria-hidden />
-            <AlertTitle>{t("list.errorTitle")}</AlertTitle>
-            <AlertDescription>{t("list.errorDescription")}</AlertDescription>
-          </Alert>
-        ) : null}
+      {isError ? (
+        <EmptyState
+          role="alert"
+          className="mx-auto w-full max-w-102"
+          title={t("list.errorTitle")}
+          illustration={<Loading className="w-60" />}
+          action={
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => void refetch()}
+            >
+              {t("list.retry")}
+            </Button>
+          }
+        />
+      ) : null}
 
-        {isEmpty ? (
-          <div className="flex flex-col items-center gap-4 p-6 text-center">
-            <LogoSymbol className="size-14 text-primary" />
-            <h2 className="text-2xl/8 font-bold tracking-tight">{t("list.emptyTitle")}</h2>
-            <p className="text-muted-foreground">{t("list.emptyDescription")}</p>
-          </div>
-        ) : null}
+      {isEmpty ? (
+        <EmptyState
+          title={t("list.emptyTitle")}
+          message={t("list.emptyDescription")}
+          illustration={<Empty className="w-60" />}
+          className="mx-auto w-full max-w-102"
+        />
+      ) : null}
 
-        {select}
-
-        {isError ? (
-          <Button
-            size="lg"
-            className="w-full md:w-55"
-            onClick={() => void refetch()}
-          >
-            {t("list.retry")}
-          </Button>
-        ) : null}
-
-        {data && !isEmpty ? (
-          <>
-            {groups.map((org) => (
-              <section
-                key={org.id}
-                className="flex flex-col gap-4"
-              >
-                {selectedOrganization ? null : (
-                  <div className="flex items-center justify-between gap-3">
-                    <h2>
-                      <Button
-                        variant="ghost"
-                        asChild
-                        className="h-12 max-w-full whitespace-normal"
-                      >
-                        <Link
-                          to={ROUTES.catalog}
-                          search={{ organization: org.id }}
-                        >
-                          {org.name}
-                        </Link>
-                      </Button>
-                    </h2>
-                    <Badge className="bg-muted-foreground text-background tabular-nums">
-                      {t("list.eventCount", { count: totals.get(org.id) ?? 0 })}
-                    </Badge>
-                  </div>
-                )}
-                <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),22.5rem))] gap-6">
-                  {org.events.map((event) => (
-                    <li key={event.publicToken}>
-                      <EventCard event={event} />
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
-            <Pagination
-              {...pagination}
-              onPageChange={pagination.setPage}
-            />
-          </>
-        ) : null}
-      </div>
-    </>
+      {data && !isEmpty ? (
+        <>
+          {select}
+          {groups.map((org) => (
+            <section
+              key={org.id}
+              className="flex flex-col gap-3"
+            >
+              {selectedOrganization ? null : (
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg/6.5 font-semibold tracking-tight">
+                    <Link
+                      to={ROUTES.catalog}
+                      search={{ organization: org.id }}
+                      className="hover:underline"
+                    >
+                      {org.name}
+                    </Link>
+                  </h2>
+                  <Badge className="bg-muted-foreground text-background tabular-nums">
+                    {t("list.eventCount", { count: totals.get(org.id) ?? 0 })}
+                  </Badge>
+                </div>
+              )}
+              <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-4 md:gap-6">
+                {org.events.map((event) => (
+                  <li key={event.publicToken}>
+                    <EventCard event={event} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+          <Pagination
+            {...pagination}
+            onPageChange={pagination.setPage}
+          />
+        </>
+      ) : null}
+    </div>
   )
 }

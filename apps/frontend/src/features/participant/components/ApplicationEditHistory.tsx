@@ -13,7 +13,7 @@ function EditHistoryLine({ change }: { change: EditableApplication["history"][nu
   const fields = change.changedFields
   const hasAccommodationChanges = fields.some(isAccommodation)
   const hasPersonalChanges = fields.some((field) =>
-    ["firstName", "lastName", "birthDate"].includes(field),
+    ["firstName", "lastName", "birthDate", "pronouns"].includes(field),
   )
   const hasContactChanges = fields.includes("phone")
   const kinds = [

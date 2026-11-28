@@ -1,3 +1,4 @@
+import { EmailQueueModule } from "@/core/email/queue/email-queue.module"
 import { PrismaModule } from "@/core/prisma/prisma.module"
 import { NotificationsModule } from "@/modules/notifications/notifications.module"
 import { ParticipantsModule } from "@/modules/participants/participants.module"
@@ -59,6 +60,7 @@ import { WaitlistExpiryService } from "./services/waitlist-expiry.service"
 @Module({
   imports: [
     PrismaModule,
+    EmailQueueModule,
     NotificationsModule,
     ParticipantsModule,
     OrganizationAccessModule,

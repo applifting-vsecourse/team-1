@@ -1,20 +1,15 @@
 /**
  * How many items a long list shows before it folds the rest away (#732). One place decides the
- * counts for the application form, the catalog card and the event page; the components only ask.
+ * counts for the application form and the event page; the components only ask.
  */
 export const COMPACT_LIMITS = {
   /** Terms the applicant can tick in the form. */
   formSelection: 8,
   /** Terms in the event summary above the form. */
   formSummary: 3,
-  /** Dates on a catalog card. */
-  catalogCard: 4,
   /** Terms on the event page. */
   eventPage: 8,
 } as const
-
-/** Up to this many terms a card and the event page keep their single-column list. */
-export const SINGLE_COLUMN_TERMS = 3
 
 /** Up to this many terms the form keeps its one-column choice of terms. */
 export const FORM_SINGLE_COLUMN_TERMS = 4

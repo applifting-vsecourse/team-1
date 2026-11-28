@@ -2,28 +2,29 @@ import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate } from "@tanstack/react-router"
 import type { TFunction } from "i18next"
-import { CircleAlert } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { TriangleAlert } from "lucide-react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { PasswordInput } from "@/components/molecules/PasswordInput"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertTitle } from "@/components/ui/alert"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { notify } from "@/lib/notify"
 
+import { FormPasswordRule, MIN_PASSWORD_LENGTH } from "@/features/auth/components/PasswordRule"
 import { useSetPassword } from "@/features/auth/hooks/useSetPassword"
-
-const MIN_PASSWORD_LENGTH = 8
 
 // Built per render language so validation messages follow the UI language.
 const createSchema = (t: TFunction<"auth">) =>
@@ -48,6 +49,7 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
     resolver: zodResolver(schema),
     defaultValues: { newPassword: "" },
   })
+  const newPassword = useWatch({ control: form.control, name: "newPassword" })
   const setPassword = useSetPassword()
 
   const onSubmit = async ({ newPassword }: FormValues) => {
@@ -56,6 +58,7 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
     } catch {
       return // the Alert below shows it; the form keeps its data
     }
+    notify.success(t("setPassword.saved"))
     await navigate({ to: ROUTES.participant.applications })
   }
 
@@ -66,10 +69,20 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-4"
       >
-        <dl className="flex flex-col gap-2 rounded-control bg-wash p-4">
-          <dt className="text-sm">{t("setPassword.emailLabel")}</dt>
-          <dd className="min-w-0 [overflow-wrap:anywhere]">{email}</dd>
-        </dl>
+        <div className="flex flex-col gap-2">
+          <Label
+            htmlFor="set-password-email"
+            className="text-muted-foreground"
+          >
+            {t("setPassword.emailLabel")}
+          </Label>
+          <Input
+            id="set-password-email"
+            type="email"
+            value={email}
+            disabled
+          />
+        </div>
 
         <FormField
           control={form.control}
@@ -80,27 +93,22 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
               <FormControl>
                 <PasswordInput
                   autoComplete="new-password"
-                  placeholder={t("setPassword.newPasswordPlaceholder")}
                   {...field}
                 />
               </FormControl>
+              <FormPasswordRule
+                password={newPassword}
+                hasError={Boolean(form.formState.errors.newPassword)}
+              />
               <FormMessage />
-              {form.formState.errors.newPassword ? null : (
-                <FormDescription className="text-foreground">
-                  {t("setPassword.newPasswordHint")}
-                </FormDescription>
-              )}
             </FormItem>
           )}
         />
 
         {setPassword.isError ? (
           <Alert variant="destructive">
-            <CircleAlert />
-            <AlertTitle>{t("setPassword.errors.failedTitle")}</AlertTitle>
-            <AlertDescription className="min-w-0 [overflow-wrap:anywhere]">
-              {setPassword.error.message}
-            </AlertDescription>
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{t("setPassword.errors.failed")}</AlertTitle>
           </Alert>
         ) : null}
 
@@ -110,7 +118,7 @@ export function SetPasswordForm({ email }: SetPasswordFormProps) {
           className="w-full"
           isPending={setPassword.isPending}
         >
-          {setPassword.isPending ? t("state.saving", { ns: "common" }) : t("setPassword.submit")}
+          {t("setPassword.submit")}
         </PendingButton>
       </form>
     </Form>

@@ -39,6 +39,7 @@ export function BoardAdminPage({ eventId }: { eventId: string }) {
     <div className="flex flex-col gap-6">
       <Seo title={t("admin.title")} />
       <SectionHeader
+        isTitleHidden
         title={t("admin.title")}
         actions={
           <Button
@@ -64,7 +65,7 @@ export function BoardAdminPage({ eventId }: { eventId: string }) {
       ) : posts.length === 0 ? (
         <EmptyState message={t("admin.empty")} />
       ) : (
-        <div className="rounded-lg border bg-card">
+        <div className="rounded-lg border border-border-strong bg-card nested:border-border">
           <Table className="min-w-160">
             <TableHeader className="bg-wash">
               <TableRow>
@@ -93,7 +94,7 @@ export function BoardAdminPage({ eventId }: { eventId: string }) {
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon-lg"
+                        size="icon-sm"
                         aria-label={t("admin.edit")}
                         title={t("admin.edit")}
                         onClick={() => {
@@ -105,7 +106,7 @@ export function BoardAdminPage({ eventId }: { eventId: string }) {
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon-lg"
+                        size="icon-sm"
                         aria-label={t("admin.delete")}
                         title={t("admin.delete")}
                         onClick={() => {

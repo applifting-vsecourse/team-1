@@ -1,69 +1,34 @@
 {
-  "catalogLink": "Prohlédnout katalog akcí",
+  "createEvent": "Vytvořit akci",
   "cta": {
-    "body": "Togena pomáhá organizátorům vypsat termíny, hlídat místa a vidět přihlášky i platby na jednom místě.",
     "title": "Připraveni vypsat první akci?"
   },
-  "description": "Togena pomáhá organizátorům vypsat termíny, hlídat místa a vidět přihlášky i platby na jednom místě. Účastníci se přihlásí z odkazu bez registrace.",
+  "description": "Togena pomáhá organizátorům vypsat termíny, hlídat místa a vidět přihlášky i platby na jednom místě.",
   "features": {
     "capacity": {
-      "body": "Pokoje a jejich počet míst určují dostupnou kapacitu. Akce může používat společné pokoje nebo dělení podle pohlaví.",
+      "body": "Volná místa se počítají z pokojů, společných i podle pohlaví.",
       "title": "Kapacitu podle pokojů"
     },
     "multiTerm": {
-      "body": "U jedné akce vypíšete několik termínů s cenami. Zájemce si z odkazu vybere jeden nebo více z nich.",
+      "body": "Více termínů s vlastní cenou, účastník si vybere jeden nebo víc.",
       "title": "Přihlášky na více termínů"
     },
     "payments": {
-      "body": "U potvrzených míst vidíte částku k úhradě. Organizátor má přehled, kdo už zaplatil a kdo ještě čeká.",
+      "body": "Vidíte, kdo zaplatil a kdo ještě ne.",
       "title": "Přehled plateb"
     },
-    "title": "Co v Togeně vyřídíte",
+    "title": "Co v Togeně vyřídíte",
     "waitlist": {
-      "body": "Po odeslání je vidět stav každého termínu. Když se místo zaplní, zájemce může čekat jako náhradník.",
+      "body": "Když se termín zaplní, další přihlášky v něm dostanou stav Náhradník.",
       "title": "Potvrzení a náhradníky"
     }
   },
-  "footer": "Togena · Správa vícetermínových akcí",
-  "footerLinks": {
-    "login": "Přihlásit se",
-    "myApplications": "Moje přihlášky",
-    "organizers": "Pro organizátory",
-    "participants": "Pro účastníky",
-    "register": "Založit účet"
-  },
-  "nav": {
-    "catalog": "Katalog akcí",
-    "organizers": "Pro organizátory",
-    "participants": "Pro účastníky"
-  },
-  "organizerCta": "Jsem organizátor",
-  "participants": {
-    "body": "Zájemce si z odkazu vybere termín nebo více termínů a po odeslání vidí stav každého z nich.",
-    "title": "Účastníci se přihlásí z odkazu bez registrace"
-  },
+  "findEvent": "Najít akci",
+  "noSignUp": "Přihlásíte se bez registrace.",
   "preview": {
-    "confirmed": "Potvrzeno 139",
-    "event": "Letní tábor Modrá Hora",
-    "paid": "Zaplaceno",
-    "waitlist": "Náhradníci 9"
+    "confirmed": "Potvrzeno",
+    "event": "Letní tábor Modrá Hora"
   },
   "title": "Přihlášky na akce s více termíny",
-  "titleAccent": "bez zmatku",
-  "types": {
-    "camps": {
-      "body": "Termíny, pokoje a platby účastníků na jednom místě.",
-      "title": "Letní tábory"
-    },
-    "conferences": {
-      "body": "Přihlášky bez e-mailových řetězců a tabulek.",
-      "title": "Konference a workshopy"
-    },
-    "description": "Od dětských táborů přes konference až po sportovní soustředění.",
-    "title": "Pro každý typ akce",
-    "trips": {
-      "body": "Kapacita podle pokojů a přehled náhradníků.",
-      "title": "Soustředění a výjezdy"
-    }
-  }
+  "titleAccent": "bez zmatku"
 }

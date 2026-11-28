@@ -80,9 +80,11 @@ export type OwnMeals = {
   specialRequest: string | null
   /** The participant confirmed having no meal restriction (US-150). */
   noRestrictions: boolean
+  /** Until the last term that is not cancelled is over (D-192); the same for both roles. */
+  editable: boolean
 }
 
-export type OrganizerMeals = OwnMeals & { editable: boolean }
+export type OrganizerMeals = OwnMeals
 
 export type KitchenPerson = {
   applicationId: string

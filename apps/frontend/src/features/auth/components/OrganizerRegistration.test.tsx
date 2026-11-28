@@ -62,9 +62,29 @@ describe("organizer registration", () => {
     expect(screen.getByRole("heading", { name: "Create an organizer account" })).toBeInTheDocument()
     expect(screen.getByText("Enter a valid e-mail, e.g. kuba@example.cz.")).toBeInTheDocument()
     expect(screen.getByLabelText("Password *")).toHaveAccessibleDescription(
-      "At least 8 characters.",
+      "At least 8 characters (not met)",
     )
     expect(signUp).not.toHaveBeenCalled()
+  })
+
+  it("ticks the password rule off live as the password grows", async () => {
+    render(<OrganizerRegistration />)
+    const password = screen.getByLabelText("Password *")
+
+    expect(password).toHaveAccessibleDescription("At least 8 characters (not met)")
+    await userEvent.type(password, "password1")
+    expect(password).toHaveAccessibleDescription("At least 8 characters (met)")
+  })
+
+  it("has no intro sentence and offers the sign-in in the card footer", () => {
+    render(<OrganizerRegistration />)
+
+    expect(screen.queryByText(/Then you verify your e-mail/)).not.toBeInTheDocument()
+    expect(screen.getByText(/Already have an account\?/)).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute(
+      "href",
+      "/organizer/login",
+    )
   })
 
   it("asks for the password once and lets the applicant show it", async () => {

@@ -1,23 +1,24 @@
 import { useState } from "react"
-import { Link, useNavigate } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { ROUTES } from "@/app/routes"
-import { BrandDivider } from "@/components/atoms/BrandDivider"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { Seo } from "@/components/atoms/Seo"
 import { PasswordInput } from "@/components/molecules/PasswordInput"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
+import { Alert, AlertTitle } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { currentLanguage } from "@/i18n"
 
 import { bypassTokenOf } from "@/features/auth/api/emailVerificationBypass"
+import { CardFooterLinks } from "@/features/auth/components/CardFooterLinks"
+import { MIN_PASSWORD_LENGTH, PasswordRule } from "@/features/auth/components/PasswordRule"
 import { RegistrationLayout } from "@/features/auth/components/RegistrationLayout"
 import { authClient } from "@/features/auth/lib/auth-client"
 
-// Figma v2: Vytvořit účet organizátora · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22456-10994 (mobile 22456-11097)
+// Figma (Design system v2): Registrace organizátora / Účet · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27462-8762 (mobile 27462-8840)
 export function OrganizerRegistration() {
   const { t } = useTranslation("auth")
   const { t: tErrors } = useTranslation("errors")
@@ -28,7 +29,7 @@ export function OrganizerRegistration() {
   const [isPending, setPending] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   const isValidEmail = z.string().email().safeParse(email.trim()).success
-  const isValidPassword = password.length >= 8
+  const isValidPassword = password.length >= MIN_PASSWORD_LENGTH
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -67,11 +68,7 @@ export function OrganizerRegistration() {
   return (
     <RegistrationLayout>
       <Seo title={title} />
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        <p>{t("registration.description")}</p>
-      </div>
-      <BrandDivider />
+      <h1 className="text-center text-2xl font-bold">{title}</h1>
       <form
         noValidate
         onSubmit={(event) => void submit(event)}
@@ -86,7 +83,6 @@ export function OrganizerRegistration() {
           </label>
           <Input
             id="registration-email"
-            className="h-12"
             type="email"
             autoComplete="email"
             value={email}
@@ -107,46 +103,37 @@ export function OrganizerRegistration() {
           </label>
           <PasswordInput
             id="registration-password"
-            className="h-12"
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             aria-invalid={isSubmitted && !isValidPassword}
             aria-describedby="registration-password-hint"
           />
-          <p
+          <PasswordRule
             id="registration-password-hint"
-            className={
-              isSubmitted && !isValidPassword
-                ? "text-sm text-destructive"
-                : "text-sm text-muted-foreground"
-            }
-          >
-            {t("registration.passwordHint")}
-          </p>
+            password={password}
+            hasError={isSubmitted && !isValidPassword}
+          />
         </div>
         {failure ? (
           <Alert variant="destructive">
-            <AlertDescription>{failure}</AlertDescription>
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{failure}</AlertTitle>
           </Alert>
         ) : null}
         <PendingButton
           isPending={isPending}
           type="submit"
           size="lg"
-          className="h-12 w-full"
+          className="w-full"
         >
           {t("registration.createAccount")}
         </PendingButton>
-        <Button
-          asChild
-          variant="outline"
-          size="lg"
-          className="h-12 w-full"
-        >
-          <Link to={ROUTES.organizer.login}>{t("registration.haveAccount")}</Link>
-        </Button>
       </form>
+      <CardFooterLinks
+        question={t("registration.haveAccount")}
+        links={[{ to: ROUTES.organizer.login, label: t("registration.signIn") }]}
+      />
     </RegistrationLayout>
   )
 }

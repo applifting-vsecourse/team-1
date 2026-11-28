@@ -42,6 +42,7 @@ export class HealthService {
         "Filled-in health data changes only through a request to the organizer",
       )
     }
+    if (!stored?.editable) throw this.closed()
     const decision = decideHealth(input)
     if (decision.kind === "invalid") {
       throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", "Invalid health input")
@@ -58,6 +59,52 @@ export class HealthService {
     } else if (decision.kind === "none") await this.health.confirmNoRestriction(applicationId)
     else await this.health.save(organizationId, applicationId, decision.note, new Date())
     return this.getOwn(user, applicationId)
+  }
+
+  /**
+   * An organizer writes the restriction for a participant who does not use the application
+   * (D-191, #789): only the first time, and only after confirming that the applicant gave the
+   * explicit consent. Changing or deleting a stored note stays with the change request (D-122).
+   */
+  async saveByOrganizer(
+    user: Identity,
+    applicationId: string,
+    input: { note: string; noRestriction?: boolean; consentConfirmed: boolean },
+  ): Promise<HealthRecord> {
+    const { organizationId } = await this.organizationAccess.assertCanAccessApplication(
+      user,
+      applicationId,
+    )
+    if (!input.consentConfirmed) {
+      throw new AppException(
+        HttpStatus.BAD_REQUEST,
+        "HEALTH_ORGANIZER_CONSENT_REQUIRED",
+        "The organizer has to confirm the applicant's explicit consent",
+      )
+    }
+    const stored = await this.health.findOfOrganization(organizationId, applicationId)
+    if (!stored) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    if (healthWriteRoute(stored.note != null) === "request") {
+      throw new AppException(HttpStatus.CONFLICT, "HEALTH_CHANGE_REQUEST_REQUIRED")
+    }
+    if (!stored.editable) throw this.closed()
+    // The organizer has the consent confirmed, so the participant's rule runs with `consent`.
+    const decision = decideHealth({ ...input, consent: true })
+    if (decision.kind === "invalid" || decision.kind === "clear") {
+      throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", "Invalid health input")
+    }
+    const editor = { id: user.id, name: user.name?.trim() || user.email }
+    if (decision.kind === "none") {
+      await this.health.confirmNoRestriction(applicationId, { organizationId, editor })
+    } else if (decision.kind === "save") {
+      await this.health.save(organizationId, applicationId, decision.note, new Date(), editor)
+    }
+    return this.getForOrganizer(user, applicationId)
+  }
+
+  /** No first entry once every term is over or cancelled; the change request stays open. */
+  private closed(): AppException {
+    return new AppException(HttpStatus.CONFLICT, "HEALTH_EDIT_CLOSED")
   }
 
   async getForOrganizer(user: Identity, applicationId: string): Promise<HealthRecord> {

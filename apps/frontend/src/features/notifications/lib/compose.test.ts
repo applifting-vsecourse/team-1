@@ -65,12 +65,11 @@ describe("composeNotification", () => {
     )
   })
 
-  it("separates who, where and what changed", () => {
+  it("separates who and where", () => {
     expect(compose("CONFIRMED", "cs")).toMatchObject({
       title: "Přihláška byla potvrzena",
       participant: "Adam Dvořák",
       context: "12.–18. 7. 2027 · Letní kemp Lipno 2027",
-      change: { from: "Náhradník", to: "Potvrzeno" },
     })
   })
 
@@ -83,11 +82,8 @@ describe("composeNotification", () => {
     expect(compose("WAITLISTED", "cs").title).toBe("Jste náhradník")
   })
 
-  it("names the status before and after in English too", () => {
-    expect(compose("WAITLISTED", "en")).toMatchObject({
-      title: "You are a substitute",
-      change: { from: "Waitlisted", to: "Confirmed" },
-    })
+  it("tells a substitute in English too", () => {
+    expect(compose("WAITLISTED", "en").title).toBe("You are a substitute")
   })
 
   it("shows a payment with the amount and what is still owed", () => {

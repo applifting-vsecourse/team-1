@@ -1,8 +1,8 @@
+import { CircleCheck } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import Edit from "@/assets/motion/review-edit.svg?react"
 import { DetailItem } from "@/components/molecules/DetailItem"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { formatDate } from "@/lib/date"
@@ -85,6 +85,9 @@ export function ApplicationReview({ values, terms, isSubmitting, onEdit }: Props
               {formatDate(person.birthDate)} ·{" "}
               {t(person.gender === "FEMALE" ? "form.genderFemale" : "form.genderMale")}
             </DetailItem>
+            {person.pronouns?.trim() && (
+              <DetailItem label={t("form.pronouns")}>{person.pronouns.trim()}</DetailItem>
+            )}
             <DetailItem label={t("review.terms")}>
               {terms
                 .filter((term) => person.termIds.includes(term.id))
@@ -106,10 +109,14 @@ export function ApplicationReview({ values, terms, isSubmitting, onEdit }: Props
           </Card>
         ))}
       </div>
-      <Card className="items-start gap-2 rounded-lg p-4">
-        <h2 className="text-2xl font-bold">{t("review.consent")}</h2>
-        <Badge className="bg-primary text-primary-foreground">{t("review.agreed")}</Badge>
-      </Card>
+      {/* Figma v2: consent row · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27444-16671 (mobile 27444-16679) */}
+      <p className="flex items-start gap-2">
+        <CircleCheck
+          aria-hidden
+          className="mt-0.5 size-5 shrink-0 text-primary"
+        />
+        {t("review.consentGiven")}
+      </p>
     </div>
   )
 }

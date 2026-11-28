@@ -1,6 +1,5 @@
 {
   "applications": {
-    "description": "All applications in your account, including applications for other participants.",
     "title": "My applications"
   },
   "change": {
@@ -57,9 +56,7 @@
     }
   },
   "contact": {
-    "email": "Send an e-mail",
     "none": "The organization hasn't published a contact yet.",
-    "phone": "Call",
     "title": "Organization contact"
   },
   "detail": {
@@ -67,6 +64,12 @@
     "archivedText": "The term has ended, there is nothing left to arrange.",
     "archivedTitle": "Archived application",
     "back": "Back to my applications",
+    "before": {
+      "chosen": "Chosen",
+      "filled": "Filled in",
+      "notFilled": "Not filled in",
+      "title": "Before the event"
+    },
     "birthGender": "Date of birth and gender",
     "errorTitle": "Couldn't load the application",
     "female": "woman",
@@ -88,26 +91,20 @@
       "terms": "Terms"
     },
     "steps": {
-      "done": "Done",
-      "health": "Health restriction",
-      "healthFill": "Fill in details",
-      "healthView": "View details",
-      "meals": "Meals",
-      "mealsFill": "Fill in meals",
-      "mealsView": "View meals",
-      "noWishes": "No wishes",
-      "payment": "Payment",
-      "paymentPay": "Pay {{amount}}",
-      "paymentView": "View payment details",
-      "title": "Steps before the event",
-      "todo": "To do",
       "transport": "Transport",
-      "transportChoose": "Choose transport",
-      "transportView": "View transport",
-      "wishesAdd": "Enter roommate wishes",
-      "wishesChange": "Change",
       "wishesDecline": "I have no wishes",
       "wishesSaveFailed": "Could not save your response."
+    },
+    "subtitle": "{{event}} · application {{code}}",
+    "tasks": {
+      "hideQr": "Hide QR code",
+      "pay": "Pay {{amount}}",
+      "showQr": "Show QR code",
+      "title": "Still to arrange",
+      "transport": "Choose transport"
+    },
+    "terms": {
+      "waitlistNote": "If no bed becomes free before the term starts, the application for this term will be cancelled."
     },
     "title": "Application details",
     "toEvaluate": {
@@ -152,6 +149,7 @@
     "participant": "Participant details",
     "phone": "Phone",
     "phoneInvalid": "Enter a valid phone number, for example +420 777 123 456.",
+    "pronouns": "Pronouns",
     "retry": "Try again",
     "save": "Save changes",
     "saveError": "Try saving your changes again",
@@ -164,15 +162,22 @@
     "valuesPreserved": "Your entries have been kept."
   },
   "list": {
-    "empty": "You have no applications yet. Once you apply for an event, it will appear here.",
+    "dueOn": "due {{date}}",
+    "emptyDescription": "Once you apply for an event, it will show up here.",
+    "emptyTitle": "You don't have any applications yet",
     "errorTitle": "Couldn't load your applications",
-    "female": "female",
+    "findEvent": "Find an event",
+    "hideCancelled": "Hide cancelled applications",
     "hidePaymentReminders": "Show fewer",
-    "male": "male",
-    "paymentNote": "This applies only to the confirmed term; don't pay for a waitlisted term yet.",
-    "remaining": "Remaining to pay",
+    "past": "Past",
+    "pastEmpty": "You don't have any past events yet.",
+    "paymentDetails": "Payment details",
+    "remainingAmount": "{{amount}} left to pay",
+    "retry": "Try again",
+    "showCancelled": "Show cancelled applications ({{count}})",
     "showMorePaymentReminders": "Show more ({{count}})",
-    "termPrice": "Term price"
+    "upcoming": "Upcoming",
+    "upcomingEmpty": "No upcoming applications. You will find past ones under Past."
   },
   "notifications": {
     "empty": "No notifications yet.",
@@ -187,28 +192,27 @@
     },
     "title": "Notifications"
   },
+  "organizerArrangements": {
+    "back": "Back to the application",
+    "declined": "Confirmed: the participant has no roommate wishes.",
+    "empty": "No wishes have been entered for this term yet.",
+    "errorTitle": "Could not load the participant’s data",
+    "nothing": "No roommate wishes or stay can be entered for this application: no term is confirmed or open.",
+    "title": "Roommate wishes and stay"
+  },
   "payment": {
     "account": "Bank account",
-    "amount": "Amount",
-    "copyAmount": "Copy amount",
-    "heading": "Payments",
     "overpaymentNotTransferred": "An overpayment is not carried over between terms.",
     "overpaymentRefund": "Arrange the refund of the overpayment with the organizer.",
-    "qrAlt": "QR code for the combined payment",
-    "saveQr": "Download QR code",
     "simulation": {
       "failed": "The simulated payment could not be recorded.",
-      "heading": "Test environment · payment simulation",
       "logDescription": "Test payments created with the “I paid” button. These are not actual bank transfers.",
       "logLine": "+{{amount}} · {{term}} · source: simulation",
       "logTitle": "Simulated payment history",
       "paid": "I paid",
       "termAmount": "Simulate payment of this term’s balance: {{amount}}"
     },
-    "summaryBreakdown": "Breakdown",
-    "summaryQrExplanation": "Covers all confirmed terms. The summary variable symbol differs from the per-term ones.",
-    "summaryVariableSymbol": "Summary variable symbol",
-    "totalOwed": "Left to pay in total"
+    "variableSymbol": "Variable symbol"
   },
   "paymentStatus": {
     "OVERPAID": "Overpaid",
@@ -302,5 +306,6 @@
       "deleted": "Arrival and departure deleted.",
       "saved": "Arrival and departure saved."
     }
-  }
+  },
+  "termClosed": "The term is over, the details can no longer be changed."
 }
