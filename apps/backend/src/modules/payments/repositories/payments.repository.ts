@@ -18,6 +18,7 @@ import {
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
 import { queuedEmailJob } from "@/modules/participants/domain/queued-email"
+import { manualMatchReason, UnmatchedReason } from "@/modules/payments/domain/bank-statement"
 import { PaymentApplication } from "@/modules/payments/domain/payment"
 import {
   paymentReceivedMessage,
@@ -123,6 +124,9 @@ export type PaidTermNotice = {
   endsOn: Date
 }
 
+/** A paid term with the id of its application term. */
+type ClosedTerm = PaidTermNotice & { id: string }
+
 @Injectable()
 export class PaymentsRepository {
   constructor(
@@ -210,7 +214,7 @@ export class PaymentsRepository {
   private async queuePaymentReceived(
     tx: Prisma.TransactionClient,
     { applicationId, organizationId, requestId }: RecordPaymentInput,
-    paid: PaidTermNotice[],
+    paid: ClosedTerm[],
   ): Promise<void> {
     if (!paid.length) return
     const context = await this.findEmailContext(applicationId, organizationId, tx)
@@ -219,13 +223,8 @@ export class PaymentsRepository {
       where: { id: applicationId },
       select: { eventId: true },
     })
-    const covered = await tx.applicationTerm.findMany({
-      where: { applicationId, status: "CONFIRMED", payments: { some: { receiptId: requestId } } },
-      include: { payments: { where: { cancelledAt: null }, select: { amountCzk: true } } },
-    })
-    const settledTermIds = covered
-      .filter((term) => computeTermOwed(term, term.payments) === 0)
-      .map((term) => term.id)
+    // The terms the e-mail names, an overpaid one included.
+    const settledTermIds = paid.map((term) => term.id)
     // Hashed: a receipt id of a bank row can be longer than a provider's idempotency key.
     const receipt = createHash("sha256").update(`${applicationId}:${requestId}`).digest("hex")
     await this.emailJobs.enqueue(tx, [
@@ -339,9 +338,10 @@ export class PaymentsRepository {
     tx: Prisma.TransactionClient,
     applicationId: string,
     before: { id: string; owedCzk: number }[],
-  ): Promise<PaidTermNotice[]> {
+  ): Promise<ClosedTerm[]> {
     const after = await this.confirmedTermBalances(tx, applicationId)
-    return planPaymentConfirmations(before, after).map(({ name, startsOn, endsOn }) => ({
+    return planPaymentConfirmations(before, after).map(({ id, name, startsOn, endsOn }) => ({
+      id,
       name,
       startsOn,
       endsOn,
@@ -545,23 +545,32 @@ export class PaymentsRepository {
       )
       // Match and import lock the bank row before locking the application.
       if (assignmentReceipt) {
-        // Automatic import never matches a row without a reference. This is the only legacy
-        // kind we can reopen with a known original reason.
-        const isLegacyReceipt = assignmentReceipt.startsWith("bank:")
-        await tx.bankTransaction.updateMany({
-          where: {
-            organizationId,
-            applicationId,
-            receiptId: assignmentReceipt,
-            status: "MATCHED",
-            ...(isLegacyReceipt && { variableSymbol: null }),
-          },
-          data: {
-            status: "UNMATCHED",
-            applicationId: null,
-            ...(isLegacyReceipt && { reason: "NO_VARIABLE_SYMBOL" }),
-          },
-        })
+        const where = {
+          organizationId,
+          applicationId,
+          receiptId: assignmentReceipt,
+          status: "MATCHED" as const,
+        }
+        // A legacy `bank:` receipt is shared with the automatic import: it is reopened only when
+        // the symbol shows that the import could not have made the match.
+        let legacyReason: UnmatchedReason | null = null
+        if (assignmentReceipt.startsWith("bank:")) {
+          const row = await tx.bankTransaction.findFirst({
+            where,
+            select: { variableSymbol: true, application: { select: { number: true } } },
+          })
+          if (row?.application)
+            legacyReason = manualMatchReason(row.variableSymbol, row.application.number)
+        }
+        if (assignmentReceipt.startsWith("bank-manual:") || legacyReason)
+          await tx.bankTransaction.updateMany({
+            where,
+            data: {
+              status: "UNMATCHED",
+              applicationId: null,
+              ...(legacyReason && { reason: legacyReason }),
+            },
+          })
       }
       const locked = await tx.$queryRaw<
         { id: string }[]

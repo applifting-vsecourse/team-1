@@ -3,6 +3,7 @@
   "APPLICATION_NOT_EDITABLE": "This application can no longer be edited: it has no active term, or all its terms are over.",
   "BANK_STATEMENT_INVALID": "The file is not a supported bank statement. Upload a CSV export from Fio.",
   "BANK_TRANSACTION_ALREADY_MATCHED": "The payment was already assigned. Refresh the list.",
+  "BANK_TRANSACTION_CHANGED": "The amount of the payment changed in the meantime. Check it and assign the payment again.",
   "BANK_TRANSACTION_NOT_ASSIGNABLE": "This payment cannot be assigned: the amount is not in whole crowns or not in CZK.",
   "BED_ALREADY_TAKEN": "The bed has meanwhile been taken by someone else.",
   "BOARD_POST_TERM_INVALID": "Choose at least one term that is not cancelled.",

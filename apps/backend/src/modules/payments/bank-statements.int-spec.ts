@@ -1,5 +1,10 @@
 import { randomUUID } from "node:crypto"
+import { PrismaEmailJobRepository } from "@/core/email/queue/prisma-email-job.repository"
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
+import { QueuedEmail } from "@/modules/participants/domain/queued-email"
+import { QueuedEmailRepository } from "@/modules/participants/repositories/queued-email.repository"
+import { PaymentsRepository } from "@/modules/payments/repositories/payments.repository"
 import {
   allEmailsTo,
   api,
@@ -411,16 +416,26 @@ describe("bank statement import (US-42)", () => {
       const row = await prisma.bankTransaction.findFirstOrThrow({ where: { externalId } })
       return { id: row.id, externalId }
     }
-    const match = (
+    /** Confirms the stored amount unless the test says which one was seen. */
+    const match = async (
       transactionId: string,
-      body: { applicationId: string; termId: string; previousReceiptId?: string },
+      body: {
+        applicationId: string
+        termId: string
+        amountCents?: number
+        previousReceiptId?: string
+      },
       auth = cookie,
-    ): Promise<Response> =>
-      fetch(api(`/organizer/events/${eventId}/bank-transactions/${transactionId}/match`), {
+    ): Promise<Response> => {
+      const { amountCents } = await prisma.bankTransaction.findUniqueOrThrow({
+        where: { id: transactionId },
+      })
+      return fetch(api(`/organizer/events/${eventId}/bank-transactions/${transactionId}/match`), {
         method: "POST",
         headers: { "Content-Type": "application/json", Cookie: auth },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ amountCents, ...body }),
       })
+    }
     const applicationOf = async (number: number) =>
       prisma.application.findFirstOrThrow({ where: { eventId, number } })
 
@@ -597,28 +612,36 @@ describe("bank statement import (US-42)", () => {
       })
     })
 
-    it("reopens an older manual match when the absent reference proves its origin", async () => {
-      const application = await applicationOf(await createApplication(true, "Legacy manual match"))
-      const { id, externalId } = await importUnmatched(500)
-      const body = { applicationId: application.id, termId: firstTerm.id }
-      expect((await match(id, body)).status).toBe(204)
-      const assigned = await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })
-      const legacyReceiptId = `bank:${application.organizationId}:${externalId}`
-      await prisma.payment.updateMany({
-        where: { receiptId: assigned.receiptId! },
-        data: { receiptId: legacyReceiptId },
-      })
-      await prisma.bankTransaction.update({
-        where: { id },
-        data: { receiptId: legacyReceiptId, reason: null },
-      })
-      expect((await cancel(application.id, legacyReceiptId)).status).toBe(204)
-      expect(await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).toMatchObject({
-        status: "UNMATCHED",
-        reason: "NO_VARIABLE_SYMBOL",
-      })
-      expect((await match(id, { ...body, previousReceiptId: legacyReceiptId })).status).toBe(204)
-    })
+    it.each([
+      [null, "NO_VARIABLE_SYMBOL"],
+      ["xyz", "UNKNOWN_VARIABLE_SYMBOL"],
+    ])(
+      "reopens an older manual match when the reference %s proves its origin",
+      async (vs, reason) => {
+        const application = await applicationOf(
+          await createApplication(true, "Legacy manual match"),
+        )
+        const { id, externalId } = await importUnmatched(500)
+        const body = { applicationId: application.id, termId: firstTerm.id }
+        expect((await match(id, body)).status).toBe(204)
+        const assigned = await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })
+        const legacyReceiptId = `bank:${application.organizationId}:${externalId}`
+        await prisma.payment.updateMany({
+          where: { receiptId: assigned.receiptId! },
+          data: { receiptId: legacyReceiptId },
+        })
+        await prisma.bankTransaction.update({
+          where: { id },
+          data: { receiptId: legacyReceiptId, reason: null, variableSymbol: vs },
+        })
+        expect((await cancel(application.id, legacyReceiptId)).status).toBe(204)
+        expect(await prisma.bankTransaction.findUniqueOrThrow({ where: { id } })).toMatchObject({
+          status: "UNMATCHED",
+          reason,
+        })
+        expect((await match(id, { ...body, previousReceiptId: legacyReceiptId })).status).toBe(204)
+      },
+    )
 
     it("keeps a legacy automatic match out of the unmatched list when its payment is cancelled", async () => {
       const application = await applicationOf(await createApplication(true, "Automatic match"))
@@ -712,6 +735,66 @@ describe("bank statement import (US-42)", () => {
       )
     })
 
+    it("refuses an amount that a re-import changed after the preview", async () => {
+      const application = await applicationOf(await createApplication(true, "Stale preview"))
+      const { id } = await importUnmatched(900)
+      const body = { applicationId: application.id, termId: firstTerm.id }
+      const response = await match(id, { ...body, amountCents: 50000 })
+      expect(response.status).toBe(409)
+      expect(await response.json()).toMatchObject({ code: "BANK_TRANSACTION_CHANGED" })
+      expect(
+        await prisma.payment.count({
+          where: { applicationTerm: { applicationId: application.id } },
+        }),
+      ).toBe(0)
+      expect((await match(id, body)).status).toBe(204)
+    })
+
+    it("checks e-mail no. 8 against the term it names, also when the payment overpays it", async () => {
+      const application = await applicationOf(await createApplication(true, "Overpaid e-mail"))
+      const applicationTerm = await prisma.applicationTerm.findFirstOrThrow({
+        where: { applicationId: application.id },
+      })
+      const organizer = await prisma.user.findUniqueOrThrow({
+        where: { email: "organizator@example.com" },
+      })
+      const payments = new PaymentsRepository(
+        prisma,
+        new NotificationsRepository(prisma),
+        new PrismaEmailJobRepository(prisma),
+      )
+      const pay = (amountCzk: number, source: "MANUAL" | "BANK_IMPORT") => {
+        const requestId = randomUUID()
+        return payments
+          .record({
+            applicationId: application.id,
+            organizationId: application.organizationId,
+            recordedById: organizer.id,
+            requestId,
+            termId: firstTerm.id,
+            amountCzk,
+            source,
+          })
+          .then(() => requestId)
+      }
+      const first = await pay(1000, "MANUAL")
+      // Written past the server, so nothing starts the queue and the job keeps its payload.
+      await pay(6500, "BANK_IMPORT")
+      const job = await prisma.emailJob.findFirstOrThrow({
+        where: { recipient: application.email },
+      })
+      const email = { ...(job.payload as object), template: job.template } as QueuedEmail
+      expect(email).toMatchObject({ basis: { settledTermIds: [applicationTerm.id] } })
+      const queued = new QueuedEmailRepository(prisma)
+      expect(await queued.isOutdated(email)).toBe(false)
+      await prisma.payment.updateMany({
+        where: { receiptId: first },
+        data: { cancelledAt: new Date() },
+      })
+      expect(await queued.isOutdated(email)).toBe(true)
+      await prisma.emailJob.delete({ where: { id: job.id } })
+    })
+
     it("refuses a term outside the application, an unknown application and a foreign session", async () => {
       const application = await applicationOf(await createApplication(true))
       const otherTerm = await prisma.term.findFirstOrThrow({
@@ -722,6 +805,11 @@ describe("bank statement import (US-42)", () => {
       expect(outside.status).toBe(400)
       expect(await outside.json()).toMatchObject({ code: "PAYMENT_TERM_NOT_IN_APPLICATION" })
       expect((await match(id, { applicationId: "nope", termId: firstTerm.id })).status).toBe(403)
+      const foreignTerm = await prisma.term.findFirstOrThrow({
+        where: { organizationId: { not: application.organizationId } },
+      })
+      for (const termId of [foreignTerm.id, "nope"])
+        expect((await match(id, { applicationId: application.id, termId })).status).toBe(403)
       const foreign = await signIn("organizator2@example.com", "password2")
       expect(
         (await match(id, { applicationId: application.id, termId: firstTerm.id }, foreign)).status,

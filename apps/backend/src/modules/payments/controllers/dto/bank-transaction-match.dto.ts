@@ -1,6 +1,6 @@
 import { CandidateWithAfterPayment } from "@/modules/payments/domain/application-candidates"
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
-import { IsOptional, IsString, MaxLength, MinLength } from "class-validator"
+import { IsInt, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 export class MatchBankTransactionRequestDto {
   @ApiProperty({ description: "Application the payment is assigned to" })
@@ -14,6 +14,12 @@ export class MatchBankTransactionRequestDto {
   @MinLength(1)
   @MaxLength(64)
   termId!: string
+
+  @ApiProperty({
+    description: "Amount of the transaction the organizer confirmed, hundredths of the currency",
+  })
+  @IsInt()
+  amountCents!: number
 
   @ApiPropertyOptional({
     description: "Previous assignment receipt shown for a reopened transaction",

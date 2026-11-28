@@ -90,6 +90,10 @@ export class BankTransactionsRepository {
     }))
   }
 
+  async termBelongsToOrganization(organizationId: string, termId: string): Promise<boolean> {
+    return (await this.prisma.term.count({ where: { id: termId, organizationId } })) === 1
+  }
+
   async applicationBelongsToEvent(eventId: string, applicationId: string): Promise<boolean> {
     return (await this.prisma.application.count({ where: { id: applicationId, eventId } })) === 1
   }
@@ -126,8 +130,9 @@ export class BankTransactionsRepository {
    * and then finds it matched; the payment lock of `PaymentsRepository.record` is per application
    * only. The amount and currency are read from the locked row, so a re-import that changed them
    * meanwhile is honoured. Nothing is written when the transaction is not unmatched any more.
-   * @returns "ASSIGNED", "NOT_ASSIGNABLE" when the locked row is not in whole crowns, or null when
-   * the transaction is not an unmatched one of this event and organization.
+   * @returns "ASSIGNED"; "NOT_ASSIGNABLE" when the locked row is not in whole crowns; "CHANGED" when
+   * its amount is not the confirmed one; null when the transaction is not an unmatched one of this
+   * event and organization.
    */
   async assign(input: {
     id: string
@@ -137,7 +142,9 @@ export class BankTransactionsRepository {
     applicationId: string
     termId: string
     previousReceiptId: string | null
-  }): Promise<"ASSIGNED" | "NOT_ASSIGNABLE" | null> {
+    /** The amount the organizer saw when confirming. */
+    amountCents: number
+  }): Promise<"ASSIGNED" | "NOT_ASSIGNABLE" | "CHANGED" | null> {
     return this.prisma.$transaction(async (tx) => {
       const locked = await tx.$queryRaw<
         { amountCents: number; currency: string }[]
@@ -145,6 +152,7 @@ export class BankTransactionsRepository {
       if (!locked.length) return null
       const [row] = locked
       if (!isAssignable(row)) return "NOT_ASSIGNABLE"
+      if (row.amountCents !== input.amountCents) return "CHANGED"
       // The locked row and the previously displayed receipt prevent a stale retry from
       // matching a transaction again after cancellation.
       const receiptId = `bank-manual:${randomUUID()}`

@@ -197,10 +197,14 @@ export class BankStatementsService {
     user: Identity,
     eventId: string,
     transactionId: string,
-    applicationId: string,
-    termId: string,
-    previousReceiptId: string | null = null,
+    input: {
+      applicationId: string
+      termId: string
+      amountCents: number
+      previousReceiptId?: string
+    },
   ): Promise<void> {
+    const { applicationId, termId, amountCents, previousReceiptId = null } = input
     const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
     const transaction = await this.repository.findTransaction(
       transactionId,
@@ -215,6 +219,9 @@ export class BankStatementsService {
       throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_NOT_ASSIGNABLE")
     if (!(await this.repository.applicationBelongsToEvent(eventId, applicationId)))
       throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    // An own term outside the application is refused by the payment itself (400).
+    if (!(await this.repository.termBelongsToOrganization(organizationId, termId)))
+      throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
     const outcome = await this.repository.assign({
       id: transaction.id,
       eventId,
@@ -223,12 +230,15 @@ export class BankStatementsService {
       applicationId,
       termId,
       previousReceiptId,
+      amountCents,
     })
     // The row was matched or moved to another event after it was read.
     if (!outcome) throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")
     // Amount or currency changed by a re-import after it was read.
     if (outcome === "NOT_ASSIGNABLE")
       throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_NOT_ASSIGNABLE")
+    if (outcome === "CHANGED")
+      throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_CHANGED")
     this.emailQueue.kick()
   }
 }

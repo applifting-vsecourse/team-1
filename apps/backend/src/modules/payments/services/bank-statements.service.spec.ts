@@ -23,8 +23,12 @@ describe("BankStatementsService.match (US-562)", () => {
     amountCents: 490000,
     currency: "CZK",
   }
+  const confirmed = { applicationId: "a1", termId: "term1", amountCents: 490000 }
   let repository: jest.Mocked<
-    Pick<BankTransactionsRepository, "findTransaction" | "applicationBelongsToEvent" | "assign">
+    Pick<
+      BankTransactionsRepository,
+      "findTransaction" | "applicationBelongsToEvent" | "termBelongsToOrganization" | "assign"
+    >
   >
   let kick: jest.Mock
   let service: BankStatementsService
@@ -33,6 +37,7 @@ describe("BankStatementsService.match (US-562)", () => {
     repository = {
       findTransaction: jest.fn().mockResolvedValue(unmatched),
       applicationBelongsToEvent: jest.fn().mockResolvedValue(true),
+      termBelongsToOrganization: jest.fn().mockResolvedValue(true),
       assign: jest.fn().mockResolvedValue("ASSIGNED"),
     }
     kick = jest.fn()
@@ -40,7 +45,7 @@ describe("BankStatementsService.match (US-562)", () => {
   })
 
   it("assigns the payment in one write and starts the e-mail queue after it", async () => {
-    await service.match(user, "e1", "t1", "a1", "term1")
+    await service.match(user, "e1", "t1", confirmed)
     expect(repository.assign).toHaveBeenCalledWith({
       id: "t1",
       eventId: "e1",
@@ -49,6 +54,7 @@ describe("BankStatementsService.match (US-562)", () => {
       applicationId: "a1",
       termId: "term1",
       previousReceiptId: null,
+      amountCents: 490000,
     })
     expect(kick).toHaveBeenCalledTimes(1)
     expect(kick.mock.invocationCallOrder[0]).toBeGreaterThan(
@@ -61,7 +67,7 @@ describe("BankStatementsService.match (US-562)", () => {
     ["another currency", { currency: "EUR" }],
   ])("refuses a transaction with %s", async (_name, patch) => {
     repository.findTransaction.mockResolvedValue({ ...unmatched, ...patch })
-    await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
+    await expect(service.match(user, "e1", "t1", confirmed)).rejects.toMatchObject({
       response: { code: "BANK_TRANSACTION_NOT_ASSIGNABLE" },
     })
     expect(repository.assign).not.toHaveBeenCalled()
@@ -69,13 +75,13 @@ describe("BankStatementsService.match (US-562)", () => {
 
   it("refuses one that is matched already, also when it is matched in the meantime", async () => {
     repository.findTransaction.mockResolvedValue({ ...unmatched, status: "MATCHED" })
-    await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
+    await expect(service.match(user, "e1", "t1", confirmed)).rejects.toMatchObject({
       response: { code: "BANK_TRANSACTION_ALREADY_MATCHED" },
     })
     expect(repository.assign).not.toHaveBeenCalled()
     repository.findTransaction.mockResolvedValue(unmatched)
     repository.assign.mockResolvedValue(null)
-    await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
+    await expect(service.match(user, "e1", "t1", confirmed)).rejects.toMatchObject({
       response: { code: "BANK_TRANSACTION_ALREADY_MATCHED" },
     })
     expect(kick).not.toHaveBeenCalled()
@@ -83,25 +89,41 @@ describe("BankStatementsService.match (US-562)", () => {
 
   it("refuses with a conflict when the locked row turned out not to be assignable", async () => {
     repository.assign.mockResolvedValue("NOT_ASSIGNABLE")
-    await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
+    await expect(service.match(user, "e1", "t1", confirmed)).rejects.toMatchObject({
       response: { code: "BANK_TRANSACTION_NOT_ASSIGNABLE" },
     })
     expect(kick).not.toHaveBeenCalled()
   })
 
+  it("refuses with a conflict when the amount is not the confirmed one any more", async () => {
+    repository.assign.mockResolvedValue("CHANGED")
+    await expect(service.match(user, "e1", "t1", confirmed)).rejects.toMatchObject({
+      response: { code: "BANK_TRANSACTION_CHANGED" },
+    })
+    expect(kick).not.toHaveBeenCalled()
+  })
+
+  it("refuses a term of another organization before anything is written", async () => {
+    repository.termBelongsToOrganization.mockResolvedValue(false)
+    await expect(service.match(user, "e1", "t1", confirmed)).rejects.toMatchObject({
+      status: 403,
+    })
+    expect(repository.assign).not.toHaveBeenCalled()
+  })
+
   it("leaves the e-mail queue alone when the write fails", async () => {
     repository.assign.mockRejectedValue(new Error("boom"))
-    await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toThrow("boom")
+    await expect(service.match(user, "e1", "t1", confirmed)).rejects.toThrow("boom")
     expect(kick).not.toHaveBeenCalled()
   })
 
   it("refuses an application of another event and an unknown transaction", async () => {
     repository.applicationBelongsToEvent.mockResolvedValue(false)
-    await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
+    await expect(service.match(user, "e1", "t1", confirmed)).rejects.toMatchObject({
       status: 403,
     })
     repository.findTransaction.mockResolvedValue(null)
-    await expect(service.match(user, "e1", "t1", "a1", "term1")).rejects.toMatchObject({
+    await expect(service.match(user, "e1", "t1", confirmed)).rejects.toMatchObject({
       status: 403,
     })
   })

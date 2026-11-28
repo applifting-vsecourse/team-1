@@ -96,7 +96,8 @@ export class BankStatementsController {
   @ApiResponse({ status: 400, description: "PAYMENT_TERM_NOT_IN_APPLICATION" })
   @ApiResponse({
     status: 409,
-    description: "BANK_TRANSACTION_ALREADY_MATCHED, BANK_TRANSACTION_NOT_ASSIGNABLE",
+    description:
+      "BANK_TRANSACTION_ALREADY_MATCHED, BANK_TRANSACTION_NOT_ASSIGNABLE, BANK_TRANSACTION_CHANGED",
   })
   async match(
     @User() user: Identity,
@@ -105,13 +106,6 @@ export class BankStatementsController {
     @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
     body: MatchBankTransactionRequestDto,
   ): Promise<void> {
-    await this.statements.match(
-      user,
-      eventId,
-      id,
-      body.applicationId,
-      body.termId,
-      body.previousReceiptId,
-    )
+    await this.statements.match(user, eventId, id, body)
   }
 }

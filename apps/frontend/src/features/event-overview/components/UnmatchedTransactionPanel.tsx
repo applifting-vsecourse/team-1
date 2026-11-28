@@ -68,7 +68,7 @@ export function UnmatchedTransactionPanel({
   // The result of an older query never counts while the typed text is newer (the 250 ms of the debounce).
   const isSettled = query === text.trim()
   const candidates = useQuery({
-    ...applicationCandidatesQueryOptions(eventId, query, transaction.id),
+    ...applicationCandidatesQueryOptions(eventId, query, transaction),
     enabled: query !== "",
   })
   // Nor does the one kept after a failed refresh: the error hides the list, so nothing of it is sent.
@@ -92,13 +92,13 @@ export function UnmatchedTransactionPanel({
   // The mutation carries the selection that was sent, so a change made while it runs does not matter.
   const assign = useMutation({
     mutationFn: (sent: NonNullable<typeof selection>) =>
-      matchTransaction(
-        eventId,
-        transaction.id,
-        sent.candidate.id,
-        sent.term.termId,
-        transaction.previousReceiptId,
-      ),
+      matchTransaction(eventId, transaction, sent.candidate.id, sent.term.termId),
+    // The row and its preview are out of date: load them again, the panel stays open.
+    onError: async (error) => {
+      if ((error as { code?: string }).code === "BANK_TRANSACTION_CHANGED") {
+        await queryClient.invalidateQueries({ queryKey: ["eventOverview"] })
+      }
+    },
     onSuccess: async (_result, sent) => {
       notify.success(
         t("bankStatement.unmatchedList.assigned"),

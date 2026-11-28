@@ -3,6 +3,7 @@
   "APPLICATION_NOT_EDITABLE": "Tuto přihlášku už nelze upravit: nemá žádný aktivní termín, nebo všechny její termíny už skončily.",
   "BANK_STATEMENT_INVALID": "Soubor není podporovaný výpis z banky. Nahrajte CSV export z Fio banky.",
   "BANK_TRANSACTION_ALREADY_MATCHED": "Platba už byla přiřazena. Obnovte seznam.",
+  "BANK_TRANSACTION_CHANGED": "Částka platby se mezitím změnila. Zkontrolujte ji a přiřaďte platbu znovu.",
   "BANK_TRANSACTION_NOT_ASSIGNABLE": "Tuto platbu nelze přiřadit: částka není v celých korunách nebo není v CZK.",
   "BED_ALREADY_TAKEN": "Lůžko mezitím obsadil jiný organizátor.",
   "BOARD_POST_TERM_INVALID": "Vyberte aspoň jeden termín, který ještě není zrušený.",

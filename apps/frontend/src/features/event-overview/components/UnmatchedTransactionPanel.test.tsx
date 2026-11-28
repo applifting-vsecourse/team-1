@@ -69,6 +69,8 @@ function renderPage(options: {
   /** Candidate searches fail while this says so. */
   isSearchDown?: () => boolean
   match?: () => Response
+  /** The amount a re-import gives the rows while the match request runs. */
+  reimportedCents?: number
   /** The match request answers only after this promise settles. */
   matchGate?: Promise<void>
 }) {
@@ -88,6 +90,8 @@ function renderPage(options: {
     if (request.url.endsWith("/match")) {
       const response = options.match?.() ?? new Response(null, { status: 204 })
       if (response.ok) rows = rows.filter((row) => !request.url.includes(`/${row.id}/`))
+      const { reimportedCents } = options
+      if (reimportedCents) rows = rows.map((row) => ({ ...row, amountCents: reimportedCents }))
       return (options.matchGate ?? Promise.resolve()).then(() => response)
     }
     return Promise.resolve(json({ transactions: rows }))
@@ -158,7 +162,7 @@ describe("manual match of an unmatched payment (US-562)", () => {
     await waitFor(() => expect(screen.queryByText("Hana Novotná")).toBeNull())
     expect(await screen.findByText("No unmatched payments.")).toBeVisible()
     const post = calls.find((request) => request.url.endsWith("/bank-transactions/b1/match"))!
-    expect(await post.json()).toEqual({ applicationId: "a1", termId: "t2" })
+    expect(await post.json()).toEqual({ applicationId: "a1", termId: "t2", amountCents: 490000 })
   })
 
   it("sends the previous receipt when assigning a reopened transaction", async () => {
@@ -173,7 +177,12 @@ describe("manual match of an unmatched payment (US-562)", () => {
     await userEvent.click(screen.getByRole("button", { name: "Assign payment" }))
     await waitFor(() => expect(screen.queryByText("Hana Novotná")).toBeNull())
     const post = calls.find((request) => request.url.endsWith("/bank-transactions/b1/match"))!
-    expect(await post.json()).toEqual({ applicationId: "a1", termId: "t1", previousReceiptId })
+    expect(await post.json()).toEqual({
+      applicationId: "a1",
+      termId: "t1",
+      amountCents: 490000,
+      previousReceiptId,
+    })
   })
 
   it("closes only the panel of the saved transaction, not the one opened meanwhile", async () => {
@@ -230,6 +239,24 @@ describe("manual match of an unmatched payment (US-562)", () => {
     const alert = await screen.findByRole("alert")
     expect(within(alert).getByText(/already assigned/)).toBeVisible()
     expect(screen.getByRole("button", { name: "Assign payment" })).toBeEnabled()
+  })
+
+  it("loads the row and its preview again when the amount changed meanwhile", async () => {
+    const calls = renderPage({
+      rows: [transaction("b1")],
+      candidates: [jana],
+      reimportedCents: 900000,
+      match: () => json({ statusCode: 409, code: "BANK_TRANSACTION_CHANGED", message: "x" }, 409),
+    })
+    await userEvent.click(await screen.findByRole("button", { name: /^Assign/ }))
+    await userEvent.type(screen.getByLabelText("Find an application"), "Jana")
+    await userEvent.click(await screen.findByRole("radio"))
+    const searches = () => calls.filter((call) => call.url.includes("/application-candidates"))
+    const before = searches().length
+    await userEvent.click(screen.getByRole("button", { name: "Assign payment" }))
+    expect(await screen.findByText(/changed in the meantime/)).toBeVisible()
+    expect(await screen.findByText(/9,000/)).toBeVisible()
+    await waitFor(() => expect(searches().length).toBeGreaterThan(before))
   })
 
   it("does not send the old selection while the changed search is still waiting", async () => {

@@ -113,10 +113,18 @@ export type CandidateTerm = ApplicationCandidate["terms"][number]
 export const applicationCandidatesQueryOptions = (
   eventId: string,
   query: string,
-  transactionId: string,
+  { id: transactionId, amountCents }: UnmatchedTransaction,
 ) =>
   queryOptions({
-    queryKey: ["eventOverview", "applicationCandidates", eventId, transactionId, query] as const,
+    // The preview depends on the amount, which a re-import can change.
+    queryKey: [
+      "eventOverview",
+      "applicationCandidates",
+      eventId,
+      transactionId,
+      amountCents,
+      query,
+    ] as const,
     queryFn: async ({ signal }) =>
       candidatesSchema.parse(
         await api
@@ -131,12 +139,16 @@ export const applicationCandidatesQueryOptions = (
 /** `POST …/bank-transactions/:id/match` — the payment of the transaction goes to one term. */
 export async function matchTransaction(
   eventId: string,
-  transactionId: string,
+  { id, amountCents, previousReceiptId }: UnmatchedTransaction,
   applicationId: string,
   termId: string,
-  previousReceiptId?: string | null,
 ): Promise<void> {
-  await api.post(`${path(eventId)}/bank-transactions/${encodeURIComponent(transactionId)}/match`, {
-    json: { applicationId, termId, ...(previousReceiptId ? { previousReceiptId } : {}) },
+  await api.post(`${path(eventId)}/bank-transactions/${encodeURIComponent(id)}/match`, {
+    json: {
+      applicationId,
+      termId,
+      amountCents,
+      ...(previousReceiptId ? { previousReceiptId } : {}),
+    },
   })
 }
