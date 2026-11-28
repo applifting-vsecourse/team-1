@@ -4,7 +4,7 @@ import { PrismaService } from "@/core/prisma/prisma.service"
 import { api, connectTestPrisma, resetAndSeed, signIn } from "@/test/integration/test-api"
 
 const CZECH = ["Prostory", "Doprava", "Strava", "Lidé", "Materiál a program", "Ostatní"]
-const ENGLISH = ["Venue", "Transport", "Food", "Staff", "Materials and programme", "Other"]
+const ENGLISH = ["Venue", "Transport", "Food", "Staff", "Program & Entertainment", "Other"]
 
 type Category = { id: string; defaultKey: string | null; name: string; position: number }
 

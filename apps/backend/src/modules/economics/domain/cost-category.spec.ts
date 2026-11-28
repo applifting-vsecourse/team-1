@@ -18,7 +18,7 @@ describe("default cost categories", () => {
       "Transport",
       "Food",
       "Staff",
-      "Materials and programme",
+      "Program & Entertainment",
       "Other",
     ])
   })

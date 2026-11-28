@@ -16,7 +16,7 @@ const DEFAULT_NAMES: Record<CostCategoryKey, Record<Locale, string>> = {
   TRANSPORT: { cs: "Doprava", en: "Transport" },
   FOOD: { cs: "Strava", en: "Food" },
   STAFF: { cs: "Lidé", en: "Staff" },
-  MATERIALS_AND_PROGRAMME: { cs: "Materiál a program", en: "Materials and programme" },
+  MATERIALS_AND_PROGRAMME: { cs: "Materiál a program", en: "Program & Entertainment" },
   OTHER: { cs: "Ostatní", en: "Other" },
 }
 
