@@ -36,12 +36,15 @@ const user: SessionUser = {
   locale: "en",
 }
 
-function renderAccount(sessionUser: SessionUser = user) {
+function renderAccount(
+  sessionUser: SessionUser = user,
+  props: Parameters<typeof SidebarAccount>[0] = {},
+) {
   const queryClient = new QueryClient()
   queryClient.setQueryData(authKeys.session(), { user: sessionUser })
   render(
     <QueryClientProvider client={queryClient}>
-      <SidebarAccount />
+      <SidebarAccount {...props} />
     </QueryClientProvider>,
   )
 }
@@ -76,5 +79,17 @@ describe("SidebarAccount", () => {
       "href",
       "/participant/account",
     )
+  })
+
+  it("shows the role under the name and leaves language and theme to the settings (participant)", async () => {
+    renderAccount(
+      { ...user, accountType: "PARTICIPANT" },
+      { subtitle: "Applicant", hasPreferences: false },
+    )
+
+    expect(screen.getByText("Applicant")).toBeVisible()
+    expect(screen.getAllByRole("button")).toHaveLength(1)
+    await userEvent.click(screen.getByRole("button", { name: /Eva Malá.*eva\.mala@example\.cz/ }))
+    expect(await screen.findByRole("menuitem", { name: "Account settings" })).toBeVisible()
   })
 })

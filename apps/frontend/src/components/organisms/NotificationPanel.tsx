@@ -1,4 +1,4 @@
-import { MailCheck, TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ListSkeleton } from "@/components/molecules/ListSkeleton"
@@ -10,7 +10,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 
-export type NotificationRow = Omit<NotificationItemProps, "onOpen" | "onMarkRead"> & {
+export type NotificationRow = Omit<NotificationItemProps, "onOpen"> & {
   id: string
 }
 
@@ -31,11 +31,15 @@ type NotificationPanelProps = {
   hasUnread: boolean
   onRetry: () => void
   onOpen: (id: string) => void
-  onMarkRead: (id: string) => void
   onMarkAllRead: () => void
 }
 
-/** The content of the notification panel in every state the design draws. */
+/**
+ * The content of the notification panel in every state the design draws. The list is rows divided by
+ * hairlines, edge to edge; „Označit vše jako přečtené“ is a quiet button above it, and opening a
+ * notification marks it as read (there is no separate action per row).
+ */
+// Figma (Design system v2): Překryv · panel Upozornění · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27651-34927 (360 px: 22342-22939)
 // Figma (Design system): US-118 / Moje přihlášky · Panel: Upozornění · 3 nepřečtená upozornění / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16047-1567
 // Figma (Design system): US-118 / … · Chyba upozornění / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16047-2135
 // Figma (Design system): US-118 / … · Žádná upozornění / Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16047-1949
@@ -46,27 +50,26 @@ export function NotificationPanel({
   hasUnread,
   onRetry,
   onOpen,
-  onMarkRead,
   onMarkAllRead,
 }: NotificationPanelProps) {
   const { t } = useTranslation("notifications")
 
   if (state === "loading") {
     return (
-      <>
+      <div className="px-4 pb-4 md:px-6 md:pb-6">
         <div className="md:hidden">
           <ListSkeleton />
         </div>
         <div className="hidden md:block">
           <LoadingState label={t("panel.loading")} />
         </div>
-      </>
+      </div>
     )
   }
 
   if (state === "error") {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 px-4 pb-4 md:px-6 md:pb-6">
         <Alert
           variant="destructive"
           className="border-destructive bg-card [&>svg]:size-6"
@@ -88,35 +91,36 @@ export function NotificationPanel({
 
   if (items.length === 0) {
     return (
-      <Alert className="bg-secondary [&>svg]:size-6">
-        <TriangleAlert aria-hidden="true" />
-        <AlertTitle>{t("panel.emptyTitle")}</AlertTitle>
-        <AlertDescription>{t("panel.emptyDescription")}</AlertDescription>
-      </Alert>
+      <div className="px-4 pb-4 md:px-6 md:pb-6">
+        <Alert className="bg-secondary [&>svg]:size-6">
+          <TriangleAlert aria-hidden="true" />
+          <AlertTitle>{t("panel.emptyTitle")}</AlertTitle>
+          <AlertDescription>{t("panel.emptyDescription")}</AlertDescription>
+        </Alert>
+      </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col pb-2">
       {hasUnread ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="lg"
-          className="w-full border-primary font-semibold text-primary hover:bg-accent"
-          onClick={onMarkAllRead}
-        >
-          <MailCheck aria-hidden="true" />
-          {t("panel.markAllRead")}
-        </Button>
+        <div className="px-4 pb-2 md:px-6">
+          <Button
+            type="button"
+            variant="ghost"
+            className="-ml-4"
+            onClick={onMarkAllRead}
+          >
+            {t("panel.markAllRead")}
+          </Button>
+        </div>
       ) : null}
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col divide-y divide-border">
         {items.map(({ id, ...item }) => (
           <li key={id}>
             <NotificationItem
               {...item}
               onOpen={() => onOpen(id)}
-              onMarkRead={() => onMarkRead(id)}
             />
           </li>
         ))}

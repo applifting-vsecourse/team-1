@@ -10,15 +10,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { currentLanguage, LANGUAGES, type Language } from "@/i18n"
+import { cn } from "@/lib/utils"
 
 export function LanguageSwitcher({
   value,
   onChange,
   disabled: isDisabled = false,
+  isOutlined = false,
 }: {
   value?: Language
   onChange?: (language: Language) => void
   disabled?: boolean
+  /** The ink-edged trigger of the preferences row in the public footer (Figma 27609:4328). */
+  isOutlined?: boolean
 }) {
   const { t, i18n } = useTranslation()
 
@@ -26,12 +30,15 @@ export function LanguageSwitcher({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
+          variant={isOutlined ? "outline" : "ghost"}
           size="lg"
           className={
             value
               ? "w-full justify-start gap-4 px-3 text-base font-normal"
-              : "w-28 gap-3 rounded-md px-2 text-base font-normal has-[>svg]:px-2"
+              : cn(
+                  "w-28 gap-3 px-2 text-base font-normal has-[>svg]:px-2",
+                  isOutlined ? "gap-2 pr-2.5 pl-3 has-[>svg]:pr-2.5 has-[>svg]:pl-3" : "rounded-md",
+                )
           }
           disabled={isDisabled}
           aria-label={t("language.toggle")}

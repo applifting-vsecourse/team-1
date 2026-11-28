@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
 import { Suspense, useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import {
@@ -7,7 +9,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { act, render, screen } from "@testing-library/react"
+import { act, render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -107,6 +109,31 @@ const renderStatus = async (
     act(() => updateParticipant(participant))
 }
 
+/** The summary card of one participant. */
+const summaryOf = (firstName: string) => {
+  const card = screen
+    .getByText(new RegExp(`^${firstName} .* · application no\\.`))
+    .closest<HTMLElement>("[data-slot=card]")
+  if (!card) throw new Error(`No summary for ${firstName}`)
+  return card
+}
+
+/** The stylesheet without every block that starts with `opening` (balanced braces). */
+const withoutBlocks = (css: string, opening: string) => {
+  let rest = css
+  for (let start = rest.indexOf(opening); start !== -1; start = rest.indexOf(opening)) {
+    let depth = 0
+    let end = rest.indexOf("{", start)
+    do {
+      if (rest[end] === "{") depth += 1
+      if (rest[end] === "}") depth -= 1
+      end += 1
+    } while (depth > 0)
+    rest = rest.slice(0, start) + rest.slice(end)
+  }
+  return rest
+}
+
 describe("SubmissionStatus", () => {
   it("copies the variable symbol for the selected participant", async () => {
     const user = userEvent.setup()
@@ -131,43 +158,114 @@ describe("SubmissionStatus", () => {
   it("shows terms to evaluate as awaiting evaluation, not as a waitlist, without payment (US-102)", async () => {
     await renderStatus(data({ applications: [jana("TO_EVALUATE")] }))
 
-    expect(screen.getByText("Awaiting evaluation")).toBeInTheDocument()
-    expect(screen.queryByText(/waitlisted/i)).not.toBeInTheDocument()
-    expect(screen.queryByText("Waitlisted")).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 2, name: "Awaiting evaluation" })).toBeVisible()
     expect(
-      screen.getByText("Letní kemp 2027 · participation not confirmed yet"),
-    ).toBeInTheDocument()
-    expect(screen.getByText("What happens next")).toBeInTheDocument()
-    expect(screen.getByText(/Don't pay anything yet/)).toBeInTheDocument()
+      screen.getByText(
+        "Once the organizer decides, we'll e-mail you the result – don't pay anything until then.",
+      ),
+    ).toBeVisible()
+    expect(within(summaryOf("Jana")).getByText("Awaiting evaluation")).toBeVisible()
+    // APP_RECEIVED goes out in both evaluation modes, so the address is always named.
     expect(
-      screen.getByText("The organizer will decide on participation in this term."),
-    ).toBeInTheDocument()
-    expect(screen.queryByText("Do not pay yet")).not.toBeInTheDocument()
+      screen.getByText("Letní kemp 2027 · we sent the confirmation to jana@example.com"),
+    ).toBeVisible()
+    expect(screen.queryByText(/waitlist/i)).not.toBeInTheDocument()
+    expect(screen.queryByText("Amount due")).not.toBeInTheDocument()
     expect(screen.queryByText("123456789/0800")).not.toBeInTheDocument()
-    expect(screen.queryByRole("heading", { name: "Payment for the confirmed terms" })).toBeNull()
   })
 
-  it("shows a confirmed term with the amount and the payment details", async () => {
+  it("shows a confirmed term with the amount due and the payment details", async () => {
     await renderStatus(data())
 
-    expect(screen.getByText("Application no. LK-0048")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 2, name: "Your place is confirmed" })).toBeVisible()
+    expect(screen.getByText("Pay the amount due using the payment details below.")).toBeVisible()
+    const summary = summaryOf("Jana")
+    expect(within(summary).getByText("Jana Nováková · application no. LK-0048")).toBeVisible()
+    // The date is shown; the term name is read too, so two terms stay apart for a screen reader.
+    const termValue = within(summary).getByText(/^12–18 Jul 2027/)
+    expect(termValue).toHaveTextContent("12–18 Jul 2027 · t0048")
+    expect(within(termValue).getByText("· t0048", { exact: false })).toHaveClass("sr-only")
+    expect(within(summary).getByText("Confirmed")).toBeVisible()
+    expect(within(summary).getByText("CZK 6,900")).toBeVisible()
+    expect(within(summary).getByText("48000")).toBeVisible()
+    expect(within(summary).getByText("123456789/0800")).toBeVisible()
+    expect(within(summary).getByRole("button", { name: "Copy variable symbol" })).toBeVisible()
+    expect(within(summary).getByRole("button", { name: "Copy account number" })).toBeVisible()
+    expect(within(summary).getByRole("button", { name: "Download QR code" })).toBeVisible()
+  })
+
+  it("asks for no payment once nothing is left to pay, e.g. on a later visit after paying", async () => {
+    await renderStatus(
+      data({
+        applications: [
+          person("Jana", "Nováková", "0048", "CONFIRMED", "2027-07-12", "2027-07-18", 0),
+        ],
+      }),
+    )
+
+    expect(screen.getByRole("heading", { level: 2, name: "Your place is confirmed" })).toBeVisible()
+    expect(screen.queryByText("Pay the amount due using the payment details below.")).toBeNull()
+    const summary = summaryOf("Jana")
+    expect(within(summary).getByText("CZK 0")).toBeVisible()
+    expect(within(summary).queryByText("48000")).toBeNull()
+    expect(within(summary).queryByText("123456789/0800")).toBeNull()
+    expect(within(summary).queryByRole("button", { name: "Download QR code" })).toBeNull()
+  })
+
+  it("keeps the payment instruction while one participant still owes, without details for the paid one", async () => {
+    await renderStatus(
+      data({
+        applications: [
+          person("Jana", "Nováková", "0048", "CONFIRMED", "2027-07-12", "2027-07-18", 0),
+          person("Karel", "Novák", "0049", "CONFIRMED", "2027-07-12", "2027-07-18"),
+        ],
+      }),
+    )
+
+    expect(screen.getByText("Pay the amount due using the payment details below.")).toBeVisible()
+    expect(within(summaryOf("Jana")).queryByText("48000")).toBeNull()
+    expect(within(summaryOf("Karel")).getByText("49000")).toBeVisible()
+  })
+
+  it("labels the first of several terms and keeps the next ones in the value column", async () => {
+    const twoTerms = {
+      ...jana(),
+      terms: [
+        term("t1", "CONFIRMED", "2027-07-12", "2027-07-18"),
+        term("t2", "WAITLISTED", "2027-07-19", "2027-07-25"),
+      ],
+    }
+    await renderStatus(data({ applications: [twoTerms] }))
+
+    const labels = within(summaryOf("Jana")).getAllByRole("term")
+    const termLabels = labels.filter((label) => label.textContent === "Term")
+    expect(termLabels).toHaveLength(2)
+    expect(termLabels[0]).not.toHaveClass("sr-only")
+    expect(termLabels[1]).toHaveClass("sr-only")
+    // A grid from sm: the value keeps the second column even when its label is only read.
+    for (const label of termLabels) {
+      expect(label.nextElementSibling).toHaveClass("sm:col-start-2")
+      expect(label.parentElement).toHaveClass("sm:grid", "sm:grid-cols-[11rem_minmax(0,1fr)]")
+    }
+    expect(within(summaryOf("Jana")).getByText("Waitlisted")).toBeVisible()
+  })
+
+  it("explains the new account once, with the spam hint and the sign-in action", async () => {
+    await renderStatus(data())
+
     expect(
-      screen.getByText("We sent the confirmation and the status of the terms to jana@example.com."),
-    ).toBeInTheDocument()
-    expect(screen.getByText("Confirmed")).toBeInTheDocument()
-    expect(screen.getByText(/for the confirmed term$/)).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: "Payment for the confirmed terms" })).toBeVisible()
-    expect(screen.getByText("123456789/0800")).toBeInTheDocument()
-    expect(screen.getByText("48000")).toBeInTheDocument()
-    expect(screen.getByText(/We created an account for you automatically/)).toBeVisible()
-    expect(screen.getByText(/The link is valid for 7 days/)).toBeVisible()
+      screen.getByText(
+        "We created an account for you – you'll find the link for your first sign-in in the e-mail. It's valid for 7 days.",
+      ),
+    ).toBeVisible()
+    expect(screen.getByText("No e-mail? Check your spam folder.")).toBeVisible()
     expect(screen.getByRole("link", { name: "Go to sign in" })).toHaveAttribute(
       "href",
       "/participant/login",
     )
   })
 
-  it("shows one payment card with the total, the account once and a symbol per participant", async () => {
+  it("gives every participant their own summary with their amount and variable symbol", async () => {
     await renderStatus(
       data({
         applications: [
@@ -177,26 +275,10 @@ describe("SubmissionStatus", () => {
       }),
     )
 
-    expect(
-      screen.getAllByRole("heading", { name: "Payment for the confirmed terms" }),
-    ).toHaveLength(1)
-    const card = screen.getByRole("heading", {
-      name: "Payment for the confirmed terms",
-    }).parentElement!
-    expect(card).toHaveTextContent(/14.300/)
-    expect(card).toHaveTextContent(/Jana: .*6.900.* \+ Matěj: .*7.400/)
-    expect(screen.getAllByText("123456789/0800")).toHaveLength(1)
-    expect(screen.getByText("48000")).toBeInTheDocument()
-    expect(screen.getByText("49000")).toBeInTheDocument()
-    expect(screen.getByText(/^Matěj · .*7.400.* · variable symbol$/)).toBeInTheDocument()
-    expect(card).toHaveTextContent(/Pay each application separately: .*VS 48000; Matěj .*VS 49000/)
-  })
-
-  it("names the symbol only plainly for a single payer", async () => {
-    await renderStatus(data())
-
-    expect(screen.getByText("Variable symbol")).toBeInTheDocument()
-    expect(screen.queryByText(/Pay each application separately/)).not.toBeInTheDocument()
+    expect(screen.getAllByRole("heading", { name: "Your place is confirmed" })).toHaveLength(1)
+    expect(summaryOf("Jana")).toHaveTextContent(/CZK\s6,900.*48000/)
+    expect(summaryOf("Matěj")).toHaveTextContent(/CZK\s7,400.*49000/)
+    expect(summaryOf("Matěj")).not.toHaveTextContent("48000")
   })
 
   it("shows a waitlisted term as waitlisted without a place in line, with no payment for it", async () => {
@@ -209,21 +291,96 @@ describe("SubmissionStatus", () => {
       }),
     )
 
-    expect(screen.getByText("Waitlisted")).toBeInTheDocument()
-    expect(screen.getByText("Do not pay yet")).toBeInTheDocument()
-    expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     expect(
-      screen.getAllByRole("heading", { name: "Payment for the confirmed terms" }),
-    ).toHaveLength(1)
+      screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent),
+    ).toEqual([
+      "Your place is confirmed",
+      "Added to the waitlist",
+      "How to get back to your application",
+    ])
+    expect(
+      screen.getByText("If we confirm your place, we'll e-mail you – don't pay for it until then."),
+    ).toBeVisible()
+    expect(within(summaryOf("Matěj")).getByText("Waitlisted")).toBeVisible()
+    expect(within(summaryOf("Matěj")).queryByText("Amount due")).not.toBeInTheDocument()
+    expect(screen.getAllByText("Amount due")).toHaveLength(1)
+    expect(screen.queryByText(/in line|position/i)).not.toBeInTheDocument()
     expect(screen.queryByText("49000")).not.toBeInTheDocument()
   })
 
   it("shows no payment details when every term is waitlisted", async () => {
     await renderStatus(data({ applications: [jana("WAITLISTED")] }))
 
-    expect(screen.getByRole("heading", { name: "Do not pay anything yet" })).toBeVisible()
-    expect(screen.queryByText("Organization bank account")).not.toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Added to the waitlist" })).toBeVisible()
+    expect(screen.queryByRole("heading", { name: "Your place is confirmed" })).toBeNull()
+    expect(screen.queryByText("Bank account")).not.toBeInTheDocument()
     expect(screen.queryByText("123456789/0800")).not.toBeInTheDocument()
+  })
+
+  // Centred like the empty, error and system pages (the user's wish); the summary stays a table.
+  it("centres the hero, the state blocks and the account block, not the summary", async () => {
+    await renderStatus(data())
+
+    const heading = screen.getByRole("heading", {
+      level: 1,
+      name: "We've received your application",
+    })
+    const hero = heading.parentElement?.parentElement
+    expect(hero).toHaveClass("items-center", "text-center")
+    expect(heading.parentElement).toHaveClass("max-w-140")
+    // The illustration sits above the heading, on a phone and on a desktop alike.
+    const sticker = document.querySelector(".sticker")
+    expect(sticker).not.toBeNull()
+    if (!sticker) return
+    expect(sticker.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(hero).not.toHaveClass("sm:flex-row")
+
+    const state = screen.getByRole("heading", { level: 2, name: "Your place is confirmed" })
+    expect(state.closest("section")).toHaveClass("items-center", "text-center")
+    const account = screen.getByRole("heading", {
+      level: 2,
+      name: "How to get back to your application",
+    })
+    expect(account.closest("section")).toHaveClass("items-center", "text-center")
+    expect(screen.getByText(/We created an account for you/)).toHaveClass("max-w-140")
+    expect(summaryOf("Jana")).not.toHaveClass("text-center")
+    expect(within(summaryOf("Jana")).getByText("Participant").parentElement).not.toHaveClass(
+      "text-center",
+    )
+  })
+
+  describe("celebration", () => {
+    it("assembles the camp and sticks the sticker only when a term is confirmed", async () => {
+      await renderStatus(data())
+
+      const sticker = document.querySelector(".sticker")
+      expect(sticker).toHaveTextContent("Confirmed")
+      expect(sticker).toHaveAttribute("data-animated", "true")
+      // Decoration only: the confirmed state is read from the heading and the badge.
+      expect(sticker?.closest(".brand-assemble")).toHaveAttribute("aria-hidden", "true")
+    })
+
+    it.each(["TO_EVALUATE", "WAITLISTED"] as const)(
+      "keeps the waiting camp still, with no check by the heading (%s)",
+      async (status) => {
+        await renderStatus(data({ applications: [jana(status)] }))
+
+        expect(document.querySelector(".sticker")).toBeNull()
+        expect(document.querySelector(".brand-assemble")).toBeNull()
+        // Figma hides the M04 layer by the heading („skryto · M04 · saved-mark“).
+        expect(document.querySelector(".saved-mark")).toBeNull()
+      },
+    )
+
+    it("plays M31 and M32 only without the reduced-motion preference", () => {
+      const css = readFileSync(resolve(process.cwd(), "src/styles/global.css"), "utf8")
+      const outsideMotion = withoutBlocks(css, "@media (prefers-reduced-motion: no-preference)")
+
+      expect(css).toMatch(/\.brand-assemble \.arc-1 \{\s*animation/)
+      expect(css).toMatch(/\.sticker\[data-animated\] \{\s*animation/)
+      expect(outsideMotion).not.toContain(".brand-assemble")
+      expect(outsideMotion).not.toContain(".sticker[data-animated]")
+    })
   })
 
   it("tells an applicant with an existing account to sign in", async () => {
@@ -233,7 +390,7 @@ describe("SubmissionStatus", () => {
     expect(screen.getByRole("link", { name: "Sign in to the application" })).toBeVisible()
   })
 
-  describe("link under the account card (#318)", () => {
+  describe("action in the account block (#318)", () => {
     it("keeps the sign-in link for an applicant who is not signed in", async () => {
       await renderStatus(data())
 

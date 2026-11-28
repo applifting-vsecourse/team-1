@@ -40,7 +40,9 @@ Only things that are clearly wrong and would hurt `main`. If you are not sure, i
 
 ## What is a WARNING
 
-Rule drift that should be fixed but does not break anything: a feature importing from another feature, `toLocaleString` instead of `formatCzk` / `formatDate`, a hand-rolled control instead of one from `components/ui`, shadows on anything but cards (`shadow-sm`) and floating elements (dropdowns, dialogs, toasts), domain logic without a unit test, a shared file (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`) changed beyond the story's scope, one story split across several PRs (a backend PR and a frontend PR, „část 1/2“) — it belongs in one PR per feature, a PR over ~400 changed lines of code or ~20 files (excluding tests, migration SQL, lockfile, generated files) whose body doesn't say why it's that big — never suggest splitting it.
+Rule drift that should be fixed but does not break anything: a feature importing from another feature, `toLocaleString` instead of `formatCzk` / `formatDate`, a hand-rolled control instead of one from `components/ui`, soft shadows (`shadow-sm`, `shadow-md` …) anywhere, or a hard ink shadow outside what DESIGN.md („Surfaces“) lists (`lift` on pressed controls and clickable cards, menus, toasts, dialogs, the sticker), domain logic without a unit test, a shared file (`schema.prisma`, `app.module.ts`, `routes.ts`, `components/*`) changed beyond the story's scope, one story split across several PRs (a backend PR and a frontend PR, „část 1/2“) — it belongs in one PR per feature, a PR over ~400 changed lines of code or ~20 files (excluding tests, migration SQL, lockfile, generated files) whose body doesn't say why it's that big — never suggest splitting it.
+
+Orange only per system B (DESIGN.md, „Colour“; oranžová jen podle systému B): `brand-warm` as text on a light surface, `brand-warm` as the fill of an action button (CTA; „brand-warm jako výplň akčního tlačítka“), a status badge or focus (also as the fill of any control state, e.g. a selected tab or segment, which uses the nav A marker: `nav-active`, Semi Bold, orange underline) — allowed exceptions: the nav bar and step underline (`nav-indicator`), avatar, count, price tag, date tile strip, logo dot and `BrandDivider`; `brand-warm-subtle` as a panel or surface (it is only the hover and press of outline and secondary controls); an ink edge on a static marker (badge, count, price tag, avatar); orange touching primary teal; or `ActiveCorners` back on the sidebar item or a stepper step.
 
 Czech user-facing copy (UI strings, e-mails, error messages) that uses tykání (second person singular: „zadej“, „vyber“, „tvůj“, „můžeš“, „ahoj“) instead of vykání (CLAUDE.md, "Language"), even when a Figma frame uses tykání.
 
@@ -48,6 +50,7 @@ Business rules (CLAUDE.md, "Business rules and acceptance criteria"): a term, st
 
 UI that follows Figma (`.claude/rules/frontend.md`, "UI follows Figma"). You can't open Figma, so check only what the diff shows:
 
+- a diff that changes what a user sees while the PR body (when the prompt includes it) has no Figma frame link under „Design“ and no line saying why,
 - a new screen or block — a route page, or a component under `features/*/components` that renders a whole section — with no `Figma:` comment naming the frame and its node URL,
 - UI copy, a control type or a state that looks invented: a string with no counterpart in an earlier version of the file, an extra heading, hint or section, a drawn-looking element nobody asked for. Report it as a WARNING "not from the design? check with @design-reviewer", never as a BLOCKER — you can't tell.
 

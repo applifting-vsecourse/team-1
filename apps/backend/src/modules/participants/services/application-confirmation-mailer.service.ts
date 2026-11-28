@@ -1,4 +1,5 @@
 import { EmailService } from "@/core/email/interfaces/email-service.interface"
+import { EmailContent } from "@/core/email/queue/email-job.repository"
 import { renderEmail } from "@/core/email/render"
 import {
   ApplicationChange as ApplicationChangeEmail,
@@ -28,7 +29,6 @@ import {
 } from "@/core/email/templates/payment-correction"
 import {
   PaymentReceivedEmail,
-  PaymentReceivedEmailProps,
   paymentReceivedSubject,
 } from "@/core/email/templates/payment-received"
 import {
@@ -38,6 +38,7 @@ import {
   confirmationUrl,
   loginUrl,
 } from "@/modules/participants/domain/confirmation-email"
+import { PaymentReceivedMessage, QueuedEmail } from "@/modules/participants/domain/queued-email"
 import {
   ApplicationChange,
   SubmissionConfirmation,
@@ -91,50 +92,23 @@ export class ApplicationConfirmationMailer {
   }
 
   async sendApplicationChange(change: ApplicationChange): Promise<void> {
-    try {
-      // No. 13 has a template of its own (D-074), the others share one.
-      const { kind } = change
-      const [html, subject] =
-        kind === "WAITLISTED_AFTER_CONFIRMED"
-          ? [
-              await renderEmail(
-                ConfirmationWithdrawn,
-                buildTermNoticeProps(change, this.config.frontendUrl),
-              ),
-              confirmationWithdrawnSubject(change.locale, change.eventName),
-            ]
-          : [
-              await renderEmail(
-                ApplicationChangeEmail,
-                buildChangeProps({ ...change, kind }, this.config.frontendUrl),
-              ),
-              applicationChangeSubject(change.locale, change.eventName, kind),
-            ]
-      await this.email.sendEmail(change.email, subject, html)
-    } catch (error) {
-      this.logFailure("change", change.email, error)
-    }
+    await this.send("change", change.email, () => this.renderApplicationChange(change))
   }
 
   /** E-mail no. 15 (US-131): one per application cancelled with its term, without payment details. */
   async sendTermCancelled(notice: TermCancelledNotice): Promise<void> {
-    try {
-      const html = await renderEmail(TermCancelled, {
-        locale: notice.locale,
-        eventName: notice.eventName,
-        organizationName: notice.organizationName,
-        name: `${notice.firstName} ${notice.lastName}`,
-        gender: notice.gender,
-        term: notice.termName,
-        confirmationUrl: confirmationUrl(this.config.frontendUrl, notice.accessToken),
-      })
-      await this.email.sendEmail(
-        notice.email,
-        termCancelledSubject(notice.locale, notice.eventName),
-        html,
-      )
-    } catch (error) {
-      this.logFailure("term cancelled", notice.email, error)
+    await this.send("term cancelled", notice.email, () => this.renderTermCancelled(notice))
+  }
+
+  /** The message of a queued e-mail (#737). Throws, so the queue records the failure. */
+  async renderQueued(queued: QueuedEmail): Promise<EmailContent> {
+    switch (queued.template) {
+      case "APPLICATION_CHANGE":
+        return this.renderApplicationChange(queued.data)
+      case "TERM_CANCELLED":
+        return this.renderTermCancelled(queued.data)
+      case "PAYMENT_RECEIVED":
+        return this.renderPaymentReceived(queued.data)
     }
   }
 
@@ -169,24 +143,66 @@ export class ApplicationConfirmationMailer {
   }
 
   /** E-mail no. 8 (US-117): one per application for all terms settled by the payment; carries no amount. */
-  async sendPaymentReceived(
-    input: { email: string; accessToken: string } & Omit<
-      PaymentReceivedEmailProps,
-      "confirmationUrl"
-    >,
+  async sendPaymentReceived(input: PaymentReceivedMessage): Promise<void> {
+    await this.send("payment received", input.email, () => this.renderPaymentReceived(input))
+  }
+
+  private async send(
+    kind: string,
+    recipient: string,
+    render: () => Promise<EmailContent>,
   ): Promise<void> {
     try {
-      const html = await renderEmail(PaymentReceivedEmail, {
+      const { subject, html } = await render()
+      await this.email.sendEmail(recipient, subject, html)
+    } catch (error) {
+      this.logFailure(kind, recipient, error)
+    }
+  }
+
+  private async renderApplicationChange(change: ApplicationChange): Promise<EmailContent> {
+    // No. 13 has a template of its own (D-074), the others share one.
+    const { kind } = change
+    if (kind === "WAITLISTED_AFTER_CONFIRMED") {
+      return {
+        subject: confirmationWithdrawnSubject(change.locale, change.eventName),
+        html: await renderEmail(
+          ConfirmationWithdrawn,
+          buildTermNoticeProps(change, this.config.frontendUrl),
+        ),
+      }
+    }
+    return {
+      subject: applicationChangeSubject(change.locale, change.eventName, kind),
+      html: await renderEmail(
+        ApplicationChangeEmail,
+        buildChangeProps({ ...change, kind }, this.config.frontendUrl),
+      ),
+    }
+  }
+
+  private async renderTermCancelled(notice: TermCancelledNotice): Promise<EmailContent> {
+    return {
+      subject: termCancelledSubject(notice.locale, notice.eventName),
+      html: await renderEmail(TermCancelled, {
+        locale: notice.locale,
+        eventName: notice.eventName,
+        organizationName: notice.organizationName,
+        name: `${notice.firstName} ${notice.lastName}`,
+        gender: notice.gender,
+        term: notice.termName,
+        confirmationUrl: confirmationUrl(this.config.frontendUrl, notice.accessToken),
+      }),
+    }
+  }
+
+  private async renderPaymentReceived(input: PaymentReceivedMessage): Promise<EmailContent> {
+    return {
+      subject: paymentReceivedSubject(input.locale, input.eventName),
+      html: await renderEmail(PaymentReceivedEmail, {
         ...input,
         confirmationUrl: `${this.config.frontendUrl}/apply/confirmation/${encodeURIComponent(input.accessToken)}`,
-      })
-      await this.email.sendEmail(
-        input.email,
-        paymentReceivedSubject(input.locale, input.eventName),
-        html,
-      )
-    } catch (error) {
-      this.logFailure("payment received", input.email, error)
+      }),
     }
   }
 

@@ -6,6 +6,7 @@ import type { Health } from "@/features/health/api/health"
 import { OrganizerHealth } from "@/features/health/components/OrganizerHealth"
 
 vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => vi.fn(),
   Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
     <a href={to}>{children}</a>
   ),
@@ -30,6 +31,7 @@ const health: Health = {
   lastName: "Dvořák",
   note: "Astma · inhalátor u sebe.",
   noRestriction: false,
+  editable: true,
   consentAt: "2026-11-05T13:30:00.000Z",
   pendingRequest: null,
 }

@@ -17,7 +17,7 @@ paths:
 
 Need a control that isn't in `src/components/ui/`? Add it with `pnpm dlx shadcn@latest add <name>` — don't hand-roll one in a feature folder, even where a native input would do the job. One accessibility implementation to reason about beats a per-control judgement call.
 
-The CLI puts `shadow-xs`/`shadow-sm` on inputs and textareas. [`DESIGN.md`](../../DESIGN.md) allows shadows only on cards (`shadow-sm`) and on things that float — dialogs, dropdowns, toasts. Keep them on cards, strip them from inputs, textareas and other controls.
+The CLI puts soft shadows (`shadow-xs`/`shadow-sm`/`shadow-md`) and grey borders on its components. [`DESIGN.md`](../../DESIGN.md) has no soft shadows: give the new control the ink edge (`border-border-strong`), `lift` if it is pressed, and the hard shadow only where DESIGN.md („Surfaces“) lists it.
 
 The CLI also has two habits to undo after every `add`: it imports `cn` from the npm package `cn` (rewrite to `import { cn } from "@/lib/utils"`) and adds `cn` to `apps/frontend/package.json` (remove it and restore `pnpm-lock.yaml` from `main`).
 

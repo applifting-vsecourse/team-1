@@ -153,7 +153,7 @@ export function ProgramBlockDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="bg-card p-4 shadow-md sm:max-w-140 sm:p-6">
+      <DialogContent className="bg-card p-4 sm:max-w-140 sm:p-6">
         <DialogTitle>{t(block ? "editTitle" : "addTitle")}</DialogTitle>
         <DialogDescription>{t(block ? "hintEdit" : "hintAdd")}</DialogDescription>
         <Form {...form}>

@@ -72,23 +72,33 @@ function MealsForm({ applicationId, meals }: { applicationId: string; meals: Own
       />
       <Card className="mx-auto w-full max-w-[720px] gap-4 p-4">
         <h2 className="text-2xl font-bold tracking-tight">{t("own.restrictions")}</h2>
-        <MealSelectionFields
-          draft={draft}
-          noneLabel={t("own.noRestrictions")}
-        />
+        {/* After the last term that is not cancelled the meals cannot be changed (D-192). */}
+        <fieldset
+          disabled={!meals.editable}
+          className="flex min-w-0 flex-col gap-4"
+        >
+          <MealSelectionFields
+            draft={draft}
+            noneLabel={t("own.noRestrictions")}
+          />
+        </fieldset>
         {mutation.error ? (
           <Alert variant="destructive">
             <AlertDescription>{mutation.error.message}</AlertDescription>
           </Alert>
         ) : null}
-        <PendingButton
-          isPending={mutation.isPending}
-          type="submit"
-          size="lg"
-          className="w-full sm:w-auto sm:self-start"
-        >
-          {t("own.save")}
-        </PendingButton>
+        {meals.editable ? (
+          <PendingButton
+            isPending={mutation.isPending}
+            type="submit"
+            size="lg"
+            className="w-full sm:w-auto sm:self-start"
+          >
+            {t("own.save")}
+          </PendingButton>
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("own.closed")}</p>
+        )}
       </Card>
     </form>
   )

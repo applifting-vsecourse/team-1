@@ -4,7 +4,8 @@ import { ThrottlerGuard } from "@nestjs/throttler"
 
 /**
  * Rate limit of a route (`@UseGuards(RateLimitGuard)`), counted per client IP
- * (`req.ip`, see TRUSTED_PROXIES). Over the limit it answers 429 in our error
+ * (`req.ip`, see TRUSTED_PROXIES) and, for the public application, per applicant
+ * e-mail (see RateLimitModule). Over a limit it answers 429 in our error
  * shape, so the frontend shows the translated TOO_MANY_REQUESTS.
  */
 @Injectable()

@@ -1,6 +1,6 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
-import { isApplicationEditable } from "@/modules/applications/domain/application-editable"
+import { isMealsEditable } from "@/modules/applications/domain/edit-window"
 import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
 import {
   decideSelection,
@@ -25,12 +25,10 @@ const ownSelect = {
   noMealRestrictions: true,
   event: { select: { name: true } },
   mealOptions: { select: { id: true } },
+  terms: { select: { status: true, term: { select: { endsOn: true, cancelledAt: true } } } },
 } as const
 
-const organizerSelect = {
-  ...ownSelect,
-  terms: { select: { status: true, term: { select: { endsOn: true } } } },
-} as const
+const organizerSelect = ownSelect
 
 function mealRecord(
   row: Prisma.ApplicationGetPayload<{ select: typeof ownSelect }>,
@@ -46,21 +44,19 @@ function mealRecord(
     allergies: row.allergies,
     specialRequest: row.specialRequest,
     noRestrictions: row.noMealRestrictions,
-  }
-}
-
-function organizerRecord(
-  row: Prisma.ApplicationGetPayload<{ select: typeof organizerSelect }>,
-  options: MealOption[],
-): OrganizerMeals {
-  return {
-    ...mealRecord(row, options),
-    editable: isApplicationEditable(
-      row.terms.map(({ status, term }) => ({ status, endsOn: term.endsOn })),
+    // One rule for both roles and the server (D-192): until the last term that is not cancelled is over.
+    editable: isMealsEditable(
+      row.terms.map(({ status, term }) => ({
+        status,
+        endsOn: term.endsOn,
+        cancelledAt: term.cancelledAt,
+      })),
       todayInPrague(new Date()),
     ),
   }
 }
+
+const organizerRecord = mealRecord
 
 /** The only place of the meal restrictions that touches the database. */
 @Injectable()
@@ -172,7 +168,7 @@ export class MealsRepository {
         orderBy: { position: "asc" },
       })
       if (!organizerRecord(row, options).editable)
-        throw new AppException(HttpStatus.CONFLICT, "APPLICATION_NOT_EDITABLE")
+        throw new AppException(HttpStatus.CONFLICT, "MEALS_EDIT_CLOSED")
       const decision = decideSelection(input, options)
       if (decision.kind === "invalid")
         throw new AppException(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED")

@@ -33,10 +33,7 @@ test("participant submits a cancellation request and organizer declines it at 36
 
   await signIn(page, "participant", PARTICIPANT)
   await page.setViewportSize({ width: 360, height: 800 })
-  await page
-    .getByRole("link", { name: /Letní kemp 2027/ })
-    .first()
-    .click()
+  await page.getByRole("region", { name: "Letní kemp 2027" }).getByRole("link").first().click()
   await page.getByRole("button", { name: "Cancel participation" }).click()
   const dialog = page.getByRole("dialog", { name: "Request cancellation" })
   await expect(dialog.getByRole("heading", { name: "Impact after approval" })).toBeVisible()

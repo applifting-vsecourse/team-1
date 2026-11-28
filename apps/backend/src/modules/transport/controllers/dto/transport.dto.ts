@@ -145,6 +145,10 @@ export class TransportParticipantsResponseDto extends TermDto implements Transpo
 export class TermChoiceDto extends TermDto {
   @ApiProperty() status!: string
   @ApiProperty({ nullable: true, type: String }) selectedTransportId!: string | null
+  @ApiProperty({
+    description: "The term is not over, so the transport can still be chosen (D-192)",
+  })
+  isEditable!: boolean
   @ApiProperty({ type: [TransportOptionDto] }) options!: TransportOptionDto[]
 }
 

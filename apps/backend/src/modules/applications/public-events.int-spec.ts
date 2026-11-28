@@ -66,4 +66,42 @@ describe("public event for the application form (integration)", () => {
 
     expect(response.status).toBe(404)
   })
+
+  it("answers every reason an event is closed with exactly the body of an unknown link (#738)", async () => {
+    const unknown = await fetch(api("/public/events/does-not-exist"))
+    const unknownBody: unknown = await unknown.json()
+
+    const closed = async (token: string): Promise<{ status: number; body: unknown }> => {
+      const response = await fetch(api(`/public/events/${token}`))
+      return { status: response.status, body: await response.json() }
+    }
+
+    // All terms cancelled.
+    const cancelled = await prisma.event.findUniqueOrThrow({
+      where: { publicToken: "demo-letni-kemp-plny" },
+    })
+    await prisma.term.updateMany({
+      where: { eventId: cancelled.id },
+      data: { cancelledAt: new Date() },
+    })
+    // Evaluation mode not chosen yet (US-560).
+    await prisma.event.update({
+      where: { publicToken: "demo-rodinny-vikend-2027" },
+      data: { evaluationModePending: true },
+    })
+    // No term at all.
+    const empty = await prisma.event.findUniqueOrThrow({
+      where: { publicToken: "demo-zimni-vyjezd-2028" },
+    })
+    await prisma.term.deleteMany({ where: { eventId: empty.id } })
+
+    for (const token of [
+      "demo-letni-kemp-plny",
+      "demo-rodinny-vikend-2027",
+      "demo-zimni-vyjezd-2028",
+      "demo-horsky-vikend-2027", // no rooms, closed in the test above
+    ]) {
+      expect(await closed(token)).toEqual({ status: 404, body: unknownBody })
+    }
+  })
 })
