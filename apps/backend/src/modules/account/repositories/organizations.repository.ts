@@ -3,6 +3,7 @@ import {
   OrganizationProfile,
   OrganizationProfileInput,
 } from "@/modules/account/domain/organization"
+import { defaultCostCategories } from "@/modules/economics/domain/cost-category"
 import { Injectable } from "@nestjs/common"
 
 @Injectable()
@@ -16,7 +17,12 @@ export class OrganizationsRepository {
       const membership = await tx.organizationMember.findFirst({ where: { userId } })
       if (membership) return null
       return tx.organization.create({
-        data: { name, bankAccount: "", members: { create: { userId } } },
+        data: {
+          name,
+          bankAccount: "",
+          members: { create: { userId } },
+          costCategories: { create: defaultCostCategories() },
+        },
       })
     })
     return organization

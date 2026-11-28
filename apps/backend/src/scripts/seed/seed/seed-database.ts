@@ -8,6 +8,7 @@ import {
   computeAmountDue,
   computeTermDue,
 } from "@/modules/applications/domain/pricing"
+import { defaultCostCategories } from "@/modules/economics/domain/cost-category"
 import { BetterAuth } from "@/shared/auth/providers/better-auth.provider"
 import { Config } from "@/shared/config/config.service"
 import { generateToken } from "@/shared/utils/token"
@@ -134,11 +135,12 @@ export const seedDatabase = async (
 
   console.log("Creating organizations and events")
 
+  const costCategories = { create: defaultCostCategories() }
   const summerCamp = await prisma.organization.create({
-    data: { name: "Letní kemp z. s.", bankAccount: "2900123456/2010" },
+    data: { name: "Letní kemp z. s.", bankAccount: "2900123456/2010", costCategories },
   })
   const mountainClub = await prisma.organization.create({
-    data: { name: "Horský spolek Sněžka", bankAccount: "123456789/0100" },
+    data: { name: "Horský spolek Sněžka", bankAccount: "123456789/0100", costCategories },
   })
   await prisma.organizationMember.createMany({
     data: [
