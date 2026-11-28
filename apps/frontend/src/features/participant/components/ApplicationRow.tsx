@@ -31,11 +31,10 @@ export function ApplicationRow({ application, boardBadge }: ApplicationRowProps)
     <Link
       to={ROUTES.participant.application}
       params={{ applicationId: application.id }}
-      aria-label={`${application.eventName} · ${name} · ${application.code}`}
       className="flex items-start gap-4 px-4 py-3 transition-colors hover:bg-action-subtle focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring md:items-center"
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2 md:flex-row md:items-center md:gap-4">
-        <div className="flex min-w-0 flex-col gap-0.5 md:flex-1">
+        <div className="flex min-w-0 flex-col gap-2 md:flex-1 md:gap-0.5">
           <span
             className="line-clamp-2 font-semibold wrap-anywhere"
             title={name}

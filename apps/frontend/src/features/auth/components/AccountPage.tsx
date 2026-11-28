@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BrandPageHeader } from "@/components/molecules/BrandPageHeader"
@@ -13,6 +13,8 @@ import { ProfileForm } from "@/features/auth/components/ProfileForm"
 import { useEmailChangedNotice } from "@/features/auth/hooks/useEmailChangedNotice"
 import { useSession } from "@/features/auth/hooks/useSession"
 
+type Setting = "name" | "password"
+
 /**
  * Account settings of every signed-in account on one page, without tabs: „Profil“ (name, sign-in
  * e-mail), „Předvolby“ (language, appearance) and „Zabezpečení“ (password). Each setting is a row
@@ -26,15 +28,30 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
   const { t } = useTranslation("auth")
   const { user } = useSession()
   useEmailChangedNotice(isEmailChanged, user?.email)
-  const [editing, setEditing] = useState<"name" | "password" | null>(null)
+  const [editing, setEditing] = useState<Setting | null>(null)
+  const [lastEdited, setLastEdited] = useState<Setting | null>(null)
+  const formRef = useRef<HTMLDivElement>(null)
+  const nameButton = useRef<HTMLButtonElement>(null)
+  const passwordButton = useRef<HTMLButtonElement>(null)
+
+  // The button disappears while its form is open: focus moves into the form and back to the button.
+  useEffect(() => {
+    if (editing) formRef.current?.querySelector("input")?.focus()
+    else if (lastEdited) (lastEdited === "name" ? nameButton : passwordButton).current?.focus()
+  }, [editing, lastEdited])
 
   if (!user) return null
 
-  const editButton = (setting: "name" | "password", label: string) =>
+  const editButton = (setting: Setting, label: string, accessibleLabel?: string) =>
     editing === setting ? null : (
       <Button
+        ref={setting === "name" ? nameButton : passwordButton}
         variant="ghost"
-        onClick={() => setEditing(setting)}
+        aria-label={accessibleLabel}
+        onClick={() => {
+          setLastEdited(setting)
+          setEditing(setting)
+        }}
       >
         {label}
       </Button>
@@ -42,7 +59,10 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
 
   return (
     <div className="mx-auto flex w-full max-w-160 flex-col gap-8">
-      <BrandPageHeader title={t("account.title")} />
+      <BrandPageHeader
+        title={t("account.title")}
+        hasIllustration={user.accountType === "PARTICIPANT"}
+      />
       <SettingsSection
         id="account-profile"
         title={t("account.tabs.profile")}
@@ -50,13 +70,15 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
         <SettingsRow
           label={t("profile.name")}
           value={editing === "name" ? null : user.name}
-          action={editButton("name", t("account.edit"))}
+          action={editButton("name", t("account.edit"), t("account.editName"))}
         >
           {editing === "name" ? (
-            <ProfileForm
-              user={user}
-              onClose={() => setEditing(null)}
-            />
+            <div ref={formRef}>
+              <ProfileForm
+                user={user}
+                onClose={() => setEditing(null)}
+              />
+            </div>
           ) : null}
         </SettingsRow>
         <ChangeEmailSection user={user} />
@@ -70,7 +92,11 @@ export function AccountPage({ isEmailChanged = false }: { isEmailChanged?: boole
           label={t("account.password")}
           action={editButton("password", t("changePassword.submit"))}
         >
-          {editing === "password" ? <ChangePasswordForm onClose={() => setEditing(null)} /> : null}
+          {editing === "password" ? (
+            <div ref={formRef}>
+              <ChangePasswordForm onClose={() => setEditing(null)} />
+            </div>
+          ) : null}
         </SettingsRow>
       </SettingsSection>
     </div>

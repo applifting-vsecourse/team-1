@@ -50,7 +50,7 @@ function TermNote({ application, term }: { application: MyApplication; term: MyA
           : payment && payment.owedCzk < 0
             ? `${t("paymentStatus.OVERPAID")} · ${formatCzk(-payment.owedCzk)}. ${t("payment.overpaymentRefund")}`
             : null
-  return note ? <p className="text-sm text-muted-foreground">{note}</p> : null
+  return note ? <p className="col-start-1 text-sm text-muted-foreground">{note}</p> : null
 }
 
 /**
@@ -62,26 +62,36 @@ export function ApplicationTermList({ application }: { application: MyApplicatio
   return (
     <Card className="gap-0 divide-y divide-border p-0">
       {application.terms.map((term) => (
+        // A grid on a phone (name | status, then dates, note, price), a row from `sm` (Figma 27649:35286).
         <div
           key={term.termId}
-          className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-4"
+          className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 gap-y-0.5 px-4 py-3 sm:flex sm:items-center"
         >
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <h3 className="font-semibold wrap-anywhere">{termTitle(term)}</h3>
+          <div className="contents sm:flex sm:min-w-0 sm:flex-1 sm:flex-col sm:gap-0.5">
+            <h3 className="col-start-1 font-semibold wrap-anywhere">{termTitle(term)}</h3>
             {termName(term) ? (
-              <p className="text-sm text-muted-foreground tabular-nums">{termDates(term)}</p>
+              <p className="col-start-1 text-sm text-muted-foreground tabular-nums">
+                {termDates(term)}
+              </p>
             ) : null}
             <TermNote
               application={application}
               term={term}
             />
           </div>
-          <div className="flex items-center justify-between gap-4">
+          <div className="col-start-2 row-start-1">
             <TermStatusBadge term={term} />
-            <span className="text-sm font-medium tabular-nums empty:hidden sm:w-34 sm:text-right sm:empty:block">
-              {term.status === "CONFIRMED" ? formatCzk(term.priceCzk) : null}
-            </span>
           </div>
+          {term.status === "CONFIRMED" ? (
+            <span className="col-start-1 pt-1 text-sm font-medium tabular-nums sm:w-34 sm:pt-0 sm:text-right">
+              {formatCzk(term.priceCzk)}
+            </span>
+          ) : (
+            <span
+              aria-hidden="true"
+              className="hidden sm:block sm:w-34"
+            />
+          )}
         </div>
       ))}
     </Card>

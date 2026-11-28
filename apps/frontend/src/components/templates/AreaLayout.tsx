@@ -82,7 +82,7 @@ export function AreaLayout({
             {notifications}
           </div>
           <nav className="flex flex-col gap-2">{nav}</nav>
-          <div className="mt-auto border-t border-sidebar-border pt-4">{account}</div>
+          <div className="mt-auto border-t border-sidebar-border pt-6">{account}</div>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between gap-1 border-b border-border bg-card px-4 md:hidden">

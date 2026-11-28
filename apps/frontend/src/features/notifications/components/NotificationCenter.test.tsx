@@ -313,8 +313,8 @@ describe("NotificationCenter", () => {
     // At 360 px the panel is a card under the header that fits the screen and scrolls; from `md` up
     // it is a card next to the sidebar, by the bell.
     expect(dialog).toHaveClass(
-      "top-18",
-      "max-h-[calc(100svh-5.5rem)]",
+      "top-16",
+      "max-h-[calc(100svh-5rem)]",
       "overflow-hidden",
       "md:left-62",
     )

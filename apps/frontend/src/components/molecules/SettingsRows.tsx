@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 
 import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 /** A section of the account settings: an H2 over one ink-edged card of rows. */
 // Figma (Design system v2): Sekce · Profil · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27652-34064
@@ -40,6 +41,7 @@ export function SettingsRow({
   value,
   action,
   children,
+  isControlBelowOnMobile = false,
 }: {
   /** Labels the control in `action` (`aria-labelledby`). */
   id?: string
@@ -48,11 +50,25 @@ export function SettingsRow({
   action?: ReactNode
   /** The inline form while the setting is being changed. */
   children?: ReactNode
+  /** A control (not a quiet button) goes under its label on a phone. */
+  isControlBelowOnMobile?: boolean
 }) {
   return (
     <div className="flex flex-col gap-4 px-4 py-3">
-      <div className="flex min-h-10 flex-wrap items-center gap-x-4 gap-y-2">
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <div
+        className={cn(
+          "flex min-h-10 gap-x-4",
+          isControlBelowOnMobile
+            ? "flex-col items-start gap-y-3 sm:flex-row sm:items-center"
+            : "flex-wrap items-center gap-y-2",
+        )}
+      >
+        <div
+          className={cn(
+            "flex min-w-0 flex-col gap-0.5",
+            isControlBelowOnMobile ? "sm:flex-1" : "flex-1",
+          )}
+        >
           <span
             id={id}
             className="font-medium"

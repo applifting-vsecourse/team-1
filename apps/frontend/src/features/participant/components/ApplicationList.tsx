@@ -57,7 +57,10 @@ export function ApplicationList({ renderBoardBadge }: ApplicationListProps) {
   if (data?.length === 0) {
     return (
       <>
-        <BrandPageHeader title={title} />
+        <BrandPageHeader
+          title={title}
+          isIllustrationBesideTitle
+        />
         <EmptyState
           className="mx-auto w-full max-w-102"
           title={t("list.emptyTitle")}
@@ -114,6 +117,7 @@ export function ApplicationList({ renderBoardBadge }: ApplicationListProps) {
     >
       <BrandPageHeader
         title={title}
+        isIllustrationBesideTitle
         actions={
           <TabsList>
             <TabsTrigger value="upcoming">{t("list.upcoming")}</TabsTrigger>
@@ -185,7 +189,7 @@ function Applications({
             </div>
             <Button
               asChild
-              className="w-full sm:w-55"
+              className="w-55 max-w-full"
             >
               <Link
                 to={ROUTES.participant.application}

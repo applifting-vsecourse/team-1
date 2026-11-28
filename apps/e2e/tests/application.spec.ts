@@ -88,7 +88,7 @@ test.describe("Application from a link", { tag: "@mobile" }, () => {
     await expect(page.getByText(/Confirmed|Waitlisted/).first()).toBeVisible()
 
     // US-121: the detail ends with who to call or write to; one tap dials or opens the mail.
-    await page.getByRole("link", { name: /Letní kemp 2027/ }).click()
+    await page.getByRole("region", { name: "Letní kemp 2027" }).getByRole("link").first().click()
     const applicationTitle = page.getByRole("heading", {
       level: 1,
       name: `Karel Novotný ${unique}`,

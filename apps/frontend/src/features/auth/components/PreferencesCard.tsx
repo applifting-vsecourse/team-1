@@ -34,6 +34,7 @@ export function PreferencesCard({ user }: { user: SessionUser }) {
     >
       <SettingsRow
         id="preference-language"
+        isControlBelowOnMobile
         label={t("profile.language")}
         value={t("profile.languageHint")}
         action={
@@ -66,6 +67,7 @@ export function PreferencesCard({ user }: { user: SessionUser }) {
       />
       <SettingsRow
         id="preference-theme"
+        isControlBelowOnMobile
         label={t("appearance.theme")}
         value={t("appearance.hint")}
         action={<ThemeSegmentedControl labelledBy="preference-theme" />}

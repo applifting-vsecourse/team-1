@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { currentLanguage } from "@/i18n"
+import { cn } from "@/lib/utils"
 
 import { useAccountLanguage } from "@/features/auth/hooks/useAccountLanguage"
 import { useSession } from "@/features/auth/hooks/useSession"
@@ -45,6 +46,11 @@ export function SidebarAccount({
 
   const accountRoute =
     user.accountType === "PARTICIPANT" ? ROUTES.participant.account : ROUTES.organizer.account
+  // With the role under the name (participant area, Figma 27681:33660) the menu has the 48 px items
+  // of the mobile account menu.
+  const item = subtitle
+    ? "h-12 gap-4 rounded-sm px-3 text-base [&_svg:not([class*='size-'])]:size-5"
+    : "h-10 font-medium"
 
   return (
     <div className="flex flex-col gap-2">
@@ -63,7 +69,8 @@ export function SidebarAccount({
           <button
             type="button"
             title={user.name}
-            className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none hover:bg-action-subtle focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-action-subtle"
+            data-subtitle={Boolean(subtitle)}
+            className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none hover:bg-action-subtle focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-action-subtle data-[subtitle=true]:gap-3"
           >
             <Avatar>
               <AvatarFallback>{initials(user.name)}</AvatarFallback>
@@ -83,29 +90,33 @@ export function SidebarAccount({
             </span>
             <ChevronsUpDown
               aria-hidden
-              className="size-4 shrink-0 text-muted-foreground"
+              className={cn("shrink-0 text-muted-foreground", subtitle ? "size-6" : "size-4")}
             />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           side="top"
           align="start"
-          className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
+          className={
+            subtitle
+              ? "flex w-52 flex-col gap-1 p-2"
+              : "w-(--radix-dropdown-menu-trigger-width) min-w-56"
+          }
         >
           <DropdownMenuItem
             asChild
-            className="h-10 font-medium"
+            className={item}
           >
             <Link to={accountRoute}>
               <Settings />
               {t("menu.accountSettings")}
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          {subtitle ? null : <DropdownMenuSeparator />}
           <DropdownMenuItem
             onSelect={() => signOut.mutate()}
             disabled={signOut.isPending}
-            className="h-10 font-medium"
+            className={item}
           >
             <LogOut />
             {t("menu.signOut")}

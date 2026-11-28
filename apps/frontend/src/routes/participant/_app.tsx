@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router"
+import { createFileRoute, Outlet, useMatchRoute } from "@tanstack/react-router"
 import { LayoutGrid, Users } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -30,11 +30,14 @@ export const Route = createFileRoute("/participant/_app")({
 
 function ParticipantLayout() {
   const { t } = useTranslation()
+  const matchRoute = useMatchRoute()
   // Figma F4: Moje přihlášky first, then the public catalog (the sidebar and the mobile account menu).
+  // Moje přihlášky stays marked on an application and its pages, but not on the account settings.
+  const isAccount = Boolean(matchRoute({ to: ROUTES.participant.account }))
   const nav: AccountMenuItem[] = [
     {
       to: ROUTES.participant.applications,
-      activeOptions: { exact: true },
+      activeOptions: { exact: isAccount },
       icon: Users,
       label: t("nav.myApplications"),
     },

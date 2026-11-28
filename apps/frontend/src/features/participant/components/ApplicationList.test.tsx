@@ -190,7 +190,7 @@ describe("ApplicationList", () => {
     const summer = await screen.findByRole("region", { name: "Letní kemp 2027" })
     const mountain = screen.getByRole("region", { name: "Horský víkend 2027" })
     expect(within(summer).getByText("Letní kemp z. s. · 4–17 Jul 2027")).toBeVisible()
-    const row = within(summer).getByRole("link", { name: /Jana Nováková · LKL-0048/ })
+    const row = within(summer).getByRole("link", { name: /^Jana Nováková.*LKL-0048/ })
     expect(row).toHaveAttribute("href", "/participant/applications/a1")
     expect(within(row).getByText("4–10 Jul")).toBeVisible()
     expect(within(row).getByText("Confirmed")).toBeVisible()

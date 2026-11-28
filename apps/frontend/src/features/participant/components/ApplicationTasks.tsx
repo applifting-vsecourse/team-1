@@ -95,38 +95,23 @@ function PaymentTaskBlock({
   const owed = details.terms.filter(({ owedCzk }) => owedCzk > 0)
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <p className="font-medium">
-            {t("detail.tasks.pay", { amount: formatCzk(task.amountCzk) })}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {[
-              ...task.terms.map(termTitle),
-              task.deadline ? t("list.dueOn", { date: formatDate(task.deadline) }) : null,
-            ]
-              .filter(Boolean)
-              .join(" · ")}
-          </p>
-        </div>
-        {spayd ? (
-          <Button
-            className="w-full sm:w-55"
-            aria-expanded={isQrOpen}
-            onClick={() => setIsQrOpen((isOpen) => !isOpen)}
-          >
-            {t(isQrOpen ? "detail.tasks.hideQr" : "detail.tasks.showQr")}
-          </Button>
-        ) : null}
+    // A grid: on a phone the QR button comes after the account and the symbol (Figma 27649:35259),
+    // from `sm` it stands next to the task.
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-x-4">
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <p className="font-medium">
+          {t("detail.tasks.pay", { amount: formatCzk(task.amountCzk) })}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {[
+            ...task.terms.map(termTitle),
+            task.deadline ? t("list.dueOn", { date: formatDate(task.deadline) }) : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
       </div>
-      {isQrOpen ? (
-        <PaymentQrDownload
-          spayd={spayd}
-          variableSymbol={variableSymbol}
-        />
-      ) : null}
-      <dl className="flex flex-col divide-y border-t">
+      <dl className="flex flex-col divide-y border-t sm:col-span-2">
         {[
           {
             label: t("payment.account"),
@@ -155,18 +140,41 @@ function PaymentTaskBlock({
         ))}
       </dl>
       {details.terms.some(({ owedCzk }) => owedCzk < 0) ? (
-        <p className="text-sm">{t("payment.overpaymentNotTransferred")}</p>
+        <p className="text-sm sm:col-span-2">{t("payment.overpaymentNotTransferred")}</p>
       ) : null}
-      {application.canSimulatePayment
-        ? owed.map((term) => (
-            <SimulatePaymentButton
-              key={term.termId}
-              applicationId={application.id}
-              termId={term.termId}
-              amountCzk={term.owedCzk}
-            />
-          ))
-        : null}
+      {application.canSimulatePayment && owed.length > 0 ? (
+        <div className="flex flex-col gap-3 sm:col-span-2">
+          {owed.map((payment) => {
+            const term = application.terms.find(({ termId }) => termId === payment.termId)
+            return (
+              <SimulatePaymentButton
+                key={payment.termId}
+                applicationId={application.id}
+                termId={payment.termId}
+                amountCzk={payment.owedCzk}
+                termLabel={owed.length > 1 && term ? termTitle(term) : undefined}
+              />
+            )
+          })}
+        </div>
+      ) : null}
+      {spayd ? (
+        <Button
+          className="w-55 max-w-full sm:col-start-2 sm:row-start-1"
+          aria-expanded={isQrOpen}
+          onClick={() => setIsQrOpen((isOpen) => !isOpen)}
+        >
+          {t(isQrOpen ? "detail.tasks.hideQr" : "detail.tasks.showQr")}
+        </Button>
+      ) : null}
+      {isQrOpen ? (
+        <div className="sm:col-span-2">
+          <PaymentQrDownload
+            spayd={spayd}
+            variableSymbol={variableSymbol}
+          />
+        </div>
+      ) : null}
     </div>
   )
 }
