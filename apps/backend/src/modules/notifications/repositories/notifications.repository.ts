@@ -1,6 +1,7 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeTermOwed } from "@/modules/applications/domain/pricing"
+import { BOARD_VISIBLE_STATUSES } from "@/modules/board/domain/visibility"
 import {
   buildNotification,
   isoDay,
@@ -21,6 +22,31 @@ const toDomain = (row: Row): Notification => ({
   params: row.params as NotificationParams,
   createdAt: row.createdAt,
   readAt: row.readAt,
+})
+
+/**
+ * What the user sees of the bell. A board post notification goes away from it once the account no
+ * longer sees the post (its application was cancelled), so it never leads to a missing page.
+ */
+const shownTo = (userId: string): Prisma.NotificationWhereInput => ({
+  userId,
+  OR: [
+    { type: { not: "BOARD" } },
+    {
+      eventPost: {
+        terms: {
+          some: {
+            term: {
+              cancelledAt: null,
+              applicationTerms: {
+                some: { status: { in: [...BOARD_VISIBLE_STATUSES] }, application: { userId } },
+              },
+            },
+          },
+        },
+      },
+    },
+  ],
 })
 
 /**
@@ -128,14 +154,14 @@ export class NotificationsRepository {
   /** The user's notifications, newest first. */
   async listForUser(userId: string): Promise<Notification[]> {
     const rows = await this.prisma.notification.findMany({
-      where: { userId },
+      where: shownTo(userId),
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     })
     return rows.map(toDomain)
   }
 
   async countUnread(userId: string): Promise<number> {
-    return this.prisma.notification.count({ where: { userId, readAt: null } })
+    return this.prisma.notification.count({ where: { ...shownTo(userId), readAt: null } })
   }
 
   /** Marks one of the user's notifications as read; false when it is not theirs or does not exist. */

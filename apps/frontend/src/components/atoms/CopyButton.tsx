@@ -14,10 +14,13 @@ export function CopyButton({
   errorMessage,
   onCopyResult,
   showLabel: shouldShowLabel = false,
+  labelClassName,
 }: {
   value: string
   label: string
   showLabel?: boolean
+  /** Styles the visible label, e.g. `max-md:sr-only` to show only the icon on mobile. */
+  labelClassName?: string
   successMessage?: string
   errorMessage?: string
   onCopyResult?: (didCopy: boolean) => void
@@ -63,7 +66,7 @@ export function CopyButton({
           className="size-5"
           aria-hidden="true"
         />
-        {shouldShowLabel ? label : null}
+        {shouldShowLabel ? <span className={labelClassName}>{label}</span> : null}
       </Button>
       <Dialog
         open={isFallbackOpen}

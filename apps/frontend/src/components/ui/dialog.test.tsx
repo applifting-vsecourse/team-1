@@ -70,3 +70,39 @@ it("repositions the dialog when the keyboard resizes and pans the visual viewpor
   expect(style.getPropertyValue("--dialog-viewport-center")).toBe("260px")
   expect(style.getPropertyValue("--dialog-viewport-top")).toBe("80px")
 })
+
+it("renders the cancel action before the main action in the DOM", () => {
+  render(
+    <Dialog open>
+      <DialogContent showCloseButton={false}>
+        <DialogTitle>Delete room</DialogTitle>
+        <DialogDescription>The room will be removed.</DialogDescription>
+        <DialogFooter>
+          <Button variant="outline">Cancel</Button>
+          <Button variant="destructive">Delete</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>,
+  )
+
+  const names = screen.getAllByRole("button").map((button) => button.textContent)
+  expect(names).toEqual(["Cancel", "Delete"])
+})
+
+it("shows a footer with only the close action as one secondary button", () => {
+  render(
+    <Dialog open>
+      <DialogContent>
+        <DialogTitle>The event cannot be deleted</DialogTitle>
+        <DialogDescription>It already has an application.</DialogDescription>
+        <DialogFooter showCloseButton />
+      </DialogContent>
+    </Dialog>,
+  )
+
+  const footer = document.querySelector("[data-slot=dialog-footer]")
+  const buttons = footer?.querySelectorAll("button") ?? []
+  expect(buttons).toHaveLength(1)
+  expect(buttons[0]).toHaveTextContent("Close")
+  expect(buttons[0]).toHaveAttribute("data-variant", "secondary")
+})

@@ -51,7 +51,7 @@ export function EditProposalDialog({
         if (!isOpen) onClose()
       }}
     >
-      <DialogContent className="bg-card shadow-md sm:max-w-160">
+      <DialogContent className="bg-card sm:max-w-160">
         <DialogTitle>{t("roomProposal.editTitle")}</DialogTitle>
         <DialogDescription className="text-base">
           {t("roomProposal.editDescription", { name })}
@@ -140,7 +140,7 @@ export function ConfirmProposalDialog({
         if (!isOpen && !isPending) onClose()
       }}
     >
-      <DialogContent className="bg-card shadow-md sm:max-w-160">
+      <DialogContent className="bg-card sm:max-w-160">
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription className="text-base">{description}</DialogDescription>
         {error ? (

@@ -50,7 +50,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+        "fixed inset-0 z-50 bg-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
         className,
       )}
       {...props}
@@ -98,7 +98,9 @@ function useDialogViewport() {
 }
 
 // Figma (Design system v2): Togena / Dialogs / Dialog · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15199-795
-// Close sits in the header row (24 px inset, 44 px target); the shadow stays (DESIGN.md: dialogs float).
+// Close sits in the header row (24 px inset, 44 px target). Brand look A (specimen, Dialog ·
+// https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27538-3801): an ink edge,
+// radius 20 and the 6 px hard ink shadow (global.css), over an ink 60 % backdrop.
 function DialogContent({
   className,
   children,
@@ -118,7 +120,7 @@ function DialogContent({
         data-visual-viewport-constrained={viewport?.isConstrained || undefined}
         style={{ ...viewport?.style, ...style }}
         className={cn(
-          "fixed top-[var(--dialog-viewport-center,50%)] left-[50%] z-50 grid max-h-[calc(var(--dialog-viewport-height,100dvh)-2rem)] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] grid-cols-[minmax(0,1fr)] gap-5 overflow-y-auto overscroll-contain rounded-lg border bg-card p-6 wrap-anywhere shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
+          "fixed top-[var(--dialog-viewport-center,50%)] left-[50%] z-50 grid max-h-[calc(var(--dialog-viewport-height,100dvh)-2rem)] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] grid-cols-[minmax(0,1fr)] gap-5 overflow-y-auto overscroll-contain rounded-xl border border-border-strong bg-card p-6 wrap-anywhere shadow-dialog duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
           showCloseButton &&
             "[&_[data-slot=dialog-header]]:pr-15 [&>[data-slot=dialog-title]]:pr-15",
           className,
@@ -131,7 +133,7 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="absolute top-[18px] right-6 inline-flex size-11 items-center justify-center rounded-control transition-colors outline-none hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5"
+            className="absolute top-[18px] right-6 inline-flex size-11 items-center justify-center rounded-control transition-colors outline-none hover:bg-action-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5"
           >
             <XIcon />
             <span className="sr-only">{t("close")}</span>
@@ -152,7 +154,9 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-// Keep the secondary action first in the DOM for desktop layout and initial focus.
+// Keep the secondary action first in the DOM for desktop layout and initial focus: the cancel / back
+// action comes first, the main action last (desktop: cancel left, main right; phone: main on top).
+// A footer with only `showCloseButton` is the single "Close" dialog (Togena / Dialog, #570 / #583).
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -162,18 +166,25 @@ function DialogFooter({
   showCloseButton?: boolean
 }) {
   const { t } = useTranslation("common")
+  const isCloseOnly = showCloseButton && React.Children.count(children) === 0
   return (
     <div
       data-slot="dialog-footer"
       className={cn(
         "flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:justify-end sm:*:flex-1 [&>button]:h-auto [&>button]:text-center [&>button]:whitespace-normal [&>button[data-size=default]]:min-h-10 [&>button[data-size=lg]]:min-h-11 [&>button[data-size=lg]]:py-2",
+        isCloseOnly && "sm:justify-start sm:*:flex-none",
         className,
       )}
       {...props}
     >
       {showCloseButton && (
         <DialogPrimitive.Close asChild>
-          <Button variant="outline">{t("close")}</Button>
+          <Button
+            variant={isCloseOnly ? "secondary" : "outline"}
+            size={isCloseOnly ? "lg" : "default"}
+          >
+            {t("close")}
+          </Button>
         </DialogPrimitive.Close>
       )}
       {children}

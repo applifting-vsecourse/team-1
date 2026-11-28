@@ -7,6 +7,7 @@ import {
 import { TermStatusRepository } from "@/modules/applications/repositories/term-status.repository"
 import { TermStatusService } from "@/modules/applications/services/term-status.service"
 import { ApplicationConfirmationMailer } from "@/modules/participants/services/application-confirmation-mailer.service"
+import { QueuedEmailDispatcher } from "@/modules/participants/services/queued-email.dispatcher"
 import { Identity } from "@/shared/auth/domain/identity"
 import { AppException } from "@/shared/errors/app.exception"
 import { OrganizationAccessService } from "@/shared/organization-access/organization-access.service"
@@ -40,9 +41,11 @@ describe("TermStatusService", () => {
   let substitutes: { findTermStateById: jest.Mock }
   let access: { assertCanAccessApplication: jest.Mock }
   let mailer: { sendApplicationChange: jest.Mock }
+  let emailQueue: { kick: jest.Mock }
   let service: TermStatusService
 
   beforeEach(() => {
+    emailQueue = { kick: jest.fn() }
     repository = { changeStatus: jest.fn() }
     substitutes = { findTermStateById: jest.fn().mockResolvedValue(null) }
     access = { assertCanAccessApplication: jest.fn().mockResolvedValue({ organizationId: "org" }) }
@@ -52,6 +55,7 @@ describe("TermStatusService", () => {
       substitutes as unknown as SubstitutesRepository,
       access as unknown as OrganizationAccessService,
       mailer as unknown as ApplicationConfirmationMailer,
+      emailQueue as unknown as QueuedEmailDispatcher,
     )
   })
 
@@ -71,6 +75,23 @@ describe("TermStatusService", () => {
       },
       expect.any(Function),
     )
+  })
+
+  it("leaves the e-mail of a bulk action to the queue and does not send it itself (#737)", async () => {
+    repository.changeStatus.mockResolvedValue(result("CONFIRMED"))
+
+    await service.applyChange({
+      organizationId: "org",
+      applicationId: "a1",
+      termId: "t1",
+      to: "CONFIRMED",
+      actorId: "u1",
+      isOverCapacityConfirmed: false,
+      isEmailQueued: true,
+    })
+
+    expect(emailQueue.kick).toHaveBeenCalledTimes(1)
+    expect(mailer.sendApplicationChange).not.toHaveBeenCalled()
   })
 
   it("e-mails the applicant with payment details after a confirmation", async () => {
@@ -245,6 +266,7 @@ describe("TermStatusService.fillFreedBeds (US-31)", () => {
   let repository: { changeStatus: jest.Mock }
   let substitutes: { findTermStateById: jest.Mock }
   let mailer: { sendApplicationChange: jest.Mock }
+  const emailQueue = { kick: jest.fn() }
   let service: TermStatusService
 
   beforeEach(() => {
@@ -256,6 +278,7 @@ describe("TermStatusService.fillFreedBeds (US-31)", () => {
       substitutes as unknown as SubstitutesRepository,
       {} as unknown as OrganizationAccessService,
       mailer as unknown as ApplicationConfirmationMailer,
+      emailQueue as unknown as QueuedEmailDispatcher,
     )
   })
 

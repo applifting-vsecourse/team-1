@@ -3,13 +3,10 @@
     "label": "Notifications",
     "labelUnread": "Notifications, {{count}} unread"
   },
-  "change": {
-    "label": "Status"
-  },
   "item": {
-    "markRead": "Mark as read",
     "new": "New",
     "open": "Application detail",
+    "openPost": "Open post",
     "read": "Read"
   },
   "note": {
@@ -26,15 +23,9 @@
     "retry": "Try again",
     "title": "Notifications"
   },
-  "status": {
-    "ARCHIVED": "Archived",
-    "CANCELLED": "Cancelled",
-    "CONFIRMED": "Confirmed",
-    "TO_EVALUATE": "Awaiting evaluation",
-    "WAITLISTED": "Waitlisted"
-  },
   "title": {
     "APPLICATION_EDITED": "The applicant edited an application",
+    "BOARD_POST_PUBLISHED": "New post on the board",
     "CANCELLED": "Your cancellation is confirmed",
     "CANCELLED_BY_ORGANIZER": "The organizer cancelled the application",
     "CONFIRMED": "Application confirmed",

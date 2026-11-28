@@ -51,6 +51,11 @@ export type HealthRecord = {
   noRestriction: boolean
   /** When the explicit consent was given; `null` together with the note. */
   consentAt: Date | null
+  /**
+   * The first entry is possible while a term that is not cancelled is not over. A stored note
+   * still changes through a request at any time (D-122).
+   */
+  editable: boolean
   /** The participant's change request awaiting the organizer, if any. */
   pendingRequest: { note: string; createdAt: Date } | null
 }

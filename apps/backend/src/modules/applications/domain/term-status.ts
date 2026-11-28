@@ -78,6 +78,8 @@ export type StatusChangeCommand = {
    * else's decision made meanwhile is never overwritten.
    */
   expectedFrom?: ApplicationTermStatus
+  /** Bulk actions only: the e-mail goes to the queue with the change instead of out at once (#737). */
+  isEmailQueued?: boolean
 }
 
 /** What a stored change leaves behind: enough to e-mail the applicant. */

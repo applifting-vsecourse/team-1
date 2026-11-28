@@ -3,6 +3,7 @@ import { act, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { i18n } from "@/i18n"
+import { footerButtonNames } from "@/test/dialog-footer"
 
 import { roomAssignmentsKey } from "@/features/events/api/room-assignments"
 import type { Room, TermRooms } from "@/features/events/api/rooms"
@@ -62,6 +63,13 @@ function renderDialog(
 
 afterEach(async () => {
   await act(() => i18n.changeLanguage("en"))
+})
+
+it("puts Cancel before the destructive action (#757)", () => {
+  renderDialog("SHARED", "FEMALE", 6, 1)
+  const names = footerButtonNames()
+  expect(names).toHaveLength(2)
+  expect(names[1]).toMatch(/^Delete/)
 })
 
 // The number before the noun is what the noun agrees with: what is left after the deletion.

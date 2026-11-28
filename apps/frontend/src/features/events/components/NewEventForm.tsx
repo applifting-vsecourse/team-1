@@ -18,7 +18,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -59,9 +58,10 @@ type FormValues = z.infer<ReturnType<typeof createSchema>>
 
 /**
  * US-12: name, organization, venue and description of a new event in a dialog, with
- * Cancel / Create at the bottom. Terms, prices and rooms come later.
+ * Cancel / Create at the bottom (stacked on a phone, the primary on top). No intro text (Figma F5).
+ * Terms, prices and rooms come later.
  */
-// Figma v2: US-12 Akce · Dialog: Vytvoření akce · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15398-322 (mobile 15398-382)
+// Figma (Design system v2): F5 / Dialog Vytvořit akci · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15398-322 (mobile 15398-382; error 15398-425 / 15398-489)
 export function NewEventPage() {
   const { t } = useTranslation("events")
   const navigate = useNavigate()
@@ -79,11 +79,11 @@ export function NewEventPage() {
     >
       <DialogContent
         showCloseButton={!create.isPending}
+        aria-describedby={undefined}
         className="max-h-[90dvh] overflow-y-auto sm:max-w-160"
       >
         <DialogHeader>
           <DialogTitle>{t("new.title")}</DialogTitle>
-          <DialogDescription>{t("new.description")}</DialogDescription>
         </DialogHeader>
         {isPending ? <LoadingState /> : null}
         {error ? (
@@ -161,7 +161,7 @@ function NewEventCard({
                   {...field}
                 />
               </FormControl>
-              <FormMessage className="text-xs font-medium" />
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -217,16 +217,14 @@ function NewEventCard({
               <FormLabel>{t("new.form.description")}</FormLabel>
               <FormControl>
                 <Textarea
-                  className="min-h-22"
+                  className="min-h-32"
                   {...field}
                 />
               </FormControl>
             </FormItem>
           )}
         />
-        <p className="text-xs font-medium text-muted-foreground">
-          {t("new.form.required")} {t("new.next")}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("new.form.required")}</p>
 
         {create.isError ? (
           <Alert variant="destructive">
@@ -235,7 +233,7 @@ function NewEventCard({
           </Alert>
         ) : null}
 
-        <div className="flex flex-col-reverse gap-2 sm:grid sm:grid-cols-2">
+        <div className="flex flex-col-reverse gap-3 sm:grid sm:grid-cols-2">
           <DialogClose asChild>
             <Button
               type="button"

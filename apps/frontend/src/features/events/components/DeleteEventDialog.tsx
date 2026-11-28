@@ -98,17 +98,7 @@ export function DeleteEventDialog({
           </>
         )}
         {isBlocked ? (
-          <DialogFooter className="flex-row justify-start gap-2">
-            <DialogClose asChild>
-              <Button
-                variant="secondary"
-                size="lg"
-                className="w-full sm:w-auto"
-              >
-                {t("delete.close")}
-              </Button>
-            </DialogClose>
-          </DialogFooter>
+          <DialogFooter showCloseButton />
         ) : (
           <DialogFooter className="flex-row justify-end gap-2">
             <DialogClose asChild>

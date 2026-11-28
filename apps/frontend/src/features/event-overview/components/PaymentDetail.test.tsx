@@ -119,6 +119,7 @@ const application = (
     gender: "MALE",
     email: "eva.mala@example.cz",
     phone: "+420777123456",
+    pronouns: null,
     isEditable: true,
     bankAccount: "123456789/0000",
     amountDueCzk,
@@ -195,6 +196,15 @@ beforeEach(() => {
 })
 
 describe("PaymentDetail", () => {
+  it("shows the participant's saved pronouns in their details", async () => {
+    respondWith(() => ({ ...application([first]), pronouns: "they/them" }))
+    setup()
+    const details = await screen.findByRole("group", { name: "Participant details" })
+    expect(within(details).getByText("Pronouns").parentElement).toHaveTextContent(
+      "Pronouns · they/them",
+    )
+  })
+
   it("shows the applicant's request for individual accommodation and its note (US-38)", async () => {
     respondWith(() => ({
       ...application([first]),

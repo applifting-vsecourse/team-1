@@ -21,6 +21,8 @@ const ownMealsSchema = z.object({
   specialRequest: z.string().nullable(),
   /** The participant confirmed having no meal restriction (US-150). */
   noRestrictions: z.boolean(),
+  /** Until the last term that is not cancelled is over (D-192); the same for both roles. */
+  editable: z.boolean(),
 })
 export type OwnMeals = z.infer<typeof ownMealsSchema>
 
@@ -116,7 +118,7 @@ export const kitchenSummaryQueryOptions = (eventId: string) =>
       kitchenSummarySchema.parse(await api.get(`${eventPath(eventId)}/summary`).json()),
   })
 
-const organizerMealsSchema = ownMealsSchema.extend({ editable: z.boolean() })
+const organizerMealsSchema = ownMealsSchema
 export type OrganizerMeals = z.infer<typeof organizerMealsSchema>
 export type MealSelection = Parameters<typeof saveOwnMeals>[1]
 

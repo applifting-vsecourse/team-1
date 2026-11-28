@@ -1,3 +1,5 @@
+import { NewEmailJob } from "@/core/email/queue/email-job.repository"
+import { PrismaEmailJobRepository } from "@/core/email/queue/prisma-email-job.repository"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import {
@@ -38,6 +40,7 @@ import {
   computeTermOwed,
   computeTermPaid,
 } from "@/modules/applications/domain/pricing"
+import { statusChangeEmail } from "@/modules/applications/domain/status-change-email"
 import {
   changeEmailKind,
   StatusChangeSnapshot,
@@ -63,6 +66,7 @@ import { ROOM_CAPACITY_SELECT } from "@/modules/applications/repositories/room-c
 import { buildNotification, isoDay } from "@/modules/notifications/domain/notification"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { resolveChangeEmailLocale } from "@/modules/participants/domain/change-email-locale"
+import { queuedEmailJob } from "@/modules/participants/domain/queued-email"
 import {
   ApplicationChange,
   TermCancelledNotice,
@@ -128,6 +132,7 @@ export class TermStatusRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsRepository,
+    private readonly emailJobs: PrismaEmailJobRepository,
   ) {}
 
   /** The terms the owner can choose, and the current approval boundary (US-113). */
@@ -1059,7 +1064,7 @@ export class TermStatusRepository {
         orderBy: { term: { startsOn: "asc" } },
         include: { term: { select: { name: true, number: true, startsOn: true, endsOn: true } } },
       })
-      return {
+      const result: StatusChangeResult = {
         from: current.status,
         to: command.to,
         email: application.email,
@@ -1083,13 +1088,31 @@ export class TermStatusRepository {
           })),
         },
       }
+      if (command.isEmailQueued) {
+        await this.emailJobs.enqueue(tx, [
+          queuedEmailJob(
+            {
+              organizationId: command.organizationId,
+              eventId: application.eventId,
+              applicationId: application.id,
+            },
+            `status-change:${change.id}`,
+            {
+              template: "APPLICATION_CHANGE",
+              data: statusChangeEmail(result, command.actorId),
+              basis: { statusChangeId: change.id },
+            },
+          ),
+        ])
+      }
+      return result
     })
   }
 
   /**
    * US-131: cancels the term and, in the same transaction, the application in it in every status
    * except archived (already cancelled ones stay as they are). Each one is a status change in the
-   * log of US-28 by the organizer and leaves a notice for e-mail no. 15. The event is locked like
+   * log of US-28 by the organizer and queues e-mail no. 15. The event is locked like
    * in every other change, so no application lands in the term after the cancellation.
    */
   async cancelTerm(
@@ -1098,7 +1121,7 @@ export class TermStatusRepository {
     termId: string,
     reason: string | null,
     actorId: string,
-  ): Promise<{ notices: TermCancelledNotice[] } | null> {
+  ): Promise<{ cancelledCount: number } | null> {
     return this.prisma.$transaction(async (tx) => {
       const term = await tx.term.findFirst({
         where: { id: termId, eventId, organizationId },
@@ -1138,7 +1161,7 @@ export class TermStatusRepository {
         })),
       })
 
-      const notices: TermCancelledNotice[] = []
+      const jobs: NewEmailJob[] = []
       for (const { application, status } of affected) {
         // D-078: the user's preferred language, else the language of their first application.
         const [user, first] = application.userId
@@ -1172,7 +1195,7 @@ export class TermStatusRepository {
             },
           }),
         )
-        notices.push({
+        const notice: TermCancelledNotice = {
           email: application.email,
           locale,
           eventName: locked.event.name,
@@ -1182,9 +1205,18 @@ export class TermStatusRepository {
           firstName: application.firstName,
           lastName: application.lastName,
           accessToken: application.accessToken,
-        })
+        }
+        // A term is cancelled once, so one key per term and application.
+        jobs.push(
+          queuedEmailJob(
+            { organizationId, eventId, applicationId: application.id },
+            `term-cancelled:${termId}:${application.id}`,
+            { template: "TERM_CANCELLED", data: notice },
+          ),
+        )
       }
-      return { notices }
+      await this.emailJobs.enqueue(tx, jobs)
+      return { cancelledCount: affected.length }
     })
   }
 

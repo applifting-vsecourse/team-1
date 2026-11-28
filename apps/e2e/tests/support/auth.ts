@@ -16,12 +16,10 @@ export async function fillSignInForm(page: Page, account: Account) {
 }
 
 /**
- * Signs out through the account menu at the bottom of the sidebar; on a phone
- * the sidebar is a sheet that the menu button of the top bar opens first.
+ * Signs out through the account menu: the account at the bottom of the sidebar, on a phone the
+ * avatar in the header (there is no drawer since Figma F4 / F5).
  */
 export async function signOut(page: Page, account: Account) {
-  const openMenu = page.getByRole("button", { name: "Open navigation" })
-  if (await openMenu.isVisible()) await openMenu.click()
   await page.getByRole("button", { name: account.email }).click()
   await page.getByRole("menuitem", { name: "Sign out" }).click()
 }
