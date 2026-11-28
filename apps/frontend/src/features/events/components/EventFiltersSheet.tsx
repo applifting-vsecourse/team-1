@@ -8,7 +8,7 @@ import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/com
 import { cn } from "@/lib/utils"
 
 /**
- * Below `lg`: „Filtry (n)“ next to the status segment opens a bottom sheet with the organization. The
+ * Below `lg`: the filter icon button next to the search opens a bottom sheet with the organization. The
  * choice applies at once (the sheet has no buttons); what is applied shows as a removable chip under
  * the toolbar.
  */
@@ -34,13 +34,23 @@ export function EventFiltersSheet({
   return (
     <Sheet>
       <SheetTrigger asChild>
+        {/* An icon button next to the search (Airbnb, Gmail on a phone): the status segment below then
+            fits a 360 px row whole. The applied count is the orange count pill, like the bell's. */}
         <Button
           variant="outline"
-          size="lg"
-          className={cn("shrink-0", className)}
+          size="icon-lg"
+          aria-label={count > 0 ? t("list.filtersCount", { count }) : t("list.filters")}
+          className={cn("relative shrink-0", className)}
         >
           <SlidersHorizontal aria-hidden />
-          {count > 0 ? t("list.filtersCount", { count }) : t("list.filters")}
+          {count > 0 ? (
+            <span
+              aria-hidden="true"
+              className="absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-warm px-1.5 text-xs font-semibold text-brand-warm-foreground"
+            >
+              {count}
+            </span>
+          ) : null}
         </Button>
       </SheetTrigger>
       <SheetContent

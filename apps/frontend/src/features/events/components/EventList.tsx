@@ -131,19 +131,30 @@ function FilteredEvents({
   return (
     <section className="flex flex-col gap-4 md:gap-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center">
-        <div className="relative lg:w-80">
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
-          />
-          <Input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t("list.searchPlaceholder")}
-            aria-label={t("list.search")}
-            className="w-full ps-11"
-          />
+        {/* Below lg the search and the filter icon share one row; the status segment gets its own. */}
+        <div className="flex min-w-0 items-center gap-2 lg:w-80">
+          <div className="relative min-w-0 flex-1">
+            <Search
+              aria-hidden
+              className="pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("list.searchPlaceholder")}
+              aria-label={t("list.search")}
+              className="w-full ps-11"
+            />
+          </div>
+          {hasOrganizationFilter ? (
+            <EventFiltersSheet
+              organizations={organizations}
+              organizationId={organizationId}
+              onOrganizationChange={setOrganizationId}
+              className="lg:hidden"
+            />
+          ) : null}
         </div>
         {/* From lg the organization is a Select without a label above it (Figma F5): its value names it. */}
         {hasOrganizationFilter ? (
@@ -182,37 +193,25 @@ function FilteredEvents({
             )}
           </div>
         ) : null}
-        {/* Below lg one row: the status segment, which scrolls sideways when it doesn't fit (never wraps),
-            and „Filtry (n)“. */}
         {/* Figma (Design system v2): F5 / Events / Filtry seznamu akcí · Mobil · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15376-98 (component 27893-4901) */}
-        <div className="flex min-w-0 items-center gap-2 lg:ml-auto">
-          <ViewToggleGroup
-            className="flex-1 lg:flex-none"
-            aria-label={t("list.statusFilter")}
-            value={status}
-            onValueChange={(value) => {
-              const next = STATUSES.find((option) => option === value)
-              if (next) setStatus(next)
-            }}
-          >
-            {STATUSES.map((option) => (
-              <ViewToggleGroupItem
-                key={option}
-                value={option}
-              >
-                {t(`list.segment.${option}`)}
-              </ViewToggleGroupItem>
-            ))}
-          </ViewToggleGroup>
-          {hasOrganizationFilter ? (
-            <EventFiltersSheet
-              organizations={organizations}
-              organizationId={organizationId}
-              onOrganizationChange={setOrganizationId}
-              className="lg:hidden"
-            />
-          ) : null}
-        </div>
+        <ViewToggleGroup
+          className="lg:ml-auto"
+          aria-label={t("list.statusFilter")}
+          value={status}
+          onValueChange={(value) => {
+            const next = STATUSES.find((option) => option === value)
+            if (next) setStatus(next)
+          }}
+        >
+          {STATUSES.map((option) => (
+            <ViewToggleGroupItem
+              key={option}
+              value={option}
+            >
+              {t(`list.segment.${option}`)}
+            </ViewToggleGroupItem>
+          ))}
+        </ViewToggleGroup>
         {organizationId === "all" ? null : (
           <div
             role="group"
