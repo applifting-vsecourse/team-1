@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
 
 import { authKeys } from "@/lib/auth-keys"
@@ -8,9 +9,12 @@ import { ForbiddenError } from "@/lib/errors"
 import type { SessionUser } from "@/features/auth/api/authSessionQueryOptions"
 import { OrganizerAreaError } from "@/features/auth/components/OrganizerAreaError"
 
-vi.mock("@/features/auth/lib/auth-client", () => ({ authClient: {} }))
+const { signOut, navigate } = vi.hoisted(() => ({ signOut: vi.fn(), navigate: vi.fn() }))
+
+vi.mock("@/features/auth/lib/auth-client", () => ({ authClient: { signOut } }))
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigate,
+  useLocation: () => ({ href: "/organizer/events/e1" }),
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),
@@ -42,39 +46,54 @@ const organizer: SessionUser = {
 }
 
 describe("OrganizerAreaError", () => {
-  it("shows an organizer opening another organization's record the 403 page with a way back", () => {
+  it("shows an organizer opening another organization's record the 403 page: a heading and the way to the events", () => {
     renderWith(organizer, new ForbiddenError())
 
     expect(
-      screen.getByRole("heading", { name: "You don’t have access to this content." }),
+      screen.getByRole("heading", { level: 1, name: "You don't have access to this content" }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/This record is unavailable for your account/)).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Back to my events" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Go to events" })).toHaveAttribute(
       "href",
       "/organizer/events",
     )
-    expect(screen.queryByRole("link", { name: "Back to dashboard" })).not.toBeInTheDocument()
+    expect(screen.queryByText("403")).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Sign in with another account" })).toBeNull()
   })
 
-  it("shows a participant the 403 page with a way back, and nothing of the area", () => {
+  it("shows a participant the 403 page with the way to the applications, and nothing of the area", () => {
     renderWith(participant, new ForbiddenError())
 
     expect(
-      screen.getByRole("heading", { name: "You don’t have access to this content." }),
+      screen.getByRole("heading", { level: 1, name: "You don't have access to this content" }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/This area is only available to organizers/)).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Back to my applications" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "My applications" })).toHaveAttribute(
       "href",
       "/participant",
     )
-    expect(
-      screen.getByRole("button", { name: "Sign out and sign in with another account" }),
-    ).toBeInTheDocument()
+    expect(screen.queryByText("403")).not.toBeInTheDocument()
+  })
+
+  it("lets a participant sign in with another account: signs out, then the organizer sign-in back to the page", async () => {
+    signOut.mockResolvedValue({ error: null })
+    renderWith(participant, new ForbiddenError())
+
+    await userEvent.click(screen.getByRole("button", { name: "Sign in with another account" }))
+
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith({
+        to: "/organizer/login",
+        search: { from: encodeURIComponent("/organizer/events/e1") },
+        ignoreBlocker: true,
+      }),
+    )
+    expect(signOut).toHaveBeenCalledOnce()
   })
 
   it("falls back to the generic error page for other errors", () => {
     renderWith(participant, new Error("boom"))
 
-    expect(screen.queryByText(/This area is only available to organizers/)).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("heading", { name: "You don't have access to this content" }),
+    ).not.toBeInTheDocument()
   })
 })

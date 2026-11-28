@@ -19,6 +19,8 @@ function toastIcon(asset: string, className: string) {
 }
 
 // Figma v2: Togena / Feedback / Toast · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=19786-50278
+// Brand look A (specimen, Toast · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27536-3834):
+// an ink edge and the 4 px hard ink shadow of the sticker.
 export function AppToaster() {
   const { t } = useTranslation("common")
   return (
@@ -32,7 +34,7 @@ export function AppToaster() {
         closeButtonAriaLabel: t("close"),
         classNames: {
           toast:
-            "flex min-h-[58px] w-full items-center gap-3 rounded-lg border bg-popover p-4 text-sm leading-5 text-popover-foreground shadow-md",
+            "flex min-h-[58px] w-full items-center gap-3 rounded-lg border border-border-strong bg-popover p-4 text-sm leading-5 text-popover-foreground shadow-sticker",
           icon: "size-5 shrink-0",
           content: "flex min-w-0 flex-1 flex-col gap-1 break-words",
           title: "font-bold",

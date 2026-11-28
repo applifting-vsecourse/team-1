@@ -17,6 +17,7 @@ type ParticipantDetailsProps = {
     | "lastName"
     | "birthDate"
     | "gender"
+    | "pronouns"
     | "email"
     | "phone"
     | "isEditable"
@@ -31,6 +32,7 @@ type ParticipantDetailsProps = {
  * application can still be edited (#515). Stacked on a phone, two columns from md up.
  */
 // Figma v2: US-53 Detail účastníka · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22475-86190 (mobile 22475-86352)
+// Figma (Design system v2): #516 Zájmena v údajích účastníka · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27282-154886 (360 px: node-id=27282-155010)
 export function ParticipantDetails({ application }: ParticipantDetailsProps) {
   const { t } = useTranslation("eventOverview")
   const [isEditing, setIsEditing] = useState(false)
@@ -40,6 +42,7 @@ export function ParticipantDetails({ application }: ParticipantDetailsProps) {
       t("participant.gender"),
       t(application.gender === "FEMALE" ? "participant.female" : "participant.male"),
     ],
+    ...(application.pronouns ? [[t("participant.pronouns"), application.pronouns]] : []),
   ] as const
 
   return (
@@ -67,7 +70,7 @@ export function ParticipantDetails({ application }: ParticipantDetailsProps) {
             <div key={label}>
               <dt className="inline">{label}</dt>
               <span aria-hidden> · </span>
-              <dd className="inline">{value}</dd>
+              <dd className="inline wrap-anywhere">{value}</dd>
             </div>
           ))}
         </dl>

@@ -92,7 +92,8 @@ test("organizer moves a short block into an overlap and the participant can read
   await expect(page).toHaveURL(/\/$/)
   await page.setViewportSize({ width: 360, height: 800 })
   await signIn(page, "participant", PARTICIPANT)
-  await page.getByRole("link", { name: camp }).click()
+  // My applications: the rows of the event's section.
+  await page.getByRole("region", { name: camp }).getByRole("link").first().click()
   await page.getByRole("link", { name: "Program", exact: true }).click()
   await expect(day).toHaveText(sunday)
   await expect(page.getByRole("button", { name: new RegExp(brief) })).toHaveCount(0)

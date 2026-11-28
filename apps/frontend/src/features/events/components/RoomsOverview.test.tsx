@@ -1,3 +1,4 @@
+import { useState, type ComponentProps } from "react"
 import type * as Dnd from "@dnd-kit/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, render, screen, waitFor, within } from "@testing-library/react"
@@ -113,12 +114,30 @@ let data = base()
 const onShowAssignment = vi.fn()
 const onEditExtraBeds = vi.fn()
 
+/** Stands in for the rooms page, which owns the open bed lists. */
+function Overview(props: ComponentProps<typeof RoomsOverview>) {
+  const [openIds, setOpenIds] = useState(new Set<string>())
+  return (
+    <RoomsOverview
+      {...props}
+      openRoomIds={openIds}
+      onToggleRoom={(id) =>
+        setOpenIds((current) => {
+          const next = new Set(current)
+          if (!next.delete(id)) next.add(id)
+          return next
+        })
+      }
+    />
+  )
+}
+
 function renderOverview(isPrintOnly = false) {
   get.mockImplementation(() => ({ json: () => Promise.resolve(data) }))
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
     <QueryClientProvider client={client}>
-      <RoomsOverview
+      <Overview
         term={term}
         isPrintOnly={isPrintOnly}
         onShowAssignment={onShowAssignment}

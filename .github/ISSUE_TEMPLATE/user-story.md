@@ -26,7 +26,7 @@ Feature **F-xx Název** (epic …). Proč to řešíme.
 
 ## Podklady
 
-- HF wireframy: [Název rámce](odkaz), [Mobil 360 px](odkaz), každý nakreslený stav zvlášť (chyba, prázdný, odesílání)
+- HF wireframy (Figma Design system v2): [Název rámce](odkaz), [Mobil 360 px](odkaz), každý nakreslený stav zvlášť (chyba, prázdný, odesílání)
 - LF wireframy: odkaz, jen když HF ještě nejsou
 - Bez UI: štítek `design: not needed` a odkazy na wireframy smazat
 - Data, odkazy na brief nebo sitemapu

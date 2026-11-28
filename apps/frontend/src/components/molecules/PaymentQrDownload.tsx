@@ -8,13 +8,18 @@ import { Button } from "@/components/ui/button"
 import { usePaymentQr } from "@/hooks/usePaymentQr"
 
 // Figma: #259 · Chyba stažení QR · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK?node-id=22515-10865
+// `inline` (a summary row after sending the application, 27439-16621 / 16627): from `sm` a small code
+// next to a text-only button, below it the code above the button; centred in the row either way.
 export function PaymentQrDownload({
   spayd,
   variableSymbol,
+  layout = "stacked",
 }: {
   spayd: string | null
   variableSymbol: string
+  layout?: "stacked" | "inline"
 }) {
+  const isInline = layout === "inline"
   const { t } = useTranslation("common")
   const image = usePaymentQr(spayd)
   const [isSaving, setSaving] = useState(false)
@@ -35,23 +40,30 @@ export function PaymentQrDownload({
     }
   }
   return (
-    <div className="flex min-w-0 flex-col items-center gap-2">
+    <div
+      className={
+        isInline
+          ? "flex w-full min-w-0 flex-col items-center gap-2 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4"
+          : "flex min-w-0 flex-col items-center gap-2"
+      }
+    >
       {image && (
         <img
           src={image}
           width={200}
           height={200}
-          className="size-40"
+          className={isInline ? "size-40 sm:size-28" : "size-40"}
           alt={t("termPayment.summaryQrAlt")}
         />
       )}
       <Button
         type="button"
         variant="outline"
+        className={isInline ? "min-w-55" : undefined}
         disabled={!spayd || isSaving}
         onClick={() => void save()}
       >
-        <Download aria-hidden />
+        {isInline ? null : <Download aria-hidden />}
         {t("termPayment.saveQr")}
       </Button>
       {hasFailed && (

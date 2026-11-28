@@ -33,7 +33,7 @@ Počet v úvodu a nadpisu přizpůsobit jedné/více přihláškám. Jedna zprá
 
 „Zatím nic neplaťte“ se vztahuje jen ke konkrétnímu nepotvrzenému termínu; ve smíšeném souhrnu nesmí být globální zákaz platby. Platební blok je jen u potvrzených termínů, CTA podle společných částí. Text pro více přihlášek, pouze pokud souhrn obsahuje částku k úhradě: „Plaťte pouze za potvrzené termíny. Každou přihlášku zaplaťte samostatně podle uvedené částky a variabilního symbolu. / Please pay only for confirmed terms. Pay for each application separately using the amount and variable symbol shown.“
 
-Anglické štítky stavů termínu v souhrnu: „Awaiting review“ (K vyhodnocení), „Place confirmed“ (Potvrzená), „Waitlisted“ (Náhradník); české: „Čeká na vyhodnocení“, „Účast potvrzena“, „Náhradník“. Schválil Adam 5. 11. 2026.
+Anglické štítky stavů termínu v souhrnu: „Awaiting review“ (K vyhodnocení), „Confirmed“ (Potvrzená), „Waitlisted“ (Náhradník); české: „Čeká na vyhodnocení“, „Potvrzeno“, „Náhradník“. Schválil Adam 5. 11. 2026, štítek potvrzeného termínu změnil 25. 11. 2026 (D-195).
 
 K přihlašovacímu odkazu doplnit: „Odkaz platí 7 dní a lze jej použít pouze jednou. Pokud už nefunguje, na přihlašovací stránce Togeny si můžete nechat poslat nový. / The link is valid for 7 days and can only be used once. If it no longer works, you can request a new one on the Togena sign-in page.“
 

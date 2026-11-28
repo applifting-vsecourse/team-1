@@ -28,6 +28,9 @@ it("retries membership loading without fetching a profile before the organizatio
   )
 
   await screen.findByRole("button", { name: "Try again" })
+  expect(
+    screen.getByRole("heading", { level: 1, name: "We couldn't load the organization" }),
+  ).toBeInTheDocument()
   await userEvent.click(screen.getByRole("button", { name: "Try again" }))
   await screen.findByRole("heading", { name: "Create an organization" })
 

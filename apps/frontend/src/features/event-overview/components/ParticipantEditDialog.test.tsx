@@ -19,6 +19,7 @@ const application: Parameters<typeof ParticipantEditDialog>[0]["application"] = 
   email: "rodice.novakovi@email.cz",
   phone: "+420777123456",
   individualAccommodation: false,
+  pronouns: null,
   accommodationRequest: null,
 }
 
@@ -59,6 +60,7 @@ describe("ParticipantEditDialog", () => {
     const { user, onClose, invalidate } = setup()
     // A successful write releases the dialog while the overview is still refreshing.
     invalidate.mockImplementationOnce(() => new Promise<void>(() => undefined))
+    await user.type(screen.getByLabelText("Pronouns"), "  they/them  ")
     const lastName = screen.getByLabelText("Last name *")
     await user.clear(lastName)
     await user.type(lastName, "Novák")
@@ -70,6 +72,7 @@ describe("ParticipantEditDialog", () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(put).toHaveBeenCalledWith("organizer/applications/a1/details", {
       json: {
+        pronouns: "they/them",
         firstName: "Tomáš",
         lastName: "Novák",
         birthDate: "2014-05-04",

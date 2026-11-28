@@ -87,6 +87,13 @@ export function NotificationCenter({
     if (!notification) return
     if (notification.readAt === null) markRead.mutate(id)
     setIsOpen(false)
+    if (notification.kind === "BOARD_POST_PUBLISHED" && notification.params.postId) {
+      void navigate({
+        to: ROUTES.participant.boardPost,
+        params: { postId: notification.params.postId },
+      })
+      return
+    }
     if (notification.applicationId) {
       if (area === "organizer") {
         // An older notification may not carry the event: the events list is the fallback.
@@ -122,9 +129,10 @@ export function NotificationCenter({
       >
         <DialogContent
           showCloseButton={false}
-          className="flex max-h-[calc(100svh-2rem)] flex-col content-start gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-110 md:top-0 md:right-0 md:left-auto md:h-svh md:max-h-svh md:translate-x-0 md:translate-y-0 md:rounded-l-2xl md:rounded-r-none"
+          // Figma F4 and F5: a card by the bell — under the 56 px header on a phone, next to the sidebar on a desktop.
+          className="top-16 flex max-h-[calc(100svh-5rem)] translate-y-0 flex-col content-start gap-0 overflow-hidden rounded-xl p-0 sm:max-w-110 md:top-4 md:left-62 md:max-h-[calc(100svh-2rem)] md:translate-x-0"
         >
-          <div className="flex shrink-0 items-center gap-4 p-4 pb-5 md:p-6 md:pb-5">
+          <div className="flex shrink-0 items-center gap-4 pt-4 pr-3 pb-1 pl-4 md:pt-6 md:pr-4 md:pl-6">
             <DialogTitle className="flex-1 text-2xl font-bold">{t("panel.title")}</DialogTitle>
             <DialogClose asChild>
               <Button
@@ -143,7 +151,7 @@ export function NotificationCenter({
           </div>
           <DialogDescription className="sr-only">{t("panel.title")}</DialogDescription>
           {/* Only the list scrolls, with its scrollbar at the edge of the panel; the padding is inside it. */}
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 md:px-6 md:pb-6">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <NotificationPanel
               state={
                 list.isPending || additionalFeed?.state === "loading"
@@ -159,7 +167,6 @@ export function NotificationCenter({
                 additionalFeed?.onRetry()
               }}
               onOpen={open}
-              onMarkRead={markOneRead}
               onMarkAllRead={() => {
                 markAllRead.mutate()
                 additionalFeed?.onMarkAllRead()

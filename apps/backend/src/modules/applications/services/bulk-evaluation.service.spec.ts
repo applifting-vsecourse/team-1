@@ -90,6 +90,7 @@ describe("BulkEvaluationService", () => {
       to: "CONFIRMED",
       actorId: "u1",
       isOverCapacityConfirmed: false,
+      isEmailQueued: true,
       expectedFrom: "TO_EVALUATE",
     })
     expect(result).toEqual({

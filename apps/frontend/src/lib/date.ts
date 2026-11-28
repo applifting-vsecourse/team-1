@@ -73,6 +73,11 @@ export function formatDateRange(
   return `${dayMonth(a)} ${a.getFullYear()} – ${dayMonth(b)}${year}`
 }
 
+/** The short month of a date tile — cs: `čvc`, en: `Jul`. */
+export function formatMonthShort(date: DateInput, language: Language = currentLanguage()) {
+  return monthName(asDate(date), "short", language)
+}
+
 /** The months an event spans — cs: `červenec–srpen 2027`, en: `July–August 2027`. */
 export function formatMonthRange(
   start: DateInput,

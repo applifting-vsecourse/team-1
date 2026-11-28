@@ -48,4 +48,14 @@ describe("NewEventPage", () => {
     const posts = fetchMock.mock.calls.filter(([request]) => (request as Request).method === "POST")
     expect(posts).toHaveLength(0)
   })
+
+  // Figma F5 (15398:322): no intro text under the title, only the required-fields note.
+  it("has no intro text, only the note on the required fields", async () => {
+    renderPage()
+
+    const dialog = await screen.findByRole("dialog", { name: "Create event" })
+    expect(dialog).not.toHaveAttribute("aria-describedby")
+    expect(await screen.findByText("* Required fields.")).toBeInTheDocument()
+    expect(screen.queryByText(/Create the event first/)).not.toBeInTheDocument()
+  })
 })

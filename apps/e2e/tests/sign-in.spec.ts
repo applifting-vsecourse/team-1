@@ -8,17 +8,22 @@ import { eventIdByPublicToken } from "./support/events"
 test.describe("Sign-in", () => {
   test("participant can request a new sign-in link", { tag: "@mobile" }, async ({ page }) => {
     await page.goto("/participant/login")
-    await page.getByRole("link", { name: "Get a new link" }).click()
-    await expect(page).toHaveURL(/\/participant\/magic-link$/)
-    await expect(page.getByRole("button", { name: "Send me a link" })).toBeVisible()
+    // „No password?“ turns the same card into the link request.
+    await page.getByRole("button", { name: "No password?" }).click()
+    await expect(page).toHaveURL(/\/participant\/login$/)
+    await expect(page.getByRole("button", { name: "Send sign-in link" })).toBeVisible()
   })
 
   test("organizer gets from the landing page to the events list and signs out", async ({
     page,
   }) => {
     await page.goto("/")
-    // The landing repeats the entry links; the first one is in the hero.
-    await page.getByRole("link", { name: "I'm an organizer" }).first().click()
+    // The hero leads new organizers to registration; an existing one signs in from the footer.
+    await page
+      .getByRole("contentinfo")
+      .getByRole("navigation", { name: "For organizers" })
+      .getByRole("link", { name: "Sign in" })
+      .click()
     await expect(page).toHaveURL(/\/organizer\/login/)
 
     await fillSignInForm(page, ORGANIZER)
@@ -39,15 +44,23 @@ test.describe("Sign-in", () => {
   test("organizer lands on the overview of the event opened last (US-51)", async ({ page }) => {
     await signIn(page, "organizer", ORGANIZER)
     await openEventList(page)
+    await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
+    await expect(page.getByRole("heading", { level: 1, name: "Letní kemp 2027" })).toBeVisible()
+    await expect(page.getByRole("combobox", { name: "Event", exact: true })).toHaveCount(0)
+    await page.getByRole("link", { name: "All events", exact: true }).click()
+    await expect(page).toHaveURL(/\/organizer\/events$/)
+
     const remembered = page.waitForResponse(
       (response) =>
         response.request().method() === "PUT" && response.url().endsWith("/last-opened"),
     )
-    await page.getByRole("link", { name: /Letní kemp 2027(?! – demo)/ }).click()
+    await page.getByRole("link", { name: /Letní kemp 2027 – demo/ }).click()
     await expect(page).toHaveURL(/\/organizer\/events\/[^/]+$/)
     expect((await remembered).status()).toBe(204)
     const eventUrl = page.url()
-    await expect(page.getByRole("combobox", { name: "Event" })).toBeVisible()
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Letní kemp 2027 – demo" }),
+    ).toBeVisible()
 
     await signOut(page, ORGANIZER)
     await expect(page).toHaveURL(/\/$/)
@@ -75,7 +88,10 @@ test.describe("Sign-in", () => {
     await expect(page.getByRole("heading", { level: 1, name: "My applications" })).toBeVisible()
 
     await page.goto("/organizer")
-    await expect(page.getByText(/This area is only available to organizers/)).toBeVisible()
+    await expect(
+      page.getByRole("heading", { level: 1, name: "You don't have access to this content" }),
+    ).toBeVisible()
+    await expect(page.getByRole("link", { name: "My applications" })).toBeVisible()
   })
 
   test("organizer cannot open another organization's event (US-10)", async ({ page }) => {
@@ -84,9 +100,11 @@ test.describe("Sign-in", () => {
     await openEventList(page)
 
     await page.goto(`/organizer/events/${eventId}`)
-    await expect(page.getByText(/This record is unavailable for your account/)).toBeVisible()
+    await expect(
+      page.getByRole("heading", { level: 1, name: "You don't have access to this content" }),
+    ).toBeVisible()
     await expect(page.getByText("Horský víkend 2027")).toHaveCount(0)
-    await page.getByRole("link", { name: "Back to my events", exact: true }).click()
+    await page.getByRole("link", { name: "Go to events", exact: true }).click()
     await expect(page).toHaveURL(/\/organizer\/events$/)
   })
 })
@@ -94,17 +112,22 @@ test.describe("Sign-in", () => {
 test.describe("Organizer workspace at 360 px", () => {
   test.use({ viewport: { width: 360, height: 800 } })
 
-  test("opens the account drawer and the program editor from the mobile workspace", async ({
+  // Figma F5: no drawer — the avatar in the 56 px header opens the account menu with the navigation.
+  test("opens the account menu and the program editor from the mobile workspace", async ({
     page,
   }) => {
     await signIn(page, "organizer", ORGANIZER)
     await openEventList(page)
-    const openMenu = page.getByRole("button", { name: "Open navigation" })
+    await expect(page.getByRole("button", { name: "Open navigation" })).toHaveCount(0)
+    const openMenu = page
+      .getByRole("banner")
+      .getByRole("button", { name: /organizator@example\.com/ })
     await openMenu.click()
-    const drawer = page.getByRole("dialog")
-    await expect(drawer.getByRole("button", { name: /organizator@example\.com/ })).toBeVisible()
+    const menu = page.getByRole("menu")
+    await expect(menu.getByRole("menuitem", { name: "Events" })).toBeVisible()
+    await expect(menu.getByRole("menuitem", { name: "Account settings" })).toBeVisible()
     await page.keyboard.press("Escape")
-    await expect(drawer).toBeHidden()
+    await expect(menu).toBeHidden()
 
     const eventId = await eventIdByPublicToken("demo-letni-kemp-2027")
     await page.goto(`/organizer/events/${eventId}/program`)
