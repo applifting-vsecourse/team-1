@@ -189,9 +189,9 @@ export class BankStatementsService {
 
   /**
    * US-562: the organizer assigns an unmatched transaction to one term of an application. The payment
-   * is written like an import writes it, under the same receipt id, so an upload of the statement
-   * later counts the row as a duplicate. The payment and the matched status commit together under a
-   * lock of the transaction row, together with the queued e-mail no. 8.
+   * is written like an import writes it, under a receipt id of its own; an upload of the statement
+   * later counts the row as a duplicate. The payment, the matched status and the queued e-mail no. 8
+   * commit together under a lock of the transaction row.
    */
   async match(
     user: Identity,
