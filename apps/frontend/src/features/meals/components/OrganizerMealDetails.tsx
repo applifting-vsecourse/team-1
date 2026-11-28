@@ -131,8 +131,9 @@ export function OrganizerMealRoster({ eventId, termId }: { eventId: string; term
             key={key}
             value={key}
           >
-            {t(`edit.${key}`)} ·{" "}
-            {key === "all" ? data.length : data.filter((person) => status(person) === key).length}
+            {`${t(`edit.${key}`)} · ${
+              key === "all" ? data.length : data.filter((person) => status(person) === key).length
+            }`}
           </ViewToggleGroupItem>
         ))}
       </ViewToggleGroup>
