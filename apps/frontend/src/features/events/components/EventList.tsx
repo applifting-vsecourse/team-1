@@ -25,10 +25,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { usePagination } from "@/hooks/usePagination"
+import { formatDateRange, formatMonthRange } from "@/lib/date"
 import { cn } from "@/lib/utils"
 
 import { eventsQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
-import { formatDateRange, formatMonthRange } from "@/lib/date"
 
 /**
  * The organizer's events: the H1 with the one primary „Vytvořit akci“ and the BrandDivider, a

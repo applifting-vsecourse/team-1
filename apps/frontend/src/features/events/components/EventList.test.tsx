@@ -128,10 +128,7 @@ describe("EventList", () => {
     const cells = document.querySelectorAll('[data-slot="occupancy"]')
     expect(cells).toHaveLength(2)
     for (const cell of cells) expect(cell).toHaveClass("w-full", "lg:w-50", "lg:shrink-0")
-    expect(screen.getByRole("progressbar", { name: "Beds: 79 / 120" })).toHaveClass(
-      "h-1",
-      "w-full",
-    )
+    expect(screen.getByRole("progressbar", { name: "Beds: 79 / 120" })).toHaveClass("h-1", "w-full")
     const empty = screen
       .getByRole("heading", { name: draft.name })
       .closest("a")

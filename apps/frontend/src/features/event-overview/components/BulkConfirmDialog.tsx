@@ -105,10 +105,12 @@ export function BulkConfirmDialog({
               <AlertDescription>{t("bulk.changedDescription")}</AlertDescription>
             </Alert>
           )}
-          <BulkDetail
-            label={t("bulk.selected")}
-            value={t("bulk.selectedApplications", { count: data?.selectedCount })}
-          />
+          {data && data.skipped.length === 0 && (
+            <BulkDetail
+              label={t("bulk.selected")}
+              value={t("bulk.selectedApplications", { count: data.selectedCount })}
+            />
+          )}
           <BulkDetail
             label={t("bulk.willConfirm")}
             value={<BulkNames names={data?.confirmable.map((row) => row.name) ?? []} />}

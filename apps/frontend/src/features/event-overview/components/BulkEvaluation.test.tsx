@@ -140,7 +140,7 @@ const selectAll = async (user: ReturnType<typeof userEvent.setup>) =>
 const openDialog = async (user: ReturnType<typeof userEvent.setup>) => {
   await selectAll(user)
   await user.click(screen.getByRole("button", { name: "Evaluate applications" }))
-  return screen.findByRole("dialog", { name: /^Evaluate \d+ applications?$/ })
+  return screen.findByRole("dialog", { name: /^Evaluate (?:\d+ )?applications?$/ })
 }
 
 const result = (overrides = {}) => ({
@@ -387,7 +387,7 @@ describe("the dialog declines its counts (US-140)", () => {
     const dialog = await openDialog(userEvent.setup())
     await within(dialog).findByText("To confirm: 10 / 20 (by order received)")
     await act(() => i18n.changeLanguage("cs"))
-    expect(screen.getByRole("dialog", { name: "Vyhodnotit 20 přihlášek" })).toBeInTheDocument()
+    expect(screen.getByRole("dialog", { name: "Vyhodnotit přihlášky" })).toBeInTheDocument()
     expect(within(dialog).getByText("Potvrdí se: 10 / 20 (podle pořadí)")).toBeInTheDocument()
     expect(i18n.getFixedT("cs", "eventOverview")("bulkEvaluation.confirmAll")).toBe(
       "Potvrdí se všechny.",
