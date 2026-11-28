@@ -58,6 +58,21 @@ describe("cost categories (integration)", () => {
     expect(await categoriesOf(second.id, olga)).toEqual(categories)
   })
 
+  // N11 will add these; the model takes any number of them next to the defaults.
+  it("lists categories of the organization's own after the defaults, as written", async () => {
+    const [event] = await eventsOf("organizator@example.com")
+    const { organizationId } = await prisma.event.findUniqueOrThrow({ where: { id: event.id } })
+    await prisma.costCategory.createMany({
+      data: [
+        { organizationId, name: "Pojištění", position: 6 },
+        { organizationId, name: "Dárky", position: 7 },
+      ],
+    })
+
+    const categories = await categoriesOf(event.id, olga, "en")
+    expect(categories.map((category) => category.name)).toEqual([...ENGLISH, "Pojištění", "Dárky"])
+  })
+
   it("does not show them to another organization", async () => {
     const [olgas] = await eventsOf("organizator@example.com")
     const [ondrejs] = await eventsOf("organizator2@example.com")
