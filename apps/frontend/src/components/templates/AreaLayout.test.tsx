@@ -88,7 +88,8 @@ describe("AreaLayout without a top bar (Figma F4 and F5)", () => {
     expect(within(sidebar).getByRole("link", { name: "Events" })).toBeInTheDocument()
     expect(within(sidebar).getByRole("button", { name: "Eva Malá" })).toBeInTheDocument()
     const header = screen.getByRole("banner")
-    expect(header).toHaveClass("md:hidden")
+    // Navigation A: the sidebar from lg (1024 px), the mobile header below it.
+    expect(header).toHaveClass("lg:hidden")
     expect(within(header).getByRole("button", { name: "Account menu" })).toBeInTheDocument()
     expect(within(header).getByRole("button", { name: "Notifications" })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Open navigation" })).not.toBeInTheDocument()

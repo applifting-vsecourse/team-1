@@ -31,7 +31,11 @@ async function openApplication(page: Page, activate: Activate, lastName: string,
   const sections = page.getByRole("navigation", { name: "Event sections" })
   if (isPhone) {
     await activate(sections.getByRole("button", { name: "Overview", exact: true }))
-    await activate(page.getByRole("menuitem", { name: "Applications", exact: true }))
+    await activate(
+      page
+        .getByRole("dialog", { name: "Event sections" })
+        .getByRole("link", { name: "Applications", exact: true }),
+    )
   } else {
     await activate(sections.getByRole("link", { name: "Applications", exact: true }))
   }

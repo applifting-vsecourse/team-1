@@ -2,6 +2,7 @@ import type { ComponentProps } from "react"
 
 import { SelectedLabel } from "@/components/atoms/SelectedLabel"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { cn } from "@/lib/utils"
 
 type GroupProps = Omit<
   Extract<ComponentProps<typeof ToggleGroup>, { type: "single" }>,
@@ -11,14 +12,20 @@ type GroupProps = Omit<
 // Brand look A (specimen, Záložka · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27538-3708):
 // pills; the active view is the nav A marker (nav-active surface, Semi Bold ink, 20 × 3 orange underline), the others
 // show a hairline on hover. No lift.
-export function ViewToggleGroup(props: GroupProps) {
+export function ViewToggleGroup({
+  isScrollable = false,
+  ...props
+}: GroupProps & {
+  /** One row that scrolls sideways inside its container instead of wrapping (a phone toolbar). */
+  isScrollable?: boolean
+}) {
   return (
     <ToggleGroup
       {...props}
       type="single"
       variant="default"
       spacing={1}
-      className="max-w-full flex-wrap justify-start"
+      className={cn("justify-start", isScrollable ? "w-max flex-nowrap" : "max-w-full flex-wrap")}
     />
   )
 }

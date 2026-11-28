@@ -137,12 +137,16 @@
     "title": "Individuální požadavky na ubytování"
   },
   "list": {
+    "activeFilters": "Použité filtry",
     "clearOrganization": "Zrušit filtr",
+    "closeFilters": "Zavřít filtry",
     "create": "Vytvořit akci",
     "created": "Akce {{name}} byla založena.",
     "empty": "Zatím tu nejsou žádné akce.",
     "errorTitle": "Akce se nepodařilo načíst",
     "eventColumn": "Akce",
+    "filters": "Filtry",
+    "filtersCount": "Filtry ({{count}})",
     "noCapacity": "—",
     "noMatch": "Hledání ani filtrům neodpovídá žádná akce.",
     "occupancy": "Obsazenost",
@@ -151,6 +155,7 @@
     "occupancyUnit": "potvrzených",
     "organizationAll": "Všechny organizace",
     "organizationFilter": "Organizace",
+    "removeFilter": "Zrušit filtr {{filter}}",
     "search": "Hledat název akce",
     "searchPlaceholder": "Hledat název akce…",
     "segment": {

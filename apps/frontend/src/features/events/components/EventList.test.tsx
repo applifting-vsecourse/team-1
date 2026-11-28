@@ -205,6 +205,31 @@ describe("EventList", () => {
     expect(screen.queryByRole("button", { name: "Clear filter" })).not.toBeInTheDocument()
   })
 
+  // Navigation A (Figma 15376:98, 15376:244, 15376:361): below lg the organization is in the „Filters“
+  // bottom sheet next to the status segment, applies at once and shows as a removable chip.
+  it("filters by organization in the bottom sheet and removes it with the chip", async () => {
+    const user = userEvent.setup()
+    renderList([event, { ...draft, organizationId: "o2", organizationName: "Summit Events" }])
+    const filters = await screen.findByRole("button", { name: "Filters" })
+    expect(filters).toHaveClass("lg:hidden")
+    expect(screen.getByRole("radiogroup", { name: "Event status" }).parentElement).toHaveClass(
+      "overflow-x-auto",
+    )
+
+    await user.click(filters)
+    const sheet = await screen.findByRole("dialog", { name: "Filters" })
+    expect(within(sheet).getByRole("radio", { name: "All organizations" })).toBeChecked()
+    await user.click(within(sheet).getByRole("radio", { name: "Summit Events" }))
+    expect(screen.queryByRole("heading", { name: event.name })).not.toBeInTheDocument()
+    await user.click(within(sheet).getByRole("button", { name: "Close filters" }))
+
+    expect(await screen.findByRole("button", { name: "Filters (1)" })).toBeInTheDocument()
+    const applied = screen.getByRole("group", { name: "Applied filters" })
+    await user.click(within(applied).getByRole("button", { name: "Remove filter Summit Events" }))
+    expect(screen.getByRole("heading", { name: event.name })).toBeInTheDocument()
+    expect(screen.queryByRole("group", { name: "Applied filters" })).not.toBeInTheDocument()
+  })
+
   it("narrows the list by name", async () => {
     renderList([event, draft])
 

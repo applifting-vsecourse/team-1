@@ -81,57 +81,52 @@ describe("EventHeader sections", () => {
     await vi.waitFor(() => expect(router.state.location.pathname).toBe("/organizer/events"))
   })
 
-  it("shows only the current section on a phone", async () => {
+  it("shows only the current section below lg", async () => {
     renderHeader("/organizer/events/e1/capacity")
 
     const trigger = await screen.findByRole("button", { name: /Capacity/ })
     expect(trigger).toHaveTextContent(/^Capacity$/)
   })
 
-  it("opens a menu with every section and marks the current one", async () => {
+  // Navigation A (Figma 18359:20490): a bottom sheet with the sections in their groups, not a dropdown.
+  it("opens a bottom sheet with every section in its group and marks the current one", async () => {
     renderHeader("/organizer/events/e1")
     await userEvent.click(await screen.findByRole("button", { name: /Overview/ }))
 
-    const menu = await screen.findByRole("menu")
-    const items = within(menu).getAllByRole("menuitem")
-    expect(items.map((item) => item.textContent)).toEqual([
-      "Overview",
-      "Applications",
-      "Payments",
-      "Capacity",
-      "Meals",
-      "Accommodation",
-      "Terms",
-      "Transport",
-      "Program",
-      "Board",
-      "Settings",
+    const sheet = await screen.findByRole("dialog", { name: "Event sections" })
+    const groups = within(sheet).getAllByRole("list")
+    expect(
+      groups.map((group) =>
+        within(group)
+          .getAllByRole("link")
+          .map((link) => link.textContent),
+      ),
+    ).toEqual([
+      ["Overview", "Applications", "Payments"],
+      ["Capacity", "Meals", "Accommodation", "Terms", "Transport"],
+      ["Program", "Board"],
+      ["Settings"],
     ])
-    expect(items[0]).toHaveAttribute("aria-current", "page")
-    expect(items[3]).toHaveAttribute("href", "/organizer/events/e1/capacity")
+    const overview = within(sheet).getByRole("link", { name: "Overview" })
+    expect(overview).toHaveAttribute("aria-current", "page")
+    expect(overview).toHaveClass("data-[status=active]:bg-nav-active", "min-h-11")
+    const capacity = within(sheet).getByRole("link", { name: "Capacity" })
+    expect(capacity).toHaveAttribute("href", "/organizer/events/e1/capacity")
 
-    await userEvent.click(items[3]!)
+    await userEvent.click(capacity)
     expect(await screen.findByRole("button", { name: "Capacity" })).toBeVisible()
-    expect(screen.queryByRole("menu")).not.toBeInTheDocument()
+    await vi.waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "Event sections" })).not.toBeInTheDocument(),
+    )
   })
 
-  // Figma F5 (15398:536): the active tab is nav A — grey surface, Semi Bold and the orange underline,
-  // no mint fill and no logo corners.
-  it("marks the active tab with the nav A marker", async () => {
+  // The row of tabs is gone (D-038, #613): from lg the sections are in the contextual sidebar.
+  it("has no row of section tabs above the content", async () => {
     renderHeader("/organizer/events/e1/capacity")
-    const tabs = await screen.findAllByRole("link", { name: "Capacity" })
-    const tab = tabs.find((link) => link.getAttribute("data-status") === "active")!
+    await screen.findByRole("button", { name: /Capacity/ })
 
-    expect(tab).toHaveClass(
-      "data-[status=active]:bg-nav-active",
-      "data-[status=active]:font-semibold",
-      "after:bg-nav-indicator",
-      "after:w-5",
-    )
-    expect(tab.className).not.toMatch(/bg-accent/)
-    expect(tab.querySelector("svg")).toBeNull()
-    // The hidden bold copy keeps the width (#851), so the tabs don't shift when one is selected.
-    expect(tab.querySelector("[data-label]")).toHaveAttribute("data-label", "Capacity")
+    expect(screen.queryByRole("link", { name: "Capacity" })).not.toBeInTheDocument()
+    expect(screen.getByRole("navigation", { name: "Event sections" })).toHaveClass("lg:hidden")
   })
 })
 

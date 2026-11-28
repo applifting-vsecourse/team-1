@@ -137,12 +137,16 @@
     "title": "Individual accommodation requests"
   },
   "list": {
+    "activeFilters": "Applied filters",
     "clearOrganization": "Clear filter",
+    "closeFilters": "Close filters",
     "create": "Create event",
     "created": "The event {{name}} was created.",
     "empty": "There are no events yet.",
     "errorTitle": "Couldn't load the events",
     "eventColumn": "Event",
+    "filters": "Filters",
+    "filtersCount": "Filters ({{count}})",
     "noCapacity": "—",
     "noMatch": "No event matches the search and filters.",
     "occupancy": "Occupancy",
@@ -151,6 +155,7 @@
     "occupancyUnit": "confirmed",
     "organizationAll": "All organizations",
     "organizationFilter": "Organization",
+    "removeFilter": "Remove filter {{filter}}",
     "search": "Search event name",
     "searchPlaceholder": "Search event name…",
     "segment": {

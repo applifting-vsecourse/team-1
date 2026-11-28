@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { ChevronRight, Plus, Search } from "lucide-react"
+import { ChevronRight, Plus, Search, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { ROUTES } from "@/app/routes"
@@ -28,6 +28,7 @@ import { usePagination } from "@/hooks/usePagination"
 import { cn } from "@/lib/utils"
 
 import { eventsQueryOptions, type OrganizerEvent } from "@/features/events/api/events"
+import { EventFiltersSheet } from "@/features/events/components/EventFiltersSheet"
 import { termsSummary } from "@/features/events/lib/terms-summary"
 
 /**
@@ -142,15 +143,15 @@ function FilteredEvents({
             className="w-full ps-11"
           />
         </div>
-        {/* No label above the select (Figma F5): its value names it, „Všechny organizace“. */}
-        <div className="flex items-center gap-3">
+        {/* From lg the organization is a Select without a label above it (Figma F5): its value names it. */}
+        <div className="hidden items-center gap-3 lg:flex">
           <Select
             value={organizationId}
             onValueChange={setOrganizationId}
           >
             <SelectTrigger
               aria-label={t("list.organizationFilter")}
-              className="min-w-0 flex-1 text-start lg:w-60 lg:flex-none"
+              className="w-60 text-start"
             >
               <SelectValue />
             </SelectTrigger>
@@ -177,25 +178,60 @@ function FilteredEvents({
             </Button>
           )}
         </div>
-        <div className="lg:ml-auto">
-          <ViewToggleGroup
-            aria-label={t("list.statusFilter")}
-            value={status}
-            onValueChange={(value) => {
-              const next = STATUSES.find((option) => option === value)
-              if (next) setStatus(next)
-            }}
-          >
-            {STATUSES.map((option) => (
-              <ViewToggleGroupItem
-                key={option}
-                value={option}
-              >
-                {t(`list.segment.${option}`)}
-              </ViewToggleGroupItem>
-            ))}
-          </ViewToggleGroup>
+        {/* Below lg one row: the status segment, which scrolls sideways when it doesn't fit (never wraps),
+            and „Filtry (n)“. */}
+        {/* Figma (Design system v2): F5 / Events / Filtry seznamu akcí · Mobil · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15376-98 (component 27893-4901) */}
+        <div className="flex min-w-0 items-center gap-2 lg:ml-auto">
+          <div className="-m-1 min-w-0 flex-1 overflow-x-auto p-1 lg:flex-none">
+            <ViewToggleGroup
+              isScrollable
+              aria-label={t("list.statusFilter")}
+              value={status}
+              onValueChange={(value) => {
+                const next = STATUSES.find((option) => option === value)
+                if (next) setStatus(next)
+              }}
+            >
+              {STATUSES.map((option) => (
+                <ViewToggleGroupItem
+                  key={option}
+                  value={option}
+                >
+                  {t(`list.segment.${option}`)}
+                </ViewToggleGroupItem>
+              ))}
+            </ViewToggleGroup>
+          </div>
+          <EventFiltersSheet
+            organizations={organizations}
+            organizationId={organizationId}
+            onOrganizationChange={setOrganizationId}
+            className="lg:hidden"
+          />
         </div>
+        {organizationId === "all" ? null : (
+          <div
+            role="group"
+            aria-label={t("list.activeFilters")}
+            className="flex flex-wrap gap-2 lg:hidden"
+          >
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-auto min-h-11 max-w-full"
+              aria-label={t("list.removeFilter", { filter: organizations.get(organizationId) })}
+              onClick={() => setOrganizationId("all")}
+            >
+              <span className="min-w-0 text-left break-words whitespace-normal">
+                {organizations.get(organizationId)}
+              </span>
+              <X
+                aria-hidden
+                className="size-4 shrink-0"
+              />
+            </Button>
+          </div>
+        )}
       </div>
       {shown.length === 0 ? (
         <EmptyState message={t("list.noMatch")} />

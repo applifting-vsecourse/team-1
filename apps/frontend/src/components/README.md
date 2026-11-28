@@ -5,7 +5,7 @@ Sdílené komponenty bez byznys logiky, podle atomic designu. Nevědí nic o akc
 | Vrstva       | Co tam patří                                         | Příklady                                                        |
 | ------------ | ---------------------------------------------------- | --------------------------------------------------------------- |
 | `ui/`        | vendored shadcn — **neupravovat**, přidávat přes CLI | Button, Input, Dialog, Form                                     |
-| `atoms/`     | nejmenší vlastní prvky                               | Logo, NavLink, MoneyAmount, Seo                                 |
+| `atoms/`     | nejmenší vlastní prvky                               | Logo, SidebarLink, MoneyAmount, Seo                             |
 | `molecules/` | složení několika atomů / ui prvků s jedním účelem    | PageHeader, EmptyState, ErrorState, LoadingState, ThemeSwitcher |
 | `organisms/` | samostatné části stránky                             | Header                                                          |
 | `templates/` | kostra stránky se sloty                              | PublicLayout, AuthLayout, AreaLayout                            |
