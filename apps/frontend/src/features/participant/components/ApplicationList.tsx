@@ -121,7 +121,8 @@ export function ApplicationList({ renderBoardBadge }: ApplicationListProps) {
         title={title}
         isIllustrationBesideTitle
         actions={
-          <TabsList>
+          // Full width on a phone like every header control, the tabs stay at its start.
+          <TabsList className="max-md:justify-start">
             <TabsTrigger value="upcoming">{t("list.upcoming")}</TabsTrigger>
             <TabsTrigger value="past">{t("list.past")}</TabsTrigger>
           </TabsList>

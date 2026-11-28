@@ -10,7 +10,7 @@ type BrandPageHeaderProps = {
   description?: ReactNode
   /** The way back above the title (`BackLink`). */
   back?: ReactNode
-  /** The page's own controls at the right: the view tabs, the edit button. */
+  /** The page's own controls: at the right from `md`, full width under the title on a phone. */
   actions?: ReactNode
   /** The list draws the illustration right after the title; elsewhere it stands at the right (Figma F4). */
   isIllustrationBesideTitle?: boolean
@@ -50,7 +50,9 @@ export function BrandPageHeader({
           {hasIllustration ? <Camp className="hidden h-22.5 w-30 shrink-0 md:block" /> : null}
         </div>
         {actions ? (
-          <div className="flex flex-wrap items-center gap-2 md:ml-auto">{actions}</div>
+          <div className="flex w-full flex-wrap items-center gap-2 *:w-full md:ml-auto md:w-auto md:*:w-auto">
+            {actions}
+          </div>
         ) : null}
       </div>
       <BrandDivider />
