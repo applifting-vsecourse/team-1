@@ -305,36 +305,36 @@ function PaymentReminders({ applications }: { applications: MyApplication[] }) {
 
   const renderReminder = ({ application, task }: (typeof reminders)[number]) => (
     <TaskCard
-            key={application.id}
-            role="note"
-            className="md:flex-row md:items-center md:gap-4"
-          >
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <p className="font-semibold">
-                {t("list.remainingAmount", { amount: formatCzk(task.amountCzk) })}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {[
-                  `${application.firstName} ${application.lastName}`,
-                  ...task.terms.map(termTitle),
-                  task.deadline ? t("list.dueOn", { date: formatDate(task.deadline) }) : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-            </div>
-            <Button
-              asChild
-              className="w-55 max-w-full"
-            >
-              <Link
-                to={ROUTES.participant.application}
-                params={{ applicationId: application.id }}
-              >
-                {t("list.paymentDetails")}
-              </Link>
-            </Button>
-          </TaskCard>
+      key={application.id}
+      role="note"
+      className="md:flex-row md:items-center md:gap-4"
+    >
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <p className="font-semibold">
+          {t("list.remainingAmount", { amount: formatCzk(task.amountCzk) })}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {[
+            `${application.firstName} ${application.lastName}`,
+            ...task.terms.map(termTitle),
+            task.deadline ? t("list.dueOn", { date: formatDate(task.deadline) }) : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      </div>
+      <Button
+        asChild
+        className="w-55 max-w-full"
+      >
+        <Link
+          to={ROUTES.participant.application}
+          params={{ applicationId: application.id }}
+        >
+          {t("list.paymentDetails")}
+        </Link>
+      </Button>
+    </TaskCard>
   )
 
   return (
