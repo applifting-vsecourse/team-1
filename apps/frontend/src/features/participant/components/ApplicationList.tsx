@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
@@ -12,6 +12,7 @@ import { Pagination } from "@/components/molecules/Pagination"
 import { TaskCard } from "@/components/molecules/TaskCard"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { usePagination } from "@/hooks/usePagination"
@@ -272,7 +273,6 @@ function ListSkeleton() {
 function PaymentReminders({ applications }: { applications: MyApplication[] }) {
   const { t } = useTranslation("participant")
   const [isExpanded, setExpanded] = useState(false)
-  const moreId = useId()
   const today = todayIsoInAppZone()
 
   const reminders = applications.flatMap((application) => {
@@ -338,30 +338,30 @@ function PaymentReminders({ applications }: { applications: MyApplication[] }) {
   )
 
   return (
-    <div className="flex flex-col gap-4">
+    <Collapsible
+      open={isExpanded}
+      onOpenChange={setExpanded}
+      className="flex flex-col gap-4"
+    >
       {renderReminder(first)}
       {more.length > 0 && (
         <>
-          <Button
-            variant="outline"
-            size="lg"
-            className="self-start"
-            aria-expanded={isExpanded}
-            aria-controls={moreId}
-            onClick={() => setExpanded((isOpen) => !isOpen)}
-          >
-            {isExpanded
-              ? t("list.hidePaymentReminders")
-              : t("list.showMorePaymentReminders", { count: more.length })}
-          </Button>
-          <div
-            id={moreId}
-            hidden={!isExpanded}
-          >
-            {isExpanded && <div className="flex flex-col gap-4">{more.map(renderReminder)}</div>}
-          </div>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="outline"
+              size="lg"
+              className="self-start"
+            >
+              {isExpanded
+                ? t("list.hidePaymentReminders")
+                : t("list.showMorePaymentReminders", { count: more.length })}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="flex flex-col gap-4">{more.map(renderReminder)}</div>
+          </CollapsibleContent>
         </>
       )}
-    </div>
+    </Collapsible>
   )
 }
