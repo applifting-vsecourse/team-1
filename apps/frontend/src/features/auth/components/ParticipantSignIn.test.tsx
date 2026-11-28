@@ -112,16 +112,16 @@ describe("ParticipantSignIn", () => {
     renderCard()
     await toSentState(user)
 
-    expect(screen.getByText("Resend in 30 s")).toBeInTheDocument()
+    expect(screen.getByText("Time to resend: 30 s")).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Resend the link" })).not.toBeInTheDocument()
     await act(() => vi.advanceTimersByTimeAsync(29_000))
-    expect(screen.getByText("Resend in 1 s")).toBeInTheDocument()
+    expect(screen.getByText("Time to resend: 1 s")).toBeInTheDocument()
     await act(() => vi.advanceTimersByTimeAsync(1_000))
 
     await user.click(screen.getByRole("button", { name: "Resend the link" }))
 
     expect(magicLink).toHaveBeenCalledTimes(2)
-    expect(await screen.findByText("Resend in 30 s")).toBeInTheDocument()
+    expect(await screen.findByText("Time to resend: 30 s")).toBeInTheDocument()
   })
 
   it("asks to wait when the server's rate limit refuses the resend (429)", async () => {
@@ -138,7 +138,7 @@ describe("ParticipantSignIn", () => {
       "Too many attempts in a short time. Wait a moment and try again.",
     )
     // Waiting is the way on: the countdown starts again instead of offering the resend.
-    expect(screen.getByText("Resend in 30 s")).toBeInTheDocument()
+    expect(screen.getByText("Time to resend: 30 s")).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Resend the link" })).not.toBeInTheDocument()
   })
 })

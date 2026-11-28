@@ -54,7 +54,7 @@ describe("RegistrationLayout", () => {
   it("shows the step as three dots instead of a stepper", () => {
     renderLayout({ step: "profileStep" })
 
-    expect(screen.getByRole("img", { name: "Step 3 of 3" })).toBeInTheDocument()
+    expect(screen.getByRole("img", { name: "Step: 3 / 3" })).toBeInTheDocument()
     expect(screen.queryByRole("list")).not.toBeInTheDocument()
   })
 
