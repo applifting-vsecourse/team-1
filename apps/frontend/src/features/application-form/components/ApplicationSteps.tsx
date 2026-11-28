@@ -24,20 +24,20 @@ export function ApplicationSteps({ isReview }: { isReview: boolean }) {
       >
         <span
           data-slot="step-indicator"
-          className="absolute bottom-1 left-3 h-0.75 w-5 rounded-full bg-nav-indicator"
+          className="absolute bottom-0.5 left-3 h-0.75 w-5 rounded-full bg-nav-indicator"
         />
       </span>
       <ol className="relative grid grid-cols-2 gap-2 text-sm leading-5">
         <li
           aria-current={isReview ? undefined : "step"}
-          className="flex items-center justify-center gap-1 px-3 py-2.5 text-muted-foreground aria-[current=step]:font-semibold aria-[current=step]:text-foreground"
+          className="flex items-center justify-center gap-1 px-3 py-3 text-muted-foreground aria-[current=step]:font-semibold aria-[current=step]:text-foreground"
         >
           {isReview && <Completed aria-hidden="true" />}
           {t("review.detailsStep")}
         </li>
         <li
           aria-current={isReview ? "step" : undefined}
-          className="px-3 py-2.5 text-center text-muted-foreground aria-[current=step]:font-semibold aria-[current=step]:text-foreground"
+          className="px-3 py-3 text-center text-muted-foreground aria-[current=step]:font-semibold aria-[current=step]:text-foreground"
         >
           {t("review.reviewStep")}
         </li>

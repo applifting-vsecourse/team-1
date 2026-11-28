@@ -11,8 +11,8 @@ const MODES = [
 ] as const
 
 /**
- * Light / dark / system as three icon segments. The chosen one is system B's selected segment, like
- * `ViewToggleGroup`: orange fill, ink icon and the ink edge (it is a control you act on).
+ * Light / dark / system as three icon segments. The chosen one is the nav A marker, like
+ * `ViewToggleGroup`: nav-active surface, ink icon and a 12 × 3 px orange underline.
  */
 // Figma (Design system v2): Togena / Navigation / Theme segmented control · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27609-4327
 export function ThemeSegmentedControl({ labelledBy }: { labelledBy?: string }) {
@@ -37,7 +37,7 @@ export function ThemeSegmentedControl({ labelledBy }: { labelledBy?: string }) {
           key={value}
           value={value}
           aria-label={t(`theme.${value}`)}
-          className="h-9.5 w-10 rounded-md border border-transparent px-0 text-foreground hover:bg-muted hover:text-foreground focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring data-[state=on]:border-border-strong data-[state=on]:bg-brand-warm data-[state=on]:text-brand-warm-foreground"
+          className="relative size-11 rounded-md border border-transparent px-0 text-foreground hover:bg-muted hover:text-foreground focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring data-[state=on]:bg-nav-active data-[state=on]:text-foreground data-[state=on]:after:absolute data-[state=on]:after:bottom-0.5 data-[state=on]:after:left-1/2 data-[state=on]:after:h-0.75 data-[state=on]:after:w-3 data-[state=on]:after:-translate-x-1/2 data-[state=on]:after:rounded-full data-[state=on]:after:bg-nav-indicator data-[state=on]:after:content-['']"
         >
           <Icon
             aria-hidden
