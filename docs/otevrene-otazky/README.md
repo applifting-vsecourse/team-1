@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**48 neuzavřených** otázek, **92 uzavřených**.
+**46 neuzavřených** otázek, **94 uzavřených**.
 
 ## Role
 
@@ -16,13 +16,11 @@
 
 ## Kdo má tah
 
-### `pm` (Adam): 13
+### `pm` (Adam): 11
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
 | [Q-EKO-03](#q-eko-03) | Stačí pro rozpočtovou rezervu běžná nákladová položka s pevnou částkou? Jak při jejím čerpání předejít dvojímu započtení výdaje zapsaného bez položky? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | P2 | Ovlivňuje způsob zápisu a výpočet výsledku při čerpání rozpočtové rezervy. |
-| [Q-EKO-04](#q-eko-04) | Má organizátor zvolit nákladovou kategorii u mimořádného výdaje zapsaného bez nákladové položky? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | P2 | Ovlivňuje zápis výdaje bez položky a přehled nákladů podle kategorií. |
-| [Q-EKO-05](#q-eko-05) | Má organizátor vedle přijatých mimořádných příjmů evidovat i plánované? Ve kterých přehledech se mají projevit? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | P2 | Ovlivňuje rozsah ruční příjmové položky a očekávaný výsledek. |
 | [Q-EKO-06](#q-eko-06) | Jak má organizátor v ekonomice akce zaznamenat peníze vrácené dodavatelem? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | P2 | Ovlivňuje, jak se vrácená částka promítne do skutečných nákladů akce. |
 | [Q-EKO-07](#q-eko-07) | Potřebuje organizátor po skončení akce samostatný krok pro uzavření a vyhodnocení celkového výsledku? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | P2 | Ovlivňuje postup po akci nad rámec existujícího výpočtu jejího výsledku. |
 | [Q-BEZ-01](#q-bez-01) | Jaké doklady zaměstnavatelé skutečně vyžadují a kdy a kým se mají vystavovat? | [#162](https://github.com/applifting-vsecourse/team-1/issues/162) | P3 | Nápad (label idea), není ve storkách ani v rozsahu sprintu. |
@@ -104,8 +102,6 @@ _Nic._
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
 | [Q-EKO-03](#q-eko-03) | Stačí pro rozpočtovou rezervu běžná nákladová položka s pevnou částkou? Jak při jejím čerpání předejít dvojímu započtení výdaje zapsaného bez položky? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | otevřeno | P2 | `pm` |
-| [Q-EKO-04](#q-eko-04) | Má organizátor zvolit nákladovou kategorii u mimořádného výdaje zapsaného bez nákladové položky? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | otevřeno | P2 | `pm` |
-| [Q-EKO-05](#q-eko-05) | Má organizátor vedle přijatých mimořádných příjmů evidovat i plánované? Ve kterých přehledech se mají projevit? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | otevřeno | P2 | `pm` |
 | [Q-EKO-06](#q-eko-06) | Jak má organizátor v ekonomice akce zaznamenat peníze vrácené dodavatelem? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | otevřeno | P2 | `pm` |
 | [Q-EKO-07](#q-eko-07) | Potřebuje organizátor po skončení akce samostatný krok pro uzavření a vyhodnocení celkového výsledku? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | otevřeno | P2 | `pm` |
 
@@ -260,6 +256,8 @@ _Nic._
 | [Q-PRE-04](#q-pre-04) | Stačí pamatovat filtry seznamu přihlášek jen v rámci session, nebo mají přežít zavření prohlížeče? | [#175](https://github.com/applifting-vsecourse/team-1/issues/175) | Filtry se pamatují v sessionStorage (PR #283); PO 4. 11.: „Pamatování filtrů: OK.“ |
 | [Q-EKO-01](#q-eko-01) | Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech? | [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) | PO 25. 11.: stačí souhrn za celou akci. Výpočet nákladů závislých na počtu účastníků a délce pobytu u akcí s více termíny zůstal na schůzce otevřený. |
 | [Q-EKO-02](#q-eko-02) | Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete? | [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) | PO 25. 11.: před otevřením přihlášek nastavuje cenu a hledá bod zvratu, po otevření sleduje počet přihlášených a rezervu. Proměnné jsou cena a počet účastníků; o změně nákladů ve scénáři řeč nebyla. |
+| [Q-EKO-04](#q-eko-04) | Má organizátor zvolit nákladovou kategorii u mimořádného výdaje zapsaného bez nákladové položky? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | PM 28. 11. 2026 (D-229, zapsáno v #820): organizátor kategorii nevolí, výdaj bez položky patří vždy do „Ostatní“. |
+| [Q-EKO-05](#q-eko-05) | Má organizátor vedle přijatých mimořádných příjmů evidovat i plánované? Ve kterých přehledech se mají projevit? | [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) | PM 28. 11. 2026 (D-232 a D-234, zapsáno v #835): plánované příjmy se neevidují; zapsaný příjem se počítá do skutečného i očekávaného výsledku. |
 | [Q-PLT-02](#q-plt-02) | Kdy reálně přijde druhá organizace? Chcete nové organizace schvalovat? | [US-69](https://github.com/applifting-vsecourse/team-1/issues/69) | Organizátor se zaregistruje e-mailem a heslem, ověří e-mail odkazem (D-109) a založí organizaci bez schvalování správcem platformy; dokud nedoplní profil (kontaktní e-mail, telefon, bankovní účet), nezaloží akci. Každý organizátor patří do organizace. Účet přihlašovatele dál vzniká jen odesláním přihlášky. |
 | [Q-PLT-04](#q-plt-04) | Kdo je správcem údajů: organizace, nebo provozovatel Togeny? | [US-77](https://github.com/applifting-vsecourse/team-1/issues/77) | Rozhodnuto 28. 10.: organizátor je správcem údajů účastníků, Togena zpracovatelem; Togena je správcem údajů organizátorů. |
 | [Q-PLT-05](#q-plt-05) | Kdo je správcem osobních údajů: organizace, nebo provozovatel Togeny? (Odpověď tohoto issue uzavírá otázky z US-77 a US-78.) **Duplicita s [Q-PLT-04](#q-plt-04).** | [US-97](https://github.com/applifting-vsecourse/team-1/issues/164) | Správce údajů: rozhodnuto 28. 10. (viz US-77). Zůstává otevřená doba uchování (US-78) a smluvní strana (#167). |
@@ -409,25 +407,27 @@ _Nic._
 
 ### Q-EKO-04 – Má organizátor zvolit nákladovou kategorii u mimořádného výdaje zapsaného bez nákladové položky?
 
-- **Epic:** ekonomika · **Dotčené US:** [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) · **Stav:** otevřeno · **Čeká na:** `pm`
-- **Poznámka:** D-211 řeší započtení plné částky do výsledku; D-213 vyjmenovává výchozí kategorie. Kategorie Ostatní v N8 je návrh.
+- **Epic:** ekonomika · **Dotčené US:** [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Poznámka:** D-211 řeší započtení plné částky do výsledku; D-213 vyjmenovává výchozí kategorie.
 - **Zdroje:**
   - [N8, otevřená otázka](https://github.com/applifting-vsecourse/team-1/issues/820): „Má mít takový výdaj vlastní kategorii (A1)?“
 - **Priorita:** P2 – Ovlivňuje zápis výdaje bez položky a přehled nákladů podle kategorií.
 - **Navazující ticket:** [N8 Výdaj bez položky](https://github.com/applifting-vsecourse/team-1/issues/820)
 - **Navazující ticket:** [V3 Náklady podle kategorií](https://github.com/applifting-vsecourse/team-1/issues/829)
+- **Uzavřeno, protože:** PM 28. 11. 2026 (D-229, zapsáno v #820): organizátor kategorii nevolí, výdaj bez položky patří vždy do „Ostatní“.
 
 <a id="q-eko-05"></a>
 
 ### Q-EKO-05 – Má organizátor vedle přijatých mimořádných příjmů evidovat i plánované? Ve kterých přehledech se mají projevit?
 
-- **Epic:** ekonomika · **Dotčené US:** [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) · **Stav:** otevřeno · **Čeká na:** `pm`
-- **Poznámka:** D-210 potvrzuje započtení ručních příjmových položek do skutečného výsledku. Rozhodnutí o plánovaných příjmech chybí.
+- **Epic:** ekonomika · **Dotčené US:** [A1 Rezervy a ad hoc situace](https://github.com/applifting-vsecourse/team-1/issues/808) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Poznámka:** D-210 potvrzuje započtení ručních příjmových položek do skutečného výsledku.
 - **Zdroje:**
   - [A1, otázky k rozhodnutí](https://github.com/applifting-vsecourse/team-1/issues/808): „Mimořádný příjem (sponzor, dotace, zůstatek z loňska, ponechané storno): jen přijatý, nebo i plánovaný?“
   - [Zápis ze statusu s PO 25. 11.](https://github.com/applifting-vsecourse/team-1/blob/b00f623194eb68e6f1f0cd159f628bbf95f4f885/docs/zapisy/2026-11-25-sprint-5-planning.md): „U sponzoringu, dotací nebo zůstatku z minulého ročníku mu stačí ručně přidat obecnou příjmovou položku jako v Excelu.“
 - **Priorita:** P2 – Ovlivňuje rozsah ruční příjmové položky a očekávaný výsledek.
 - **Navazující ticket:** [P1 Ruční příjmová položka](https://github.com/applifting-vsecourse/team-1/issues/835)
+- **Uzavřeno, protože:** PM 28. 11. 2026 (D-232 a D-234, zapsáno v #835): plánované příjmy se neevidují; zapsaný příjem se počítá do skutečného i očekávaného výsledku.
 
 <a id="q-eko-06"></a>
 

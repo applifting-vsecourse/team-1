@@ -1253,7 +1253,7 @@ otazky:
   us:
   - label: A1 Rezervy a ad hoc situace
     url: https://github.com/applifting-vsecourse/team-1/issues/808
-  stav: otevreno
+  stav: uzavreno
   priorita: P2
   priorita_duvod: Ovlivňuje zápis výdaje bez položky a přehled nákladů podle kategorií.
   ceka_na: pm
@@ -1261,7 +1261,8 @@ otazky:
   - popis: N8, otevřená otázka
     url: https://github.com/applifting-vsecourse/team-1/issues/820
     citace: '„Má mít takový výdaj vlastní kategorii (A1)?“'
-  poznamka: D-211 řeší započtení plné částky do výsledku; D-213 vyjmenovává výchozí kategorie. Kategorie Ostatní v N8 je návrh.
+  poznamka: D-211 řeší započtení plné částky do výsledku; D-213 vyjmenovává výchozí kategorie.
+  uzavreno_duvod: 'PM 28. 11. 2026 (D-229, zapsáno v #820): organizátor kategorii nevolí, výdaj bez položky patří vždy do „Ostatní“.'
   navazne_tickety:
   - label: N8 Výdaj bez položky
     url: https://github.com/applifting-vsecourse/team-1/issues/820
@@ -1273,7 +1274,7 @@ otazky:
   us:
   - label: A1 Rezervy a ad hoc situace
     url: https://github.com/applifting-vsecourse/team-1/issues/808
-  stav: otevreno
+  stav: uzavreno
   priorita: P2
   priorita_duvod: Ovlivňuje rozsah ruční příjmové položky a očekávaný výsledek.
   ceka_na: pm
@@ -1284,7 +1285,8 @@ otazky:
   - popis: Zápis ze statusu s PO 25. 11.
     url: https://github.com/applifting-vsecourse/team-1/blob/b00f623194eb68e6f1f0cd159f628bbf95f4f885/docs/zapisy/2026-11-25-sprint-5-planning.md
     citace: '„U sponzoringu, dotací nebo zůstatku z minulého ročníku mu stačí ručně přidat obecnou příjmovou položku jako v Excelu.“'
-  poznamka: D-210 potvrzuje započtení ručních příjmových položek do skutečného výsledku. Rozhodnutí o plánovaných příjmech chybí.
+  poznamka: D-210 potvrzuje započtení ručních příjmových položek do skutečného výsledku.
+  uzavreno_duvod: 'PM 28. 11. 2026 (D-232 a D-234, zapsáno v #835): plánované příjmy se neevidují; zapsaný příjem se počítá do skutečného i očekávaného výsledku.'
   navazne_tickety:
   - label: P1 Ruční příjmová položka
     url: https://github.com/applifting-vsecourse/team-1/issues/835
