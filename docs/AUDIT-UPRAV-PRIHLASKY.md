@@ -67,9 +67,9 @@ Varianty, alergie a další požadavky, speciální požadavek, potvrzení, že 
 
 - **Přihlašovatel:** **Před akcí → Zdravotní omezení** → poznámka s výslovným souhlasem, nebo **Nemám žádné zdravotní omezení** (`PUT P/health`).
 - **Organizátor:** detail → **Zdravotní omezení** → **Zapsat za účastníka** → potvrdit „Potvrzuji, že mám od přihlašovatele výslovný souhlas…“ → **Uložit za účastníka** (`PUT O/health`). Souhlas potvrzuje i u volby bez omezení.
-- **Podmínky obou rolí:** poznámka ještě není uložená a neskončil poslední termín, jinak `HEALTH_CHANGE_REQUEST_REQUIRED` nebo `HEALTH_EDIT_CLOSED`.
-- **Výsledek:** **Shoda.** Zápis organizátora je v historii jen jako zapsaný organizátorem, bez textu poznámky; upozornění nechodí. Uzávěrka po konci termínu zatím není rozhodnutá ([O4](#k-rozhodnutí)).
-- **Podklady:** [D-122](rozhodnuti/README.md#d-122), [D-191](rozhodnuti/README.md#d-191), [D-203](rozhodnuti/README.md#d-203), [#789](https://github.com/applifting-vsecourse/team-1/issues/789).
+- **Podmínky obou rolí:** poznámka ještě není uložená a neskončil poslední nezrušený termín, jinak `HEALTH_CHANGE_REQUEST_REQUIRED` nebo `HEALTH_EDIT_CLOSED`.
+- **Výsledek:** **Shoda.** Zápis organizátora je v historii jen jako zapsaný organizátorem, bez textu poznámky; upozornění nechodí.
+- **Podklady:** [D-122](rozhodnuti/README.md#d-122), [D-191](rozhodnuti/README.md#d-191), [D-203](rozhodnuti/README.md#d-203), [D-220](rozhodnuti/README.md#d-220), [#789](https://github.com/applifting-vsecourse/team-1/issues/789).
 
 ### 5. Vzít zpět potvrzené „Nemám žádné zdravotní omezení“
 
@@ -101,16 +101,16 @@ Až tři jména, jejich úprava a smazání, **Nemám přání**.
 - **Přihlašovatel:** karta **Přání spolubydlení** v detailu (`PUT P/terms/:termId/room-wishes`).
 - **Organizátor:** detail → **Přání spolubydlení a pobyt** (`PUT O/terms/:termId/room-wishes`).
 - **Podmínky obou rolí:** potvrzený nezrušený termín, bez individuálního ubytování, termín neskončil (`TERM_EDIT_CLOSED`). **Nemám přání** jen před zveřejněním pokojů a bez zadaných jmen.
-- **Výsledek:** **Shoda.** Zápis organizátora je v historii bez upozornění. Uzávěrka po konci termínu zatím není rozhodnutá ([O4](#k-rozhodnutí)).
-- **Podklady:** [D-131](rozhodnuti/README.md#d-131), [D-191](rozhodnuti/README.md#d-191), [D-203](rozhodnuti/README.md#d-203), [#787](https://github.com/applifting-vsecourse/team-1/issues/787).
+- **Výsledek:** **Shoda.** Zápis organizátora je v historii bez upozornění.
+- **Podklady:** [D-131](rozhodnuti/README.md#d-131), [D-191](rozhodnuti/README.md#d-191), [D-203](rozhodnuti/README.md#d-203), [D-220](rozhodnuti/README.md#d-220), [#787](https://github.com/applifting-vsecourse/team-1/issues/787).
 
 ### 9. Pozdější příjezd a dřívější odjezd
 
 - **Přihlašovatel:** karta **Pozdější příjezd nebo dřívější odjezd** v detailu (`PUT P/terms/:termId/stay`).
 - **Organizátor:** detail → **Přání spolubydlení a pobyt** (`PUT O/terms/:termId/stay`).
 - **Podmínky obou rolí:** přihláška v termínu K vyhodnocení, potvrzená nebo Náhradník, termín není zrušený a neskončil. Čas je v rozsahu termínu a odjezd po příjezdu.
-- **Výsledek:** **Shoda.** U potvrzených se údaj propíše do souhrnu pro kuchyni, cenu, kapacitu ani stav nemění. Uzávěrka po konci termínu zatím není rozhodnutá ([O4](#k-rozhodnutí)).
-- **Podklady:** [D-159](rozhodnuti/README.md#d-159), [D-191](rozhodnuti/README.md#d-191), [D-203](rozhodnuti/README.md#d-203), [#485](https://github.com/applifting-vsecourse/team-1/issues/485), [#788](https://github.com/applifting-vsecourse/team-1/issues/788).
+- **Výsledek:** **Shoda.** U potvrzených se údaj propíše do souhrnu pro kuchyni, cenu, kapacitu ani stav nemění.
+- **Podklady:** [D-159](rozhodnuti/README.md#d-159), [D-191](rozhodnuti/README.md#d-191), [D-203](rozhodnuti/README.md#d-203), [D-220](rozhodnuti/README.md#d-220), [#485](https://github.com/applifting-vsecourse/team-1/issues/485), [#788](https://github.com/applifting-vsecourse/team-1/issues/788).
 
 ## Termíny a odhlášky
 
@@ -178,12 +178,13 @@ Mimo audit jsou čtecí obrazovky (program, platební údaje, přidělený pokoj
 
 Otázky pro product managera. Doporučení není rozhodnutí.
 
-| Č.  | Otázka                                                                                                                                                                                                                                                                  | Doporučení                                                                                                                     |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| O1  | Má organizátor moci zadat odhlášku i Náhradníkovi a přihlášce K vyhodnocení, která nemá potvrzený termín? Dnes ji může jen zrušit a přihlašovatel dostane e-mail o zrušení organizátorem nebo o zamítnutí (bod 14).                                                     | Ano, nabídnout **Odhlásit** vedle **Změnit stav** u obou stavů a doplnit do diagramu odhlášku ze stavu K vyhodnocení.          |
-| O2  | Má organizátor moci vzít zpět potvrzení „Nemám žádné zdravotní omezení“, například zaškrtnuté omylem (bod 5)?                                                                                                                                                           | Ano, vrátit údaj na nevyplněný; nemá zůstávat potvrzení, které nikdo neučinil.                                                 |
-| O3  | Stačí pro další termín nová přihláška (bod 11), nebo ho má organizátor přidávat do stávající? A smí se zrušený termín v téže přihlášce obnovit, když diagramy vedou Zrušenou jako koncovou (bod 12)?                                                                    | Přidání i obnovení termínu povolit organizátorovi jako samostatnou akci (priorita Nice to have) a diagramy podle toho upravit. |
-| O4  | Platí uzávěrka přání, pobytu a prvního zápisu zdravotního omezení po konci termínu pro obě role? Aplikace ji uplatňuje, ale D-202 mluví jen o dopravě a stravování ([dotaz v #790](https://github.com/applifting-vsecourse/team-1/issues/790#issuecomment-7197402478)). | Ano, potvrdit a zapsat do registru; žádost o změnu uložené poznámky zůstává bez omezení.                                       |
+| Č.  | Otázka                                                                                                                                                                                                              | Doporučení                                                                                                                     |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| O1  | Má organizátor moci zadat odhlášku i Náhradníkovi a přihlášce K vyhodnocení, která nemá potvrzený termín? Dnes ji může jen zrušit a přihlašovatel dostane e-mail o zrušení organizátorem nebo o zamítnutí (bod 14). | Ano, nabídnout **Odhlásit** vedle **Změnit stav** u obou stavů a doplnit do diagramu odhlášku ze stavu K vyhodnocení.          |
+| O2  | Má organizátor moci vzít zpět potvrzení „Nemám žádné zdravotní omezení“, například zaškrtnuté omylem (bod 5)?                                                                                                       | Ano, vrátit údaj na nevyplněný; nemá zůstávat potvrzení, které nikdo neučinil.                                                 |
+| O3  | Stačí pro další termín nová přihláška (bod 11), nebo ho má organizátor přidávat do stávající? A smí se zrušený termín v téže přihlášce obnovit, když diagramy vedou Zrušenou jako koncovou (bod 12)?                | Přidání i obnovení termínu povolit organizátorovi jako samostatnou akci (priorita Nice to have) a diagramy podle toho upravit. |
+
+Původní otázku O4 uzavřelo [D-220](rozhodnuti/README.md#d-220). U obou rolí lze přání a příjezd či odjezd zapsat do konce příslušného termínu, první zdravotní omezení do konce posledního nezrušeného termínu. O změnu uložené zdravotní poznámky může přihlašovatel požádat i později podle [D-122](rozhodnuti/README.md#d-122).
 
 ## Navazující práce
 
