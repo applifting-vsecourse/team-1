@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { Link, type LinkProps } from "@tanstack/react-router"
 
+import { SelectedLabel } from "@/components/atoms/SelectedLabel"
 import { cn } from "@/lib/utils"
 
 type NavLinkProps = LinkProps & {
@@ -29,7 +30,8 @@ export function NavLink({ children, className, ...props }: NavLinkProps) {
         className,
       )}
     >
-      {children}
+      {/* The bold copy reserves the Semi Bold width, so selecting a tab never shifts the others. */}
+      <SelectedLabel>{children}</SelectedLabel>
     </Link>
   )
 }

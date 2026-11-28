@@ -130,6 +130,8 @@ describe("EventHeader sections", () => {
     )
     expect(tab.className).not.toMatch(/bg-accent/)
     expect(tab.querySelector("svg")).toBeNull()
+    // The hidden bold copy keeps the width (#851), so the tabs don't shift when one is selected.
+    expect(tab.querySelector("[data-label]")).toHaveAttribute("data-label", "Capacity")
   })
 })
 

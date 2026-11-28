@@ -20,10 +20,7 @@ describe("ApplicationSteps", () => {
       "w-5",
     )
     expect(current?.querySelector("svg")).toBeNull()
-    expect(screen.getByText("1. Details")).toHaveClass(
-      "py-2.5",
-      "aria-[current=step]:font-semibold",
-    )
+    expect(screen.getByText("1. Details")).toHaveClass("py-3", "aria-[current=step]:font-semibold")
   })
 
   it("slides the current surface to the review step", () => {
