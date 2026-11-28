@@ -277,15 +277,11 @@ export function RoomsPage({
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
-            size="sm"
-            className="max-w-full"
+            size="icon-lg"
             aria-label={label}
             onClick={() => setExtraBedsRoom(room)}
           >
             <BedSingle aria-hidden />
-            {room.extraBeds
-              ? t("rooms.editExtraBedsShort", { count: room.extraBeds })
-              : t("rooms.addExtraBedShort")}
           </Button>
         </TooltipTrigger>
         <HelpTooltipContent>{label}</HelpTooltipContent>
@@ -436,7 +432,7 @@ export function RoomsPage({
           >
             {({ action, notices }) => (
               <Card>
-                <CardHeader className="flex flex-col gap-3 max-md:order-last max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                <CardHeader className="flex flex-col gap-3 max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                   <CardTitle>
                     <h3>{t("roomAssignments.cardTitle")}</h3>
                   </CardTitle>

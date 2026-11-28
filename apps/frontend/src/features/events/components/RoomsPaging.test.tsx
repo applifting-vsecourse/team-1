@@ -229,7 +229,7 @@ describe("paged rooms in the view Rooms (#728)", () => {
 
   it("stays on the page after a participant is removed from a room", async () => {
     const { user, search } = renderAt("/rooms?termId=t1&view=overview&page=2")
-    await user.click(await screen.findByRole("button", { name: "Beds · Room 021" }))
+    await user.click(await screen.findByRole("button", { name: "Beds · Room 021 · Eva Nováková" }))
     await user.click(screen.getByRole("button", { name: "Actions for Eva Nováková" }))
     const loads = get.mock.calls.length
     await user.click(await screen.findByRole("menuitem", { name: "Remove from room" }))
@@ -305,7 +305,11 @@ describe("paged rooms in the room assignment (#728)", () => {
 })
 
 describe("expand and collapse all beds (#698)", () => {
-  const beds = (room: number) => screen.getByRole("button", { name: `Beds · ${name(room)}` })
+  const beds = (room: number) => {
+    const occupant = occupants[room]
+    const summary = occupant ? `${occupant} Nováková` : "Free beds: 2"
+    return screen.getByRole("button", { name: `Beds · ${name(room)} · ${summary}` })
+  }
   const button = (label: "Expand all" | "Collapse all") =>
     screen.getByRole("button", { name: label })
 

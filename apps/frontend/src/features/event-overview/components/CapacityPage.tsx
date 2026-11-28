@@ -135,16 +135,16 @@ function Filled({
   capacity: number
 }) {
   return (
-    <span className="flex items-center gap-2">
+    <span className="flex min-w-0 flex-1 items-center gap-2">
       <CapacityProgress
         confirmed={confirmed}
         capacity={capacity}
         label={label}
-        className="w-30 shrink-0"
+        className="min-w-0 flex-1 lg:max-w-30"
       />
       <span
         className={cn(
-          "text-sm font-medium tabular-nums",
+          "shrink-0 text-sm font-medium whitespace-nowrap tabular-nums",
           confirmed > capacity && "text-destructive",
         )}
       >
@@ -204,11 +204,13 @@ export function TermList({ eventId, terms }: { eventId: string; terms: TermOccup
                 params={{ eventId }}
                 search={{ termId: term.id }}
                 className={cn(
-                  "relative grid grid-cols-1 gap-x-4 gap-y-2 rounded-md px-3 py-3 pr-10 outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring lg:grid-cols-none lg:items-center lg:py-2.5 lg:pr-3",
+                  "relative -mx-3 grid grid-cols-1 gap-x-4 gap-y-2 rounded-md px-3 py-3 outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring lg:mx-0 lg:grid-cols-none lg:items-center lg:py-2.5",
                   columns,
                 )}
               >
-                <TermLabel term={term} />
+                <span className="pr-8 lg:pr-0">
+                  <TermLabel term={term} />
+                </span>
                 {term.byGender ? (
                   GENDERS.map((gender) => (
                     <Cell
@@ -265,7 +267,7 @@ export function TermList({ eventId, terms }: { eventId: string; terms: TermOccup
                 </Cell>
                 <ChevronRight
                   aria-hidden
-                  className="absolute top-4 right-3 size-5 text-muted-foreground lg:static lg:justify-self-end"
+                  className="absolute top-4 right-0 size-5 text-muted-foreground lg:static lg:justify-self-end"
                 />
               </Link>
             </li>
@@ -288,7 +290,7 @@ function Cell({
 }) {
   return (
     <span className={cn("flex items-center gap-3", className)}>
-      <span className="w-24 shrink-0 text-xs text-muted-foreground lg:sr-only">{label}</span>
+      <span className="w-20 shrink-0 text-xs text-muted-foreground lg:sr-only">{label}</span>
       {children}
     </span>
   )

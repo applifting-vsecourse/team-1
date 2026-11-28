@@ -184,6 +184,7 @@ describe("room assignment", () => {
   })
 
   it("lists the unassigned with their status, the rooms with people and free beds, and the count", async () => {
+    data.rooms[0]!.participants.push(person("p5", "Marie", "Malá"))
     const user = renderCard()
     expect(await screen.findByText("Barbora Šimková")).toBeInTheDocument()
     expect(screen.getByText("Woman · Confirmed")).toBeInTheDocument()
@@ -191,10 +192,14 @@ describe("room assignment", () => {
     expect(screen.getByLabelText("Unassigned participants: 2")).toHaveTextContent("2")
     const table = screen.getByRole("table")
     const roomA = within(table).getByRole("row", { name: /Room A/ })
-    expect(within(roomA).queryByText("Jana Nováková")).not.toBeInTheDocument()
-    await user.click(within(roomA).getByRole("button", { name: "Participants" }))
-    expect(within(roomA).getByText("Jana Nováková")).toBeVisible()
-    expect(within(table).getAllByText("3 free beds")).toHaveLength(2)
+    const preview = within(roomA).getByRole("button", {
+      name: "Participants · Jana Nováková +1",
+    })
+    expect(preview).toHaveTextContent("Jana Nováková +1")
+    expect(within(roomA).queryByText("Marie Malá")).not.toBeInTheDocument()
+    await user.click(preview)
+    expect(within(roomA).getByText("Marie Malá")).toBeVisible()
+    expect(within(table).getByText("3 free beds")).toBeVisible()
     expect(within(table).getByText("Full")).toBeInTheDocument()
   })
 
@@ -539,7 +544,7 @@ describe("room assignment", () => {
     const card = within(cards!)
       .getAllByRole("listitem")
       .find((item) => within(item).queryByRole("button", { name: "Actions r1" }))!
-    await user.click(within(card).getByRole("button", { name: "Participants" }))
+    await user.click(within(card).getByRole("button", { name: /^Participants · / }))
     await user.click(within(card).getByRole("button", { name: "Actions for Jana Nováková" }))
     const sheet = await screen.findByRole("dialog", { name: "Jana Nováková" })
     expect(sheet).toHaveAccessibleDescription(/Room A/)
@@ -561,7 +566,7 @@ describe("room assignment", () => {
     const card = within(cards!)
       .getAllByRole("listitem")
       .find((item) => within(item).queryByRole("button", { name: "Actions r2" }))!
-    await user.click(within(card).getByRole("button", { name: "Participants" }))
+    await user.click(within(card).getByRole("button", { name: /^Participants · / }))
     await user.click(within(card).getByRole("button", { name: "Actions for Eva Horká" }))
     const sheet = await screen.findByRole("dialog", { name: "Eva Horká" })
     await user.click(within(sheet).getByRole("button", { name: "Remove from room" }))
@@ -702,10 +707,10 @@ describe("room assignment", () => {
       const table = screen.getByRole("table")
       const roomA = within(table).getByRole("row", { name: /Room A/ })
       const roomB = within(table).getByRole("row", { name: /Room B/ })
-      await user.click(within(roomA).getByRole("button", { name: "Participants" }))
-      await user.click(within(roomB).getByRole("button", { name: "Participants" }))
+      await user.click(within(roomA).getByRole("button", { name: /^Participants · / }))
+      await user.click(within(roomB).getByRole("button", { name: /^Participants · / }))
       expect(within(roomA).getByText("Individual")).toBeVisible()
-      expect(within(roomB).getByText("Eva Horká")).toBeVisible()
+      expect(within(roomB).getByRole("button", { name: "Actions for Eva Horká" })).toBeVisible()
       expect(screen.getByRole("button", { name: "Assign Barbora Šimková to a room" })).toBeEnabled()
     })
 

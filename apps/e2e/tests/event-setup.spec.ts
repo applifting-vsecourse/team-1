@@ -91,7 +91,7 @@ assignmentTest.describe("Room assignments on a touch phone", () => {
       await expect(dialog.getByRole("button", { name: "Assign", exact: true })).toBeInViewport()
       await dialog.getByRole("button", { name: "Assign", exact: true }).tap()
       const originalRoom = roomCard(page, LAST_FREE_ROOM)
-      await originalRoom.getByRole("button", { name: "Participants", exact: true }).tap()
+      await originalRoom.getByRole("button", { name: /^Participants · / }).tap()
       await expect(
         originalRoom.getByRole("button", { name: "Actions for " + person }),
       ).toBeVisible()
@@ -111,7 +111,7 @@ assignmentTest.describe("Room assignments on a touch phone", () => {
       await roomChoice(page, FIRST_ROOM).tap()
       await dialog.getByRole("button", { name: "Move", exact: true }).tap()
       const destinationRoom = roomCard(page, FIRST_ROOM)
-      await destinationRoom.getByRole("button", { name: "Participants", exact: true }).tap()
+      await destinationRoom.getByRole("button", { name: /^Participants · / }).tap()
       await expect(
         destinationRoom.getByRole("button", { name: "Actions for " + person }),
       ).toBeVisible()
@@ -131,7 +131,7 @@ assignmentTest(
     const originalRoom = page.getByRole("row").filter({
       has: page.getByRole("cell", { name: LAST_FREE_ROOM, exact: true }),
     })
-    await originalRoom.getByRole("button", { name: "Participants", exact: true }).press("Enter")
+    await originalRoom.getByRole("button", { name: /^Participants · / }).press("Enter")
     const actions = originalRoom.getByRole("button", { name: "Actions for " + person })
     await expect(actions).toBeVisible()
     await dragToRoom(page, actions, FULL_ROOM, "E2E Room 1")

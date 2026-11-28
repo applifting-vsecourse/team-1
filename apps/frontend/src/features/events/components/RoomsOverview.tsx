@@ -309,7 +309,14 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
   const count = room.participants.length
   const isFull = count >= room.beds
   const share = Math.min(100, Math.round((count / Math.max(1, room.beds)) * 100))
-  const chunks = chunkBeds(overviewBeds(room))
+  const beds = overviewBeds(room)
+  const chunks = chunkBeds(beds)
+  const first = beds[0]
+  let summary = t("roomOverview.freeBedsSummary", { count: room.beds })
+  if (first?.kind === "taken") {
+    const name = participantName(first.participant)
+    summary = count > 1 ? t("roomAssignments.listPreview", { first: name, count: count - 1 }) : name
+  }
   const bedsId = useId()
   const isBedListOpen = controls?.isBedListOpen ?? false
   return (
@@ -414,14 +421,17 @@ function RoomOverviewCard({ room, controls }: { room: AssignmentRoom; controls?:
             <Button
               variant="ghost"
               size="lg"
-              className="mx-3 mb-1 justify-between print:hidden"
-              aria-label={`${t("roomOverview.beds")} · ${room.name}`}
+              className="mx-3 mb-1 h-auto min-h-11 justify-between py-2 print:hidden"
+              aria-label={t("roomAssignments.listLabel", {
+                list: `${t("roomOverview.beds")} · ${room.name}`,
+                summary,
+              })}
               aria-expanded={isBedListOpen}
               aria-controls={chunks.map((_, index) => `${bedsId}-${index}`).join(" ")}
               data-beds-open={isBedListOpen}
               onClick={controls.onToggleBedList}
             >
-              {t("roomOverview.beds")}
+              <span className="min-w-0 text-left wrap-anywhere whitespace-normal">{summary}</span>
               <ChevronDown
                 aria-hidden
                 className={cn("size-4", isBedListOpen && "rotate-180")}

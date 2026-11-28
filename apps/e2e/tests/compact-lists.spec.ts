@@ -111,9 +111,18 @@ for (const viewport of [
       await page.goto(`${eventPath}/rooms`)
       const edit = page.getByRole("button", { name: `Edit room ${room.name}`, exact: true })
       const row = page.getByRole(touch ? "listitem" : "row").filter({ has: edit })
-      const trigger = row.getByRole("button", { name: "Participants", exact: true })
+      const trigger = row.getByRole("button", { name: /^Participants · / })
       const actions = row.getByRole("button", { name: `Actions for ${participant}` })
       await expectFitsViewport(page, row, edit, trigger)
+      if (touch) {
+        const mode = page.getByRole("combobox", { name: "Room mode" })
+        const add = page.getByRole("button", { name: "Add room", exact: true })
+        const modeBounds = (await mode.boundingBox())!
+        const addBounds = (await add.boundingBox())!
+        expect(modeBounds.y).toBeLessThan(addBounds.y)
+        expect(addBounds.y).toBeLessThan((await edit.boundingBox())!.y)
+      }
+      if (count > 1) await expect(trigger).toContainText(`+${count - 1}`)
       await expect(row.getByText(`${count} / ${room.beds}`, { exact: true })).toBeVisible()
       await expect(actions).toBeHidden()
       await disclose(trigger, touch)
@@ -130,12 +139,16 @@ for (const viewport of [
       const card = page.getByRole("listitem").filter({
         has: page.getByRole("heading", { name: room.name, exact: true, level: 3 }),
       })
-      const beds = card.getByRole("button", { name: `Beds · ${room.name}`, exact: true })
-      const person = card.getByText(participant, { exact: true })
+      const beds = card.getByRole("button", { name: `Beds · ${room.name} ·` })
+      const person = card.locator("ul").getByText(participant, { exact: true })
       await expectFitsViewport(page, beds)
+      if (count > 1) await expect(beds).toContainText(`+${count - 1}`)
+      else await expect(beds).toHaveText(participant)
       await expect(person).toBeHidden()
       await expect(card.getByText(`${count} / ${room.beds}`, { exact: true })).toBeVisible()
       await disclose(beds, touch)
+      if (count < room.beds)
+        await expect(card.locator("ul").getByText("Free bed").first()).toBeVisible()
       await expectFitsViewport(
         page,
         person,
