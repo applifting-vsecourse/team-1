@@ -64,7 +64,9 @@ const renderOverview = () =>
       <RoomWishesOverview
         eventId="e1"
         termId="t1"
-      />
+      >
+        {(action) => action}
+      </RoomWishesOverview>
     </QueryClientProvider>,
   )
 
@@ -85,10 +87,10 @@ describe("RoomWishesOverview", () => {
         ]),
     })
     renderOverview()
-    expect(await screen.findByRole("button", { name: "All · 3" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    )
+    const open = await screen.findByRole("button", { name: "Unfulfilled wishes (2)" })
+    expect(open).toHaveAttribute("aria-expanded", "false")
+    await userEvent.click(open)
+    expect(screen.getByRole("button", { name: "All · 3" })).toHaveAttribute("aria-pressed", "true")
     const rows = screen.getAllByRole("listitem")
     expect(within(rows[0]!).getByText("Cannot be fulfilled")).toBeVisible()
     expect(within(rows[1]!).getByText("Not fulfilled")).toBeVisible()
@@ -118,7 +120,8 @@ describe("RoomWishesOverview", () => {
       }),
     })
     renderOverview()
-    expect(await screen.findByRole("button", { name: "All · 1" })).toBeVisible()
+    await userEvent.click(await screen.findByRole("button", { name: "Unfulfilled wishes (1)" }))
+    expect(screen.getByRole("button", { name: "All · 1" })).toBeVisible()
     expect(screen.getByText("Not fulfilled")).toBeVisible()
   })
 })

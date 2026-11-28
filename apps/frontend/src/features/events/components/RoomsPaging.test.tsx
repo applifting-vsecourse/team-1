@@ -22,9 +22,14 @@ import {
 vi.setConfig({ testTimeout: 20_000 })
 
 // #728 and #698 over 300 rooms, with the page in the URL as the route of the accommodation keeps it.
-const { get, put, del } = vi.hoisted(() => ({ get: vi.fn(), put: vi.fn(), del: vi.fn() }))
+const { get, put, del, post } = vi.hoisted(() => ({
+  get: vi.fn(),
+  put: vi.fn(),
+  del: vi.fn(),
+  post: vi.fn(),
+}))
 vi.mock("@/lib/api-client", () => ({
-  api: { get, put, delete: del },
+  api: { get, put, post, delete: del },
   apiErrorCode: () => undefined,
 }))
 vi.mock("@/lib/notify", () => ({ notify: { success: vi.fn(), error: vi.fn() } }))
@@ -48,6 +53,7 @@ const name = (index: number) => `Room ${String(index).padStart(3, "0")}`
 /** One person sleeps in the first room of every page that the tests act on. */
 const occupants: Record<number, string> = { 1: "Jana", 21: "Eva" }
 let roomCount = TOTAL
+let hasWaitingParticipant = false
 
 const rooms = () =>
   Array.from({ length: roomCount }, (_, i) => ({
@@ -91,7 +97,7 @@ function respond(path: string): object {
         ...room,
         participants: occupants[i + 1] ? [participant(occupants[i + 1]!)] : [],
       })),
-      unassigned: [],
+      unassigned: hasWaitingParticipant ? [{ ...participant("Hana"), alsoInTerms: [] }] : [],
       warnings: [],
       summary: { violations: 0, acknowledged: 0, confirmedWithoutBed: 0 },
     }
@@ -187,6 +193,8 @@ const range = (from: number, to: number) =>
 beforeEach(() => {
   roomCount = TOTAL
   get.mockReset()
+  post.mockReset()
+  hasWaitingParticipant = false
   del.mockReset()
   scrollIntoView.mockReset()
 })
@@ -327,6 +335,35 @@ describe("expand and collapse all beds (#698)", () => {
     expect(beds(21)).toHaveAttribute("aria-expanded", "false")
     await goToPage(user, 1)
     await waitFor(() => expect(beds(1)).toHaveAttribute("aria-expanded", "false"))
+  })
+
+  it("hides paging and expand-all during a proposal, then restores the selected page", async () => {
+    roomCount = 21
+    hasWaitingParticipant = true
+    post.mockReturnValue({
+      json: () =>
+        Promise.resolve({
+          placements: [{ applicationTermId: "at-Hana", roomId: "r21" }],
+          unplaced: [],
+          wishes: [],
+        }),
+    })
+    const { user, search } = renderAt("/rooms?termId=t1&view=overview&page=2")
+    await screen.findByRole("navigation", { name: "Pagination" })
+    expect(button("Expand all")).toBeInTheDocument()
+
+    await user.click(await screen.findByRole("button", { name: "Propose distribution" }))
+    await screen.findByText("Unsaved proposal")
+    expect(screen.queryByRole("navigation", { name: "Pagination" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Expand all" })).not.toBeInTheDocument()
+    expect(search().page).toBe(2)
+
+    await user.click(screen.getByRole("button", { name: "Discard proposal" }))
+    const dialog = await screen.findByRole("dialog", { name: "Discard the proposal?" })
+    await user.click(within(dialog).getByRole("button", { name: "Discard proposal" }))
+    expect(await screen.findByRole("navigation", { name: "Pagination" })).toBeInTheDocument()
+    expect(button("Expand all")).toBeInTheDocument()
+    expect(onScreen()).toEqual(range(21, 21))
   })
 
   it("offers to collapse while at least one room is open", async () => {

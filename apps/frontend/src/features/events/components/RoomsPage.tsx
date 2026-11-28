@@ -40,6 +40,7 @@ import { BulkRoomsDialog } from "@/features/events/components/BulkRoomsDialog"
 import { CopyRoomsDialog } from "@/features/events/components/CopyRoomsDialog"
 import { DeleteRoomDialog } from "@/features/events/components/DeleteRoomDialog"
 import { IndividualRequestsCard } from "@/features/events/components/IndividualRequestsCard"
+import type { RoomDraft } from "@/features/events/components/room-proposal"
 import { RoomAssignmentsCard } from "@/features/events/components/RoomAssignmentsCard"
 import { RoomDialog } from "@/features/events/components/RoomDialog"
 import { RoomExtraBedsDialog } from "@/features/events/components/RoomExtraBedsDialog"
@@ -79,6 +80,7 @@ export type AccommodationTerm = {
 // Figma (Design system): #530 Ikona přistýlky · podle pohlaví · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26056-112911 (mobile 26064-113690)
 // Figma (Design system): #530 Ikona přistýlky · společné pokoje · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113154 (mobile 26064-114034)
 // Figma (Design system): #530 Ikona přistýlky · tooltip a fokus · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26060-113550
+// Figma (Design system v2): #651 · Pokoje https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27282-155111 (mobile 27282-155650); Rozřazování 27282-156114 (mobile 27282-156378)
 // Approved patterns (no frames): „Rozbalit / sbalit vše“ https://github.com/applifting-vsecourse/team-1/issues/698#issuecomment-7219622253 · paging https://github.com/applifting-vsecourse/team-1/issues/728#issuecomment-7219623249
 // Figma (Design system v2): #542 / Rozřazování · přepínač pohledů a tisk · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27272-118788 (mobile https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27272-118920)
 export function RoomsPage({
@@ -114,6 +116,7 @@ export function RoomsPage({
   const [pendingMode, setPendingMode] = useState<RoomMode | null>(null)
   const [isCopying, setIsCopying] = useState(false)
   const [isBulk, setIsBulk] = useState(false)
+  const [proposal, setProposal] = useState<{ termId: string; draft: RoomDraft } | null>(null)
   // #698: whose beds are listed in the view Rooms. Kept here for the button above the view and
   // across its pages; another term or view starts collapsed.
   const bedsKey = `${view}:${selected?.id}`
@@ -121,7 +124,8 @@ export function RoomsPage({
   if (beds.key !== bedsKey) setBeds({ key: bedsKey, openIds: new Set() })
   const roomIds = query.data?.rooms.map((room) => room.id) ?? []
   const isAnyBedListOpen = roomIds.some((id) => beds.openIds.has(id))
-  const canToggleBeds = view === "overview" && roomIds.length > 0
+  const canToggleBeds =
+    view === "overview" && roomIds.length > 0 && proposal?.termId !== selected?.id
   const toggleBeds = (roomId: string) =>
     setBeds(({ key, openIds }) => {
       const next = new Set(openIds)
@@ -154,7 +158,10 @@ export function RoomsPage({
       <Label htmlFor="accommodation-term">{t("rooms.termLabel")}</Label>
       <Select
         value={selected.id}
-        onValueChange={onSelectTerm}
+        onValueChange={(next) => {
+          setProposal(null)
+          onSelectTerm(next)
+        }}
       >
         <SelectTrigger
           id="accommodation-term"
@@ -175,10 +182,9 @@ export function RoomsPage({
       </Select>
     </div>
   )
-  // The top of every view of the accommodation, in this order: the tabs with the print button, then the term.
-  // A new view only has to be added to the tabs; it gets the print button without more work.
   const viewBar = (
     <div className="flex flex-col gap-6 print:hidden">
+      {termSelect}
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end print:hidden">
         <ViewToggleGroup
           aria-label={t("roomOverview.views")}
@@ -226,7 +232,6 @@ export function RoomsPage({
           </Button>
         )}
       </div>
-      {termSelect}
     </div>
   )
   if (view === "requests") {
@@ -332,6 +337,14 @@ export function RoomsPage({
             helper: t("rooms.sharedRooms"),
           },
         ]
+  const printView = (
+    <RoomsOverview
+      term={term}
+      isPrintOnly
+      onShowAssignment={() => onSelectView("assignment")}
+      onEditExtraBeds={openExtraBeds}
+    />
+  )
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("rooms.title")} />
@@ -349,94 +362,110 @@ export function RoomsPage({
         />
       ) : null}
       {viewBar}
-      {view === "overview" ? (
-        <RoomsOverview
-          term={term}
-          onShowAssignment={() => onSelectView("assignment")}
-          onEditExtraBeds={openExtraBeds}
-          openRoomIds={beds.openIds}
-          onToggleRoom={toggleBeds}
-          paging={paging}
-        />
-      ) : (
-        <>
-          {/* The sheet the print button prints from this view: the same overview of the term. */}
-          <RoomsOverview
-            term={term}
-            isPrintOnly
-            onShowAssignment={() => onSelectView("assignment")}
-            onEditExtraBeds={openExtraBeds}
-          />
-          {/* Room mode, then the publication switch: each on its own row, below the term. */}
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-6 sm:max-w-md">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
-                <Select
-                  value={term.roomMode}
-                  onValueChange={(value) => {
-                    const targetMode = roomModeSchema.parse(value)
-                    if (targetMode !== term.roomMode) setPendingMode(targetMode)
-                  }}
-                >
-                  <SelectTrigger
-                    id="room-mode"
-                    className="w-full bg-card"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
-                    <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
-              </div>
-              {term.rooms.length === 0 && terms.length > 1 ? (
-                <Alert>
-                  <AlertTitle>{t("rooms.unavailableTitle")}</AlertTitle>
-                  <AlertDescription>{t("rooms.unavailableHint")}</AlertDescription>
-                </Alert>
-              ) : null}
-            </div>
-            <div className="sm:max-w-md">
-              <RoomsPublicationCard
+      {view === "assignment" ? printView : null}
+      <RoomProposal
+        key={term.termId}
+        term={term}
+        draft={proposal?.termId === term.termId ? proposal.draft : null}
+        onDraftChange={(draft) => setProposal(draft ? { termId: term.termId, draft } : null)}
+      >
+        {({ action, notices, draftView }) => (
+          <>
+            <RoomWishesOverview
+              eventId={term.eventId}
+              termId={term.termId}
+            >
+              {(wishesAction) => (
+                <Card className="gap-3 p-4 print:hidden">
+                  <h2 className="text-2xl font-semibold">{t("roomsPublication.title")}</h2>
+                  <div className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap">
+                    {action}
+                    {wishesAction}
+                  </div>
+                  <RoomsPublicationCard
+                    term={term}
+                    onChanged={refresh}
+                  />
+                  {notices}
+                </Card>
+              )}
+            </RoomWishesOverview>
+            {view === "overview" ? (
+              <RoomsOverview
                 term={term}
-                onChanged={refresh}
+                draftView={draftView}
+                openRoomIds={beds.openIds}
+                onToggleRoom={toggleBeds}
+                paging={paging}
+                onShowAssignment={() => onSelectView("assignment")}
+                onEditExtraBeds={openExtraBeds}
               />
-            </div>
-          </div>
-          <div className={cn("grid grid-cols-2 gap-2 md:gap-4", isGendered && "md:grid-cols-3")}>
-            {metrics.map((metric) => (
-              <Card
-                key={metric.label}
-                className="gap-1 py-2 md:py-4"
-              >
-                <CardContent className="flex flex-col gap-1 px-3 md:px-4">
-                  <h3 className="text-sm text-muted-foreground">{metric.label}</h3>
-                  <p className="text-2xl font-semibold tracking-tight">{metric.value}</p>
-                  {metric.helper ? (
-                    <p className="text-sm text-muted-foreground">{metric.helper}</p>
-                  ) : null}
-                  {metric.free !== undefined ? (
-                    <Badge
-                      variant={metric.free <= 0 ? "secondary" : "success"}
-                      className="self-start"
+            ) : (
+              <>
+                <div className="flex flex-col gap-6">
+                  <div className="flex flex-col gap-6 sm:max-w-md">
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="room-mode">{t("rooms.mode")}</Label>
+                      <Select
+                        value={term.roomMode}
+                        onValueChange={(value) => {
+                          const targetMode = roomModeSchema.parse(value)
+                          if (targetMode !== term.roomMode) setPendingMode(targetMode)
+                        }}
+                      >
+                        <SelectTrigger
+                          id="room-mode"
+                          className="w-full bg-card"
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="GENDERED">{t("rooms.genderedMode")}</SelectItem>
+                          <SelectItem value="SHARED">{t("rooms.sharedMode")}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">{t("rooms.modeHint")}</p>
+                    </div>
+                    {term.rooms.length === 0 && terms.length > 1 ? (
+                      <Alert>
+                        <AlertTitle>{t("rooms.unavailableTitle")}</AlertTitle>
+                        <AlertDescription>{t("rooms.unavailableHint")}</AlertDescription>
+                      </Alert>
+                    ) : null}
+                  </div>
+                </div>
+                <div
+                  className={cn("grid grid-cols-2 gap-2 md:gap-4", isGendered && "md:grid-cols-3")}
+                >
+                  {metrics.map((metric) => (
+                    <Card
+                      key={metric.label}
+                      className="gap-1 py-2 md:py-4"
                     >
-                      {t(metric.free <= 0 ? "rooms.exhausted" : "rooms.available")}
-                    </Badge>
-                  ) : null}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <RoomProposal
-            key={term.termId}
-            term={term}
-          >
-            {({ action, notices }) => (
+                      <CardContent className="flex flex-col gap-1 px-3 md:px-4">
+                        <h3 className="text-sm text-muted-foreground">{metric.label}</h3>
+                        <p className="text-2xl font-semibold tracking-tight">{metric.value}</p>
+                        {metric.helper ? (
+                          <p className="text-sm text-muted-foreground">{metric.helper}</p>
+                        ) : null}
+                        {metric.free !== undefined ? (
+                          <Badge
+                            variant={metric.free <= 0 ? "secondary" : "success"}
+                            className="self-start"
+                          >
+                            {t(metric.free <= 0 ? "rooms.exhausted" : "rooms.available")}
+                          </Badge>
+                        ) : null}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
+            )}
+            {view === "assignment" ? draftView : null}
+            {view === "assignment" && !draftView ? (
               <Card>
-                <CardHeader className="flex flex-col gap-3 max-md:order-last max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                <CardHeader className="flex flex-col gap-3 max-sm:items-stretch sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                   <CardTitle>
                     <h3>{t("roomAssignments.cardTitle")}</h3>
                   </CardTitle>
@@ -472,10 +501,10 @@ export function RoomsPage({
                     >
                       {t("rooms.bulk.open")}
                     </Button>
-                    {action}
                     <Button
                       size="lg"
                       className="max-sm:w-full"
+                      variant="outline"
                       onClick={() => setEditor("new")}
                     >
                       {t("rooms.add")}
@@ -483,7 +512,6 @@ export function RoomsPage({
                   </div>
                 </CardHeader>
                 <CardContent className="px-4 md:px-6">
-                  {notices}
                   <TooltipProvider>
                     <RoomAssignmentsCard
                       term={term}
@@ -528,15 +556,10 @@ export function RoomsPage({
                   </TooltipProvider>
                 </CardContent>
               </Card>
-            )}
-          </RoomProposal>
-          <RoomWishesOverview
-            key={term.termId}
-            eventId={term.eventId}
-            termId={term.termId}
-          />
-        </>
-      )}
+            ) : null}
+          </>
+        )}
+      </RoomProposal>
       {pendingMode ? (
         <RoomModeDialog
           term={term}

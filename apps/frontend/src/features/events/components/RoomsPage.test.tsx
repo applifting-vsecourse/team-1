@@ -140,7 +140,7 @@ const requestsByTerm: Record<string, unknown[]> = {
 function renderRooms(
   termId: string,
   view: RoomsView = "assignment",
-  options: { failRooms?: boolean; failRequests?: boolean } = {},
+  options: { failRooms?: boolean; failRequests?: boolean; withWish?: boolean } = {},
 ) {
   const onSelectTerm = vi.fn()
   const onSelectView = vi.fn()
@@ -163,7 +163,23 @@ function renderRooms(
               eventId: "e1",
               termId: assignmentTerm.termId,
               rooms: assignmentTerm.rooms.map((room) => ({ ...room, participants: [] })),
-              unassigned: [],
+              unassigned: options.withWish
+                ? [
+                    {
+                      applicationTermId: "p1",
+                      applicationId: "a1",
+                      firstName: "Jana",
+                      lastName: "Nováková",
+                      birthYear: 2011,
+                      gender: "FEMALE",
+                      individualAccommodation: false,
+                      accommodationRequest: null,
+                      status: "CONFIRMED",
+                      alsoInTerms: [],
+                      wishes: [{ name: "Tereza Malá", status: "impossible", roomName: null }],
+                    },
+                  ]
+                : [],
               warnings: [],
               summary: { violations: 0, acknowledged: 0, confirmedWithoutBed: 0 },
             }
@@ -224,7 +240,7 @@ describe("accommodation by term", () => {
     expect(within(table).getByText("Extra bed +2")).toBeInTheDocument()
   })
 
-  it("switches between Assignment and Rooms with a switcher above the term (#542)", async () => {
+  it("focuses the term before the view switcher and switches views with the keyboard", async () => {
     const { user, onSelectView } = renderRooms("t1")
     await screen.findByRole("table")
     const views = screen.getByRole("radiogroup", { name: "Accommodation view" })
@@ -232,7 +248,8 @@ describe("accommodation by term", () => {
     const rooms = within(views).getByRole("radio", { name: "Rooms" })
     expect(assignment).toBeChecked()
     const term = screen.getByRole("combobox", { name: "Term" })
-    expect(views.compareDocumentPosition(term) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    await user.tab()
+    expect(term).toHaveFocus()
     await user.tab()
     expect(assignment).toHaveFocus()
     await user.keyboard("{ArrowRight}")
@@ -309,6 +326,13 @@ describe("accommodation by term", () => {
     expect(screen.getByRole("radio", { name: "Rooms" })).toBeChecked()
     expect(screen.getByRole("combobox", { name: "Term" })).toBeInTheDocument()
     expect(get).toHaveBeenCalledWith("organizer/events/e1/terms/t1/room-assignments")
+  })
+
+  it("opens the wishes from the Rooms view with impossible wishes counted", async () => {
+    const { user } = renderRooms("t1", "overview", { withWish: true })
+    await user.click(await screen.findByRole("button", { name: "Unfulfilled wishes (1)" }))
+    expect(screen.getByRole("button", { name: "All · 1" })).toHaveAttribute("aria-pressed", "true")
+    expect(screen.getByText("Cannot be fulfilled")).toBeVisible()
   })
 
   it.each(["assignment", "overview"] as const)(

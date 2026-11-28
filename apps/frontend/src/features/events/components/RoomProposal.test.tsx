@@ -1,9 +1,11 @@
+import { useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { RoomAssignments } from "@/features/events/api/room-assignments"
+import type { RoomDraft } from "@/features/events/components/room-proposal"
 import { RoomProposal } from "@/features/events/components/RoomProposal"
 
 Element.prototype.hasPointerCapture = () => false
@@ -64,17 +66,27 @@ function renderProposal() {
     url.endsWith("/proposal") ? { json: () => Promise.resolve(proposal) } : Promise.resolve(),
   )
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  render(
-    <QueryClientProvider client={client}>
-      <RoomProposal term={term}>
-        {({ action, notices }) => (
+  function TestProposal() {
+    const [draft, setDraft] = useState<RoomDraft | null>(null)
+    return (
+      <RoomProposal
+        term={term}
+        draft={draft}
+        onDraftChange={setDraft}
+      >
+        {({ action, notices, draftView }) => (
           <>
             {action}
             {notices}
-            <p>Regular assignment</p>
+            {draftView ?? <p>Regular assignment</p>}
           </>
         )}
       </RoomProposal>
+    )
+  }
+  render(
+    <QueryClientProvider client={client}>
+      <TestProposal />
     </QueryClientProvider>,
   )
   return userEvent.setup()

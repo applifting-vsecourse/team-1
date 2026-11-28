@@ -40,27 +40,29 @@ type Term = { eventId: string; termId: string; startsOn: string; endsOn: string 
 export function RoomProposal({
   term,
   children,
+  draft,
+  onDraftChange,
 }: {
   term: Term
-  /** The room assignment; gets the "propose" button for its header and the notices to show above it. */
-  children: (parts: { action: ReactNode; notices: ReactNode }) => ReactNode
+  draft: RoomDraft | null
+  onDraftChange: (draft: RoomDraft | null) => void
+  children: (parts: { action: ReactNode; notices: ReactNode; draftView: ReactNode }) => ReactNode
 }) {
   const { t } = useTranslation("events")
   const client = useQueryClient()
   const query = useQuery(roomAssignmentsQueryOptions(term.eventId, term.termId))
-  const [draft, setDraft] = useState<RoomDraft | null>(null)
   const [editing, setEditing] = useState<string | null>(null)
   const [dialog, setDialog] = useState<"save" | "discard" | null>(null)
   const propose = useMutation({
     mutationFn: () => proposeRooms(term.eventId, term.termId),
-    onSuccess: (proposal) => setDraft(toDraft(proposal)),
+    onSuccess: (proposal) => onDraftChange(toDraft(proposal)),
   })
   const save = useMutation({
     mutationFn: (placements: { applicationTermId: string; roomId: string }[]) =>
       saveRoomProposal(term.eventId, term.termId, placements),
   })
   const data = query.data
-  if (!data) return <>{children({ action: null, notices: null })}</>
+  if (!data) return <>{children({ action: null, notices: null, draftView: null })}</>
 
   const confirmedWaiting = data.unassigned.filter((person) => person.status === "CONFIRMED")
   // The proposal never fills an individual room (US-145), so only the other rooms count.
@@ -95,10 +97,10 @@ export function RoomProposal({
           .join(" "),
       )
       setDialog(null)
-      setDraft(null)
+      onDraftChange(null)
     }
-    return (
-      <>
+    const draftView = (
+      <div className="flex flex-col gap-6 print:hidden">
         <RoomProposalDraftView
           data={data}
           draft={draft}
@@ -116,7 +118,7 @@ export function RoomProposal({
             beds={movableBeds(data.rooms, draft, editedPerson)}
             onClose={() => setEditing(null)}
             onApply={(roomId) => {
-              setDraft({
+              onDraftChange({
                 ...draft,
                 placements: { ...draft.placements, [editedPerson.applicationTermId]: roomId },
               })
@@ -155,20 +157,20 @@ export function RoomProposal({
             onClose={() => setDialog(null)}
             onConfirm={() => {
               setDialog(null)
-              setDraft(null)
+              onDraftChange(null)
             }}
           />
         ) : null}
-      </>
+      </div>
     )
+    return <>{children({ action: null, notices: null, draftView })}</>
   }
 
   const action = canPropose ? (
     <PendingButton
       type="button"
-      variant="outline"
       size="lg"
-      className="max-sm:w-full"
+      className="w-55 max-w-full"
       isPending={propose.isPending}
       onClick={() => propose.mutate()}
     >
@@ -177,7 +179,7 @@ export function RoomProposal({
   ) : null
   const notices =
     propose.isPending || propose.isError || hasOnlyIndividual ? (
-      <div className="mb-4 flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         {propose.isPending ? (
           <Alert>
             <TriangleAlert aria-hidden />
@@ -201,5 +203,5 @@ export function RoomProposal({
         ) : null}
       </div>
     ) : null
-  return <>{children({ action, notices })}</>
+  return <>{children({ action, notices, draftView: null })}</>
 }

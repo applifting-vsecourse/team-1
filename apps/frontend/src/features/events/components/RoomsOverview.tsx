@@ -65,6 +65,7 @@ export function RoomsOverview({
   onShowAssignment,
   onEditExtraBeds,
   isPrintOnly = false,
+  draftView,
   openRoomIds,
   onToggleRoom,
   paging,
@@ -76,6 +77,7 @@ export function RoomsOverview({
   onEditExtraBeds: (roomId: string) => void
   /** The sheet for the print button of the other view: invisible on screen, no controls. */
   isPrintOnly?: boolean
+  draftView?: ReactNode
   /** Rooms with their beds listed on screen (#698). */
   openRoomIds?: ReadonlySet<string>
   onToggleRoom?: (roomId: string) => void
@@ -178,9 +180,13 @@ export function RoomsOverview({
               </Card>
             ))}
           </dl>
+          {draftView}
           <ul
             ref={listRef}
-            className="grid scroll-mt-32 items-start gap-3 md:scroll-mt-24 md:grid-cols-2 print:block print:columns-2 print:gap-4"
+            className={cn(
+              "scroll-mt-32 items-start gap-3 md:scroll-mt-24 md:grid-cols-2 print:block print:columns-2 print:gap-4",
+              draftView ? "hidden" : "grid",
+            )}
           >
             {data.rooms.map((room) => (
               <li
@@ -198,7 +204,7 @@ export function RoomsOverview({
                 <RoomOverviewCard
                   room={room}
                   controls={
-                    isPrintOnly || !roomsOnScreen.has(room.id)
+                    isPrintOnly || draftView || !roomsOnScreen.has(room.id)
                       ? undefined
                       : {
                           isEligible: dnd.isEligible(room),
@@ -220,7 +226,7 @@ export function RoomsOverview({
               </li>
             ))}
           </ul>
-          {isPrintOnly || pages.pageCount <= 1 ? null : (
+          {isPrintOnly || draftView || pages.pageCount <= 1 ? null : (
             <div className="print:hidden">
               <Pagination
                 // Compact: on a phone three page numbers fit one row.
@@ -236,7 +242,7 @@ export function RoomsOverview({
               />
             </div>
           )}
-          {isPrintOnly ? null : (
+          {isPrintOnly || draftView ? null : (
             <UnassignedPanel
               className="print:hidden"
               isFullWidth
@@ -266,7 +272,7 @@ export function RoomsOverview({
           />
         </div>
       )}
-      {isPrintOnly ? null : actions.dialogs(data.rooms)}
+      {isPrintOnly || draftView ? null : actions.dialogs(data.rooms)}
     </section>
   )
   return isPrintOnly ? body : <RoomDndLayer dnd={dnd}>{body}</RoomDndLayer>

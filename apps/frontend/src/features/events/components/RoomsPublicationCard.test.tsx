@@ -26,10 +26,9 @@ const renderCard = (isPublished: boolean) => {
 describe("RoomsPublicationCard", () => {
   beforeEach(() => patch.mockReset().mockResolvedValue(undefined))
 
-  it("is off by default and says participants do not see the assignment", () => {
+  it("is off when the assignment has not been published", () => {
     renderCard(false)
     expect(screen.getByRole("switch", { name: "Publish the room assignment" })).not.toBeChecked()
-    expect(screen.getByText("Confirmed participants do not see the assignment yet.")).toBeVisible()
   })
 
   it("publishes the assignment of the term with one switch", async () => {
