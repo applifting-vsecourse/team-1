@@ -161,6 +161,21 @@ describe("manual match of an unmatched payment (US-562)", () => {
     expect(await post.json()).toEqual({ applicationId: "a1", termId: "t2" })
   })
 
+  it("sends the previous receipt when assigning a reopened transaction", async () => {
+    const previousReceiptId = "bank-manual:previous"
+    const calls = renderPage({
+      rows: [transaction("b1", { previousReceiptId })],
+      candidates: [jana],
+    })
+    await userEvent.click(await screen.findByRole("button", { name: "Assign Hana Novotná" }))
+    await userEvent.type(screen.getByLabelText("Find an application"), "Jana")
+    await userEvent.click(await screen.findByRole("radio"))
+    await userEvent.click(screen.getByRole("button", { name: "Assign payment" }))
+    await waitFor(() => expect(screen.queryByText("Hana Novotná")).toBeNull())
+    const post = calls.find((request) => request.url.endsWith("/bank-transactions/b1/match"))!
+    expect(await post.json()).toEqual({ applicationId: "a1", termId: "t1", previousReceiptId })
+  })
+
   it("closes only the panel of the saved transaction, not the one opened meanwhile", async () => {
     let release = (): void => undefined
     const matchGate = new Promise<void>((resolve) => {

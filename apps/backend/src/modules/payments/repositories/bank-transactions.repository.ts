@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { Prisma } from "@/generated/prisma/client"
 import { computeTermOwed, computeTermPaid } from "@/modules/applications/domain/pricing"
@@ -22,6 +23,7 @@ export type StoredBankTransaction = {
   counterpartyName: string | null
   message: string | null
   reason: UnmatchedReason
+  previousReceiptId: string | null
   application: { id: string; firstName: string; lastName: string } | null
 }
 
@@ -102,7 +104,6 @@ export class BankTransactionsRepository {
     organizationId: string,
   ): Promise<{
     id: string
-    externalId: string
     status: "MATCHED" | "UNMATCHED"
     amountCents: number
     currency: string
@@ -112,7 +113,6 @@ export class BankTransactionsRepository {
       where: { id, eventId, organizationId },
       select: {
         id: true,
-        externalId: true,
         status: true,
         amountCents: true,
         currency: true,
@@ -140,21 +140,24 @@ export class BankTransactionsRepository {
     recordedById: string
     applicationId: string
     termId: string
-    receiptId: string
+    previousReceiptId: string | null
   }): Promise<PaidTermNotice[] | "NOT_ASSIGNABLE" | null> {
     return this.prisma.$transaction(async (tx) => {
       const locked = await tx.$queryRaw<
         { amountCents: number; currency: string }[]
-      >`SELECT "amountCents", currency FROM bank_transaction WHERE id = ${input.id} AND "eventId" = ${input.eventId} AND "organizationId" = ${input.organizationId} AND status = 'UNMATCHED' FOR UPDATE`
+      >`SELECT "amountCents", currency FROM bank_transaction WHERE id = ${input.id} AND "eventId" = ${input.eventId} AND "organizationId" = ${input.organizationId} AND status = 'UNMATCHED' AND "receiptId" IS NOT DISTINCT FROM ${input.previousReceiptId}::text FOR UPDATE`
       if (!locked.length) return null
       const [row] = locked
       if (!isAssignable(row)) return "NOT_ASSIGNABLE"
+      // The locked row and the previously displayed receipt prevent a stale retry from
+      // matching a transaction again after cancellation.
+      const receiptId = `bank-manual:${randomUUID()}`
       // The application is locked by recordWithin before the row gets a foreign key to it.
       const paid = await this.payments.recordWithin(tx, {
         applicationId: input.applicationId,
         organizationId: input.organizationId,
         recordedById: input.recordedById,
-        requestId: input.receiptId,
+        requestId: receiptId,
         amountCzk: row.amountCents / 100,
         termId: input.termId,
         source: "BANK_IMPORT",
@@ -163,9 +166,9 @@ export class BankTransactionsRepository {
         where: { id: input.id },
         data: {
           status: "MATCHED",
-          reason: null,
+          // Keep the original unmatched reason for a later cancellation.
           applicationId: input.applicationId,
-          receiptId: input.receiptId,
+          receiptId,
         },
       })
       return paid
@@ -206,7 +209,7 @@ export class BankTransactionsRepository {
         if (input.retryOf) {
           const locked = await tx.$queryRaw<
             { id: string }[]
-          >`SELECT id FROM bank_transaction WHERE id = ${input.retryOf} AND "organizationId" = ${input.organizationId} AND status = 'UNMATCHED' FOR UPDATE`
+          >`SELECT id FROM bank_transaction WHERE id = ${input.retryOf} AND "organizationId" = ${input.organizationId} AND status = 'UNMATCHED' AND "receiptId" IS NULL FOR UPDATE`
           if (!locked.length) return null
           id = input.retryOf
           await tx.bankTransaction.update({ where: { id }, data })
@@ -242,14 +245,14 @@ export class BankTransactionsRepository {
     }
   }
 
-  /** An earlier import of the same operation: matched ones are final, unmatched ones may be retried. */
+  /** A re-import may retry untouched unmatched rows. A previously assigned row stays with the organizer. */
   async find(
     organizationId: string,
     externalId: string,
-  ): Promise<{ id: string; status: "MATCHED" | "UNMATCHED" } | null> {
+  ): Promise<{ id: string; status: "MATCHED" | "UNMATCHED"; receiptId: string | null } | null> {
     return this.prisma.bankTransaction.findUnique({
       where: { organizationId_externalId: { organizationId, externalId } },
-      select: { id: true, status: true },
+      select: { id: true, status: true, receiptId: true },
     })
   }
 
@@ -299,7 +302,12 @@ export class BankTransactionsRepository {
     }
     if (input.retryOf) {
       const result = await this.prisma.bankTransaction.updateMany({
-        where: { id: input.retryOf, organizationId: input.organizationId, status: "UNMATCHED" },
+        where: {
+          id: input.retryOf,
+          organizationId: input.organizationId,
+          status: "UNMATCHED",
+          receiptId: null,
+        },
         data,
       })
       return result.count === 1
@@ -331,6 +339,7 @@ export class BankTransactionsRepository {
       counterpartyName: row.counterpartyName,
       message: row.message,
       reason: row.reason as UnmatchedReason,
+      previousReceiptId: row.receiptId,
       application: row.application,
     }))
   }

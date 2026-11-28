@@ -37,6 +37,7 @@ const unmatchedSchema = z.object({
       counterpartyName: z.string().nullable(),
       message: z.string().nullable(),
       reason: z.enum(UNMATCHED_REASONS),
+      previousReceiptId: z.string().nullish(),
       applicationId: z.string().nullable(),
       applicantName: z.string().nullable(),
     }),
@@ -133,8 +134,9 @@ export async function matchTransaction(
   transactionId: string,
   applicationId: string,
   termId: string,
+  previousReceiptId?: string | null,
 ): Promise<void> {
   await api.post(`${path(eventId)}/bank-transactions/${encodeURIComponent(transactionId)}/match`, {
-    json: { applicationId, termId },
+    json: { applicationId, termId, ...(previousReceiptId ? { previousReceiptId } : {}) },
   })
 }

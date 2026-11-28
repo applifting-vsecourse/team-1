@@ -9,7 +9,6 @@ describe("BankStatementsService.match (US-562)", () => {
   const user = { id: "u1" } as Identity
   const unmatched = {
     id: "t1",
-    externalId: "777",
     status: "UNMATCHED" as const,
     reason: "NO_VARIABLE_SYMBOL" as const,
     amountCents: 490000,
@@ -37,7 +36,7 @@ describe("BankStatementsService.match (US-562)", () => {
     )
   })
 
-  it("assigns the payment under the receipt id of the import in one write and e-mails after it", async () => {
+  it("assigns the payment in one write and e-mails after it", async () => {
     repository.assign.mockResolvedValue([{ name: null, startsOn: new Date(), endsOn: new Date() }])
     await service.match(user, "e1", "t1", "a1", "term1")
     expect(repository.assign).toHaveBeenCalledWith({
@@ -47,7 +46,7 @@ describe("BankStatementsService.match (US-562)", () => {
       recordedById: "u1",
       applicationId: "a1",
       termId: "term1",
-      receiptId: "bank:org:777",
+      previousReceiptId: null,
     })
     expect(notify).toHaveBeenCalledWith("a1", "org", expect.any(Array))
   })

@@ -86,7 +86,7 @@ export class BankStatementsService {
     for (const [index, row] of statement.incoming.entries()) {
       const record = statement.incomingRecords[index]
       const earlier = await this.repository.find(organizationId, row.externalId)
-      if (earlier?.status === "MATCHED") {
+      if (earlier?.receiptId || earlier?.status === "MATCHED") {
         result.duplicateCount++
         outcomes.set(record, { kind: "duplicate" })
         continue
@@ -201,6 +201,7 @@ export class BankStatementsService {
     transactionId: string,
     applicationId: string,
     termId: string,
+    previousReceiptId: string | null = null,
   ): Promise<void> {
     const { organizationId } = await this.access.assertCanAccessEvent(user, eventId)
     const transaction = await this.repository.findTransaction(
@@ -223,7 +224,7 @@ export class BankStatementsService {
       recordedById: user.id,
       applicationId,
       termId,
-      receiptId: `bank:${organizationId}:${transaction.externalId}`,
+      previousReceiptId,
     })
     // The row was matched or moved to another event after it was read.
     if (!paid) throw new AppException(HttpStatus.CONFLICT, "BANK_TRANSACTION_ALREADY_MATCHED")

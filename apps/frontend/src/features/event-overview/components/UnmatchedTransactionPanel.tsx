@@ -84,7 +84,13 @@ export function UnmatchedTransactionPanel({
   // The mutation carries the selection that was sent, so a change made while it runs does not matter.
   const assign = useMutation({
     mutationFn: (sent: NonNullable<typeof selection>) =>
-      matchTransaction(eventId, transaction.id, sent.candidate.id, sent.term.termId),
+      matchTransaction(
+        eventId,
+        transaction.id,
+        sent.candidate.id,
+        sent.term.termId,
+        transaction.previousReceiptId,
+      ),
     onSuccess: async (_result, sent) => {
       notify.success(
         t("bankStatement.unmatchedList.assigned"),
