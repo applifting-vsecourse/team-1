@@ -8,23 +8,23 @@ Organizátor umí zapsat všechno, co přihlašovatel, protože používání ap
 
 ## Souhrn
 
-| Č.  | Změna                                                | Stejný výsledek za organizátora                                      |
-| --- | ---------------------------------------------------- | -------------------------------------------------------------------- |
-| 1   | Údaje účastníka a individuální ubytování             | Shoda                                                                |
-| 2   | Kontaktní e-mail přihlášky                           | Záměrný rozdíl: organizátor ho nemění                                |
-| 3   | Stravování                                           | Shoda                                                                |
-| 4   | První zápis zdravotního omezení nebo „bez omezení“   | Shoda, organizátor navíc potvrzuje souhlas                           |
-| 5   | Vzít zpět potvrzené „Nemám žádné zdravotní omezení“  | Rozdíl: organizátor ho jen nahradí poznámkou ([O2](#k-rozhodnutí))   |
-| 6   | Změna nebo smazání uložené zdravotní poznámky        | Záměrný rozdíl: organizátor schvaluje žádost                         |
-| 7   | Doprava                                              | Shoda                                                                |
-| 8   | Přání spolubydlení                                   | Shoda                                                                |
-| 9   | Pozdější příjezd a dřívější odjezd                   | Shoda                                                                |
-| 10  | Výměna termínu za jiný                               | Shoda ve výběru, stav nového termínu se záměrně liší                 |
-| 11  | Další termín                                         | Shoda: obě role jen novou přihláškou ([O3](#k-rozhodnutí))           |
-| 12  | Návrat na zrušený termín                             | Shoda novou přihláškou, organizátor navíc výměnou v téže přihlášce   |
-| 13  | Odhláška z potvrzeného termínu nebo z celé přihlášky | Shoda                                                                |
-| 14  | Odhláška z termínu bez potvrzené přihlášky v termínu | Mezera: někdy jde jen zrušení s jiným e-mailem ([O1](#k-rozhodnutí)) |
-| 15  | Simulace platby (jen staging a demo)                 | Záměrný rozdíl: organizátor zapisuje ruční platbu                    |
+| Č.  | Změna                                                | Stejný výsledek za organizátora                                    |
+| --- | ---------------------------------------------------- | ------------------------------------------------------------------ |
+| 1   | Údaje účastníka a individuální ubytování             | Shoda                                                              |
+| 2   | Kontaktní e-mail přihlášky                           | Záměrný rozdíl: organizátor ho nemění                              |
+| 3   | Stravování                                           | Shoda                                                              |
+| 4   | První zápis zdravotního omezení nebo „bez omezení“   | Shoda, organizátor navíc potvrzuje souhlas                         |
+| 5   | Vzít zpět potvrzené „Nemám žádné zdravotní omezení“  | Rozdíl: organizátor ho jen nahradí poznámkou ([O2](#rozhodnutí))   |
+| 6   | Změna nebo smazání uložené zdravotní poznámky        | Záměrný rozdíl: organizátor schvaluje žádost                       |
+| 7   | Doprava                                              | Shoda                                                              |
+| 8   | Přání spolubydlení                                   | Shoda                                                              |
+| 9   | Pozdější příjezd a dřívější odjezd                   | Shoda                                                              |
+| 10  | Výměna termínu za jiný                               | Shoda ve výběru, stav nového termínu se záměrně liší               |
+| 11  | Další termín                                         | Shoda: obě role jen novou přihláškou ([O3](#rozhodnutí))           |
+| 12  | Návrat na zrušený termín                             | Shoda novou přihláškou, organizátor navíc výměnou v téže přihlášce |
+| 13  | Odhláška z potvrzeného termínu nebo z celé přihlášky | Shoda                                                              |
+| 14  | Odhláška z termínu bez potvrzené přihlášky v termínu | Mezera: někdy jde jen zrušení s jiným e-mailem ([O1](#rozhodnutí)) |
+| 15  | Simulace platby (jen staging a demo)                 | Záměrný rozdíl: organizátor zapisuje ruční platbu                  |
 
 ## Kde se akce provádějí
 
@@ -75,7 +75,7 @@ Varianty, alergie a další požadavky, speciální požadavek, potvrzení, že 
 
 - **Přihlašovatel:** na stránce zdravotního omezení zruší zaškrtnutí a uloží prázdný údaj. Stav se vrátí na nevyplněný. Jde to, dokud neskončil poslední termín.
 - **Organizátor:** potvrzení může nahradit první poznámkou, ale vrátit na nevyplněný stav ho nemůže. Tlačítko uložení se bez poznámky neaktivuje a API vrátí `VALIDATION_FAILED`.
-- **Výsledek:** **Rozdíl,** o kterém žádné rozhodnutí nemluví ([O2](#k-rozhodnutí)).
+- **Výsledek:** **Rozdíl.** Dorovnat ho má [D-227](rozhodnuti/README.md#d-227), implementace [#868](https://github.com/applifting-vsecourse/team-1/issues/868) ([O2](#rozhodnutí)).
 
 ### 6. Změna nebo smazání uložené zdravotní poznámky
 
@@ -136,14 +136,14 @@ Přihlašovatel mění termíny okamžitě, dokud neběží schvalování požad
 - **Přihlašovatel:** znovu odešle veřejnou přihlášku akce se stejným e-mailem a vybere další termín. Vznikne nová přihláška na stejném účtu.
 - **Organizátor:** **Přihlášky → Přidat přihlášku** (`POST E/applications`). Potvrdí souhlas, u termínu zvolí Potvrzená s dluhem nebo Náhradník; skončený termín přidat nejde.
 - **Výsledek:** **Shoda** v tom, co jde udělat z UI; stav se záměrně liší. Nová přihláška má vlastní kód a variabilní symbol. Stravování, zdravotní omezení, doprava, přání, pobyt ani platby se do ní nepřenášejí. Stejný účastník (jméno a datum narození) nemůže být na tomtéž termínu dvakrát (`APPLICATION_DUPLICATE`).
-- **Podklady:** [D-012](rozhodnuti/README.md#d-012), [D-045](rozhodnuti/README.md#d-045), [D-153](rozhodnuti/README.md#d-153), [stavový diagram, ruční režim](procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.md), [automatický režim](procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.md), [O3](#k-rozhodnutí).
+- **Podklady:** [D-012](rozhodnuti/README.md#d-012), [D-045](rozhodnuti/README.md#d-045), [D-153](rozhodnuti/README.md#d-153), [stavový diagram, ruční režim](procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.md), [automatický režim](procesy/zpracovani-prihlasky/automaticke-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.md), [O3](#rozhodnutí).
 
 ### 12. Návrat na zrušený termín
 
 - **Přihlašovatel:** v téže přihlášce zrušený termín obnovit nemůže, výběr ho nenabízí. Může znovu odeslat veřejnou přihlášku na tento termín, vznikne nová přihláška (podmínky jako u bodu 11).
 - **Organizátor, výměnou:** **Změnit termín** u jiného aktivního termínu → jako **Nový termín** vybrat zrušený. Vrátí se v téže přihlášce jako Potvrzená i se svými platbami a druhý termín se zruší. Termín akce nesmí být zrušený a musí mít pokoje.
 - **Organizátor bez výměny:** pokud nemá přihláška žádný aktivní termín, karta **Stav v termínech** žádnou akci nenabízí a zbývá **Přidat přihlášku**. Obnovit termín bez odebrání jiného umí jen API.
-- **Výsledek:** **Shoda** novou přihláškou, organizátor má navíc obnovení výměnou. Stavové diagramy a slovník vedou Zrušenou jako koncovou ([O3](#k-rozhodnutí)).
+- **Výsledek:** **Shoda** novou přihláškou, organizátor má navíc obnovení výměnou. Samostatné přidání a obnovení termínu organizátorem povoluje [D-228](rozhodnuti/README.md#d-228), implementace [#869](https://github.com/applifting-vsecourse/team-1/issues/869) ([O3](#rozhodnutí)).
 - **Podklady:** [#33](https://github.com/applifting-vsecourse/team-1/issues/33), [slovník](SLOVNIK.md).
 
 ### 13. Odhláška z potvrzeného termínu nebo z celé přihlášky
@@ -160,7 +160,7 @@ Týká se Náhradníka a stavu K vyhodnocení.
 - **Přihlašovatel:** **Odhlásit se** u kteréhokoli z nich. Při odhlášce jednoho termínu dostane e-mail **Odhlášení potvrzeno**.
 - **Organizátor:** odhlášku zadá, jen když má přihláška i potvrzený termín (v dialogu **Odhlásit** zvolí v poli **Rozsah odhlášení** jiný termín), nebo když ruší všechny aktivní termíny najednou (**Odhlásit celou přihlášku**, aspoň dva). Jinak, hlavně u přihlášky s jediným termínem, zbývá jen **Změnit stav → Zrušeno**.
 - **Rozdíl při zrušení:** údaje dopadnou stejně, ale přihlašovatel dostane u Náhradníka e-mail **Přihláška zrušena organizátorem** a u K vyhodnocení **Přihláška zamítnuta**. Odhláška by poslala e-mail o změně přihlášky. API `POST O/terms/withdraw` ji pro tyto stavy přijme.
-- **Výsledek:** **Mezera.** Stavové diagramy u Náhradníka vedou odhlášku zadanou organizátorem i zrušení náhradníka organizátorem jako dvě různé události a D-127 s odhláškou náhradníka počítá. U stavu K vyhodnocení diagram nekreslí odhlášku ani jedné roli, jen zamítnutí ([O1](#k-rozhodnutí)). Současná podoba vznikla v [PR #473](https://github.com/applifting-vsecourse/team-1/pull/473), kde se náhradník ruší změnou stavu.
+- **Výsledek:** **Mezera.** Stavové diagramy u Náhradníka vedou odhlášku zadanou organizátorem i zrušení náhradníka organizátorem jako dvě různé události a D-127 s odhláškou náhradníka počítá. Odhlášku u obou stavů zavádí [D-226](rozhodnuti/README.md#d-226) (stavový diagram ji má i u K vyhodnocení), implementace [#867](https://github.com/applifting-vsecourse/team-1/issues/867) ([O1](#rozhodnutí)). Současná podoba vznikla v [PR #473](https://github.com/applifting-vsecourse/team-1/pull/473), kde se náhradník ruší změnou stavu.
 - **Podklady:** [D-057](rozhodnuti/README.md#d-057), [D-127](rozhodnuti/README.md#d-127), [katalog e-mailů](emaily/KATALOG.md), [stavový diagram](procesy/zpracovani-prihlasky/rucni-vyhodnocovani/prihlaska-v-terminu-zivotni-cyklus.md).
 
 ## Platby
@@ -174,15 +174,15 @@ Týká se Náhradníka a stavu K vyhodnocení.
 
 Mimo audit jsou čtecí obrazovky (program, platební údaje, přidělený pokoj, nástěnka), označení upozornění nebo příspěvku za přečtené a nastavení účtu bez dopadu na údaje přihlášky (heslo, jazyk). Změna e-mailu účtu je v bodě 2.
 
-## K rozhodnutí
+## Rozhodnutí
 
-Otázky pro product managera. Doporučení není rozhodnutí.
+Otázky z auditu, na které 28. 11. 2026 odpověděl product manager ([odpovědi](https://github.com/applifting-vsecourse/team-1/pull/782#issuecomment-7242168026)).
 
-| Č.  | Otázka                                                                                                                                                                                                              | Doporučení                                                                                                                     |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| O1  | Má organizátor moci zadat odhlášku i Náhradníkovi a přihlášce K vyhodnocení, která nemá potvrzený termín? Dnes ji může jen zrušit a přihlašovatel dostane e-mail o zrušení organizátorem nebo o zamítnutí (bod 14). | Ano, nabídnout **Odhlásit** vedle **Změnit stav** u obou stavů a doplnit do diagramu odhlášku ze stavu K vyhodnocení.          |
-| O2  | Má organizátor moci vzít zpět potvrzení „Nemám žádné zdravotní omezení“, například zaškrtnuté omylem (bod 5)?                                                                                                       | Ano, vrátit údaj na nevyplněný; nemá zůstávat potvrzení, které nikdo neučinil.                                                 |
-| O3  | Stačí pro další termín nová přihláška (bod 11), nebo ho má organizátor přidávat do stávající? A smí se zrušený termín v téže přihlášce obnovit, když diagramy vedou Zrušenou jako koncovou (bod 12)?                | Přidání i obnovení termínu povolit organizátorovi jako samostatnou akci (priorita Nice to have) a diagramy podle toho upravit. |
+| Č.  | Otázka                                                                                      | Rozhodnutí                               | Ticket                                                            |
+| --- | ------------------------------------------------------------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------- |
+| O1  | Odhláška zadaná organizátorem u Náhradníka a K vyhodnocení bez potvrzeného termínu (bod 14) | Ano, [D-226](rozhodnuti/README.md#d-226) | [#867](https://github.com/applifting-vsecourse/team-1/issues/867) |
+| O2  | Vzít zpět potvrzení „Nemám žádné zdravotní omezení“ organizátorem (bod 5)                   | Ano, [D-227](rozhodnuti/README.md#d-227) | [#868](https://github.com/applifting-vsecourse/team-1/issues/868) |
+| O3  | Přidání termínu a obnovení zrušeného v téže přihlášce organizátorem (body 11 a 12)          | Ano, [D-228](rozhodnuti/README.md#d-228) | [#869](https://github.com/applifting-vsecourse/team-1/issues/869) |
 
 Původní otázku O4 uzavřelo [D-220](rozhodnuti/README.md#d-220). U obou rolí lze přání a příjezd či odjezd zapsat do konce příslušného termínu, první zdravotní omezení do konce posledního nezrušeného termínu. O změnu uložené zdravotní poznámky může přihlašovatel požádat i později podle [D-122](rozhodnuti/README.md#d-122).
 
@@ -198,15 +198,15 @@ Hotovo v [PR #797](https://github.com/applifting-vsecourse/team-1/pull/797) (27.
 | [#789](https://github.com/applifting-vsecourse/team-1/issues/789) | Organizátor poprvé zapíše zdravotní omezení po potvrzení souhlasu.                               |
 | [#790](https://github.com/applifting-vsecourse/team-1/issues/790) | Doprava a stravování mají pro obě role hranici podle data ([D-202](rozhodnuti/README.md#d-202)). |
 
-Návrhy navazujících tiketů (nezaložené):
+Navazující tikety založené 28. 11. 2026:
 
-| Návrh                                                | Scénář                                                                                             | Očekávané chování                                                                                                                                                              |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| N1: Odhláška bez potvrzeného termínu (mezera, O1)    | Náhradník s jediným termínem zavolá organizátorovi, že se odhlašuje.                               | Organizátor zvolí **Odhlásit**, přihláška v termínu je Zrušená a přihlašovatel dostane e-mail o změně přihlášky, ne o zrušení organizátorem. Podle O1 totéž pro K vyhodnocení. |
-| N2: Vrácení „bez omezení“ (rozdíl, po rozhodnutí O2) | Organizátor omylem uloží za účastníka „Nemám žádné zdravotní omezení“.                             | Organizátor údaj vrátí na nevyplněný, historie zaznamená, kdo to udělal.                                                                                                       |
-| N3: Přidání a obnovení termínu (po rozhodnutí O3)    | Účastník se ozve, že chce i druhý termín, nebo se vrací na zrušený, a v přihlášce nemá co vyměnit. | Organizátor v detailu přidá termín bez odebrání jiného; stav a kapacita se řídí [D-134](rozhodnuti/README.md#d-134), platby zrušeného termínu zůstanou u něj.                  |
+| Ticket                                                                                                           | Scénář                                                                                             | Očekávané chování                                                                                                                                                              |
+| ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [#867](https://github.com/applifting-vsecourse/team-1/issues/867): Odhláška bez potvrzeného termínu (mezera, O1) | Náhradník s jediným termínem zavolá organizátorovi, že se odhlašuje.                               | Organizátor zvolí **Odhlásit**, přihláška v termínu je Zrušená a přihlašovatel dostane e-mail o změně přihlášky, ne o zrušení organizátorem. Podle O1 totéž pro K vyhodnocení. |
+| [#868](https://github.com/applifting-vsecourse/team-1/issues/868): Vrácení „bez omezení“ (O2)                    | Organizátor omylem uloží za účastníka „Nemám žádné zdravotní omezení“.                             | Organizátor údaj vrátí na nevyplněný, historie zaznamená, kdo to udělal.                                                                                                       |
+| [#869](https://github.com/applifting-vsecourse/team-1/issues/869): Přidání a obnovení termínu (O3)               | Účastník se ozve, že chce i druhý termín, nebo se vrací na zrušený, a v přihlášce nemá co vyměnit. | Organizátor v detailu přidá termín bez odebrání jiného; stav a kapacita se řídí [D-134](rozhodnuti/README.md#d-134), platby zrušeného termínu zůstanou u něj.                  |
 
-Nález mimo porovnání rolí: [D-137](rozhodnuti/README.md#d-137) nedovoluje přihlašovateli přidat nebo změnit termín od jeho prvního dne a organizátorovi po jeho posledním dni. Veřejné odeslání ani výměna termínu to nekontrolují, obě role dnes vymění termín i za skončený. Ruční přidání přihlášky organizátorem skončený termín odmítne. Ticket [#486](https://github.com/applifting-vsecourse/team-1/issues/486) kryje veřejné podání a změnu přihlašovatelem; doporučené rozšíření: výměna termínu organizátorem po posledním dni termínu skončí chybou a skončený termín se ve výběru nenabídne.
+Nález mimo porovnání rolí: [D-137](rozhodnuti/README.md#d-137) nedovoluje přihlašovateli přidat nebo změnit termín od jeho prvního dne a organizátorovi po jeho posledním dni. Veřejné odeslání ani výměna termínu to nekontrolují, obě role dnes vymění termín i za skončený. Ruční přidání přihlášky organizátorem skončený termín odmítne. Ticket [#486](https://github.com/applifting-vsecourse/team-1/issues/486) kryje veřejné podání a změnu přihlašovatelem a od 28. 11. 2026 i organizátora: výměna termínu po posledním dni termínu skončí chybou a skončený termín se ve výběru nenabídne.
 
 ## Ověření
 
