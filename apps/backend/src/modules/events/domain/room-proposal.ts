@@ -7,7 +7,12 @@ export type ProposalRoom = {
   /** Beds left without any extra bed: a proposal never overfills a room. */
   freeBeds: number
   /** Who sleeps there already; they are never moved, but they can be the person a wish names. */
-  occupants: { applicationTermId: string; firstName: string; lastName: string }[]
+  occupants: {
+    applicationTermId: string
+    firstName: string
+    lastName: string
+    individualAccommodation: boolean
+  }[]
 }
 
 export type ProposalParticipant = {
@@ -45,20 +50,54 @@ const byName = (a: ProposalParticipant, b: ProposalParticipant): number =>
   a.firstName.localeCompare(b.firstName, "cs") ||
   a.applicationTermId.localeCompare(b.applicationTermId)
 
+type ProposalInput = {
+  rooms: readonly ProposalRoom[]
+  participants: readonly ProposalParticipant[]
+}
+
 /**
  * Proposes rooms for the confirmed participants without one (US-147), keeping the rules of US-37:
  * a room with a gender takes only that gender, nobody goes over the beds (no extra bed is added)
- * and people with individual accommodation are left out. Within that it fulfils as many wishes to
- * room together as it can: people who wish each other are grouped and put into one room that fits
- * them best, then single moves and swaps are tried while they fulfil more wishes. Optimising by
- * age or anything else is not done. Pure and deterministic: the same input gives the same
- * proposal.
+ * and people with individual accommodation and their rooms are left out. It fulfils as many wishes to
+ * room together as it can: people who wish each other are grouped, then single moves and swaps
+ * are tried while they fulfil more wishes. The placement prefers occupied rooms and, when a room
+ * needs to be opened, uses the larger one to reduce the need for more rooms. Pure and deterministic:
+ * the same input gives the same proposal.
  */
-export function proposeRoomAssignments(input: {
-  rooms: readonly ProposalRoom[]
-  participants: readonly ProposalParticipant[]
-}): RoomProposal {
-  const { rooms } = input
+export function proposeRoomAssignments(input: ProposalInput): RoomProposal {
+  const packed = buildProposal(input, true)
+  const hasWishes = input.participants.some(
+    (person) => !person.individualAccommodation && person.wishes.length > 0,
+  )
+  if (!hasWishes && !packed.unplaced.some(({ reason }) => reason === "NO_FREE_BED")) return packed
+
+  // A larger first room can leave less usable space for later groups. Compare with the
+  // tight-fit order when wishes or participants without a bed make that trade-off relevant.
+  const tightFit = buildProposal(input, false)
+  if (tightFit.placements.length !== packed.placements.length) {
+    return tightFit.placements.length > packed.placements.length ? tightFit : packed
+  }
+  const fulfilled = (proposal: RoomProposal): number =>
+    proposal.wishes.filter((wish) => wish.fulfilled).length
+  const wishDifference = fulfilled(tightFit) - fulfilled(packed)
+  if (wishDifference !== 0) return wishDifference > 0 ? tightFit : packed
+  const occupiedRoomIds = new Set(
+    input.rooms.filter((room) => room.occupants.length).map((room) => room.id),
+  )
+  const openedRooms = (proposal: RoomProposal): number =>
+    new Set(proposal.placements.map((item) => item.roomId).filter((id) => !occupiedRoomIds.has(id)))
+      .size
+  const openedDifference = openedRooms(tightFit) - openedRooms(packed)
+  if (openedDifference !== 0) return openedDifference < 0 ? tightFit : packed
+  const placementsInOccupiedRooms = (proposal: RoomProposal): number =>
+    proposal.placements.filter(({ roomId }) => occupiedRoomIds.has(roomId)).length
+  return placementsInOccupiedRooms(tightFit) > placementsInOccupiedRooms(packed) ? tightFit : packed
+}
+
+function buildProposal(input: ProposalInput, isPacking: boolean): RoomProposal {
+  const eligibleRooms = input.rooms.filter(
+    (room) => !room.occupants.some((person) => person.individualAccommodation),
+  )
   const unplaced: RoomProposal["unplaced"] = []
   const candidates = input.participants
     .filter((person) => {
@@ -85,7 +124,7 @@ export function proposeRoomAssignments(input: {
       idsByName.set(key, [...(idsByName.get(key) ?? []), id])
     }
   }
-  for (const room of rooms) {
+  for (const room of input.rooms) {
     for (const person of room.occupants) {
       register(person.applicationTermId, person.firstName, person.lastName)
     }
@@ -103,8 +142,8 @@ export function proposeRoomAssignments(input: {
   const wishes = new Map(candidates.map((person) => [person.applicationTermId, wishesOf(person)]))
 
   const roomOf = new Map<string, string>()
-  const free = new Map(rooms.map((room) => [room.id, room.freeBeds]))
-  const members = new Map<string, Set<string>>(rooms.map((room) => [room.id, new Set()]))
+  const free = new Map(eligibleRooms.map((room) => [room.id, room.freeBeds]))
+  const members = new Map<string, Set<string>>(eligibleRooms.map((room) => [room.id, new Set()]))
   const place = (id: string, roomId: string) => {
     unplace(id)
     roomOf.set(id, roomId)
@@ -118,14 +157,14 @@ export function proposeRoomAssignments(input: {
     members.get(roomId)?.delete(id)
     free.set(roomId, (free.get(roomId) ?? 0) + 1)
   }
-  for (const room of rooms) {
+  for (const room of input.rooms) {
     for (const person of room.occupants) {
       roomOf.set(person.applicationTermId, room.id)
       members.get(room.id)?.add(person.applicationTermId)
     }
   }
   const isFixed = (id: string) => !candidateById.has(id)
-  const roomById = new Map(rooms.map((room) => [room.id, room]))
+  const roomById = new Map(eligibleRooms.map((room) => [room.id, room]))
 
   // 1. Whoever names somebody already sleeping in a room with a free bed goes there.
   for (const person of candidates) {
@@ -139,8 +178,9 @@ export function proposeRoomAssignments(input: {
 
   // 2. The rest is grouped by who wishes whom, biggest groups first, singles last.
   const waiting = candidates.filter((person) => !roomOf.has(person.applicationTermId))
+  const hasSharedRoom = eligibleRooms.some((room) => room.gender === null)
   const canShare = (a: ProposalParticipant, b: ProposalParticipant) =>
-    a.gender === b.gender || rooms.some((room) => room.gender === null)
+    a.gender === b.gender || hasSharedRoom
   const parent = new Map(
     waiting.map((person) => [person.applicationTermId, person.applicationTermId]),
   )
@@ -165,21 +205,27 @@ export function proposeRoomAssignments(input: {
     groups.set(root, [...(groups.get(root) ?? []), person])
   }
   const orderedGroups = [...groups.values()].sort((a, b) => b.length - a.length)
+  const occupancyPriority = (room: ProposalRoom): number =>
+    room.occupants.length > 0 ? 2 : members.get(room.id)?.size ? 1 : 0
   for (const group of orderedGroups) {
     let rest = group
     while (rest.length > 0) {
-      const options = rooms
+      const options = eligibleRooms
         .map((room) => ({
           room,
           takes: Math.min(free.get(room.id) ?? 0, rest.filter((p) => fits(room, p)).length),
         }))
         .filter((option) => option.takes > 0)
       if (options.length === 0) break
-      // Whole group in the tightest room that holds it; otherwise the room that takes most.
-      const whole = options
-        .filter((option) => option.takes === rest.length)
-        .sort((a, b) => (free.get(a.room.id) ?? 0) - (free.get(b.room.id) ?? 0))[0]
-      const best = whole ?? options.sort((a, b) => b.takes - a.takes)[0]
+      // Keep as much of the group together as possible. Prefer rooms occupied before the
+      // proposal, then rooms already used by the proposal, and preserve spare beds in one room.
+      const best = options.sort((a, b) => {
+        if (a.takes !== b.takes) return b.takes - a.takes
+        const freeDifference = (free.get(b.room.id) ?? 0) - (free.get(a.room.id) ?? 0)
+        if (isPacking)
+          return occupancyPriority(b.room) - occupancyPriority(a.room) || freeDifference
+        return a.takes === rest.length ? -freeDifference : 0
+      })[0]
       if (!best) break
       const chosen = rest.filter((p) => fits(best.room, p)).slice(0, best.takes)
       for (const person of chosen) place(person.applicationTermId, best.room.id)
@@ -242,6 +288,51 @@ export function proposeRoomAssignments(input: {
     }
     if (!isImproved) break
   }
+
+  // After wish improvements, close a room opened by the proposal if its entire group fits
+  // into another used room. Moving the group together preserves every fulfilled wish.
+  for (const room of eligibleRooms) {
+    if (room.occupants.length > 0) continue
+    const group = [...(members.get(room.id) ?? [])]
+    if (group.length === 0) continue
+    const target = eligibleRooms
+      .filter(
+        (other) =>
+          other.id !== room.id &&
+          occupancyPriority(other) > 0 &&
+          (free.get(other.id) ?? 0) >= group.length &&
+          group.every((id) => fits(other, candidateById.get(id)!)),
+      )
+      .sort((a, b) => occupancyPriority(b) - occupancyPriority(a))[0]
+    if (target) for (const id of group) place(id, target.id)
+  }
+
+  // Some groups cannot move together. Fill spare beds in rooms with fixed occupants using
+  // individual moves that maintain the score, including wishes others made for that person.
+  const occupiedRooms = eligibleRooms.filter((room) => room.occupants.length > 0)
+  let currentScore = score()
+  // Successful moves only go from newly opened rooms to rooms with fixed occupants.
+  // Each pass with a move therefore leaves fewer candidates in newly opened rooms.
+  let moved: boolean
+  do {
+    moved = false
+    for (const person of candidates) {
+      const id = person.applicationTermId
+      const source = roomById.get(roomOf.get(id) ?? "")
+      if (!source || source.occupants.length > 0) continue
+      for (const target of occupiedRooms) {
+        if ((free.get(target.id) ?? 0) < 1 || !fits(target, person)) continue
+        place(id, target.id)
+        const nextScore = score()
+        if (nextScore >= currentScore) {
+          currentScore = nextScore
+          moved = true
+          break
+        }
+        place(id, source.id)
+      }
+    }
+  } while (moved)
 
   const placed = candidates.filter((person) => roomOf.has(person.applicationTermId))
   for (const person of candidates) {

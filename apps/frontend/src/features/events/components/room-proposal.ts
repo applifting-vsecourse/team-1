@@ -54,11 +54,12 @@ export function movableBeds(
   const own = draft.placements[person.applicationTermId]
   return (
     rooms
-      // An individual room (US-145) is filled by hand only, so a proposal never moves anybody there.
+      // Individual rooms and rooms used for an individual accommodation request stay manual.
       .filter(
         (room) =>
           room.id !== own &&
           !room.individual &&
+          !room.participants.some((participant) => participant.individualAccommodation) &&
           (room.gender === null || room.gender === person.gender),
       )
       .flatMap((room) => {

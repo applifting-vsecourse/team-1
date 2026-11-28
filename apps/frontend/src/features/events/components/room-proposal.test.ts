@@ -75,4 +75,18 @@ describe("room proposal draft", () => {
     const beds = movableBeds(rooms, draft, { applicationTermId: "a", gender: "FEMALE" })
     expect(beds.map((bed) => bed.room.id)).toEqual(["r2", "r2", "r2"])
   })
+  it.each(["FEMALE", null] as const)(
+    "excludes rooms occupied by a person with an individual request (room gender: %s)",
+    (gender) => {
+      const rooms = [
+        {
+          ...room("family", 3, [], gender),
+          participants: [{ ...person("resident"), individualAccommodation: true }],
+        },
+        room("regular", 1, [], gender),
+      ]
+      const beds = movableBeds(rooms, draft, { applicationTermId: "a", gender: "FEMALE" })
+      expect(beds.map((bed) => bed.room.id)).toEqual(["regular"])
+    },
+  )
 })
