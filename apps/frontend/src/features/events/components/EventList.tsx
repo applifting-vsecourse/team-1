@@ -280,9 +280,7 @@ function EventRow({ event, hasOrganization }: { event: OrganizerEvent; hasOrgani
             {event.applicationsOpen ? t("list.statusOpen") : t("list.statusClosed")}
           </Badge>
         </div>
-        <div className="flex items-center gap-3 lg:w-50 lg:shrink-0 lg:flex-col lg:items-stretch lg:gap-1.5">
-          <Occupancy event={event} />
-        </div>
+        <Occupancy event={event} />
       </div>
       <ChevronRight
         aria-hidden
@@ -292,25 +290,38 @@ function EventRow({ event, hasOrganization }: { event: OrganizerEvent; hasOrgani
   )
 }
 
-/** Confirmed of all beds across the terms („152/160 potvrzených“), with a bar; a dash until there are terms and rooms. */
+/**
+ * Confirmed of all beds across the terms: „152 / 160“ in tabular figures and „potvrzených“ muted, with
+ * a 4 px bar under it. The cell has a fixed width (200 px from `lg`, the content width on a phone), so
+ * every bar is as long as the others whatever the count says; a dash until there are terms and rooms.
+ */
 function Occupancy({ event }: { event: OrganizerEvent }) {
   const { t } = useTranslation("events")
   const confirmed = event.terms.reduce((sum, term) => sum + term.confirmedCount, 0)
   const capacity = event.terms.reduce((sum, term) => sum + term.capacity, 0)
 
-  if (capacity === 0) {
-    return <span className="text-sm">{t("list.noCapacity")}</span>
-  }
-  const label = t("list.occupancyConfirmed", { confirmed, capacity })
-
   return (
-    <>
-      <span className="text-sm whitespace-nowrap tabular-nums">{label}</span>
-      <Progress
-        value={(confirmed / capacity) * 100}
-        aria-label={label}
-        className="h-1 flex-1 lg:flex-none"
-      />
-    </>
+    <div
+      data-slot="occupancy"
+      className="flex w-full flex-col gap-1.5 lg:w-50 lg:shrink-0"
+    >
+      {capacity === 0 ? (
+        <span className="text-sm">{t("list.noCapacity")}</span>
+      ) : (
+        <>
+          <p className="text-sm">
+            <span className="font-medium tabular-nums">
+              {t("list.occupancyCount", { confirmed, capacity })}
+            </span>{" "}
+            <span className="text-muted-foreground">{t("list.occupancyUnit")}</span>
+          </p>
+          <Progress
+            value={(confirmed / capacity) * 100}
+            aria-label={t("list.occupancyConfirmed", { confirmed, capacity })}
+            className="h-1 w-full"
+          />
+        </>
+      )}
+    </div>
   )
 }

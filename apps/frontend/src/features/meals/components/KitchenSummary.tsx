@@ -215,7 +215,10 @@ export function KitchenSummary({ eventId }: { eventId: string }) {
       className="flex min-w-0 flex-col gap-6"
       data-print-area
     >
-      <SectionHeader title={t("kitchen.title")} />
+      <SectionHeader
+        isTitleHidden
+        title={t("kitchen.title")}
+      />
       {term ? (
         <>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">

@@ -189,6 +189,17 @@ describe("ApplicationsPage", () => {
       expect(screen.getByText(/The women’s beds are full/)).toBeVisible()
     })
 
+    // The selected tab names the section, so the h2 is only for screen readers and the one primary
+    // action ends the segment row (DESIGN.md, event header).
+    it("names the section only for screen readers and ends the segment row with Add application", async () => {
+      setup([application])
+      const views = await screen.findByRole("radiogroup", { name: "Application views" })
+      const add = screen.getByRole("link", { name: "Add application" })
+      expect(views.parentElement).toBe(add.parentElement)
+      expect(views.parentElement).toHaveClass("justify-between")
+      expect(screen.getByRole("heading", { level: 2, name: "Applications" })).toHaveClass("sr-only")
+    })
+
     it("leaves a manual event’s order and heading in place", async () => {
       setup([application], false, undefined, { terms: [shared] }, { term: "t1" })
       await screen.findAllByText("Jana Test")
@@ -627,7 +638,7 @@ describe("ApplicationsPage", () => {
       expect(within(row).getByRole("button", { name: "Jana Test" })).toBeVisible()
       expect(within(row).getByText("Awaiting evaluation")).toBeInTheDocument()
       expect(screen.getByText("Sorted: in order of receipt, oldest first")).toBeInTheDocument()
-      expect(screen.getByRole("heading", { name: "Applications", level: 2 })).toBeVisible()
+      expect(screen.getByRole("heading", { name: "Applications", level: 2 })).toHaveClass("sr-only")
       const calls = get.mock.calls as [string, { searchParams: URLSearchParams }][]
       const search = calls.find(([path]) => path.endsWith("applications"))![1].searchParams
       expect(search.get("status")).toBe("TO_EVALUATE")

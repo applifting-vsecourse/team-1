@@ -115,8 +115,30 @@ describe("EventList", () => {
       within(row).getByText("Kemp Lipno · 2 terms · July 2027 · Lipno nad Vltavou"),
     ).toBeInTheDocument()
     expect(row.querySelector('[data-slot="date-tile"]')).toHaveTextContent("12")
-    expect(within(row).getByText("79/120 confirmed")).toBeInTheDocument()
+    expect(within(row).getByText("79 / 120")).toHaveClass("tabular-nums")
+    expect(within(row).getByText("confirmed")).toHaveClass("text-muted-foreground")
     expect(within(row).getByRole("progressbar", { name: "79/120 confirmed" })).toBeInTheDocument()
+  })
+
+  // Every bar is as long as the others: the cell has a fixed width and the bar spans all of it,
+  // whatever the count says (152 / 160 or 18 / 24); without a term only the dash, in the same cell.
+  it("draws every occupancy bar across the same fixed-width cell", async () => {
+    renderList([event, draft])
+
+    await screen.findByRole("heading", { name: event.name })
+    const cells = document.querySelectorAll('[data-slot="occupancy"]')
+    expect(cells).toHaveLength(2)
+    for (const cell of cells) expect(cell).toHaveClass("w-full", "lg:w-50", "lg:shrink-0")
+    expect(screen.getByRole("progressbar", { name: "79/120 confirmed" })).toHaveClass(
+      "h-1",
+      "w-full",
+    )
+    const empty = screen
+      .getByRole("heading", { name: draft.name })
+      .closest("a")
+      ?.querySelector('[data-slot="occupancy"]')
+    expect(empty).toHaveTextContent("—")
+    expect(empty?.querySelector('[role="progressbar"]')).toBeNull()
   })
 
   it("has one primary action in the header and the status as a segment", async () => {

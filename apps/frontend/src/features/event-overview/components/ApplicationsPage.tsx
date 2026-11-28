@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState, type ReactNode } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { BedDouble, FilterX, Plus, Search } from "lucide-react"
@@ -204,9 +204,11 @@ export function ApplicationsPage({
       </>
     )
   }
-  const views = (
-    <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-bold">
+  // The selected tab names the section, so its `h2` is only for screen readers (DESIGN.md, event
+  // header); the section's one primary action ends the segment row.
+  const views = (action?: ReactNode) => (
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+      <h2 className="sr-only">
         {t(
           automaticTerm
             ? "automaticCapacity.heading"
@@ -224,13 +226,14 @@ export function ApplicationsPage({
           onFiltersChange(next)
         }}
       />
+      {action}
     </div>
   )
   if (filters.view === "CHANGE_REQUESTS") {
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("applications.title")} />
-        {views}
+        {views()}
         <ChangeRequestsPanel eventId={eventId} />
       </div>
     )
@@ -239,7 +242,7 @@ export function ApplicationsPage({
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("applications.title")} />
-        {views}
+        {views()}
         <SubstituteTaken
           {...taken}
           onRefresh={() => {
@@ -253,21 +256,22 @@ export function ApplicationsPage({
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("applications.title")} />
-      {views}
-      {automaticTerm ? <AutomaticCapacity term={automaticTerm} /> : null}
-      <Button
-        asChild
-        size="lg"
-        className="self-start"
-      >
-        <Link
-          to={ROUTES.organizer.newApplication}
-          params={{ eventId }}
+      {views(
+        <Button
+          asChild
+          size="lg"
+          className="max-sm:w-full"
         >
-          <Plus className="size-4" />
-          {t("manual.add")}
-        </Link>
-      </Button>
+          <Link
+            to={ROUTES.organizer.newApplication}
+            params={{ eventId }}
+          >
+            <Plus className="size-4" />
+            {t("manual.add")}
+          </Link>
+        </Button>,
+      )}
+      {automaticTerm ? <AutomaticCapacity term={automaticTerm} /> : null}
       {substituteTerm && (
         <SubstitutesPanel
           hasWaitlistedParticipants={(query.data?.length ?? 0) > 0}

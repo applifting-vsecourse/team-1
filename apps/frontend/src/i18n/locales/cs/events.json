@@ -147,6 +147,8 @@
     "noMatch": "Hledání ani filtrům neodpovídá žádná akce.",
     "occupancy": "Obsazenost",
     "occupancyConfirmed": "{{confirmed}}/{{capacity}} potvrzených",
+    "occupancyCount": "{{confirmed}} / {{capacity}}",
+    "occupancyUnit": "potvrzených",
     "organizationAll": "Všechny organizace",
     "organizationFilter": "Organizace",
     "search": "Hledat název akce",

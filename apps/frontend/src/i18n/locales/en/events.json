@@ -147,6 +147,8 @@
     "noMatch": "No event matches the search and filters.",
     "occupancy": "Occupancy",
     "occupancyConfirmed": "{{confirmed}}/{{capacity}} confirmed",
+    "occupancyCount": "{{confirmed}} / {{capacity}}",
+    "occupancyUnit": "confirmed",
     "organizationAll": "All organizations",
     "organizationFilter": "Organization",
     "search": "Search event name",
