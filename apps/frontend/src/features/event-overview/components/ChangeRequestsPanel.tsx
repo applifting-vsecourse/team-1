@@ -14,6 +14,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -167,7 +168,7 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
             </div>
             <Button
               variant="outline"
-              size="lg"
+              size="sm"
               className="w-full sm:w-auto"
               onClick={() => {
                 mutation.reset()
@@ -343,24 +344,26 @@ export function ChangeRequestsPanel({ eventId }: { eventId: string }) {
                   </p>
                   {reasonField}
                   <p className="text-sm text-muted-foreground">{t("changeRequests.reasonHint")}</p>
-                  <PendingButton
-                    isPending={
-                      mutation.isPending &&
-                      mutation.variables?.request.id === request.id &&
-                      mutation.variables.decision === "reject"
-                    }
-                    variant="destructive"
-                    disabled={mutation.isPending}
-                    onClick={() => mutation.mutate({ request, decision: "reject", reason })}
-                  >
-                    {t("changeRequests.reject")}
-                  </PendingButton>
-                  <BackButton
-                    disabled={mutation.isPending}
-                    onClick={() => setDeclining(false)}
-                  >
-                    {t("changeRequests.backToRequest")}
-                  </BackButton>
+                  <DialogFooter>
+                    <BackButton
+                      disabled={mutation.isPending}
+                      onClick={() => setDeclining(false)}
+                    >
+                      {t("changeRequests.backToRequest")}
+                    </BackButton>
+                    <PendingButton
+                      isPending={
+                        mutation.isPending &&
+                        mutation.variables?.request.id === request.id &&
+                        mutation.variables.decision === "reject"
+                      }
+                      variant="destructive"
+                      disabled={mutation.isPending}
+                      onClick={() => mutation.mutate({ request, decision: "reject", reason })}
+                    >
+                      {t("changeRequests.reject")}
+                    </PendingButton>
+                  </DialogFooter>
                 </DialogContent>
               </Dialog>
             )}

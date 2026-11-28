@@ -11,6 +11,7 @@ import { BackButton } from "@/components/atoms/BackLink"
 import { PendingButton } from "@/components/atoms/PendingButton"
 import { PasswordInput } from "@/components/molecules/PasswordInput"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -49,7 +50,12 @@ const emptyValues: FormValues = { currentPassword: "", newPassword: "" }
 // Figma (Design system): US-124 / Nastavení účtu · Změnit heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2424 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2527 (mobil)
 // Figma (Design system): US-124 / Nastavení účtu · Krátké nové heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2738 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2825 (mobil)
 // Figma (Design system): US-124 / Nastavení účtu · Nesprávné současné heslo · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2585 (desktop), https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=16199-2680 (mobil)
-export function ChangePasswordForm() {
+export function ChangePasswordForm({
+  onClose,
+}: {
+  /** Inline in a settings row: „Zrušit“ in place of „Zpět“ closes it, and so does a change. */
+  onClose?: () => void
+} = {}) {
   const { t } = useTranslation(["auth", "common"])
   const { t: tErrors } = useTranslation("errors")
   const changePassword = useChangePassword()
@@ -79,6 +85,7 @@ export function ChangePasswordForm() {
     }
     form.reset(emptyValues)
     notify.success(t("changePassword.saved"))
+    onClose?.()
   }
 
   // „Zpět“ leaves the page: the previous in-app page, or the area home when the
@@ -148,19 +155,35 @@ export function ChangePasswordForm() {
           </Alert>
         ) : null}
 
-        {/* Desktop: secondary left, primary right; phone: primary on top (Togena / Dialog actions). */}
-        <div className="flex flex-col-reverse gap-3 md:flex-row">
-          <BackButton onClick={goBack}>{t("changePassword.back")}</BackButton>
+        {/* Desktop: secondary left, primary right; phone: primary on top (Togena / Dialog actions).
+            Inline in the settings row: the primary first, then a quiet „Zrušit“ (Figma 19504:9261). */}
+        <div
+          className={
+            onClose ? "flex flex-col gap-3 md:flex-row" : "flex flex-col-reverse gap-3 md:flex-row"
+          }
+        >
+          {onClose ? null : <BackButton onClick={goBack}>{t("changePassword.back")}</BackButton>}
           <PendingButton
             type="submit"
             size="lg"
-            className="h-12 rounded-lg md:flex-1"
+            className={onClose ? "h-12 rounded-lg md:w-45" : "h-12 rounded-lg md:flex-1"}
             isPending={changePassword.isPending}
           >
             {changePassword.isPending
               ? t("state.saving", { ns: "common" })
               : t("changePassword.submit")}
           </PendingButton>
+          {onClose ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="lg"
+              className="h-12 rounded-lg"
+              onClick={onClose}
+            >
+              {t("account.cancel")}
+            </Button>
+          ) : null}
         </div>
       </form>
     </Form>

@@ -57,6 +57,8 @@ export type ApplicationTransport = {
   terms: (TermInfo & {
     status: string
     selectedTransportId: string | null
+    /** The term is not over, so the transport can still be chosen (D-192). */
+    isEditable: boolean
     options: TransportOption[]
   })[]
 }

@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card"
 import { formatDateTime } from "@/lib/date"
 
 import { organizerHealthQueryOptions } from "@/features/health/api/health"
+import { OrganizerHealthForm } from "@/features/health/components/OrganizerHealthForm"
 
 /** The participant's health restriction with the time of the explicit consent — organizers only. */
 // Figma v2: US-68 Zdravotní omezení poskytnuto · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=21218-65048 (mobile 21218-65162, empty 21218-65214 / 21218-65318).
@@ -73,6 +74,14 @@ export function OrganizerHealth({
           </>
         )}
       </Card>
+      {data.note === null ? (
+        <OrganizerHealthForm
+          eventId={eventId}
+          applicationId={applicationId}
+          hasConfirmedNone={data.noRestriction}
+          isClosed={!data.editable}
+        />
+      ) : null}
       <Alert
         role="note"
         className="bg-muted"

@@ -68,7 +68,10 @@ export function TransportList({ eventId }: { eventId: string }) {
     return (
       <div className="flex flex-col gap-6">
         <Seo title={t("title")} />
-        <SectionHeader title={t("title")} />
+        <SectionHeader
+          isTitleHidden
+          title={t("title")}
+        />
         <EmptyState message={t("noTerms")} />
       </div>
     )
@@ -109,7 +112,10 @@ export function TransportList({ eventId }: { eventId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("title")} />
-      <SectionHeader title={t("title")} />
+      <SectionHeader
+        isTitleHidden
+        title={t("title")}
+      />
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <Label htmlFor="transport-term">{t("termLabel")}</Label>
         <Select

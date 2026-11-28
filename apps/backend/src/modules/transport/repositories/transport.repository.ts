@@ -1,4 +1,8 @@
 import { PrismaService } from "@/core/prisma/prisma.service"
+import { ApplicationScope, OrganizerEditor } from "@/modules/applications/domain/application-scope"
+import { isEditWindowOpen, isTermEditable } from "@/modules/applications/domain/edit-window"
+import { todayInPrague } from "@/modules/applications/domain/waitlist-expiry"
+import { logOrganizerEdit } from "@/modules/applications/repositories/application-edit-log"
 import {
   ApplicationTransport,
   EventTransport,
@@ -13,6 +17,9 @@ import { AppException } from "@/shared/errors/app.exception"
 import { HttpStatus, Injectable } from "@nestjs/common"
 
 type Scope = { eventId: string; organizationId: string }
+
+/** The history says "own transport" with this token, the screen translates it. */
+export const OWN_TRANSPORT = "@own"
 
 const isoDay = (date: Date): string => date.toISOString().slice(0, 10)
 const termInfo = (term: {
@@ -219,10 +226,13 @@ export class TransportRepository {
     }
   }
 
-  /** `null` when the application is not the participant's own (or does not exist). */
-  async ofApplication(userId: string, applicationId: string): Promise<ApplicationTransport | null> {
+  /** `null` when the application is outside `scope` (the participant's own or the organization's). */
+  async ofApplication(
+    scope: ApplicationScope,
+    applicationId: string,
+  ): Promise<ApplicationTransport | null> {
     const application = await this.prisma.application.findFirst({
-      where: { id: applicationId, userId },
+      where: { id: applicationId, ...scope },
       include: {
         event: { select: { name: true } },
         terms: {
@@ -235,6 +245,7 @@ export class TransportRepository {
       },
     })
     if (!application) return null
+    const today = todayInPrague(new Date())
     return {
       participantName: fullName(application.firstName, application.lastName),
       eventName: application.event.name,
@@ -242,30 +253,53 @@ export class TransportRepository {
         ...termInfo(term),
         status,
         selectedTransportId: transportId,
+        isEditable: isTermEditable({ status, endsOn: term.endsOn }, today),
         options: term.transports.map(option),
       })),
     }
   }
 
-  /** @returns false when the term is not the participant's active one or the transport not its. */
+  /**
+   * The choice of one term, with the rules of both roles (D-191): the term is active for the
+   * application, still within the edit window (D-192) and the transport is on offer in the term.
+   * An organizer's choice is written to the history of the application.
+   */
   async choose(
-    userId: string,
+    scope: ApplicationScope,
     applicationId: string,
     termId: string,
     transportId: string,
-  ): Promise<boolean> {
+    editor?: OrganizerEditor,
+  ): Promise<"OK" | "NOT_FOUND" | "CLOSED"> {
     const row = await this.prisma.applicationTerm.findFirst({
-      where: { applicationId, termId, application: { userId }, ...taking },
-      select: { id: true },
+      where: { applicationId, termId, application: scope, ...taking },
+      select: {
+        id: true,
+        organizationId: true,
+        transport: { select: { kind: true, name: true } },
+        term: { select: { endsOn: true } },
+      },
     })
-    if (!row) return false
-    if (!(await this.prisma.transport.findFirst({ where: { id: transportId, termId } }))) {
-      return false
-    }
+    if (!row) return "NOT_FOUND"
+    const chosen = await this.prisma.transport.findFirst({ where: { id: transportId, termId } })
+    if (!chosen) return "NOT_FOUND"
+    if (!isEditWindowOpen(row.term.endsOn, todayInPrague(new Date()))) return "CLOSED"
+    const label = (transport: { kind: TransportKind; name: string } | null) =>
+      transport === null ? null : transport.kind === "OWN" ? OWN_TRANSPORT : transport.name
     try {
-      await this.prisma.applicationTerm.update({
-        where: { id: row.id },
-        data: { transportId },
+      await this.prisma.$transaction(async (tx) => {
+        await tx.applicationTerm.update({ where: { id: row.id }, data: { transportId } })
+        if (editor) {
+          await logOrganizerEdit(tx, {
+            organizationId: row.organizationId,
+            applicationId,
+            editor,
+            field: "transport",
+            termId,
+            from: label(row.transport),
+            to: label(chosen),
+          })
+        }
       })
     } catch (error) {
       // The organizer deleted the transport between the check and the save.
@@ -274,6 +308,6 @@ export class TransportRepository {
       }
       throw error
     }
-    return true
+    return "OK"
   }
 }

@@ -15,11 +15,15 @@ export class NotificationParamsDto {
   amountCzk?: number
   @ApiProperty({ required: false, description: "PAYMENT: what is owed in the term afterwards" })
   owedCzk?: number
+  @ApiProperty({ required: false, description: "BOARD: the post the notification leads to" })
+  postId?: string
+  @ApiProperty({ required: false, description: "BOARD: the title of the post" })
+  postTitle?: string
 }
 
 export class NotificationResponseDto {
   @ApiProperty() id!: string
-  @ApiProperty({ enum: ["STATUS_CHANGED", "PAYMENT", "REQUEST"] }) type!: string
+  @ApiProperty({ enum: ["STATUS_CHANGED", "PAYMENT", "REQUEST", "BOARD"] }) type!: string
   @ApiProperty({ description: "The copy is composed from the kind and params by the frontend" })
   kind!: string
   @ApiProperty({ nullable: true, type: String }) applicationId!: string | null

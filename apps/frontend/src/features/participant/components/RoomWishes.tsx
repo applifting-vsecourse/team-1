@@ -8,9 +8,25 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { notify } from "@/lib/notify"
 import { termLine } from "@/lib/term-label"
 
-import { saveRoomWishes, type MyApplicationTerm } from "@/features/participant/api/applications"
+import {
+  saveRoomWishes,
+  type MyApplicationTerm,
+  type WriterRole,
+} from "@/features/participant/api/applications"
+
+/** What the card needs of a term: the participant's application and the organizer's one both have it. */
+export type WishesTerm = Pick<
+  MyApplicationTerm,
+  "termId" | "name" | "startsOn" | "endsOn" | "roomWishes" | "noRoomWishes"
+> & {
+  /** `false` once the term is over: the wishes stay visible, nothing can be changed. */
+  termEditable?: boolean
+  /** „No wishes“ can still be confirmed: nothing entered and the rooms are not published. */
+  canDecline?: boolean
+}
 
 const MAX_WISHES = 3
 const MAX_NAME_LENGTH = 100
@@ -19,12 +35,14 @@ const MAX_NAME_LENGTH = 100
 export function RoomWishesSection({
   applicationId,
   terms,
+  writer = "participant",
   editingTermId,
   onStartEditing,
   onStopEditing,
 }: {
   applicationId: string
-  terms: MyApplicationTerm[]
+  terms: WishesTerm[]
+  writer?: WriterRole
   editingTermId: string | null
   onStartEditing: (termId: string) => void
   onStopEditing: (termId: string) => void
@@ -38,6 +56,7 @@ export function RoomWishesSection({
           key={JSON.stringify([term.termId, term.roomWishes, editingTermId === term.termId])}
           applicationId={applicationId}
           term={term}
+          writer={writer}
           isEditing={editingTermId === term.termId}
           onStartEditing={() => onStartEditing(term.termId)}
           onStopEditing={() => onStopEditing(term.termId)}
@@ -54,12 +73,14 @@ export function RoomWishesSection({
 function RoomWishesCard({
   applicationId,
   term,
+  writer,
   isEditing,
   onStartEditing,
   onStopEditing,
 }: {
   applicationId: string
-  term: MyApplicationTerm
+  term: WishesTerm
+  writer: WriterRole
   isEditing: boolean
   onStartEditing: () => void
   onStopEditing: () => void
@@ -73,9 +94,9 @@ function RoomWishesCard({
   )
 
   const mutation = useMutation({
-    mutationFn: (next: string[]) => saveRoomWishes(applicationId, term.termId, next),
+    mutationFn: (next: string[]) => saveRoomWishes(applicationId, term.termId, next, false, writer),
     onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ["participant", "applications"] })
+      await client.invalidateQueries({ queryKey: [writer, "applications"] })
       setIsConfirmingDelete(false)
       onStopEditing()
     },
@@ -98,6 +119,9 @@ function RoomWishesCard({
         </h2>
         <p className="text-sm text-muted-foreground">{termLine(term)}</p>
         <Separator />
+        {term.termEditable === false ? (
+          <p className="text-sm text-muted-foreground">{t("termClosed")}</p>
+        ) : null}
         {isEditing ? (
           <form
             className="flex flex-col gap-4"
@@ -171,14 +195,33 @@ function RoomWishesCard({
           </div>
         ) : saved.length === 0 ? (
           <div className="flex flex-col items-start gap-4">
-            <p>{t("roomWishes.empty")}</p>
-            <Button
-              type="button"
-              size="lg"
-              onClick={onStartEditing}
-            >
-              {t("roomWishes.add")}
-            </Button>
+            <p>
+              {/* The organizer reads about the participant, not about themselves (D-203). */}
+              {writer === "organizer"
+                ? t(
+                    term.noRoomWishes
+                      ? "organizerArrangements.declined"
+                      : "organizerArrangements.empty",
+                  )
+                : t("roomWishes.empty")}
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                type="button"
+                size="lg"
+                disabled={term.termEditable === false}
+                onClick={onStartEditing}
+              >
+                {t("roomWishes.add")}
+              </Button>
+              {term.canDecline && term.termEditable !== false ? (
+                <DeclineWishes
+                  applicationId={applicationId}
+                  termId={term.termId}
+                  writer={writer}
+                />
+              ) : null}
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-start gap-4">
@@ -188,6 +231,7 @@ function RoomWishesCard({
                 type="button"
                 variant="outline"
                 size="lg"
+                disabled={term.termEditable === false}
                 onClick={onStartEditing}
               >
                 {t("roomWishes.edit")}
@@ -196,6 +240,7 @@ function RoomWishesCard({
                 type="button"
                 variant="destructive"
                 size="lg"
+                disabled={term.termEditable === false}
                 onClick={() => setIsConfirmingDelete(true)}
               >
                 {t("roomWishes.delete")}
@@ -205,5 +250,35 @@ function RoomWishesCard({
         )}
       </Card>
     </section>
+  )
+}
+
+/** „No wishes“ next to the add button: only before the rooms are published and without names (US-146). */
+function DeclineWishes({
+  applicationId,
+  termId,
+  writer,
+}: {
+  applicationId: string
+  termId: string
+  writer: WriterRole
+}) {
+  const { t } = useTranslation("participant")
+  const client = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: () => saveRoomWishes(applicationId, termId, [], true, writer),
+    onSuccess: () => client.invalidateQueries({ queryKey: [writer, "applications"] }),
+    onError: () => notify.error(t("detail.steps.wishesSaveFailed")),
+  })
+  return (
+    <PendingButton
+      type="button"
+      variant="outline"
+      size="lg"
+      isPending={mutation.isPending}
+      onClick={() => mutation.mutate()}
+    >
+      {t("detail.steps.wishesDecline")}
+    </PendingButton>
   )
 }

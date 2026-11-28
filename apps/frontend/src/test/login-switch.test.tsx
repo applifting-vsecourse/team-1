@@ -39,22 +39,32 @@ const renderAt = async (path: string) => {
 }
 
 describe("switching between the two sign-ins", () => {
-  it("applicant sign-in: a visible outline action for a new link and a separate link to the organizer", async () => {
+  it("applicant sign-in: one card that leads to the organizer sign-in in its footer", async () => {
     await renderAt("/participant/login")
 
-    const newLink = await screen.findByRole("link", { name: "Get a new link" })
-    expect(newLink).toHaveAttribute("href", "/participant/magic-link")
-    expect(newLink).toHaveClass("w-full", "border")
-    const organizer = screen.getByRole("link", { name: "Organizer sign-in" })
-    expect(organizer).toHaveAttribute("href", "/organizer/login")
-    expect(organizer).toHaveClass("w-full", "border")
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Applicant sign-in" }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Are you an organizer\?/)).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Sign in as an organizer" })).toHaveAttribute(
+      "href",
+      "/organizer/login",
+    )
   })
 
-  it("organizer sign-in: a clear link to the applicant sign-in", async () => {
+  it("organizer sign-in: links to registration and to the applicant sign-in", async () => {
     await renderAt("/organizer/login")
 
-    const applicant = await screen.findByRole("link", { name: "Sign in as an applicant" })
-    expect(applicant).toHaveAttribute("href", "/participant/login")
-    expect(applicant).toHaveClass("w-full", "border")
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Organizer sign-in" }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Create an account" })).toHaveAttribute(
+      "href",
+      "/organizer/register",
+    )
+    expect(screen.getByRole("link", { name: "Sign in as an applicant" })).toHaveAttribute(
+      "href",
+      "/participant/login",
+    )
   })
 })

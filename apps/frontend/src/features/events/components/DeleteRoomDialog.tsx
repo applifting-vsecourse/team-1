@@ -66,8 +66,8 @@ export function DeleteRoomDialog({
       <DialogContent
         className={
           isOccupied
-            ? "max-h-[95dvh] overflow-y-auto bg-card p-4 shadow-md sm:max-w-160 sm:p-6"
-            : "bg-card shadow-md sm:max-w-170"
+            ? "max-h-[95dvh] overflow-y-auto bg-card p-4 sm:max-w-160 sm:p-6"
+            : "bg-card sm:max-w-170"
         }
       >
         {isOccupied ? (

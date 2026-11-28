@@ -41,6 +41,7 @@ const meals: OwnMeals = {
   allergies: "Peanuts",
   specialRequest: "Early dinner",
   noRestrictions: false,
+  editable: true,
 }
 
 function setup(
@@ -67,6 +68,13 @@ describe("ParticipantMeals", () => {
     expect(screen.getByRole("checkbox", { name: "Gluten-free" })).toBeChecked()
     expect(screen.getByLabelText("Allergies and other dietary requirements")).toHaveValue("Peanuts")
     expect(screen.getByLabelText("Special request")).toHaveValue("Early dinner")
+  })
+
+  it("cannot be changed once every term is over or cancelled (D-192)", async () => {
+    setup({ ...meals, editable: false })
+    expect(await screen.findByRole("checkbox", { name: "Vegetarian" })).toBeDisabled()
+    expect(screen.queryByRole("button", { name: "Save" })).not.toBeInTheDocument()
+    expect(screen.getByText(/can no longer be changed/)).toBeVisible()
   })
 
   it("saves the ticked options and the allergies", async () => {

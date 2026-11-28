@@ -49,6 +49,8 @@ const applicationTransportSchema = z.object({
     termSchema.extend({
       status: z.string(),
       selectedTransportId: z.string().nullable(),
+      /** The term is not over, so the transport can still be chosen (D-192). */
+      isEditable: z.boolean(),
       options: z.array(optionSchema),
     }),
   ),
@@ -67,14 +69,17 @@ export type TransportInput = {
 }
 
 const base = (eventId: string) => `organizer/events/${encodeURIComponent(eventId)}/transport`
-const ofApplication = (applicationId: string) =>
-  `participant/applications/${encodeURIComponent(applicationId)}/transport`
+/** The participant chooses for themselves, the organizer for the participant (D-191): one shape. */
+export type TransportRole = "participant" | "organizer"
+const ofApplication = (applicationId: string, writer: TransportRole = "participant") =>
+  `${writer}/applications/${encodeURIComponent(applicationId)}/transport`
 
 export const transportKeys = {
   event: (eventId: string) => ["events", eventId, "transport"] as const,
   participants: (eventId: string, id: string) =>
     ["events", eventId, "transport", id, "participants"] as const,
-  application: (applicationId: string) => ["applications", applicationId, "transport"] as const,
+  application: (applicationId: string, writer: TransportRole = "participant") =>
+    ["applications", applicationId, "transport", writer] as const,
 }
 
 export const eventTransportQueryOptions = (eventId: string) =>
@@ -92,11 +97,14 @@ export const transportParticipantsQueryOptions = (eventId: string, id: string) =
       ),
   })
 
-export const applicationTransportQueryOptions = (applicationId: string) =>
+export const applicationTransportQueryOptions = (
+  applicationId: string,
+  writer: TransportRole = "participant",
+) =>
   queryOptions({
-    queryKey: transportKeys.application(applicationId),
+    queryKey: transportKeys.application(applicationId, writer),
     queryFn: async () =>
-      applicationTransportSchema.parse(await api.get(ofApplication(applicationId)).json()),
+      applicationTransportSchema.parse(await api.get(ofApplication(applicationId, writer)).json()),
   })
 
 /** A new transport goes to a term, with a kind; neither changes for an existing one. */
@@ -127,6 +135,7 @@ export async function chooseTransport(
   applicationId: string,
   termId: string,
   transportId: string,
+  writer: TransportRole = "participant",
 ): Promise<void> {
-  await api.put(ofApplication(applicationId), { json: { termId, transportId } })
+  await api.put(ofApplication(applicationId, writer), { json: { termId, transportId } })
 }

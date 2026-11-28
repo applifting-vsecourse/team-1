@@ -63,7 +63,7 @@ export function SubstitutesPanel({
     const hasFreeBeds = free.MALE > 0 || free.FEMALE > 0
     if (!hasFreeBeds && !hasWaitlistedParticipants) return null
     return (
-      <section className="flex flex-col gap-3 rounded-lg border bg-card p-4 md:p-6">
+      <section className="flex flex-col gap-3 rounded-lg border border-border-strong bg-card p-4 md:p-6 nested:border-border">
         <h2 className="text-lg font-semibold">
           {t(hasFreeBeds ? "substitutes.emptyTitle" : "substitutes.fullTitle")}
         </h2>
@@ -151,7 +151,7 @@ export function SubstitutesPanel({
       ))}
       <section
         aria-label={t("substitutes.list")}
-        className="flex flex-col gap-6 rounded-lg border bg-card p-4 shadow-sm md:p-6"
+        className="flex flex-col gap-6 rounded-lg border border-border-strong bg-card p-4 md:p-6 nested:border-border"
       >
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-semibold">{t("substitutes.title")}</h2>
@@ -229,7 +229,7 @@ function SubstituteProposal({
   return (
     <section
       aria-label={t(`substitutes.proposal.title${kind}`)}
-      className="flex flex-col items-start gap-3 rounded-xl border bg-card p-4"
+      className="flex flex-col items-start gap-3 rounded-lg border border-border-strong bg-card p-4 nested:border-border"
     >
       <h2 className="text-lg font-semibold">{t(`substitutes.proposal.title${kind}`)}</h2>
       <p className="text-sm">
@@ -356,6 +356,7 @@ function ConfirmButton({
   const { t } = useTranslation("eventOverview")
   return (
     <Button
+      size="sm"
       aria-label={`${t("substitutes.confirm")}: ${label(item)}`}
       onClick={() => onChoose(item)}
     >
@@ -380,10 +381,7 @@ function TermStatus({ item, range }: { item: Substitute; range: string }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span>{range}</span>
-      <Badge
-        variant="secondary"
-        className="bg-status-waitlist-bg text-status-waitlist"
-      >
+      <Badge variant="waitlist">
         {t("applications.waitlistedPosition", { position: item.position })}
       </Badge>
     </div>

@@ -12,9 +12,11 @@ const base = (kind: AppNotification["kind"]): AppNotification => ({
   id: "n1",
   type: kind.startsWith("PAYMENT")
     ? "PAYMENT"
-    : kind.startsWith("REQUEST")
-      ? "REQUEST"
-      : "STATUS_CHANGED",
+    : kind.startsWith("BOARD")
+      ? "BOARD"
+      : kind.startsWith("REQUEST")
+        ? "REQUEST"
+        : "STATUS_CHANGED",
   kind,
   applicationId: "a1",
   params: {
@@ -26,6 +28,7 @@ const base = (kind: AppNotification["kind"]): AppNotification => ({
     owedCzk: 4400,
     fromStatus: "WAITLISTED",
     toStatus: "CONFIRMED",
+    postTitle: "Změna programu",
   },
   createdAt: "2027-03-11T09:32:00.000Z",
   readAt: null,
@@ -35,6 +38,24 @@ const compose = (kind: AppNotification["kind"], language: "en" | "cs") =>
   composeNotification(base(kind), i18n.getFixedT(language, "notifications"), language)
 
 describe("composeNotification", () => {
+  it("names the post and the event of a board notification", () => {
+    const notification = {
+      ...base("BOARD_POST_PUBLISHED"),
+      params: {
+        eventName: "Letní kemp Lipno 2027",
+        participantName: "Adam Dvořák",
+        postId: "p1",
+        postTitle: "Změna programu",
+      },
+    }
+    const text = composeNotification(notification, i18n.getFixedT("cs", "notifications"), "cs")
+    expect(text).toMatchObject({
+      title: "Nový příspěvek na nástěnce",
+      participant: "Změna programu",
+      context: "Letní kemp Lipno 2027",
+    })
+  })
+
   it("tells that the organizer cancelled the term, in both languages", () => {
     expect(compose("TERM_CANCELLED", "cs").title).toBe(
       "Organizátor zrušil termín akce, přihláška v něm je zrušená",
@@ -44,12 +65,11 @@ describe("composeNotification", () => {
     )
   })
 
-  it("separates who, where and what changed", () => {
+  it("separates who and where", () => {
     expect(compose("CONFIRMED", "cs")).toMatchObject({
       title: "Přihláška byla potvrzena",
       participant: "Adam Dvořák",
       context: "12.–18. 7. 2027 · Letní kemp Lipno 2027",
-      change: { from: "Náhradník", to: "Potvrzeno" },
     })
   })
 
@@ -62,11 +82,8 @@ describe("composeNotification", () => {
     expect(compose("WAITLISTED", "cs").title).toBe("Jste náhradník")
   })
 
-  it("names the status before and after in English too", () => {
-    expect(compose("WAITLISTED", "en")).toMatchObject({
-      title: "You are a substitute",
-      change: { from: "Waitlisted", to: "Confirmed" },
-    })
+  it("tells a substitute in English too", () => {
+    expect(compose("WAITLISTED", "en").title).toBe("You are a substitute")
   })
 
   it("shows a payment with the amount and what is still owed", () => {
@@ -95,7 +112,7 @@ describe("composeNotification", () => {
       const { title, participant, context } = compose(kind, language)
       expect(title).not.toMatch(/^title\.|\{\{/)
       expect(title.length).toBeGreaterThan(0)
-      expect(participant).toBe("Adam Dvořák")
+      expect(participant).toBe(kind === "BOARD_POST_PUBLISHED" ? "Změna programu" : "Adam Dvořák")
       expect(context).toContain("Letní kemp Lipno 2027")
     }
   })

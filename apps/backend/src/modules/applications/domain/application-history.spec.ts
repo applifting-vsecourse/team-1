@@ -19,6 +19,9 @@ const source: ApplicationHistorySource = {
     },
   ],
   edits: [],
+  terms: [
+    { id: "t1", name: null, startsOn: new Date("2027-07-12"), endsOn: new Date("2027-07-19") },
+  ],
   paymentRows: [
     {
       receiptId: "r1",
@@ -124,6 +127,44 @@ describe("buildApplicationHistory", () => {
       at: day("2026-11-18"),
       author: "Eva Malá",
       changes: [{ field: "accommodationRequest" }],
+    })
+  })
+
+  it("shows what an organizer wrote for the participant with the term and who", () => {
+    const history = buildApplicationHistory({
+      ...source,
+      edits: [
+        {
+          id: "e3",
+          authorName: "Eva Malá",
+          changedFields: ["transport"],
+          before: { value: null, termId: "t1" },
+          after: { value: "Autobus", termId: "t1" },
+          changedAt: day("2026-11-19"),
+        },
+        {
+          id: "e4",
+          authorName: "Eva Malá",
+          changedFields: ["health"],
+          before: { value: null, termId: null },
+          after: { value: "WRITTEN", termId: null },
+          changedAt: day("2026-11-20"),
+        },
+      ],
+    })
+    expect(history[1]).toMatchObject({
+      kind: "LOGISTICS",
+      author: "Eva Malá",
+      field: "transport",
+      from: null,
+      to: "Autobus",
+      term: { startsOn: new Date("2027-07-12") },
+    })
+    expect(history[0]).toMatchObject({
+      kind: "LOGISTICS",
+      field: "health",
+      to: "WRITTEN",
+      term: null,
     })
   })
 })

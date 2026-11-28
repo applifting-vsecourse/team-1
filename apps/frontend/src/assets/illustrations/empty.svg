@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" aria-hidden="true">
+  <circle class="backdrop" cx="160" cy="116" r="88" fill="var(--illustration-subtle)"/>
+  <rect class="ground" x="88" y="182" width="144" height="6" rx="3" fill="var(--illustration-ink)"/>
+  <path class="arc-1" d="M106 116V88C106 75.8493 115.849 66 128 66H156C159.314 66 162 68.6863 162 72C162 75.3137 159.314 78 156 78H128C122.477 78 118 82.4767 118 88V116C118 119.314 115.314 122 112 122C108.686 122 106 119.314 106 116Z" fill="var(--illustration-primary)"/>
+  <path class="arc-2" d="M202 152V124C202 120.686 204.686 118 208 118C211.314 118 214 120.686 214 124V152C214 164.151 204.151 174 192 174H164C160.686 174 158 171.314 158 168C158 164.686 160.686 162 164 162H192C197.523 162 202 157.523 202 152Z" fill="var(--illustration-primary)"/>
+  <circle class="socket" cx="160" cy="120" r="16" fill="var(--card)"/>
+  <circle class="pebble" cx="186" cy="98" r="5" fill="var(--card)"/>
+</svg>

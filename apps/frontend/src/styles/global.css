@@ -3,6 +3,9 @@
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
+/* Inner structure (DESIGN.md, Surfaces): inside a card or a dialog an outer container's ink edge turns grey,
+   so ink never sits inside ink. Use as `border-border-strong nested:border-border`. */
+@custom-variant nested (:where([data-slot="card"], [data-slot="dialog-content"]) &);
 
 @theme inline {
   /* Height makes it clear which item reveals the details and which one gives up space. */
@@ -54,10 +57,6 @@
   --color-ring: var(--ring);
   --color-link: var(--link);
   --color-wash: var(--wash);
-  --color-badge-neutral: var(--badge-neutral);
-  --color-badge-positive: var(--badge-positive);
-  --color-badge-danger: var(--badge-danger);
-  --color-badge-foreground: var(--badge-foreground);
   --color-status-success: var(--status-success);
   --color-status-success-bg: var(--status-success-bg);
   --color-status-warning: var(--status-warning);
@@ -70,9 +69,20 @@
   --color-tooltip-foreground: #e9f6f0;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-nav-active: var(--nav-active);
+  --color-nav-indicator: var(--nav-indicator);
   --color-sidebar-border: var(--sidebar-border);
+  --color-brand-warm: var(--brand-warm);
+  --color-brand-warm-subtle: var(--brand-warm-subtle);
+  --color-brand-warm-foreground: var(--brand-warm-foreground);
+  --color-logo-symbol: var(--logo-symbol);
+  --color-sticker-edge: var(--sticker-edge);
+  --color-sticker-shadow: var(--sticker-shadow);
+  --color-border-strong: var(--border-strong);
+  --color-disabled: var(--disabled);
+  --color-disabled-foreground: var(--disabled-foreground);
+  --color-status-error-bg: var(--status-error-bg);
+  --color-overlay: var(--overlay);
 
   --font-sans: var(--font-sans);
 
@@ -84,6 +94,10 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+  /* Togena / Brand components A: hard ink offset shadows, never blurred (DESIGN.md, Surfaces). */
+  --shadow-hard: var(--offset-hard) var(--offset-hard) 0 var(--shadow-ink);
+  --shadow-sticker: var(--offset-sticker) var(--offset-sticker) 0 var(--shadow-ink);
+  --shadow-dialog: var(--offset-dialog) var(--offset-dialog) 0 var(--shadow-ink);
 
   /* Figma DS / Metrics radius/* */
   --radius-sm: 4px;
@@ -104,6 +118,16 @@
 :root {
   --duration-accordion-open: 180ms;
   --duration-accordion-close: 120ms;
+  /* Togena / Motion tokens (Figma Motion 27361:3603). Organizer screens use fast/base with
+     ease-standard only; enter, overshoot, slow and mark belong to public pages and milestones. */
+  --ease-standard: cubic-bezier(0.22, 0.8, 0.2, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-overshoot: cubic-bezier(0.54, 1.2, 0.38, 1.2);
+  --ease-effect: cubic-bezier(0.31, 0.94, 0.34, 1);
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 400ms;
+  --duration-mark: 650ms;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --background: #f9fdff; /* color/bg/canvas */
   --foreground: #031a1e; /* color/text/primary */
@@ -113,7 +137,7 @@
   --popover-foreground: #031a1e; /* color/text/primary */
   --primary: #007f72; /* color/bg/accent */
   --primary-hover: #006f63;
-  --primary-pressed: #005f55;
+  --primary-pressed: #005f55; /* color/bg/accent-lip */
   --primary-foreground: #ffffff; /* color/text/inverse */
   --secondary: #f5f9fa; /* color/bg/subtle */
   --secondary-foreground: #031a1e; /* color/text/primary */
@@ -134,11 +158,6 @@
   --ring: #007f72; /* color/border/focus */
   --link: #006363; /* color/text/link */
   --wash: #edf6f5; /* Togena / Color / wash: info alert, read-only panels */
-  /* Togena / Color: solid badge tones (Togena / Badge 15189:163) */
-  --badge-neutral: #50686d; /* muted */
-  --badge-positive: #007f72; /* teal */
-  --badge-danger: #b34640; /* danger */
-  --badge-foreground: #ffffff; /* text-on-accent */
   --status-success: #16634a; /* color/status/success */
   --status-success-bg: #eaf6f0; /* color/status/success-bg */
   --status-warning: #8a4b0e; /* color/status/warning */
@@ -149,9 +168,39 @@
   --status-waitlist-bg: #f4efff; /* color/status/waitlist-bg */
   --sidebar: #f5f9fa; /* color/bg/subtle */
   --sidebar-foreground: #031a1e; /* color/text/primary */
-  --sidebar-accent: #c3ecdf; /* color/bg/selected */
-  --sidebar-accent-foreground: #031a1e; /* color/text/primary */
   --sidebar-border: #dae3e4; /* color/border/default */
+  /* Active sidebar item, system B nav A (Figma 27751:33229, kit Nav item 15219:4340): a neutral
+     grey surface, ink Semi Bold text and a 4 × 24 px warm bar at the left edge. */
+  --nav-active: #e6eced; /* color/nav/active: 1.13:1 on the sidebar, ink text 15:1 */
+  --nav-indicator: #c4621f; /* color/nav/indicator → color/brand/warm-lip: 3.4:1 on nav-active */
+  /* Togena / Color brand (Figma 27360:3600), system B (2026-11-27): orange is a fill with ink content
+     that says „you are here / this is yours“, never text, a state or an action. */
+  --brand-warm: #f08a3c; /* color/brand/warm */
+  --brand-warm-subtle: #fde8d7; /* color/brand/warm-subtle */
+  --brand-warm-foreground: #031a1e; /* color/text/on-warm */
+  /* The arcs of the logo symbol (Figma color/logo/symbol, the same as favicon.svg); the dot is brand-warm. */
+  --logo-symbol: #007f72;
+  --illustration-primary: #007f72; /* color/illustration/primary */
+  --illustration-subtle: #c3ecdf; /* color/illustration/subtle */
+  --illustration-ink: #031a1e; /* color/illustration/ink */
+  --sticker-edge: #ffffff; /* color/brand/sticker-edge */
+  --sticker-shadow: #031a1e; /* color/brand/sticker-shadow */
+  /* Togena / Brand components, direction A „Ink and a hard shadow“ (Figma specimen 27535:3692):
+     an ink edge on every control and card; what you press lifts onto a hard ink offset shadow. */
+  /* Lines muted, shadows full dark (edge strength B for lines, A for shadows; Figma 27632:9575):
+     the edge is ink at about 70 % as a solid colour (6.7:1 on white, 6.5:1 on the canvas),
+     every hard shadow stays pure ink. */
+  --border-strong: #4f5f62; /* color/border/strong */
+  --shadow-ink: #031a1e; /* color/shadow/hard → color/ink */
+  --offset-hard: 3px; /* offset/hard: lift and its shadow */
+  /* How far `lift` moves on hover: the full offset on public pages, none in the work layer (below). */
+  --lift-offset: var(--offset-hard);
+  --offset-sticker: 4px; /* offset/sticker: toast and sticker */
+  --offset-dialog: 6px; /* dialog shadow (specimen A · Dialog 27538:3801) */
+  --disabled: #e6eced; /* color/bg/disabled */
+  --disabled-foreground: #5a6f73; /* color/text/disabled */
+  --status-error-bg: #fff0f1; /* color/status/error-bg */
+  --overlay: rgb(3 26 30 / 0.6); /* ink 60 %: dialog and sheet backdrop */
   /* Sonner reads --radius directly; matches radius/md. */
   --radius: 0.5rem;
   /* shadows/surface: cards and the other things that sit on the canvas */
@@ -204,24 +253,39 @@
   --link: #00bba7; /* color/text/link */
   /* Togena / Color Dark has no wash sample in the DS frames; reuse color/bg/subtle. */
   --wash: var(--secondary);
-  --badge-neutral: #b0c9c3;
-  --badge-positive: #8bdfc4;
-  --badge-danger: #ffaaa3;
-  --badge-foreground: #173438;
   --sidebar: #031011;
   --sidebar-foreground: #e4edee;
-  --sidebar-accent: #005f5a;
-  --sidebar-accent-foreground: #e4edee;
   --sidebar-border: #142223;
+  /* color/nav/active and color/nav/indicator, dark: against the code sidebar #031011 the surface is
+     1.72:1, text 9.4:1, the bar in brand-warm 5.4:1 (warm-lip would be 2.6:1). */
+  --nav-active: #22403f;
+  --nav-indicator: var(--brand-warm);
+  --brand-warm: #f5a05f;
+  --brand-warm-subtle: #3d2a1d;
+  --logo-symbol: #b4e7d3; /* color/logo/symbol, dark: the favicon's dark arcs */
+  --illustration-primary: #8bdfc4;
+  --illustration-subtle: #244f47;
+  --illustration-ink: #e9f6f0;
+  --sticker-edge: #f0fff7;
+  /* The ink edge and its shadow turn to the control border colour so they stay visible on the
+     dark canvas (6.2:1 on #030b0b); a dark shadow would vanish. */
+  --border-strong: #aabcb9; /* color/dark/ink-edge: dark ink at 70 % over the dark panel */
+  --shadow-ink: #e9f6f0; /* color/shadow/hard → color/dark/ink: a dark shadow would vanish */
+  --disabled: #142223; /* color/border/default */
+  --disabled-foreground: #7a9596; /* color/text/secondary */
+  /* No dark error surface in the DS: the error alert keeps the card surface and its red icon. */
+  --status-error-bg: var(--card);
+  /* The ink scrim would not dim the near-black canvas; black at 75 % does. */
+  --overlay: rgb(0 0 0 / 0.75);
 }
 
 @layer base {
   :root {
-    --workspace-inset: 18px;
+    --workspace-inset: 16px; /* the AreaLayout content padding (px-4 md:px-8); HeadingBand bleeds by it */
   }
   @media (min-width: 48rem) {
     :root {
-      --workspace-inset: 42px;
+      --workspace-inset: 32px;
     }
   }
   * {
@@ -237,50 +301,40 @@
   }
 }
 
-/* Figma's drawn controls are decorative layers on the Radix controls. Dark mode and
-   forced colours keep their theme-aware outlines, thumb and selection indicator. */
+/* Togena / Brand components A · lift (Figma specimen 27535:3692): on hover what you press moves up
+   and left onto its hard ink shadow and settles back when pressed (Gumroad). Only translate and
+   box-shadow move; with reduced motion the shadow shows without the move. Disabled never lifts. */
+/* Work layer (organizer and participant area; AreaLayout marks <body data-layer="work">, so dialogs opened
+   there count too): hover shows only the hard shadow or the surface change, nothing moves (DESIGN.md, Brand
+   layer and motion). Public pages keep the lift. */
+[data-layer="work"] {
+  --lift-offset: 0px;
+}
+
+@utility lift {
+  transition-property: translate, box-shadow, background-color, border-color, color;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-standard);
+  &:where(:not(:disabled, [aria-disabled="true"], [data-disabled])) {
+    @media (hover: hover) {
+      &:hover {
+        translate: calc(var(--lift-offset) * -1) calc(var(--lift-offset) * -1);
+        box-shadow: var(--offset-hard) var(--offset-hard) 0 var(--shadow-ink);
+      }
+    }
+    &:active {
+      translate: 0 0;
+      box-shadow: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:hover {
+      translate: none;
+    }
+  }
+}
+
 @media (forced-colors: none) {
-  .form-radio[data-state="checked"],
-  .form-switch[data-size="default"] {
-    &:not(.dark *) {
-      position: relative;
-      background: transparent;
-      border-color: transparent;
-      outline-color: transparent;
-
-      &::after {
-        content: "";
-        position: absolute;
-        inset: -5px;
-        background: var(--drawn-control) center / auto no-repeat;
-        pointer-events: none;
-      }
-
-      & > [data-slot="radio-group-indicator"],
-      & > [data-slot="switch-thumb"] {
-        opacity: 0;
-      }
-    }
-  }
-  .form-radio[data-state="checked"] {
-    --drawn-control: url("../assets/forms/radio-selected.svg");
-    &:focus-visible {
-      --drawn-control: url("../assets/forms/radio-selected-focus.svg");
-    }
-  }
-  .form-switch[data-state="unchecked"] {
-    --drawn-control: url("../assets/forms/switch-off.svg");
-    &:focus-visible {
-      --drawn-control: url("../assets/forms/switch-off-focus.svg");
-    }
-  }
-  .form-switch[data-state="checked"] {
-    --drawn-control: url("../assets/forms/switch-on.svg");
-    &:focus-visible {
-      --drawn-control: url("../assets/forms/switch-on-focus.svg");
-    }
-  }
-
   .form-textarea::-webkit-resizer {
     background: url("../assets/forms/resize.svg") right 4px bottom 4px / auto no-repeat;
   }
@@ -451,6 +505,19 @@
       outline: 2px solid transparent;
     }
   }
+}
+
+/* Below lg the price of the application form is a bar fixed to the bottom of the screen
+   (Figma 27443:16659). PriceBar publishes its measured height as --price-bar-height (rows open
+   or an error shown included): the end of the page stays above the bar and a focused field is
+   scrolled clear of it (WCAG 2.4.11). The fallback is the collapsed bar. */
+html:has([data-price-bar]) {
+  scroll-padding-bottom: calc(
+    var(--price-bar-height, calc(var(--spacing) * 20)) + var(--spacing) * 4
+  );
+}
+body:has([data-price-bar]) {
+  padding-bottom: var(--price-bar-height, calc(var(--spacing) * 20));
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -630,6 +697,28 @@
   }
 }
 
+/* Skeleton shimmer: 1.2 s linear; with reduced motion the bars stay still. */
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--card) 70%, transparent),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.2s linear infinite;
+  }
+  @keyframes skeleton-shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+}
+
 /* Togena / Navigation / Tab in the account settings. */
 .account-tab {
   color: var(--foreground);
@@ -674,40 +763,11 @@
   outline: none;
 }
 
-/* Figma v2 action states. Keep the kit's sized hit areas and override only its semantic variants. */
-[data-slot="button"][data-variant="destructive"] {
-  background-color: var(--action-destructive);
-  color: var(--action-destructive-foreground);
-}
-@media (hover: hover) {
-  [data-slot="button"][data-variant="destructive"]:where(
-      :not(:disabled, [aria-disabled="true"])
-    ):hover {
-    opacity: 0.92;
-  }
-  [data-slot="button"][data-variant="ghost"]:where(:not(:disabled, [aria-disabled="true"])):hover {
-    background-color: var(--action-subtle);
-  }
-}
-[data-slot="button"][data-variant="destructive"]:where(
-    :not(:disabled, [aria-disabled="true"])
-  ):active {
-  background-color: var(--action-destructive-pressed);
-  opacity: 1;
-}
-[data-slot="button"][data-variant="ghost"]:where(:not(:disabled, [aria-disabled="true"])):active {
-  background-color: var(--accent);
-}
+/* Focus is the same 2 px teal outline, 2 px off the element, on every button (specimen A, Fokus). */
 [data-slot="button"]:focus-visible {
   --tw-ring-color: transparent;
   outline: 2px solid var(--ring);
   outline-offset: 2px;
-}
-[data-slot="button"][data-variant="destructive"]:focus-visible {
-  outline-color: var(--action-destructive);
-}
-[data-slot="button"][aria-busy="true"]:disabled {
-  opacity: 1;
 }
 
 /* The current language or theme uses the same trailing check as a selected menu option. */
@@ -793,11 +853,6 @@
   border-radius: inherit;
 }
 
-/* Figma Feedback / Badge, warning. */
-[data-slot="badge"][data-variant="warning"] {
-  border-width: 0;
-}
-
 /* Figma Dialog / Dialog actions: both actions share a 48 px target on either layout. */
 [data-slot="dialog-footer"] > [data-slot="button"][data-size="default"],
 [data-slot="sheet-footer"] > [data-slot="button"][data-size="default"] {
@@ -830,5 +885,121 @@
 @media (min-width: 48rem) {
   .pagination-current-marker:not([data-compact]) {
     mask-image: url("../assets/navigation/pagination-current.svg");
+  }
+}
+
+/* Brand layer (public pages and milestones only; docs/FIGMA-REMAKE.md). The warm accent is a
+   fill: a highlighter under the key words of a heading, ink text on top. */
+.brand-highlight {
+  --highlight-offset: 0.11em;
+  background: linear-gradient(var(--brand-warm), var(--brand-warm)) left bottom
+    var(--highlight-offset) / 100% 0.27em no-repeat;
+  box-decoration-break: clone;
+  padding-inline: 0.07em;
+  margin-inline: -0.07em;
+}
+@media (min-width: 64rem) {
+  .brand-highlight {
+    --highlight-offset: 0.04em;
+  }
+}
+
+/* Togena / Brand / Sticker: one hard offset shadow, never blurred. */
+.sticker {
+  box-shadow: var(--offset-sticker) var(--offset-sticker) 0 var(--sticker-shadow);
+}
+.sticker[data-size="s"] {
+  box-shadow: var(--offset-hard) var(--offset-hard) 0 var(--sticker-shadow);
+}
+
+/* M31 and M32 (Figma Motion 27363:3600) play once; with reduced motion the end state shows at once.
+   M31: the logo arcs fly in, the tent rises from the ground, the sun comes up, the path fades in.
+   M32: the sticker sticks with an overshoot, then its check draws. */
+@media (prefers-reduced-motion: no-preference) {
+  .brand-assemble :is(.arc-1, .arc-2, .tent, .tent-door, .sun) {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .brand-assemble :is(.backdrop, .ground) {
+    animation: brand-fade var(--duration-base) var(--ease-effect) both;
+  }
+  .brand-assemble .arc-1 {
+    animation:
+      brand-arc-start var(--duration-slow) var(--ease-enter) both,
+      brand-fade var(--duration-base) var(--ease-effect) both;
+  }
+  .brand-assemble .arc-2 {
+    animation:
+      brand-arc-end var(--duration-slow) var(--ease-enter) 80ms both,
+      brand-fade var(--duration-base) var(--ease-effect) 80ms both;
+  }
+  .brand-assemble :is(.tent, .tent-door) {
+    transform-origin: bottom;
+    animation: brand-rise var(--duration-slow) var(--ease-enter) 160ms both;
+  }
+  .brand-assemble .sun {
+    animation:
+      brand-sunrise var(--duration-slow) var(--ease-enter) 240ms both,
+      brand-fade var(--duration-base) var(--ease-effect) 240ms both;
+  }
+  .brand-assemble .path {
+    animation: brand-fade var(--duration-base) var(--ease-effect) 460ms both;
+  }
+  /* The term is confirmed once the camp stands. */
+  .brand-assemble {
+    --sticker-delay: var(--duration-mark);
+  }
+
+  .sticker[data-animated] {
+    animation:
+      sticker-stick var(--duration-slow) var(--ease-overshoot) var(--sticker-delay, 0ms) both,
+      brand-fade var(--duration-base) var(--ease-effect) var(--sticker-delay, 0ms) both;
+  }
+  .sticker[data-animated] path {
+    stroke-dasharray: 1;
+    animation: sticker-check 250ms var(--ease-standard)
+      calc(var(--sticker-delay, 0ms) + var(--duration-slow)) both;
+  }
+
+  @keyframes brand-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes brand-arc-start {
+    from {
+      translate: -17px -17px;
+      rotate: -20deg;
+    }
+  }
+  @keyframes brand-arc-end {
+    from {
+      translate: 17px 17px;
+      rotate: -20deg;
+    }
+  }
+  @keyframes brand-rise {
+    from {
+      scale: 1 0;
+    }
+  }
+  @keyframes brand-sunrise {
+    from {
+      translate: 0 24px;
+    }
+  }
+  @keyframes sticker-stick {
+    from {
+      scale: 0.6;
+      rotate: 0deg;
+    }
+  }
+  @keyframes sticker-check {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 }

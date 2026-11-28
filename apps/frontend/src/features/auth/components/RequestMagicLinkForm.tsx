@@ -1,13 +1,14 @@
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { TFunction } from "i18next"
-import { CircleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { PendingButton } from "@/components/atoms/PendingButton"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -19,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input"
 
 import { useRequestMagicLink } from "@/features/auth/hooks/useRequestMagicLink"
+import { linkRequestError } from "@/features/auth/lib/link-request-error"
 
 const createSchema = (t: TFunction<"auth">) =>
   z.object({
@@ -31,30 +33,47 @@ const createSchema = (t: TFunction<"auth">) =>
 
 type FormValues = z.infer<ReturnType<typeof createSchema>>
 
-/** "Send me a new link" (S10, link page): e-mail in, the same answer out, always. */
-// Figma (Design system): S10 Přihlášení účastníka · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=11968-273
-// Figma (Design system): S10a Přihlašovací odkaz odeslán · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13183-333
-// Figma (Design system): S10b Odkaz se nepodařilo poslat · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=13183-399
-export function RequestMagicLinkForm() {
+type Props = {
+  defaultEmail?: string
+  /** „Poslat přihlašovací odkaz“ on the sign-in card, „Poslat nový odkaz“ on a link that doesn't work. */
+  submitLabel: string
+  /** The server answers the same for any e-mail, so this never says whether an account exists. */
+  onSent: (email: string) => void
+  /** „Přihlásit se heslem“ under the button: back to the password with the e-mail typed so far. */
+  onUsePassword?: (email: string) => void
+  /** Opened by a switch in the same card („Nemáte heslo?“): focus goes to the e-mail field. */
+  shouldFocusEmail?: boolean
+}
+
+/** E-mail in, a sign-in link out; a failure is one Alert above the button. */
+// Figma (Design system v2): Přihlášení odkazem ve stejné kartě · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18566-1444 (mobile 18566-1501)
+export function RequestMagicLinkForm({
+  defaultEmail = "",
+  submitLabel,
+  onSent,
+  onUsePassword,
+  shouldFocusEmail = false,
+}: Props) {
   const { t } = useTranslation("auth")
+  const { t: tErrors } = useTranslation("errors")
   const schema = useMemo(() => createSchema(t), [t])
-  const form = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { email: "" } })
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: defaultEmail },
+  })
   const request = useRequestMagicLink()
 
-  if (request.isSuccess) {
-    return (
-      <Alert role="status">
-        <AlertTitle>{t("requestLink.sentTitle")}</AlertTitle>
-        <AlertDescription>{t("requestLink.sentBody")}</AlertDescription>
-      </Alert>
-    )
-  }
+  useEffect(() => {
+    if (shouldFocusEmail) form.setFocus("email")
+  }, [form, shouldFocusEmail])
 
   return (
     <Form {...form}>
       <form
         noValidate
-        onSubmit={form.handleSubmit(({ email }) => request.mutate(email))}
+        onSubmit={form.handleSubmit(({ email }) =>
+          request.mutate(email, { onSuccess: () => onSent(email) }),
+        )}
         className="flex flex-col gap-4"
       >
         <FormField
@@ -76,26 +95,30 @@ export function RequestMagicLinkForm() {
           )}
         />
 
+        {request.isError ? (
+          <Alert variant="destructive">
+            <TriangleAlert aria-hidden />
+            <AlertTitle>{linkRequestError(request.error, t, tErrors)}</AlertTitle>
+          </Alert>
+        ) : null}
+
         <PendingButton
           isPending={request.isPending}
           type="submit"
           size="lg"
           className="w-full"
         >
-          {t("requestLink.submit")}
+          {submitLabel}
         </PendingButton>
-
-        {request.isError ? (
-          <Alert
-            variant="destructive"
-            className="border-destructive/30 bg-destructive/10"
+        {onUsePassword ? (
+          <Button
+            type="button"
+            variant="link"
+            className="h-auto self-center p-0 text-base font-normal text-link underline"
+            onClick={() => onUsePassword(form.getValues("email").trim())}
           >
-            <CircleAlert />
-            <AlertTitle>{t("requestLink.failedTitle")}</AlertTitle>
-            <AlertDescription className="text-destructive/90">
-              {t("requestLink.failedBody")}
-            </AlertDescription>
-          </Alert>
+            {t("participantLogin.usePassword")}
+          </Button>
         ) : null}
       </form>
     </Form>

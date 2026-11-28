@@ -26,7 +26,11 @@ function CatalogRoute() {
   return (
     <>
       <Seo title={t("list.title")} />
-      <PublicLayout isFullWidth>
+      <PublicLayout
+        isFullWidth
+        hasFullFooter
+        headerContentClassName="max-w-275"
+      >
         <CatalogPage
           organizationId={organization}
           onOrganizationChange={(organizationId) =>

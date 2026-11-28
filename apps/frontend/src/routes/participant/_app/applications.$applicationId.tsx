@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { Seo } from "@/components/atoms/Seo"
 
+import { BoardEntryCard } from "@/features/board/components/BoardEntryCard"
 import { ApplicationDetail } from "@/features/participant/components/ApplicationDetail"
 
 export const Route = createFileRoute("/participant/_app/applications/$applicationId")({
@@ -18,7 +19,10 @@ function ParticipantApplicationPage() {
   return (
     <>
       <Seo title={t("detail.title")} />
-      <ApplicationDetail applicationId={applicationId} />
+      <ApplicationDetail
+        applicationId={applicationId}
+        boardEntry={<BoardEntryCard applicationId={applicationId} />}
+      />
     </>
   )
 }
