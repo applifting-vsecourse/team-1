@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Figma v2: circular back navigation · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27316-3519
+// Brand look A (specimen, Zpět (kruh) · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27538-3790):
+// an ink-edged circle that lifts like a button (outline variant).
 function BackControl({ label, children }: { label: string; children: ReactElement }) {
   return (
     <TooltipProvider>
@@ -13,9 +15,9 @@ function BackControl({ label, children }: { label: string; children: ReactElemen
         <TooltipTrigger asChild>
           <Button
             asChild
-            variant="ghost"
+            variant="outline"
             size="icon-lg"
-            className="min-h-11 max-w-11 min-w-11 flex-none self-start rounded-full bg-accent text-primary hover:bg-primary hover:text-primary-foreground dark:text-link dark:hover:bg-primary dark:hover:text-primary-foreground"
+            className="min-h-11 max-w-11 min-w-11 flex-none self-start rounded-full"
           >
             {children}
           </Button>

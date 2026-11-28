@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { isIsoDate } from "@/lib/date-input"
 import { notify } from "@/lib/notify"
 import { isValidPhone, MAX_PHONE_INPUT_LENGTH, normalizePhone } from "@/lib/phone"
+import { MAX_PRONOUNS_LENGTH } from "@/lib/pronouns"
 
 import {
   saveApplicationDetails,
@@ -41,6 +42,7 @@ type ParticipantEditDialogProps = {
     | "id"
     | "firstName"
     | "lastName"
+    | "pronouns"
     | "birthDate"
     | "gender"
     | "email"
@@ -63,6 +65,7 @@ export function ParticipantEditDialog({ application, onClose }: ParticipantEditD
   const client = useQueryClient()
   const [firstName, setFirstName] = useState(application.firstName)
   const [lastName, setLastName] = useState(application.lastName)
+  const [pronouns, setPronouns] = useState(application.pronouns ?? "")
   const [birthDate, setBirthDate] = useState(application.birthDate)
   const [phone, setPhone] = useState(application.phone ?? "")
   const [hasAccommodation, setHasAccommodation] = useState(application.individualAccommodation)
@@ -72,6 +75,9 @@ export function ParticipantEditDialog({ application, onClose }: ParticipantEditD
   const mutation = useMutation({
     mutationFn: () =>
       saveApplicationDetails(application.id, {
+        ...(pronouns.trim() !== (application.pronouns ?? "")
+          ? { pronouns: pronouns.trim() || null }
+          : {}),
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         birthDate,
@@ -193,6 +199,17 @@ export function ParticipantEditDialog({ application, onClose }: ParticipantEditD
                   setBirthDate(value)
                   clear("birthDate")
                 }}
+              />
+            </Field>
+            <Field
+              id="edit-pronouns"
+              label={t("participant.pronouns")}
+            >
+              <Input
+                id="edit-pronouns"
+                value={pronouns}
+                maxLength={MAX_PRONOUNS_LENGTH}
+                onChange={(event) => setPronouns(event.target.value)}
               />
             </Field>
             <Field

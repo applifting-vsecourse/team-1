@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { currentLanguage } from "@/i18n"
+import { cn } from "@/lib/utils"
 
 import { useAccountLanguage } from "@/features/auth/hooks/useAccountLanguage"
 import { useSession } from "@/features/auth/hooks/useSession"
@@ -27,7 +28,15 @@ import { initials } from "@/features/auth/lib/initials"
  */
 // Figma (Design system): N / Sidebar account · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43608
 // Figma (Design system): N / Sidebar account menu · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=14178-43617
-export function SidebarAccount() {
+export function SidebarAccount({
+  subtitle,
+  hasPreferences = true,
+}: {
+  /** Shown under the name in place of the e-mail, which stays for screen readers (the participant's role, Figma F4). */
+  subtitle?: string
+  /** Language and theme above the account; the participant area keeps them in the account settings only. */
+  hasPreferences?: boolean
+} = {}) {
   const { t } = useTranslation("auth")
   const { user } = useSession()
   const { changeLanguage, isPending } = useAccountLanguage(user?.locale)
@@ -37,58 +46,77 @@ export function SidebarAccount() {
 
   const accountRoute =
     user.accountType === "PARTICIPANT" ? ROUTES.participant.account : ROUTES.organizer.account
+  // With the role under the name (participant area, Figma 27681:33660) the menu has the 48 px items
+  // of the mobile account menu.
+  const item = subtitle
+    ? "h-12 gap-4 rounded-sm px-3 text-base [&_svg:not([class*='size-'])]:size-5"
+    : "h-10 font-medium"
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-col gap-2 border-b border-sidebar-border pb-2">
-        <LanguageSwitcher
-          value={currentLanguage()}
-          disabled={isPending}
-          onChange={(language) => void changeLanguage(language)}
-        />
-        <ThemeSwitcher isLabeled />
-      </div>
+      {hasPreferences ? (
+        <div className="flex flex-col gap-2 border-b border-sidebar-border pb-2">
+          <LanguageSwitcher
+            value={currentLanguage()}
+            disabled={isPending}
+            onChange={(language) => void changeLanguage(language)}
+          />
+          <ThemeSwitcher isLabeled />
+        </div>
+      ) : null}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
             title={user.name}
-            className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none hover:bg-sidebar-accent/60 focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-sidebar-accent/60"
+            data-subtitle={Boolean(subtitle)}
+            className="flex w-full items-center gap-2.5 rounded-md p-2 text-left transition-colors outline-none hover:bg-action-subtle focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-action-subtle data-[subtitle=true]:gap-3"
           >
             <Avatar>
-              <AvatarFallback className="bg-accent text-xs font-semibold text-link">
-                {initials(user.name)}
-              </AvatarFallback>
+              <AvatarFallback>{initials(user.name)}</AvatarFallback>
             </Avatar>
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-sm font-medium">{user.name}</span>
-              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              <span className={subtitle ? "truncate text-base" : "truncate text-sm font-medium"}>
+                {user.name}
+              </span>
+              {subtitle ? (
+                <>
+                  <span className="truncate text-sm text-muted-foreground">{subtitle}</span>
+                  <span className="sr-only">{user.email}</span>
+                </>
+              ) : (
+                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              )}
             </span>
             <ChevronsUpDown
               aria-hidden
-              className="size-4 shrink-0 text-muted-foreground"
+              className={cn("shrink-0 text-muted-foreground", subtitle ? "size-6" : "size-4")}
             />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           side="top"
           align="start"
-          className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
+          className={
+            subtitle
+              ? "flex w-52 flex-col gap-1 p-2"
+              : "w-(--radix-dropdown-menu-trigger-width) min-w-56"
+          }
         >
           <DropdownMenuItem
             asChild
-            className="h-10 font-medium"
+            className={item}
           >
             <Link to={accountRoute}>
               <Settings />
               {t("menu.accountSettings")}
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          {subtitle ? null : <DropdownMenuSeparator />}
           <DropdownMenuItem
             onSelect={() => signOut.mutate()}
             disabled={signOut.isPending}
-            className="h-10 font-medium"
+            className={item}
           >
             <LogOut />
             {t("menu.signOut")}

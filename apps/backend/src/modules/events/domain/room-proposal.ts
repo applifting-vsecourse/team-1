@@ -311,21 +311,28 @@ function buildProposal(input: ProposalInput, isPacking: boolean): RoomProposal {
   // individual moves that maintain the score, including wishes others made for that person.
   const occupiedRooms = eligibleRooms.filter((room) => room.occupants.length > 0)
   let currentScore = score()
-  for (const person of candidates) {
-    const id = person.applicationTermId
-    const source = roomById.get(roomOf.get(id) ?? "")
-    if (!source || source.occupants.length > 0) continue
-    for (const target of occupiedRooms) {
-      if ((free.get(target.id) ?? 0) < 1 || !fits(target, person)) continue
-      place(id, target.id)
-      const nextScore = score()
-      if (nextScore >= currentScore) {
-        currentScore = nextScore
-        break
+  // Successful moves only go from newly opened rooms to rooms with fixed occupants.
+  // Each pass with a move therefore leaves fewer candidates in newly opened rooms.
+  let moved: boolean
+  do {
+    moved = false
+    for (const person of candidates) {
+      const id = person.applicationTermId
+      const source = roomById.get(roomOf.get(id) ?? "")
+      if (!source || source.occupants.length > 0) continue
+      for (const target of occupiedRooms) {
+        if ((free.get(target.id) ?? 0) < 1 || !fits(target, person)) continue
+        place(id, target.id)
+        const nextScore = score()
+        if (nextScore >= currentScore) {
+          currentScore = nextScore
+          moved = true
+          break
+        }
+        place(id, source.id)
       }
-      place(id, source.id)
     }
-  }
+  } while (moved)
 
   const placed = candidates.filter((person) => roomOf.has(person.applicationTermId))
   for (const person of candidates) {

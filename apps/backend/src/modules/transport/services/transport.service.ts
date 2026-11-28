@@ -1,3 +1,4 @@
+import { ApplicationScope, editorOf } from "@/modules/applications/domain/application-scope"
 import {
   ApplicationTransport,
   EventTransport,
@@ -102,7 +103,18 @@ export class TransportService {
 
   /** Someone else's application and a missing one look the same: 403 with no content. */
   async ofApplication(user: Identity, applicationId: string): Promise<ApplicationTransport> {
-    const result = await this.repository.ofApplication(user.id, applicationId)
+    return this.found(await this.repository.ofApplication({ userId: user.id }, applicationId))
+  }
+
+  async ofApplicationForOrganizer(
+    user: Identity,
+    applicationId: string,
+  ): Promise<ApplicationTransport> {
+    const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    return this.found(await this.repository.ofApplication({ organizationId }, applicationId))
+  }
+
+  private found(result: ApplicationTransport | null): ApplicationTransport {
     if (!result) throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN", "Not your application")
     return result
   }
@@ -113,8 +125,29 @@ export class TransportService {
     termId: string,
     transportId: string,
   ): Promise<void> {
-    if (!(await this.repository.choose(user.id, applicationId, termId, transportId))) {
-      throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
-    }
+    await this.write({ userId: user.id }, applicationId, termId, transportId)
+  }
+
+  /** An organizer of the application's organization chooses it for the participant (#786). */
+  async chooseByOrganizer(
+    user: Identity,
+    applicationId: string,
+    termId: string,
+    transportId: string,
+  ): Promise<void> {
+    const { organizationId } = await this.access.assertCanAccessApplication(user, applicationId)
+    await this.write({ organizationId }, applicationId, termId, transportId, editorOf(user))
+  }
+
+  private async write(
+    scope: ApplicationScope,
+    applicationId: string,
+    termId: string,
+    transportId: string,
+    editor?: ReturnType<typeof editorOf>,
+  ): Promise<void> {
+    const result = await this.repository.choose(scope, applicationId, termId, transportId, editor)
+    if (result === "NOT_FOUND") throw new AppException(HttpStatus.FORBIDDEN, "FORBIDDEN")
+    if (result === "CLOSED") throw new AppException(HttpStatus.CONFLICT, "TRANSPORT_EDIT_CLOSED")
   }
 }

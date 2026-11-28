@@ -68,7 +68,10 @@ export function CapacityPage({
   return (
     <div className="flex flex-col gap-6">
       <Seo title={t("capacity.title")} />
-      <SectionHeader title={t("capacity.title")} />
+      <SectionHeader
+        isTitleHidden
+        title={t("capacity.title")}
+      />
       {query.isError ? (
         <ErrorState
           title={t("capacity.loadFailed")}

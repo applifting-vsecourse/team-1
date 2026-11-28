@@ -17,6 +17,10 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   )
 }
 
+// Brand look A (specimen, Řádek tabulky · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27538-3898):
+// inner structure, so the header line and the rows are grey hairlines (never ink inside ink); rows stay
+// flat — hover is a surface change only (calm organizer layer), a selected row is `accent`. The ink edge
+// around belongs to the container.
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
@@ -52,7 +56,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+        "border-b transition-colors duration-(--duration-fast) ease-(--ease-standard) hover:bg-muted has-aria-expanded:bg-muted data-[state=selected]:bg-accent",
         className,
       )}
       {...props}

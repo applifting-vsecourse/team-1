@@ -2,7 +2,7 @@
 
 > Generováno z [`otazky.yaml`](otazky.yaml) (`python generate.py`). Needituj, měň YAML.
 
-**45 neuzavřených** otázek, **90 uzavřených**.
+**43 neuzavřených** otázek, **92 uzavřených**.
 
 ## Role
 
@@ -46,15 +46,13 @@
 
 _Nic._
 
-### `po` (Tomáš): 29
+### `po` (Tomáš): 27
 
 | ID | Otázka | Dotčené US | Priorita | Proč |
 | --- | --- | --- | --- | --- |
-| [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | P0 | Blokuje dokončení PR #683; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení). |
 | [Q-KOM-04](#q-kom-04) | Mají účastníci dostat upozornění, když se na nástěnce objeví něco nového? Je to MVP, nebo Nice to have? | [US-91](https://github.com/applifting-vsecourse/team-1/issues/91) | P2 | PO 11. 11. chce komunitu potvrzených účastníků (§4); ověřit na refinementu 17. 11. |
+| [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | P2 | PR #683 je sloučené; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení). |
 | [Q-UCT-11](#q-uct-11) | Jaké údaje o sobě navzájem uvidí potvrzení účastníci téže akce a jak se k tomu dává souhlas? | [US-92](https://github.com/applifting-vsecourse/team-1/issues/92) | P2 | PO 11. 11. chce viditelnost v uzavřené skupině; rozsah údajů a souhlas chybí. |
-| [Q-EKO-01](#q-eko-01) | Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech? | [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
-| [Q-EKO-02](#q-eko-02) | Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete? | [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-KOM-01](#q-kom-01) | Potřebuješ to už pro první ročník (MVP), nebo zatím stačí Mailchimp? | [US-57](https://github.com/applifting-vsecourse/team-1/issues/57) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-KOM-02](#q-kom-02) | Má být už v MVP, nebo stačí po spuštění přihlášek? | [US-58](https://github.com/applifting-vsecourse/team-1/issues/58) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
 | [Q-LOG-01](#q-log-01) | Které další dokumenty kromě bezinfekčnosti od účastníků potřebuješ? | [US-62](https://github.com/applifting-vsecourse/team-1/issues/62) | P3 | Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí. |
@@ -96,21 +94,6 @@ _Nic._
 
 ## Podle epiců
 
-### Epic: bez epicu
-
-| ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
-| --- | --- | --- | --- | --- | --- |
-| [Q-BEZ-01](#q-bez-01) | Jaké doklady zaměstnavatelé skutečně vyžadují a kdy a kým se mají vystavovat? | [#162](https://github.com/applifting-vsecourse/team-1/issues/162) | otevřeno | P3 | `pm` |
-| [Q-BEZ-02](#q-bez-02) | Jaké doklady vyžadují zdravotní pojišťovny a liší se od dokladů pro zaměstnavatele (#162)? | [#163](https://github.com/applifting-vsecourse/team-1/issues/163) | otevřeno | P3 | `pm` |
-| [Q-BEZ-03](#q-bez-03) | Kdo smí které zdravotní údaje vidět a zapisovat, jaké zákonné požadavky platí a má se to řešit jako jeden modul? | [#166](https://github.com/applifting-vsecourse/team-1/issues/166) | otevřeno | P3 | `pm` |
-
-### Epic: ekonomika
-
-| ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
-| --- | --- | --- | --- | --- | --- |
-| [Q-EKO-01](#q-eko-01) | Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech? | [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) | otevřeno | P3 | `po` |
-| [Q-EKO-02](#q-eko-02) | Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete? | [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) | otevřeno | P3 | `po` |
-
 ### Epic: komunikace
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
@@ -118,13 +101,14 @@ _Nic._
 | [Q-KOM-04](#q-kom-04) | Mají účastníci dostat upozornění, když se na nástěnce objeví něco nového? Je to MVP, nebo Nice to have? | [US-91](https://github.com/applifting-vsecourse/team-1/issues/91) | otevřeno | P2 | `po` |
 | [Q-KOM-01](#q-kom-01) | Potřebuješ to už pro první ročník (MVP), nebo zatím stačí Mailchimp? | [US-57](https://github.com/applifting-vsecourse/team-1/issues/57) | otevřeno | P3 | `po` |
 | [Q-KOM-02](#q-kom-02) | Má být už v MVP, nebo stačí po spuštění přihlášek? | [US-58](https://github.com/applifting-vsecourse/team-1/issues/58) | otevřeno | P3 | `po` |
+| [Q-LOG-07](#q-log-07) | Souhlasíš, že je řešíme až nakonec, případně napojením na externí služby? | [US-95](https://github.com/applifting-vsecourse/team-1/issues/95) | otevřeno | P3 | `po` |
 
-### Epic: logistika
+### Epic: moje přihláška
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
-| [Q-LOG-01](#q-log-01) | Které další dokumenty kromě bezinfekčnosti od účastníků potřebuješ? | [US-62](https://github.com/applifting-vsecourse/team-1/issues/62) | otevřeno | P3 | `po` |
-| [Q-LOG-07](#q-log-07) | Souhlasíš, že je řešíme až nakonec, případně napojením na externí služby? | [US-95](https://github.com/applifting-vsecourse/team-1/issues/95) | otevřeno | P3 | `po` |
+| [Q-PRI-07](#q-pri-07) | Ověřit u PO rozhodnutí D-100: dokud neběží storno podmínky, účastník si mění přihlášku, termíny i odhlášku bez schválení; schvaluje až organizátor po začátku storno podmínek. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | rozhodnuto, nezapsáno | P2 | `pm` |
+| [Q-PRI-26](#q-pri-26) | Které kroky a v jakém pořadí má přehled kroků po registraci ukazovat, kdy je „hotovo“ u stravování a zdraví a co s archivovanou přihláškou? | [US-149](https://github.com/applifting-vsecourse/team-1/issues/509) | rozhodnuto, nezapsáno | P2 | `pm` |
 
 ### Epic: nastavení akce
 
@@ -135,49 +119,56 @@ _Nic._
 | [Q-NAS-10](#q-nas-10) | Chybí mobilní rámec (360 px) pořadníku ve Figmě. Kdo ho dodá? | [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) | otevřeno | P3 | `design` |
 | [Q-NAS-17](#q-nas-17) | Má mít organizátor možnost veřejně zobrazovat kapacitu a obsazenost akce (například v katalogu)? | [US-123 (#216)](https://github.com/applifting-vsecourse/team-1/issues/216), [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | otevřeno | P3 | `po` |
 | [Q-NAS-19](#q-nas-19) | Který odkaz organizátor rozesílá zájemcům: přímo formulář /apply/<token>, nebo stránku akce /events/<token> s tlačítkem k přihlášce? | [US-22](https://github.com/applifting-vsecourse/team-1/issues/22) | otevřeno | P3 | `pm` |
-| [Q-NAS-20](#q-nas-20) | Co má kopírování pokojů udělat při shodě názvů a mezi termíny s jiným režimem pokojů: kopii odmítnout, kolidující pokoje přeskočit, nebo přejmenovat? | [US-100](https://github.com/applifting-vsecourse/team-1/issues/193) | otevřeno | P3 | `po` |
+| [Q-PLT-01](#q-plt-01) | Které části má mít každá akce vždy (přihláška, platby) a které si má organizátor zapínat podle potřeby? | [US-20](https://github.com/applifting-vsecourse/team-1/issues/20) | otevřeno | P3 | `po` |
 
 ### Epic: platby
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
-| [Q-PLA-06](#q-pla-06) | Kdo ověří nárok na slevu (např. členství ve spolku)? | [US-49](https://github.com/applifting-vsecourse/team-1/issues/49) | otevřeno | P3 | `po` |
+| [Q-BEZ-01](#q-bez-01) | Jaké doklady zaměstnavatelé skutečně vyžadují a kdy a kým se mají vystavovat? | [#162](https://github.com/applifting-vsecourse/team-1/issues/162) | otevřeno | P3 | `pm` |
+| [Q-BEZ-02](#q-bez-02) | Jaké doklady vyžadují zdravotní pojišťovny a liší se od dokladů pro zaměstnavatele (#162)? | [#163](https://github.com/applifting-vsecourse/team-1/issues/163) | otevřeno | P3 | `pm` |
 | [Q-PLA-08](#q-pla-08) | Má systém organizátora upozornit hned po první zmeškané splátce? | [US-89](https://github.com/applifting-vsecourse/team-1/issues/89) | otevřeno | P3 | `po` |
-| [Q-PLA-09](#q-pla-09) | Jaké příplatky nabízíš? Vybírají se v přihlášce, nebo až po potvrzení? | [US-90](https://github.com/applifting-vsecourse/team-1/issues/90) | otevřeno | P3 | `po` |
 | [Q-PLA-18](#q-pla-18) | Má systém při souhrnné platbě nabídnout započtení přeplatku jednoho termínu proti dluhu jiného termínu (organizátor potvrdí), nebo se přeplatek vždy vrací vratkou (D-088)? | [US-127](https://github.com/applifting-vsecourse/team-1/issues/220) | otevřeno | P3 | `po` |
 | [Q-PLA-19](#q-pla-19) | Má přihlašovatel vidět zaplacenou částku u termínu, který je mezi náhradníky nebo zrušený (peníze zůstávají u termínu, D-088)? | [#320](https://github.com/applifting-vsecourse/team-1/issues/320) | otevřeno | P3 | `pm` |
+| [Q-PRI-25](#q-pri-25) | Co se stane s čekajícími žádostmi účastníků (odhláška, změna termínu), když organizátor vypne schvalování smazáním data? | [US-113](https://github.com/applifting-vsecourse/team-1/issues/206) | otevřeno | P3 | `pm` |
 
-### Epic: platforma
+### Epic: platforma a web
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
 | [Q-NAS-18](#q-nas-18) | Má sdílená veřejná hlavička dostat tlačítko „Přihlásit se“, jak ho kreslí rámce katalogu? Netýká se jen katalogu, ale i landingu a formuláře přihlášky. | [US-138 (#264)](https://github.com/applifting-vsecourse/team-1/issues/264) | otevřeno | P3 | `design` |
-| [Q-PLT-01](#q-plt-01) | Které části má mít každá akce vždy (přihláška, platby) a které si má organizátor zapínat podle potřeby? | [US-20](https://github.com/applifting-vsecourse/team-1/issues/20) | otevřeno | P3 | `po` |
 | [Q-PLT-03](#q-plt-03) | Je v pořádku, že první ročník běží bez účtování, nebo je to nutnost? | [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) | otevřeno | P3 | `po` |
 
-### Epic: přehledy
+### Epic: podání přihlášky
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
-| [Q-PRE-03](#q-pre-03) | Které sestavy tiskneš nejčastěji kromě seznamu do autobusu? | [US-55](https://github.com/applifting-vsecourse/team-1/issues/55) | otevřeno | P3 | `po` |
-
-### Epic: přihlašování na akce
-
-| ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
-| --- | --- | --- | --- | --- | --- |
-| [Q-PRI-07](#q-pri-07) | Ověřit u PO rozhodnutí D-100: dokud neběží storno podmínky, účastník si mění přihlášku, termíny i odhlášku bez schválení; schvaluje až organizátor po začátku storno podmínek. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.) | [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) | rozhodnuto, nezapsáno | P2 | `pm` |
-| [Q-PRI-26](#q-pri-26) | Které kroky a v jakém pořadí má přehled kroků po registraci ukazovat, kdy je „hotovo“ u stravování a zdraví a co s archivovanou přihláškou? | [US-149](https://github.com/applifting-vsecourse/team-1/issues/509) | rozhodnuto, nezapsáno | P2 | `pm` |
-| [Q-PRI-01](#q-pri-01) | Jaké výjimky dnes děláš (stálí účastníci, tým, sourozenci)? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | otevřeno | P3 | `po` |
+| [Q-PLA-06](#q-pla-06) | Kdo ověří nárok na slevu (např. členství ve spolku)? | [US-49](https://github.com/applifting-vsecourse/team-1/issues/49) | otevřeno | P3 | `po` |
+| [Q-PLA-09](#q-pla-09) | Jaké příplatky nabízíš? Vybírají se v přihlášce, nebo až po potvrzení? | [US-90](https://github.com/applifting-vsecourse/team-1/issues/90) | otevřeno | P3 | `po` |
 | [Q-PRI-09](#q-pri-09) | Používáš okna pro podání přihlášek podle věku či jiných údajů? | [US-87](https://github.com/applifting-vsecourse/team-1/issues/87) | otevřeno | P3 | `po` |
+| [Q-TEC-01](#q-tec-01) | Kolik lidí loni podalo přihlášku v první hodině? Jak předejít selhání systému ten večer? | [US-74](https://github.com/applifting-vsecourse/team-1/issues/74) | otevřeno | P3 | `po` |
+| [Q-UCT-02](#q-uct-02) | Od kolika let může účastník podat přihlášku sám? Platí to pro všechny akce stejně, nebo si to nastaví organizátor? | [US-07](https://github.com/applifting-vsecourse/team-1/issues/7) | otevřeno | P3 | `po` |
+
+### Epic: správa přihlášek
+
+| ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
+| --- | --- | --- | --- | --- | --- |
+| [Q-LOG-01](#q-log-01) | Které další dokumenty kromě bezinfekčnosti od účastníků potřebuješ? | [US-62](https://github.com/applifting-vsecourse/team-1/issues/62) | otevřeno | P3 | `po` |
+| [Q-PRE-03](#q-pre-03) | Které sestavy tiskneš nejčastěji kromě seznamu do autobusu? | [US-55](https://github.com/applifting-vsecourse/team-1/issues/55) | otevřeno | P3 | `po` |
+| [Q-PRI-01](#q-pri-01) | Jaké výjimky dnes děláš (stálí účastníci, tým, sourozenci)? | [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) | otevřeno | P3 | `po` |
 | [Q-PRI-10](#q-pri-10) | Kdo je smí vidět, jak dlouho se uchovávají a má o záznamu účastník vědět? Potřebuješ to na kempu? | [US-88](https://github.com/applifting-vsecourse/team-1/issues/88) | otevřeno | P3 | `po` |
 | [Q-PRI-24](#q-pri-24) | Stačí, když organizátor při ručním přidání přihlášky v systému potvrdí, že souhlas přihlašovatele se zpracováním údajů získal, nebo je potřeba jiný doklad? | [US-83](https://github.com/applifting-vsecourse/team-1/issues/83) | otevřeno | P3 | `po` |
-| [Q-PRI-25](#q-pri-25) | Co se stane s čekajícími žádostmi účastníků (odhláška, změna termínu), když organizátor vypne schvalování smazáním data? | [US-113](https://github.com/applifting-vsecourse/team-1/issues/206) | otevřeno | P3 | `pm` |
+
+### Epic: stravování a zdraví
+
+| ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
+| --- | --- | --- | --- | --- | --- |
+| [Q-BEZ-03](#q-bez-03) | Kdo smí které zdravotní údaje vidět a zapisovat, jaké zákonné požadavky platí a má se to řešit jako jeden modul? | [#166](https://github.com/applifting-vsecourse/team-1/issues/166) | otevřeno | P3 | `pm` |
 
 ### Epic: technický základ
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
-| [Q-TEC-01](#q-tec-01) | Kolik lidí loni podalo přihlášku v první hodině? Jak předejít selhání systému ten večer? | [US-74](https://github.com/applifting-vsecourse/team-1/issues/74) | otevřeno | P3 | `po` |
 | [Q-TEC-02](#q-tec-02) | Jakou ztrátu dat je PO ochoten unést (hodina, den)? | [US-76](https://github.com/applifting-vsecourse/team-1/issues/76) | otevřeno | P3 | `po` |
 | [Q-TEC-04](#q-tec-04) | Potřebuješ do systému stará data, nebo ročník 2027 začne načisto? | [US-85](https://github.com/applifting-vsecourse/team-1/issues/85) | otevřeno | P3 | `po` |
 | [Q-TEC-07](#q-tec-07) | Dopad zneplatnění magic linků na E2E (`magic-link.spec.ts`, `set-password.spec.ts`) a zápis pravidla do PROJEKT.md. | [#127](https://github.com/applifting-vsecourse/team-1/issues/127) | otevřeno | P3 | `tech-lead` |
@@ -186,9 +177,10 @@ _Nic._
 
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
-| [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | otevřeno | P0 | `po` |
 | [Q-UBY-07](#q-uby-07) | Ukazovat spolubydlícům v Moje přihláška celá jména, nebo jen křestní (GDPR)? | [US-144](https://github.com/applifting-vsecourse/team-1/issues/504) | rozhodnuto, nezapsáno | P2 | `pm` |
 | [Q-UBY-08](#q-uby-08) | V jakém pořadí nabízet pokoje při přiřazení účastníka (pohlaví, volná lůžka)? | [#534](https://github.com/applifting-vsecourse/team-1/issues/534) | rozhodnuto, nezapsáno | P2 | `pm` |
+| [Q-UBY-09](#q-uby-09) | Které stavy přihlášky v termínu se při vyhodnocení přání spolubydlení počítají jako „jméno je v přihláškách termínu“ (potvrzení, K vyhodnocení, náhradníci, zrušení, archivace)? Má být přání na náhradníka „Nesplněno“ (osoba existuje, ale nemá pokoj), nebo „Nelze splnit“? | [#631](https://github.com/applifting-vsecourse/team-1/issues/631) | otevřeno | P2 | `po` |
+| [Q-NAS-20](#q-nas-20) | Co má kopírování pokojů udělat při shodě názvů a mezi termíny s jiným režimem pokojů: kopii odmítnout, kolidující pokoje přeskočit, nebo přejmenovat? | [US-100](https://github.com/applifting-vsecourse/team-1/issues/193) | otevřeno | P3 | `po` |
 | [Q-UBY-03](#q-uby-03) | Mají být zájmena v přihlášce jako nepovinné pole? Organizátor LARP tábora je plánuje do přihlášek přidat. | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | rozhodnuto, nezapsáno | P3 | `pm` |
 | [Q-UBY-06](#q-uby-06) | Jak má organizátor před spuštěním přihlášek předem připravit pokoje nebo konkrétní osoby (páry, rodiny), aby to nenarušilo vyhodnocení? | [US-38](https://github.com/applifting-vsecourse/team-1/issues/38) | otevřeno | P3 | `pm` |
 
@@ -197,7 +189,6 @@ _Nic._
 | ID | Otázka | Dotčené US | Stav | Priorita | Čeká na |
 | --- | --- | --- | --- | --- | --- |
 | [Q-UCT-11](#q-uct-11) | Jaké údaje o sobě navzájem uvidí potvrzení účastníci téže akce a jak se k tomu dává souhlas? | [US-92](https://github.com/applifting-vsecourse/team-1/issues/92) | otevřeno | P2 | `po` |
-| [Q-UCT-02](#q-uct-02) | Od kolika let může účastník podat přihlášku sám? Platí to pro všechny akce stejně, nebo si to nastaví organizátor? | [US-07](https://github.com/applifting-vsecourse/team-1/issues/7) | otevřeno | P3 | `po` |
 | [Q-UCT-06](#q-uct-06) | Zabírají členové organizačního týmu lůžka v kapacitě akce? Platí za účast? | [US-93](https://github.com/applifting-vsecourse/team-1/issues/93) | otevřeno | P3 | `po` |
 | [Q-UCT-07](#q-uct-07) | Má nový magic link zneplatnit jen dříve vydané nepoužité odkazy, nebo i aktivní session? | [#127](https://github.com/applifting-vsecourse/team-1/issues/127) | otevřeno | P3 | `pm` |
 
@@ -252,6 +243,8 @@ _Nic._
 | [Q-PRE-01](#q-pre-01) | Má administrace otevírat poslední akci, se kterou organizátor pracoval? | [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) | Dashboard organizátora je Přehled akce se čtyřmi kartami „co vyžaduje pozornost“: K vyhodnocení, Náhradníci k vyřešení (náhradníci s volným lůžkem), Účastníci s dluhem a Žádosti ke schválení; každá s počtem a odkazem na stejně filtrovaný seznam, zobrazují se i s nulou. Po přihlášení se organizátorovi otevře akce, kterou otevřel naposledy (ukládá se na serveru); bez ní seznam akcí. |
 | [Q-PRE-02](#q-pre-02) | Dashboard organizátora: jaký přesně obsah mají karty „co vyžaduje pozornost“? | [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) | Dashboard organizátora je Přehled akce se čtyřmi kartami „co vyžaduje pozornost“: K vyhodnocení, Náhradníci k vyřešení (náhradníci s volným lůžkem), Účastníci s dluhem a Žádosti ke schválení; každá s počtem a odkazem na stejně filtrovaný seznam, zobrazují se i s nulou. Po přihlášení se organizátorovi otevře akce, kterou otevřel naposledy (ukládá se na serveru); bez ní seznam akcí. |
 | [Q-PRE-04](#q-pre-04) | Stačí pamatovat filtry seznamu přihlášek jen v rámci session, nebo mají přežít zavření prohlížeče? | [#175](https://github.com/applifting-vsecourse/team-1/issues/175) | Filtry se pamatují v sessionStorage (PR #283); PO 4. 11.: „Pamatování filtrů: OK.“ |
+| [Q-EKO-01](#q-eko-01) | Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech? | [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) | PO 25. 11.: stačí souhrn za celou akci. Výpočet nákladů závislých na počtu účastníků a délce pobytu u akcí s více termíny zůstal na schůzce otevřený. |
+| [Q-EKO-02](#q-eko-02) | Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete? | [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) | PO 25. 11.: před otevřením přihlášek nastavuje cenu a hledá bod zvratu, po otevření sleduje počet přihlášených a rezervu. Proměnné jsou cena a počet účastníků; o změně nákladů ve scénáři řeč nebyla. |
 | [Q-PLT-02](#q-plt-02) | Kdy reálně přijde druhá organizace? Chcete nové organizace schvalovat? | [US-69](https://github.com/applifting-vsecourse/team-1/issues/69) | Organizátor se zaregistruje e-mailem a heslem, ověří e-mail odkazem (D-109) a založí organizaci bez schvalování správcem platformy; dokud nedoplní profil (kontaktní e-mail, telefon, bankovní účet), nezaloží akci. Každý organizátor patří do organizace. Účet přihlašovatele dál vzniká jen odesláním přihlášky. |
 | [Q-PLT-04](#q-plt-04) | Kdo je správcem údajů: organizace, nebo provozovatel Togeny? | [US-77](https://github.com/applifting-vsecourse/team-1/issues/77) | Rozhodnuto 28. 10.: organizátor je správcem údajů účastníků, Togena zpracovatelem; Togena je správcem údajů organizátorů. |
 | [Q-PLT-05](#q-plt-05) | Kdo je správcem osobních údajů: organizace, nebo provozovatel Togeny? (Odpověď tohoto issue uzavírá otázky z US-77 a US-78.) **Duplicita s [Q-PLT-04](#q-plt-04).** | [US-97](https://github.com/applifting-vsecourse/team-1/issues/164) | Správce údajů: rozhodnuto 28. 10. (viz US-77). Zůstává otevřená doba uchování (US-78) a smluvní strana (#167). |
@@ -302,7 +295,7 @@ _Nic._
 
 ### Q-BEZ-01 – Jaké doklady zaměstnavatelé skutečně vyžadují a kdy a kým se mají vystavovat?
 
-- **Epic:** bez epicu · **Dotčené US:** [#162](https://github.com/applifting-vsecourse/team-1/issues/162) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** platby · **Dotčené US:** [#162](https://github.com/applifting-vsecourse/team-1/issues/162) · **Stav:** otevřeno · **Čeká na:** `pm`
 - **Poznámka:** Nápad (label `idea`), bez epicu.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/162): „Jaké doklady zaměstnavatelé skutečně vyžadují (potvrzení, faktura, daňový doklad) a co musí obsahovat? / Má se doklad vystavovat až po zaplacení? / Kdo doklad zakládá: organizátor ručně, nebo ho systém generuje sám? / Mají na doklad vliv údaje o organizátorovi (IČO, adresa, číslo účtu)?“
@@ -312,7 +305,7 @@ _Nic._
 
 ### Q-BEZ-02 – Jaké doklady vyžadují zdravotní pojišťovny a liší se od dokladů pro zaměstnavatele (#162)?
 
-- **Epic:** bez epicu · **Dotčené US:** [#163](https://github.com/applifting-vsecourse/team-1/issues/163) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** platby · **Dotčené US:** [#163](https://github.com/applifting-vsecourse/team-1/issues/163) · **Stav:** otevřeno · **Čeká na:** `pm`
 - **Poznámka:** Nápad (label `idea`), bez epicu. Souvisí s #162.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/163): „Jaké doklady pojišťovny skutečně vyžadují a liší se to mezi pojišťovnami? / Liší se požadavky od příspěvku zaměstnavatele (#162), nebo stačí jeden společný doklad? / Musí být pořadatel nebo akce na něco akreditovaný, aby se příspěvek dal čerpat? / Má se doklad vystavovat až po zaplacení?“
@@ -322,7 +315,7 @@ _Nic._
 
 ### Q-BEZ-03 – Kdo smí které zdravotní údaje vidět a zapisovat, jaké zákonné požadavky platí a má se to řešit jako jeden modul?
 
-- **Epic:** bez epicu · **Dotčené US:** [#166](https://github.com/applifting-vsecourse/team-1/issues/166) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** stravování a zdraví · **Dotčené US:** [#166](https://github.com/applifting-vsecourse/team-1/issues/166) · **Stav:** otevřeno · **Čeká na:** `pm`
 - **Poznámka:** Nápad (label `idea`), bez epicu. Souvisí s #93 a #68.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/166): „Kdo smí které údaje vidět a zapisovat (zdravotník, vedoucí, ostatní personál)? … Jaké zákonné požadavky platí pro posudky, knihu úrazů a hlášení úrazů a jak dlouho se mají uchovávat? … Jak to zapadá do mazání a záznamu přístupů z #68 (US-79)? … Má se to řešit jako jeden modul, nebo jako samostatné funkce?“
@@ -332,7 +325,7 @@ _Nic._
 
 ### Q-BEZ-04 – Má být magic link i v e-mailu o změně přihlášky a v jakých případech e-mail magic link neobsahoval?
 
-- **Epic:** bez epicu · **Dotčené US:** [#178](https://github.com/applifting-vsecourse/team-1/issues/178) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** komunikace · **Dotčené US:** [#178](https://github.com/applifting-vsecourse/team-1/issues/178) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Zápis 27. 10. označil nedostatek za chybu (nesplňuje akceptační kritérium).
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/178): „V jakém konkrétním případě e-mail magic link neobsahoval …? Má být magic link i v e-mailu o změně přihlášky? Má se selhání vytvoření odkazu jen logovat, nebo to má být vidět víc?“
@@ -343,7 +336,7 @@ _Nic._
 
 ### Q-BEZ-05 – Kde a jak dlouho smí formulář přihlášky držet osobní údaje (i dětí) v prohlížeči a jak se uloží formulář s více účastníky?
 
-- **Epic:** bez epicu · **Dotčené US:** [#179](https://github.com/applifting-vsecourse/team-1/issues/179) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** podání přihlášky · **Dotčené US:** [#179](https://github.com/applifting-vsecourse/team-1/issues/179) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Samotné zachování údajů je rozhodnuto 28. 10. (zápis 27. 10. mělo „nice to have“). Otevřená zůstává otázka rozsahu a doby uložení.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/179): „Osobní údaje: ve formuláři jsou jméno, datum narození a e-mail, často dětí. Kde a jak dlouho je smíme v prohlížeči držet? … Víc účastníků: jak se uloží formulář, kde je víc účastníků nebo vybraných termínů?“
@@ -355,7 +348,7 @@ _Nic._
 
 ### Q-BEZ-06 – Název termínu: zůstává volitelný — co se starými názvy, má se překládat a kde se má zobrazovat?
 
-- **Epic:** bez epicu · **Dotčené US:** [#180](https://github.com/applifting-vsecourse/team-1/issues/180) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** nastavení akce · **Dotčené US:** [#180](https://github.com/applifting-vsecourse/team-1/issues/180) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Hlavní otázku (zrušit, nebo ponechat) rozhodl status 28. 10. Vedlejší otázky (migrace, překlad, zobrazení) jsou spíš pro tým; při potřebě je převést na samostatný bod.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/180): „Co s názvy u existujících termínů (migrace dat)? / Kdyby název zůstal, má se překládat (pole pro cs a en)? / Kde všude se název dnes zobrazuje … a co by ho nahradilo?“
@@ -366,19 +359,23 @@ _Nic._
 
 ### Q-EKO-01 – Stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech?
 
-- **Epic:** ekonomika · **Dotčené US:** [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** ekonomika · **Dotčené US:** [US-59](https://github.com/applifting-vsecourse/team-1/issues/59) · **Stav:** uzavřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/59): „**Otevřená otázka na PO:** F-40 – stačí ti přehled za celou akci, nebo ho potřebuješ i po termínech?“
+  - [zápis ze statusu s PO 25. 11.](https://github.com/applifting-vsecourse/team-1/blob/e7e7abb7395722e04486e374f1b6bb5d0442c0cd/docs/zapisy/2026-11-25-sprint-5-planning.md): „Ano, pro Tomášovy akce stačí souhrn za celou akci.“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+- **Uzavřeno, protože:** PO 25. 11.: stačí souhrn za celou akci. Výpočet nákladů závislých na počtu účastníků a délce pobytu u akcí s více termíny zůstal na schůzce otevřený.
 
 <a id="q-eko-02"></a>
 
 ### Q-EKO-02 – Které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete?
 
-- **Epic:** ekonomika · **Dotčené US:** [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** ekonomika · **Dotčené US:** [US-61](https://github.com/applifting-vsecourse/team-1/issues/61) · **Stav:** uzavřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/61): „**Otevřená otázka na PO:** F-41 – které proměnné chceš měnit (počet lidí, cena, náklady)? Kdy v roce se takhle rozhodujete?“
+  - [zápis ze statusu s PO 25. 11.](https://github.com/applifting-vsecourse/team-1/blob/e7e7abb7395722e04486e374f1b6bb5d0442c0cd/docs/zapisy/2026-11-25-sprint-5-planning.md): „Scénář „Co kdyby“ má pro Tomáše vysokou hodnotu při nastavování ceny a ověřování bodu zvratu.“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
+- **Uzavřeno, protože:** PO 25. 11.: před otevřením přihlášek nastavuje cenu a hledá bod zvratu, po otevření sleduje počet přihlášených a rezervu. Proměnné jsou cena a počet účastníků; o změně nákladů ve scénáři řeč nebyla.
 
 <a id="q-kom-01"></a>
 
@@ -500,7 +497,7 @@ _Nic._
 
 ### Q-LOG-01 – Které další dokumenty kromě bezinfekčnosti od účastníků potřebuješ?
 
-- **Epic:** logistika · **Dotčené US:** [US-62](https://github.com/applifting-vsecourse/team-1/issues/62) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-62](https://github.com/applifting-vsecourse/team-1/issues/62) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/62): „**Otevřená otázka na PO:** F-42 – které další dokumenty kromě bezinfekčnosti od účastníků potřebuješ?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -509,7 +506,7 @@ _Nic._
 
 ### Q-LOG-02 – Jaké varianty nabízíš a kdy potřebuje kuchyně počty?
 
-- **Epic:** logistika · **Dotčené US:** [US-64](https://github.com/applifting-vsecourse/team-1/issues/64) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** stravování a zdraví · **Dotčené US:** [US-64](https://github.com/applifting-vsecourse/team-1/issues/64) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/64): „**Otevřená otázka na PO:** F-43 – jaké varianty nabízíš a kdy potřebuje kuchyně počty?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -519,7 +516,7 @@ _Nic._
 
 ### Q-LOG-03 – Hlídá se kapacita autobusu? Je doprava v ceně, nebo je vlastní doprava sleva (US-49)?
 
-- **Epic:** logistika · **Dotčené US:** [US-65](https://github.com/applifting-vsecourse/team-1/issues/65) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** doprava · **Dotčené US:** [US-65](https://github.com/applifting-vsecourse/team-1/issues/65) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/65): „**Otevřená otázka na PO:** F-44 – hlídá se kapacita autobusu? Je doprava v ceně, nebo je vlastní doprava sleva (US-49)?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -529,7 +526,7 @@ _Nic._
 
 ### Q-LOG-04 – Stačí pro začátek jen harmonogram pro všechny? Mají mít volitelné bloky omezenou kapacitu?
 
-- **Epic:** logistika · **Dotčené US:** [US-66](https://github.com/applifting-vsecourse/team-1/issues/66) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** program · **Dotčené US:** [US-66](https://github.com/applifting-vsecourse/team-1/issues/66) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/66): „**Otevřená otázka na PO:** F-45 – stačí pro začátek jen harmonogram pro všechny? Mají mít volitelné bloky omezenou kapacitu?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -539,7 +536,7 @@ _Nic._
 
 ### Q-LOG-05 – Kdo z týmu je smí vidět (jen zdravotník?) a jak dlouho se po akci uchovávají?
 
-- **Epic:** logistika · **Dotčené US:** [US-68](https://github.com/applifting-vsecourse/team-1/issues/68) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** stravování a zdraví · **Dotčené US:** [US-68](https://github.com/applifting-vsecourse/team-1/issues/68) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/68): „**Otevřená otázka na PO:** F-46 – kdo z týmu je smí vidět (jen zdravotník?) a jak dlouho se po akci uchovávají?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -549,7 +546,7 @@ _Nic._
 
 ### Q-LOG-06 – Má být checklist součástí programových bloků (US-66), nebo samostatný pro celou akci? Sdílí ho celý organizační tým?
 
-- **Epic:** logistika · **Dotčené US:** [US-94](https://github.com/applifting-vsecourse/team-1/issues/94) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** program · **Dotčené US:** [US-94](https://github.com/applifting-vsecourse/team-1/issues/94) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Issue samo uvádí „Rozhodnuto: ano“ (jen k části o sdílení týmem); k první části odpověď nenajdu.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/94): „F-68 – má být checklist součástí programových bloků (US-66), nebo samostatný pro celou akci? Sdílí ho celý organizační tým? Rozhodnuto: ano.“
@@ -559,7 +556,7 @@ _Nic._
 
 ### Q-LOG-07 – Souhlasíš, že je řešíme až nakonec, případně napojením na externí služby?
 
-- **Epic:** logistika · **Dotčené US:** [US-95](https://github.com/applifting-vsecourse/team-1/issues/95) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** komunikace · **Dotčené US:** [US-95](https://github.com/applifting-vsecourse/team-1/issues/95) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/95): „**Otevřená otázka na PO:** F-47 – souhlasíš, že je řešíme až nakonec, případně napojením na externí služby?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -631,7 +628,7 @@ _Nic._
 
 ### Q-NAS-07 – Přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí?
 
-- **Epic:** nastavení akce · **Dotčené US:** [US-100](https://github.com/applifting-vsecourse/team-1/issues/193), [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** ubytování · **Dotčené US:** [US-100](https://github.com/applifting-vsecourse/team-1/issues/193), [US-99](https://github.com/applifting-vsecourse/team-1/issues/192) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/193): „přidají se zkopírované pokoje k existujícím pokojům cílového termínu, nebo je nahradí?“
 - **Priorita:** P1 – US-100 je ve sprintu 3 a bez odpovědi nejde implementovat kopírování pokojů.
@@ -747,7 +744,7 @@ _Nic._
 
 ### Q-NAS-18 – Má sdílená veřejná hlavička dostat tlačítko „Přihlásit se“, jak ho kreslí rámce katalogu? Netýká se jen katalogu, ale i landingu a formuláře přihlášky.
 
-- **Epic:** platforma · **Dotčené US:** [US-138 (#264)](https://github.com/applifting-vsecourse/team-1/issues/264) · **Stav:** otevřeno · **Čeká na:** `design`
+- **Epic:** platforma a web · **Dotčené US:** [US-138 (#264)](https://github.com/applifting-vsecourse/team-1/issues/264) · **Stav:** otevřeno · **Čeká na:** `design`
 - **Zdroje:**
   - [ticket #264, otevřená otázka](https://github.com/applifting-vsecourse/team-1/issues/264)
 - **Priorita:** P3 – Rámce katalogu hlavičku s tlačítkem kreslí, kód ne; nic neblokuje.
@@ -766,7 +763,7 @@ _Nic._
 
 ### Q-NAS-20 – Co má kopírování pokojů udělat při shodě názvů a mezi termíny s jiným režimem pokojů: kopii odmítnout, kolidující pokoje přeskočit, nebo přejmenovat?
 
-- **Epic:** nastavení akce · **Dotčené US:** [US-100](https://github.com/applifting-vsecourse/team-1/issues/193) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** ubytování · **Dotčené US:** [US-100](https://github.com/applifting-vsecourse/team-1/issues/193) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Poznámka:** Doporučení: ponechat odmítnutí s výpisem kolizí, mezi různými režimy nekopírovat (D-115).
 - **Zdroje:**
   - [ticket #373](https://github.com/applifting-vsecourse/team-1/issues/373)
@@ -833,7 +830,7 @@ _Nic._
 
 ### Q-PLA-06 – Kdo ověří nárok na slevu (např. členství ve spolku)?
 
-- **Epic:** platby · **Dotčené US:** [US-49](https://github.com/applifting-vsecourse/team-1/issues/49) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** podání přihlášky · **Dotčené US:** [US-49](https://github.com/applifting-vsecourse/team-1/issues/49) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/49): „**Otevřená otázka na PO:** F-31 – kdo ověří nárok na slevu (např. členství ve spolku)?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -862,7 +859,7 @@ _Nic._
 
 ### Q-PLA-09 – Jaké příplatky nabízíš? Vybírají se v přihlášce, nebo až po potvrzení?
 
-- **Epic:** platby · **Dotčené US:** [US-90](https://github.com/applifting-vsecourse/team-1/issues/90) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** podání přihlášky · **Dotčené US:** [US-90](https://github.com/applifting-vsecourse/team-1/issues/90) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/90): „**Otevřená otázka na PO:** F-64 – jaké příplatky nabízíš? Vybírají se v přihlášce, nebo až po potvrzení?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -984,7 +981,7 @@ _Nic._
 
 ### Q-PLT-01 – Které části má mít každá akce vždy (přihláška, platby) a které si má organizátor zapínat podle potřeby?
 
-- **Epic:** platforma · **Dotčené US:** [US-20](https://github.com/applifting-vsecourse/team-1/issues/20) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** nastavení akce · **Dotčené US:** [US-20](https://github.com/applifting-vsecourse/team-1/issues/20) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/20): „**Otevřená otázka na PO:** F-51 – které části má mít každá akce vždy (přihláška, platby) a které si má organizátor zapínat podle potřeby?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -993,7 +990,7 @@ _Nic._
 
 ### Q-PLT-02 – Kdy reálně přijde druhá organizace? Chcete nové organizace schvalovat?
 
-- **Epic:** platforma · **Dotčené US:** [US-69](https://github.com/applifting-vsecourse/team-1/issues/69) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** platforma a web · **Dotčené US:** [US-69](https://github.com/applifting-vsecourse/team-1/issues/69) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Souvisí s otevřeným bodem ze statusu 27. 10. (Organizace: musí ji mít každý organizátor?) a s #186.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/69): „**Otevřená otázka na PO:** F-48 – kdy reálně přijde druhá organizace? Chcete nové organizace schvalovat?“
@@ -1004,7 +1001,7 @@ _Nic._
 
 ### Q-PLT-03 – Je v pořádku, že první ročník běží bez účtování, nebo je to nutnost?
 
-- **Epic:** platforma · **Dotčené US:** [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** platforma a web · **Dotčené US:** [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/70): „**Otevřená otázka na PO:** F-50 – je v pořádku, že první ročník běží bez účtování, nebo je to nutnost?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -1013,7 +1010,7 @@ _Nic._
 
 ### Q-PLT-04 – Kdo je správcem údajů: organizace, nebo provozovatel Togeny?
 
-- **Epic:** platforma · **Dotčené US:** [US-77](https://github.com/applifting-vsecourse/team-1/issues/77) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** platforma a web · **Dotčené US:** [US-77](https://github.com/applifting-vsecourse/team-1/issues/77) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Rozhodnuto 28. 10.: organizátor je správcem údajů účastníků, Togena zpracovatelem; Togena je správcem údajů organizátorů.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/77): „**Otevřená otázka na PO:** F-56 – kdo je správcem údajů: organizace, nebo provozovatel Togeny?“
@@ -1025,7 +1022,7 @@ _Nic._
 
 ### Q-PLT-05 – Kdo je správcem osobních údajů: organizace, nebo provozovatel Togeny? (Odpověď tohoto issue uzavírá otázky z US-77 a US-78.)
 
-- **Epic:** platforma · **Dotčené US:** [US-97](https://github.com/applifting-vsecourse/team-1/issues/164) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** platforma a web · **Dotčené US:** [US-97](https://github.com/applifting-vsecourse/team-1/issues/164) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Duplicita s:** [Q-PLT-04](#q-plt-04)
 - **Poznámka:** Správce údajů: rozhodnuto 28. 10. (viz US-77). Zůstává otevřená doba uchování (US-78) a smluvní strana (#167).
 - **Zdroje:**
@@ -1038,7 +1035,7 @@ _Nic._
 
 ### Q-PLT-06 – Kdo je smluvní stranou vůči přihlašovateli: organizace, nebo provozovatel Togeny? (Souvisí s otázkou správce údajů v #164.)
 
-- **Epic:** platforma · **Dotčené US:** [US-98](https://github.com/applifting-vsecourse/team-1/issues/167) · **Stav:** uzavřeno · **Čeká na:** `po`
+- **Epic:** platforma a web · **Dotčené US:** [US-98](https://github.com/applifting-vsecourse/team-1/issues/167) · **Stav:** uzavřeno · **Čeká na:** `po`
 - **Poznámka:** Souvisí s #164; odpověď o správci údajů (28. 10.) nerozhoduje, kdo je smluvní stranou.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/167): „**Otevřená otázka na PO:** Kdo je smluvní stranou vůči přihlašovateli: organizace, nebo provozovatel Togeny? (Souvisí s otázkou správce údajů v #164.)“
@@ -1049,7 +1046,7 @@ _Nic._
 
 ### Q-PLT-07 – Co patří do admin portálu platformy kromě náhledu organizací a fakturace (deaktivace, audit log, statistiky, podpora)?
 
-- **Epic:** platforma · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** platforma a web · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Platformový admin se podle 28. 10. do tohoto sprintu nezařazuje.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/186): „Co patří do admin portálu kromě náhledu a fakturace (deaktivace organizace, audit log, statistiky, podpora)?“
@@ -1061,7 +1058,7 @@ _Nic._
 
 ### Q-PLT-08 – Má se organizacím jen vyúčtovat (přehled k ruční fakturaci, jak říká US-70), nebo má platforma faktury vystavovat a evidovat jejich úhradu?
 
-- **Epic:** platforma · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186), [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** platforma a web · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186), [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/186): „Dotaz na Adama: Má se organizacím jen vyúčtovat (přehled k ruční fakturaci, jak říká US-70), nebo má platforma faktury vystavovat a evidovat jejich úhradu?“
 - **Priorita:** P3 – Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28. 10.).
@@ -1071,7 +1068,7 @@ _Nic._
 
 ### Q-PLT-09 – Jaký je obchodní model: poplatek za účastníka, předplatné, nebo obojí?
 
-- **Epic:** platforma · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186), [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** platforma a web · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186), [US-70](https://github.com/applifting-vsecourse/team-1/issues/70) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/186): „Dotaz na Adama: Jaký je obchodní model: poplatek za účastníka, předplatné, nebo obojí? US-70 předpokládá jen poplatek za účastníka a cenový model se teprve ověřuje v Lean Canvasu.“
 - **Priorita:** P3 – Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28. 10.).
@@ -1081,7 +1078,7 @@ _Nic._
 
 ### Q-PLT-10 – Jak se řeší odběratel a plátce, tedy fakturační údaje organizace (IČO, adresa, DPH)?
 
-- **Epic:** platforma · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** platforma a web · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/186): „Dotaz na Adama: Jak se řeší odběratel a plátce, tedy fakturační údaje organizace (IČO, adresa, DPH)? V modelu Organization zatím nejsou.“
 - **Priorita:** P3 – Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28. 10.).
@@ -1091,7 +1088,7 @@ _Nic._
 
 ### Q-PLT-11 – Kdy reálně přijde druhá organizace (určuje, zda je portál potřeba pro první ročník)?
 
-- **Epic:** platforma · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186), [US-69](https://github.com/applifting-vsecourse/team-1/issues/69) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** platforma a web · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186), [US-69](https://github.com/applifting-vsecourse/team-1/issues/69) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Duplicita s:** [Q-PLT-02](#q-plt-02)
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/186): „Dotaz na Adama: Kdy reálně přijde druhá organizace? Určí to, jestli je portál potřeba pro první ročník, nebo až později (stejná otázka jako u US-69).“
@@ -1102,7 +1099,7 @@ _Nic._
 
 ### Q-PLT-12 – Smí správce platformy vidět osobní údaje účastníků, nebo jen agregáty?
 
-- **Epic:** platforma · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** platforma a web · **Dotčené US:** [#186](https://github.com/applifting-vsecourse/team-1/issues/186) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/186): „Smí správce vidět osobní údaje účastníků, nebo jen agregáty?“
 - **Priorita:** P3 – Platformový admin se do sprintu 3 nezařazuje, byznysová potřeba nepotvrzena (zápis 28. 10.).
@@ -1112,7 +1109,7 @@ _Nic._
 
 ### Q-PRE-01 – Má administrace otevírat poslední akci, se kterou organizátor pracoval?
 
-- **Epic:** přehledy · **Dotčené US:** [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/51): „**Otevřená otázka na PO:** F-33 – má administrace otevírat poslední akci, se kterou organizátor pracoval?“
 - **Priorita:** P1 – Dashboard se vrací a je v návrhu PO; obsah karet není určen.
@@ -1122,7 +1119,7 @@ _Nic._
 
 ### Q-PRE-02 – Dashboard organizátora: jaký přesně obsah mají karty „co vyžaduje pozornost“?
 
-- **Epic:** přehledy · **Dotčené US:** [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-51](https://github.com/applifting-vsecourse/team-1/issues/51) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Dashboard se vrací (28. 10.), obsah karet zůstává nespecifikovaný. Zdroj není vázán na konkrétní issue; zařazeno k #51 (přehledy) jen kvůli epicu.
 - **Zdroje:**
   - [zápis 27. 10., Ke schválení PO](https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-27-status.md#L80-L86): „Dashboard: přesný obsah karet „co vyžaduje pozornost“.“
@@ -1134,7 +1131,7 @@ _Nic._
 
 ### Q-PRE-03 – Které sestavy tiskneš nejčastěji kromě seznamu do autobusu?
 
-- **Epic:** přehledy · **Dotčené US:** [US-55](https://github.com/applifting-vsecourse/team-1/issues/55) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-55](https://github.com/applifting-vsecourse/team-1/issues/55) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Poznámka:** PO 11. 11. (§6) zmínil ubytování, dopravu, příjezdy a odjezdy, stravování a denní počty; výčet potvrdit na refinementu.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/55): „**Otevřená otázka na PO:** F-36 – které sestavy tiskneš nejčastěji kromě seznamu do autobusu?“
@@ -1144,7 +1141,7 @@ _Nic._
 
 ### Q-PRE-04 – Stačí pamatovat filtry seznamu přihlášek jen v rámci session, nebo mají přežít zavření prohlížeče?
 
-- **Epic:** přehledy · **Dotčené US:** [#175](https://github.com/applifting-vsecourse/team-1/issues/175) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [#175](https://github.com/applifting-vsecourse/team-1/issues/175) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Zápis 27. 10. dal ticket do backlogu.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/175): „Stačí pamatovat filtry jen v rámci session, nebo mají přežít zavření prohlížeče?“
@@ -1155,7 +1152,7 @@ _Nic._
 
 ### Q-PRI-01 – Jaké výjimky dnes děláš (stálí účastníci, tým, sourozenci)?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Poznámka:** Odpověď PM v PR #232: není prioritní, nebrání mergi.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/28): „**Otevřená otázka na PO:** F-16 – jaké výjimky dnes děláš (stálí účastníci, tým, sourozenci)?“
@@ -1166,7 +1163,7 @@ _Nic._
 
 ### Q-PRI-02 – Ověřit u PO rozhodnutí D-099: lhůtu na zaplacení (výchozí 10 dní) si nastaví organizátor u akce; když se místo uvolní v okně „začátek termínu minus lhůta“, přihláška je rovnou po splatnosti a platba se urguje. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.)
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-31](https://github.com/applifting-vsecourse/team-1/issues/31) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-31](https://github.com/applifting-vsecourse/team-1/issues/31) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/31): „**Otevřená otázka na PO:** F-18 – jaká lhůta na zaplacení platí pro náhradníka potvrzeného na poslední chvíli, např. týden před akcí?“
   - [async status s PO 4. 11., A2](https://github.com/applifting-vsecourse/team-1/blob/7e88428b276a2b1cabd4f95a48456856b04c60d4/docs/zapisy/2026-11-04-async-status-s-po.md): „Lhůta na zaplacení: může tam být nějaká výhybka, aby se v tu chvíli neposílala upomínka o nezaplacení.“
@@ -1177,7 +1174,7 @@ _Nic._
 
 ### Q-PRI-03 – Platí pro změnu termínu stejné storno podmínky jako pro odhlášku (US-47)?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-32](https://github.com/applifting-vsecourse/team-1/issues/32) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-32](https://github.com/applifting-vsecourse/team-1/issues/32) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/32): „F-19 – platí pro změnu termínu stejné storno podmínky jako pro odhlášku (US-47)?“
 - **Priorita:** P1 – Odhláška a změna termínu jsou v návrhu PO; pravidla stornování nejsou určena.
@@ -1187,7 +1184,7 @@ _Nic._
 
 ### Q-PRI-04 – Platí pravidlo „odhlášená přihláška se nepočítá do kontroly duplicity“ i pro termín zrušený organizátorem při vyhodnocení (stav „Zrušená“)?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-32](https://github.com/applifting-vsecourse/team-1/issues/32), [#160](https://github.com/applifting-vsecourse/team-1/issues/160) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-32](https://github.com/applifting-vsecourse/team-1/issues/32), [#160](https://github.com/applifting-vsecourse/team-1/issues/160) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Autor komentáře navrhuje „ano“.
 - **Zdroje:**
   - [komentář k issue](https://github.com/applifting-vsecourse/team-1/issues/32): „platí totéž pro termín zrušený organizátorem při vyhodnocení (stav „Zrušená“ ve `SLOVNIK.md`)? Podle mě ano.“
@@ -1199,7 +1196,7 @@ _Nic._
 
 ### Q-PRI-05 – Vyhodnocuje se každý týden zvlášť? Navrhujeme ano.
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-82](https://github.com/applifting-vsecourse/team-1/issues/82) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-82](https://github.com/applifting-vsecourse/team-1/issues/82) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Board: „Akce = jeden celek s více termíny, každý termín se vyhodnocuje zvlášť.“ (PROJEKT.md §9).
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/82): „**Otevřená otázka na PO:** F-15 – vyhodnocuje se každý týden zvlášť? Navrhujeme ano.“
@@ -1210,7 +1207,7 @@ _Nic._
 
 ### Q-PRI-06 – Ruční, nebo automatické schvalování přihlášek a e-mailů?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-82](https://github.com/applifting-vsecourse/team-1/issues/82) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-82](https://github.com/applifting-vsecourse/team-1/issues/82) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** PROJEKT.md §9, 23. 10.: organizátor si nastaví ruční, nebo automatické vyhodnocování. Zařazeno k US-82 jen kvůli epicu.
 - **Zdroje:**
   - [zápis 22. 10.](https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-22-status.md): „Produkt má mít automatické schvalování dle kapacity i ruční vyhodnocení organizátorem; v dokumentaci to není jasné.“
@@ -1221,7 +1218,7 @@ _Nic._
 
 ### Q-PRI-07 – Ověřit u PO rozhodnutí D-100: dokud neběží storno podmínky, účastník si mění přihlášku, termíny i odhlášku bez schválení; schvaluje až organizátor po začátku storno podmínek. Platí, nebo má být jinak? (Rozhodl PM, jde o ověření.)
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Epic:** moje přihláška · **Dotčené US:** [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
 - **Poznámka:** Návrh PO z 28. 10. říká: účastník si sám opraví údaje, změní termín nebo se odhlásí; když už běží storno podmínky, schvaluje organizátor. Nerozhoduje, co je „hned“ a co „po schválení“ před začátkem storno podmínek.
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/84): „**Otevřená otázka na PO:** F-20 – má změna termínu nebo odhláška proběhnout hned, nebo ji organizátor nejdřív schválí (kvůli kapacitě a storno podmínkám)?“
@@ -1233,7 +1230,7 @@ _Nic._
 
 ### Q-PRI-08 – Jak se účastník vrací do aplikace? (odpověď: nápady nechává PO na týmu)
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** moje přihláška · **Dotčené US:** [US-84](https://github.com/applifting-vsecourse/team-1/issues/84) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Status s PO 28. 10.: důvod k návratu účastníka (úprava přihlášky, platba, kontakt na organizátora), nápady nechává PO na týmu. Zařazeno k US-84 jen kvůli epicu.
 - **Zdroje:**
   - [zápis 14. 10.](https://github.com/applifting-vsecourse/team-1/blob/31b4fc25e25afa265d1812a9f8538d081af84265/docs/zapisy/2026-10-14-status-s-po.md): „Otevřená otázka: jak ho motivovat k návratu do platformy?“
@@ -1244,7 +1241,7 @@ _Nic._
 
 ### Q-PRI-09 – Používáš okna pro podání přihlášek podle věku či jiných údajů?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-87](https://github.com/applifting-vsecourse/team-1/issues/87) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** podání přihlášky · **Dotčené US:** [US-87](https://github.com/applifting-vsecourse/team-1/issues/87) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/87): „**Otevřená otázka na PO:** F-59 – používáš okna pro podání přihlášek podle věku či jiných údajů?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -1253,7 +1250,7 @@ _Nic._
 
 ### Q-PRI-10 – Kdo je smí vidět, jak dlouho se uchovávají a má o záznamu účastník vědět? Potřebuješ to na kempu?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-88](https://github.com/applifting-vsecourse/team-1/issues/88) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-88](https://github.com/applifting-vsecourse/team-1/issues/88) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/88): „**Otevřená otázka na PO:** F-60 – kdo je smí vidět, jak dlouho se uchovávají a má o záznamu účastník vědět? Potřebuješ to na kempu?“
 - **Priorita:** P3 – GDPR má podle PO 28. 10. nízkou prioritu.
@@ -1262,7 +1259,7 @@ _Nic._
 
 ### Q-PRI-11 – Má se formát data narození řídit jazykem aplikace, nebo jazykem systému (a co na jiných zařízeních)?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [#177](https://github.com/applifting-vsecourse/team-1/issues/177) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** podání přihlášky · **Dotčené US:** [#177](https://github.com/applifting-vsecourse/team-1/issues/177) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/177): „Má se formát řídit jazykem aplikace (cs / en), nebo jazykem systému? V angličtině je MM/DD/YYYY pro část uživatelů správně. / Platí totéž pro pole data v dialogu termínu? / Jak se to chová na dalších zařízeních a prohlížečích?“
 - **Priorita:** P2 – Rozpracovaná oprava nebo úprava v běžícím flow přihlášek a účtů; nic neblokuje, ale brzy se na to narazí.
@@ -1273,7 +1270,7 @@ _Nic._
 
 ### Q-PRI-12 – Je v angličtině správný formát data narození DD/MM/YYYY (en-GB), nebo MM/DD/YYYY?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [#177](https://github.com/applifting-vsecourse/team-1/issues/177) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** podání přihlášky · **Dotčené US:** [#177](https://github.com/applifting-vsecourse/team-1/issues/177) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Souvisí s Q-PRI-11 (formát podle jazyka aplikace). Zapracováno v PR #226 jako 25/10/1990 (en-GB); PM potvrdil (D-075).
 - **Zdroje:**
   - [PR #226, nejasnosti k byznys pravidlům](https://github.com/applifting-vsecourse/team-1/pull/226)
@@ -1284,7 +1281,7 @@ _Nic._
 
 ### Q-PRI-13 – Má u náhradníka na detailu přihlášky zůstat text „0 Kč do potvrzení“, nebo se změnit (např. „zatím nic k úhradě“)?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [#225](https://github.com/applifting-vsecourse/team-1/issues/225) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [#225](https://github.com/applifting-vsecourse/team-1/issues/225) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #227, nejasnosti k byznys pravidlům](https://github.com/applifting-vsecourse/team-1/pull/227)
 - **Priorita:** P3 – Drobný text; PR #227 ho nechal beze změny.
@@ -1295,7 +1292,7 @@ _Nic._
 
 ### Q-PRI-14 – Má se do diagramu doplnit přechod Potvrzená → Náhradník (organizátor), jak říká ticket US-28?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #232](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
 - **Priorita:** P1 – Blokovalo kritérium US-28; rozhodnuto, zbývá zapsat do modelů.
@@ -1305,7 +1302,7 @@ _Nic._
 
 ### Q-PRI-15 – Smí organizátor zrušit náhradníka kdykoli, nebo jen automaticky první den termínu?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #232](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
 - **Priorita:** P1 – Rozpor ticket × diagram; rozhodnuto, zbývá zapsat.
@@ -1315,7 +1312,7 @@ _Nic._
 
 ### Q-PRI-16 – Stačí, že přechody ze stavu K vyhodnocení doplní US-102, aby se kritérium US-28 uzavřelo?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #232](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
 - **Priorita:** P2 – Stav K vyhodnocení v kódu není.
@@ -1326,7 +1323,7 @@ _Nic._
 
 ### Q-PRI-17 – Stačí v US-28 vědomé potvrzení nad kapacitu, když přistýlka (US-80) ještě neexistuje?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #232](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
 - **Priorita:** P2 – Kritérium dovoluje „přistýlku nebo vědomé potvrzení“.
@@ -1336,7 +1333,7 @@ _Nic._
 
 ### Q-PRI-18 – Má se blok „Stav v termínech“ (detail přihlášky, dialog změny stavu, varování o kapacitě) dokreslit ve Figmě před mergem #232?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `design`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `design`
 - **Zdroje:**
   - [PR #232](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6535280632)
 - **Priorita:** P2 – Rámec ve Figmě neexistuje; nebrání mergi.
@@ -1347,7 +1344,7 @@ _Nic._
 
 ### Q-PRI-19 – Sbírá se telefon ve formuláři přihlášky a v jaké story? (US-30 ho chce u náhradníka i s vytočením jedním klepnutím)
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-30](https://github.com/applifting-vsecourse/team-1/issues/30) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #234](https://github.com/applifting-vsecourse/team-1/pull/234)
 - **Priorita:** P2 – Přihláška telefon neukládá; kritéria US-30 s telefonem zůstávají nesplněná.
@@ -1359,7 +1356,7 @@ _Nic._
 
 ### Q-PRI-20 – Od jaké hodiny se ruší náhradník první den termínu?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #236](https://github.com/applifting-vsecourse/team-1/pull/236)
 - **Priorita:** P2 – Dokumenty časové pásmo neuvádějí; implementace používá půlnoc Europe/Prague.
@@ -1369,7 +1366,7 @@ _Nic._
 
 ### Q-PRI-21 – Co se stane s náhradníky (a ostatními přihláškami) ve zrušeném termínu akce?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-106 (#199)](https://github.com/applifting-vsecourse/team-1/issues/199) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Poznámka:** Tech lead (PR #236): zrušení termínu dnes jen nastaví Term.cancelledAt a přihlášky nemění; žádá, aby PM založil ticket.
 - **Zdroje:**
   - [PR #236](https://github.com/applifting-vsecourse/team-1/pull/236)
@@ -1382,7 +1379,7 @@ _Nic._
 
 ### Q-PRI-22 – Kam se v pořadníku zařadí přihláška přesunutá z Potvrzené mezi náhradníky: podle data přijetí (může skočit před dřívější náhradníky), nebo na konec?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `pm`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #232, dotaz tech leada](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6545014573)
 - **Priorita:** P1 – Rozhodnuto, zbývá zapsat do dokumentace.
@@ -1392,7 +1389,7 @@ _Nic._
 
 ### Q-PRI-23 – Má systém zvýraznit náhradníka potvrzeného nad rámec kapacity v seznamu přihlášek?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `tech-lead`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-28](https://github.com/applifting-vsecourse/team-1/issues/28) · **Stav:** uzavřeno · **Čeká na:** `tech-lead`
 - **Zdroje:**
   - [PR #232, komentář PM](https://github.com/applifting-vsecourse/team-1/pull/232#issuecomment-6544986096)
 - **Priorita:** P3 – Nápad PM, zeptal se tech leada, odpověď zatím není.
@@ -1402,7 +1399,7 @@ _Nic._
 
 ### Q-PRI-24 – Stačí, když organizátor při ručním přidání přihlášky v systému potvrdí, že souhlas přihlašovatele se zpracováním údajů získal, nebo je potřeba jiný doklad?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-83](https://github.com/applifting-vsecourse/team-1/issues/83) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** správa přihlášek · **Dotčené US:** [US-83](https://github.com/applifting-vsecourse/team-1/issues/83) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Poznámka:** Doporučení: ano, potvrzení organizátorem stačí (D-153).
 - **Zdroje:**
   - [PR #344 (US-83)](https://github.com/applifting-vsecourse/team-1/pull/344)
@@ -1412,7 +1409,7 @@ _Nic._
 
 ### Q-PRI-25 – Co se stane s čekajícími žádostmi účastníků (odhláška, změna termínu), když organizátor vypne schvalování smazáním data?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-113](https://github.com/applifting-vsecourse/team-1/issues/206) · **Stav:** otevřeno · **Čeká na:** `pm`
+- **Epic:** platby · **Dotčené US:** [US-113](https://github.com/applifting-vsecourse/team-1/issues/206) · **Stav:** otevřeno · **Čeká na:** `pm`
 - **Poznámka:** Doporučení: čekající žádosti zůstanou ke schválení, nové se provedou hned; před odpovědí ověřit kód.
 - **Zdroje:**
   - [PR #464 (US-113)](https://github.com/applifting-vsecourse/team-1/pull/464)
@@ -1422,7 +1419,7 @@ _Nic._
 
 ### Q-PRI-26 – Které kroky a v jakém pořadí má přehled kroků po registraci ukazovat, kdy je „hotovo“ u stravování a zdraví a co s archivovanou přihláškou?
 
-- **Epic:** přihlašování na akce · **Dotčené US:** [US-149](https://github.com/applifting-vsecourse/team-1/issues/509) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
+- **Epic:** moje přihláška · **Dotčené US:** [US-149](https://github.com/applifting-vsecourse/team-1/issues/509) · **Stav:** rozhodnuto, nezapsáno · **Čeká na:** `pm`
 - **Zdroje:**
   - [PR #574 (US-149)](https://github.com/applifting-vsecourse/team-1/pull/574)
 - **Priorita:** P2 – Blokovalo dokončení PR #574.
@@ -1432,7 +1429,7 @@ _Nic._
 
 ### Q-TEC-01 – Kolik lidí loni podalo přihlášku v první hodině? Jak předejít selhání systému ten večer?
 
-- **Epic:** technický základ · **Dotčené US:** [US-74](https://github.com/applifting-vsecourse/team-1/issues/74) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** podání přihlášky · **Dotčené US:** [US-74](https://github.com/applifting-vsecourse/team-1/issues/74) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/74): „**Otevřená otázka na PO:** F-54 – kolik lidí loni podalo přihlášku v první hodině? Jak předejít selhání systému ten večer?“
 - **Priorita:** P3 – Startovní brífink (F-xx) nebo mimo rozsah sprintu 3; nic na ní nestojí.
@@ -1597,13 +1594,13 @@ _Nic._
 - **Poznámka:** Pravidlo je izolované ve funkci isWishableStatus (room-wish-status.ts), změna odpovědi je jednořádková. Navazují body „individuální ubytování“ a „stejná jména“ z návrhu #631.
 - **Zdroje:**
   - [PR #683, komentář s otázkou na PM (issue #631)](https://github.com/applifting-vsecourse/team-1/pull/683)
-- **Priorita:** P0 – Blokuje dokončení PR #683; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení).
+- **Priorita:** P2 – PR #683 je sloučené; do odpovědi platí nejkonzervativnější pravidlo (jen potvrzení a K vyhodnocení).
 
 <a id="q-uct-01"></a>
 
 ### Q-UCT-01 – Mají e-maily chodit i samotnému účastníkovi, nebo jen přihlašovateli? Navrhujeme oběma.
 
-- **Epic:** účty · **Dotčené US:** [US-05](https://github.com/applifting-vsecourse/team-1/issues/5) · **Stav:** uzavřeno · **Čeká na:** `po`
+- **Epic:** podání přihlášky · **Dotčené US:** [US-05](https://github.com/applifting-vsecourse/team-1/issues/5) · **Stav:** uzavřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/5): „**Otevřená otázka na PO:** F-02 – mají e-maily chodit i samotnému účastníkovi, nebo jen přihlašovateli? Navrhujeme oběma.“
 - **Priorita:** P2 – Zbývající flow přihlášky; otázka, komu chodí e-maily.
@@ -1614,7 +1611,7 @@ _Nic._
 
 ### Q-UCT-02 – Od kolika let může účastník podat přihlášku sám? Platí to pro všechny akce stejně, nebo si to nastaví organizátor?
 
-- **Epic:** účty · **Dotčené US:** [US-07](https://github.com/applifting-vsecourse/team-1/issues/7) · **Stav:** otevřeno · **Čeká na:** `po`
+- **Epic:** podání přihlášky · **Dotčené US:** [US-07](https://github.com/applifting-vsecourse/team-1/issues/7) · **Stav:** otevřeno · **Čeká na:** `po`
 - **Zdroje:**
   - [issue](https://github.com/applifting-vsecourse/team-1/issues/7): „**Otevřená otázka na PO:** F-02 – od kolika let může účastník podat přihlášku sám? Platí to pro všechny akce stejně, nebo si to nastaví organizátor?“
 - **Priorita:** P3 – US-07 není v prioritách Sprintu 4 (PO 11. 11.).

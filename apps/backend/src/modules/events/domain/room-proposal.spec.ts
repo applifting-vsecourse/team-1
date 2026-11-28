@@ -203,6 +203,27 @@ describe("proposeRoomAssignments", () => {
     expect(result.wishes.filter(({ fulfilled }) => fulfilled)).toHaveLength(2)
   })
 
+  it("revisits skipped moves after another participant moves into an occupied room", () => {
+    const marie = person("Marie", "Stala", "FEMALE")
+    const olga = person("Olga", "Horska", "FEMALE")
+    const eva = person("Eva", "Adamova", "FEMALE", ["Olga Horska"])
+    const zita = person("Zita", "Benesova", "FEMALE")
+    const jana = person("Jana", "Cibulkova", "FEMALE", ["Zita Benesova", "Eva Adamova"])
+    const petra = person("Petra", "Dvorakova", "FEMALE", ["Eva Adamova", "Olga Horska"])
+    const result = proposeRoomAssignments({
+      rooms: [
+        room("A", 1, "FEMALE", [marie]),
+        room("B", 3, "FEMALE"),
+        room("C", 3, "FEMALE", [olga]),
+      ],
+      participants: [eva, zita, jana, petra],
+    })
+
+    expect(roomOf(result, zita)).toBe("A")
+    expect(result.placements.some(({ roomId }) => roomId === "B")).toBe(false)
+    expect(result.wishes.filter(({ fulfilled }) => fulfilled)).toHaveLength(4)
+  })
+
   it("closes an opened room when its group fits together in another room", () => {
     const fixed = person("Fixed", "Test", "FEMALE")
     const anna = person("A", "Test", "FEMALE", ["C Test", "Fixed Test"])

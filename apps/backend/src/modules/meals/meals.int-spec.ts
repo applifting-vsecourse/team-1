@@ -293,7 +293,7 @@ describe("meals (integration)", () => {
       })
       const response = await request("PUT", path, organizer, empty)
       expect(response.status).toBe(409)
-      expect(await response.json()).toMatchObject({ code: "APPLICATION_NOT_EDITABLE" })
+      expect(await response.json()).toMatchObject({ code: "MEALS_EDIT_CLOSED" })
     } finally {
       for (const term of terms) {
         await prisma.applicationTerm.update({

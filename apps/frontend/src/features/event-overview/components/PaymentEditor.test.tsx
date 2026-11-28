@@ -4,6 +4,8 @@ import userEvent from "@testing-library/user-event"
 import { NetworkError } from "ky"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { footerButtonNames } from "@/test/dialog-footer"
+
 import type { PaymentApplication } from "@/features/event-overview/api/payments"
 import { PaymentEditor } from "@/features/event-overview/components/PaymentEditor"
 
@@ -27,6 +29,7 @@ const application: PaymentApplication = {
   gender: "MALE",
   email: "eva.mala@example.cz",
   phone: "+420777123456",
+  pronouns: null,
   isEditable: true,
   terms: [
     {
@@ -130,6 +133,12 @@ beforeEach(() => {
 })
 
 describe("PaymentEditor", () => {
+  it("puts Cancel before the main action (#757)", () => {
+    setup(7400)
+    const names = footerButtonNames()
+    expect(names).toHaveLength(2)
+    expect(names[0]).toMatch(/Cancel/)
+  })
   it("defaults to refunding the whole overpayment and supports partial refunds", async () => {
     const { user, onClose } = setup(7400)
     await user.click(screen.getByRole("radio", { name: "Refund" }))

@@ -146,6 +146,8 @@ model User {
   notifications    Notification[]
   applicationEdits ApplicationEdit[]
   lastOpenedEvent  LastOpenedEvent?
+  eventPosts       EventPost[]
+  eventPostReads   EventPostRead[]
 
   bankTransactions BankTransaction[]
   @@unique([email])
@@ -184,8 +186,11 @@ model Organization {
   applicationHealth ApplicationHealth[]
   transports       Transport[]
   programBlocks    ProgramBlock[]
+  eventPosts       EventPost[]
 
   bankTransactions BankTransaction[]
+  emailJobs EmailJob[]
+
   @@map("organization")
 }
 
@@ -252,8 +257,11 @@ model Event {
   photo        EventPhoto?
   mealOptions  MealOption[]
   lastOpenedBy LastOpenedEvent[]
+  eventPosts   EventPost[]
 
   bankTransactions BankTransaction[]
+  emailJobs EmailJob[]
+
   @@index([organizationId])
   @@map("event")
 }
@@ -321,6 +329,7 @@ model Term {
   roomWarningAcknowledgements RoomWarningAcknowledgement[]
   transports       Transport[]
   programBlocks    ProgramBlock[]
+  eventPostTerms   EventPostTerm[]
 
   @@unique([eventId, number])
   @@index([organizationId])
@@ -483,6 +492,7 @@ model Application {
   accessToken    String       @unique
   firstName      String
   lastName       String
+  pronouns       String?
   birthDate      DateTime     @db.Date
   gender         Gender
   email          String
@@ -516,6 +526,8 @@ model Application {
   health        ApplicationHealth?
 
   bankTransactions BankTransaction[]
+  emailJobs EmailJob[]
+
   @@index([organizationId])
   @@index([eventId, submittedAt])
   @@index([userId])
@@ -769,6 +781,9 @@ model Notification {
   // The application the notification leads to; null for notifications that belong to none.
   application   Application?     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   applicationId String?
+  // US-91: the board post a BOARD_POST_PUBLISHED notification is about; deleting the post removes it.
+  eventPost     EventPost?       @relation(fields: [eventPostId], references: [id], onDelete: Cascade)
+  eventPostId   String?
   // Data the copy is composed from (event, participant, term dates, amounts).
   params        Json
   createdAt     DateTime         @default(now())
@@ -777,6 +792,7 @@ model Notification {
   @@index([userId, createdAt])
   @@index([userId, readAt])
   @@index([applicationId])
+  @@index([eventPostId])
   @@map("notification")
 }
 
@@ -784,6 +800,59 @@ enum NotificationType {
   STATUS_CHANGED
   PAYMENT
   REQUEST
+  BOARD
+}
+
+// US-91: a post of the event's board (nástěnka). The organizer writes it for chosen terms; the
+// applicants with an application in one of them in the status CONFIRMED or WAITLISTED see it.
+// Plain text, line breaks kept.
+model EventPost {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId        String
+  title          String
+  body           String       @db.Text
+  // The organizer who wrote it; null once their account is deleted.
+  createdBy      User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+
+  terms         EventPostTerm[]
+  reads         EventPostRead[]
+  notifications Notification[]
+
+  @@index([organizationId])
+  @@index([eventId, createdAt])
+  @@map("event_post")
+}
+
+// The terms a post is shown for.
+model EventPostTerm {
+  post   EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+  term   Term      @relation(fields: [termId], references: [id], onDelete: Cascade)
+  termId String
+
+  @@id([postId, termId])
+  @@index([termId])
+  @@map("event_post_term")
+}
+
+// What an account has opened: a post without a row for the user is "new" to them. Per account, not
+// per application, so a post is not new again for a second child of the same account.
+model EventPostRead {
+  post   EventPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  readAt DateTime  @default(now())
+
+  @@id([postId, userId])
+  @@index([userId])
+  @@map("event_post_read")
 }
 
 // The event an organizer opened last (US-51): where the administration lands after login,
@@ -797,4 +866,62 @@ model LastOpenedEvent {
 
   @@index([eventId])
   @@map("last_opened_event")
+}
+
+// The message a queued e-mail carries (docs/emaily/KATALOG.md): application change, E15, E08.
+enum EmailJobTemplate {
+  APPLICATION_CHANGE
+  TERM_CANCELLED
+  PAYMENT_RECEIVED
+
+  @@map("email_job_template")
+}
+
+enum EmailJobStatus {
+  PENDING
+  SENDING
+  SENT
+  // Certainly not delivered, no attempts left.
+  FAILED
+  // May have been delivered, so it is not sent again.
+  UNCERTAIN
+
+  @@map("email_job_status")
+}
+
+// One e-mail of a bulk action waiting to be sent (#737), written in the transaction of the change.
+model EmailJob {
+  id              String           @id @default(cuid())
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId  String
+  event           Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId         String
+  application     Application      @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId   String
+  template        EmailJobTemplate
+  recipient       String
+  locale          Locale
+  // One per business event and message: a second write adds nothing. Also the provider's idempotency key.
+  dedupeKey       String           @unique
+  // Template data and the rendered message hold personal data and an access link; dropped once sent.
+  payload         Json?
+  subject         String?
+  html            String?          @db.Text
+  status          EmailJobStatus   @default(PENDING)
+  attempts        Int              @default(0)
+  nextAttemptAt   DateTime         @default(now())
+  // Set while a worker holds the job; an old one means the worker never reported back.
+  lockedAt        DateTime?
+  firstAttemptAt  DateTime?
+  mayHaveBeenSent Boolean          @default(false)
+  lastError       String?          @db.Text
+  sentAt          DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+
+  @@index([status, nextAttemptAt])
+  @@index([organizationId])
+  @@index([eventId])
+  @@index([applicationId])
+  @@map("email_job")
 }

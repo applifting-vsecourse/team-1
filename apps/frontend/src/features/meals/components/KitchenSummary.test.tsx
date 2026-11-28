@@ -132,7 +132,8 @@ describe("KitchenSummary", () => {
   it("shows the counts and the allergies of the first term", async () => {
     renderPage()
     await showByCategory()
-    expect(await screen.findByRole("heading", { name: "Meals" })).toBeVisible()
+    // The selected tab names the section: its h2 is only for screen readers (DESIGN.md, event header).
+    expect(await screen.findByRole("heading", { level: 2, name: "Meals" })).toHaveClass("sr-only")
     expect(screen.getByRole("heading", { name: "10 confirmed participants" })).toBeVisible()
     expect(screen.queryByText("Each participant is counted once.")).not.toBeInTheDocument()
     expect(screen.queryByRole("link", { name: "Back to event overview" })).not.toBeInTheDocument()

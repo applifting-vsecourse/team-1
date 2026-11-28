@@ -6,7 +6,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { cleanup, render, screen } from "@testing-library/react"
+import { cleanup, render, screen, within } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { Route } from "@/routes/organizer/_app"
@@ -62,7 +62,10 @@ describe("organizer sidebar", () => {
       const links = await screen.findAllByRole("link", { name: /^Events$/ })
       const active = links.filter((link) => link.getAttribute("data-status") === "active")
       expect(active.map((link) => link.textContent)).toEqual(["Events"])
-      expect(screen.getByRole("button", { name: "Notifications" })).toBeInTheDocument()
+      // Figma F5: the bell sits next to the logo in the sidebar (and in the phone header).
+      expect(
+        within(screen.getByRole("complementary")).getByRole("button", { name: "Notifications" }),
+      ).toBeInTheDocument()
       // "Overview" is left out for now (#394).
       expect(screen.queryByRole("link", { name: "Overview" })).not.toBeInTheDocument()
     },

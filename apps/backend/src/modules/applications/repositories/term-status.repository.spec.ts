@@ -1,3 +1,4 @@
+import { PrismaEmailJobRepository } from "@/core/email/queue/prisma-email-job.repository"
 import { PrismaService } from "@/core/prisma/prisma.service"
 import { NotificationsRepository } from "@/modules/notifications/repositories/notifications.repository"
 import { TermStatusRepository } from "./term-status.repository"
@@ -73,6 +74,7 @@ const setup = (options: {
     repository: new TermStatusRepository(
       prisma as unknown as PrismaService,
       { create: jest.fn().mockResolvedValue(undefined) } as unknown as NotificationsRepository,
+      {} as PrismaEmailJobRepository,
     ),
     findFirstApplication,
   }
@@ -119,6 +121,7 @@ describe("TermStatusRepository.participantChangeOptions: manual evaluation", () 
     const repository = new TermStatusRepository(
       prisma as unknown as PrismaService,
       {} as NotificationsRepository,
+      {} as PrismaEmailJobRepository,
     )
 
     expect(await repository.participantChangeOptions("u1", "a1")).toMatchObject({

@@ -3,6 +3,8 @@ import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { notify } from "@/lib/notify"
+
 import { SetPasswordForm } from "@/features/auth/components/SetPasswordForm"
 
 const { setPassword, getSession, navigate } = vi.hoisted(() => ({
@@ -14,6 +16,7 @@ const { setPassword, getSession, navigate } = vi.hoisted(() => ({
 vi.mock("@/features/auth/api/setPassword", () => ({ setPassword }))
 vi.mock("@/features/auth/lib/auth-client", () => ({ authClient: { getSession } }))
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => navigate }))
+vi.mock("@/lib/notify", () => ({ notify: { success: vi.fn() } }))
 
 const renderForm = () =>
   render(
@@ -46,12 +49,21 @@ describe("SetPasswordForm", () => {
     })
   })
 
-  it("shows the e-mail of the application as read-only text", () => {
+  it("shows the e-mail of the application in a disabled field", () => {
     renderForm()
 
-    expect(screen.getByRole("term")).toHaveTextContent("Your e-mail")
-    expect(screen.getByRole("definition")).toHaveTextContent("petra@example.com")
-    expect(screen.queryByRole("textbox", { name: /e-mail/i })).not.toBeInTheDocument()
+    const email = screen.getByRole("textbox", { name: "E-mail" })
+    expect(email).toHaveValue("petra@example.com")
+    expect(email).toBeDisabled()
+  })
+
+  it("ticks the rule „At least 8 characters“ off live", async () => {
+    renderForm()
+    const password = screen.getByLabelText("New password")
+
+    expect(password).toHaveAccessibleDescription("At least 8 characters (not met)")
+    await userEvent.type(password, "12345678")
+    expect(password).toHaveAccessibleDescription("At least 8 characters (met)")
   })
 
   it("refuses a password shorter than 8 characters and sends nothing", async () => {
@@ -62,6 +74,10 @@ describe("SetPasswordForm", () => {
     expect(
       await screen.findByText("The password must have at least 8 characters."),
     ).toBeInTheDocument()
+    // The field keeps the rule and gains the error: both describe the input.
+    expect(screen.getByLabelText("New password")).toHaveAccessibleDescription(
+      "At least 8 characters (not met) The password must have at least 8 characters.",
+    )
     expect(setPassword).not.toHaveBeenCalled()
   })
 
@@ -71,7 +87,7 @@ describe("SetPasswordForm", () => {
 
     await fill("my-own-password")
 
-    await waitFor(() => expect(screen.getByRole("button", { name: "Saving…" })).toBeDisabled())
+    await waitFor(() => expect(screen.getByRole("button", { name: /Set password/ })).toBeDisabled())
     expect(setPassword).toHaveBeenCalledTimes(1)
   })
 
@@ -82,18 +98,20 @@ describe("SetPasswordForm", () => {
     await fill("my-own-password")
 
     await waitFor(() => expect(navigate).toHaveBeenCalledWith({ to: "/participant" }))
+    expect(notify.success).toHaveBeenCalledWith("Your password is set.")
     expect(setPassword).toHaveBeenCalledWith("my-own-password")
     expect(getSession).toHaveBeenCalled()
   })
 
-  it("shows the server's error and keeps the form when saving fails", async () => {
+  it("shows one line and keeps the form when saving fails", async () => {
     setPassword.mockRejectedValue(new Error("Your password is already set."))
     renderForm()
 
     await fill("my-own-password")
 
-    expect(await screen.findByText("Couldn't set the password")).toBeInTheDocument()
-    expect(screen.getByText("Your password is already set.")).toBeInTheDocument()
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "The password couldn't be set. Please try again.",
+    )
     expect(screen.getByLabelText("New password")).toHaveValue("my-own-password")
     expect(navigate).not.toHaveBeenCalled()
   })
