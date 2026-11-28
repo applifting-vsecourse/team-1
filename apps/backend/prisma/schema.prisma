@@ -187,11 +187,40 @@ model Organization {
   transports       Transport[]
   programBlocks    ProgramBlock[]
   eventPosts       EventPost[]
+  costCategories   CostCategory[]
 
   bankTransactions BankTransaction[]
   emailJobs EmailJob[]
 
   @@map("organization")
+}
+
+// The cost categories every organization starts with (US-813, D-213).
+enum CostCategoryKey {
+  VENUE
+  TRANSPORT
+  FOOD
+  STAFF
+  MATERIALS_AND_PROGRAMME
+  OTHER
+
+  @@map("cost_category_key")
+}
+
+// Cost category of an organization, shared by all its events (US-813). A default
+// one has a `defaultKey` and, while `name` is empty, its label follows the UI
+// language; a category of the organizer's own (N11) has only a `name`.
+model CostCategory {
+  id             String           @id @default(cuid())
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  defaultKey     CostCategoryKey?
+  name           String?
+  position       Int
+  createdAt      DateTime         @default(now())
+
+  @@unique([organizationId, defaultKey])
+  @@map("cost_category")
 }
 
 // Organizer ↔ organization (M:N): one account may act for several organizations.
