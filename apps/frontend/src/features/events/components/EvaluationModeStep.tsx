@@ -25,8 +25,7 @@ const MODES = [
  * nothing preselected, the step is done by „Potvrdit režim vyhodnocování“ (US-560). It is shown
  * as the current step of the overview stepper, so its button is the one primary action.
  */
-// Figma (Design system): A1 Přehled akce · Volba režimu v kroku · Desktop · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26157-1995
-// Figma (Design system): A3 Přehled akce · Volba režimu v kroku · Mobil 360 px · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=26157-2050
+// Figma (Design system v2): F5 / Přehled akce · 2/3 · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=18658-20604 (mobile 18658-20726)
 export function EvaluationModeStep({ eventId }: { eventId: string }) {
   const { t } = useTranslation("events")
   const queryClient = useQueryClient()
@@ -44,7 +43,7 @@ export function EvaluationModeStep({ eventId }: { eventId: string }) {
 
   return (
     <form
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-2"
       onSubmit={(e) => {
         e.preventDefault()
         if (mode) mutation.mutate(mode)
@@ -54,13 +53,13 @@ export function EvaluationModeStep({ eventId }: { eventId: string }) {
         aria-label={t("evaluationMode.legend")}
         value={mode ?? ""}
         onValueChange={(value) => setMode(evaluationModeSchema.parse(value))}
-        className="grid gap-4 sm:grid-cols-2"
+        className="grid gap-3 sm:grid-cols-2"
       >
         {MODES.map(({ value, key }) => (
           // A hairline row, not a card in a card; the label stretches over it so the whole row picks.
           <div
             key={value}
-            className="relative flex flex-col gap-2 rounded-lg border border-input p-4"
+            className="relative flex flex-col gap-1 rounded-md border border-input bg-card px-4 pt-3 pb-4"
           >
             <div className="flex items-center gap-3 py-2">
               <RadioGroupItem
@@ -78,7 +77,7 @@ export function EvaluationModeStep({ eventId }: { eventId: string }) {
             </div>
             <p
               id={`step-evaluation-mode-${value}-info`}
-              className="pl-9 text-sm text-muted-foreground"
+              className="text-sm text-muted-foreground"
             >
               {t(`evaluationMode.${key}Info`)}
             </p>

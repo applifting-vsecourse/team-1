@@ -189,6 +189,8 @@ model Organization {
   eventPosts       EventPost[]
 
   bankTransactions BankTransaction[]
+  emailJobs EmailJob[]
+
   @@map("organization")
 }
 
@@ -258,6 +260,8 @@ model Event {
   eventPosts   EventPost[]
 
   bankTransactions BankTransaction[]
+  emailJobs EmailJob[]
+
   @@index([organizationId])
   @@map("event")
 }
@@ -488,6 +492,7 @@ model Application {
   accessToken    String       @unique
   firstName      String
   lastName       String
+  pronouns       String?
   birthDate      DateTime     @db.Date
   gender         Gender
   email          String
@@ -521,6 +526,8 @@ model Application {
   health        ApplicationHealth?
 
   bankTransactions BankTransaction[]
+  emailJobs EmailJob[]
+
   @@index([organizationId])
   @@index([eventId, submittedAt])
   @@index([userId])
@@ -859,4 +866,62 @@ model LastOpenedEvent {
 
   @@index([eventId])
   @@map("last_opened_event")
+}
+
+// The message a queued e-mail carries (docs/emaily/KATALOG.md): application change, E15, E08.
+enum EmailJobTemplate {
+  APPLICATION_CHANGE
+  TERM_CANCELLED
+  PAYMENT_RECEIVED
+
+  @@map("email_job_template")
+}
+
+enum EmailJobStatus {
+  PENDING
+  SENDING
+  SENT
+  // Certainly not delivered, no attempts left.
+  FAILED
+  // May have been delivered, so it is not sent again.
+  UNCERTAIN
+
+  @@map("email_job_status")
+}
+
+// One e-mail of a bulk action waiting to be sent (#737), written in the transaction of the change.
+model EmailJob {
+  id              String           @id @default(cuid())
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId  String
+  event           Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId         String
+  application     Application      @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId   String
+  template        EmailJobTemplate
+  recipient       String
+  locale          Locale
+  // One per business event and message: a second write adds nothing. Also the provider's idempotency key.
+  dedupeKey       String           @unique
+  // Template data and the rendered message hold personal data and an access link; dropped once sent.
+  payload         Json?
+  subject         String?
+  html            String?          @db.Text
+  status          EmailJobStatus   @default(PENDING)
+  attempts        Int              @default(0)
+  nextAttemptAt   DateTime         @default(now())
+  // Set while a worker holds the job; an old one means the worker never reported back.
+  lockedAt        DateTime?
+  firstAttemptAt  DateTime?
+  mayHaveBeenSent Boolean          @default(false)
+  lastError       String?          @db.Text
+  sentAt          DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+
+  @@index([status, nextAttemptAt])
+  @@index([organizationId])
+  @@index([eventId])
+  @@index([applicationId])
+  @@map("email_job")
 }

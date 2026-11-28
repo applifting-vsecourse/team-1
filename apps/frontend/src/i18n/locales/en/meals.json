@@ -1,5 +1,6 @@
 {
   "edit": {
+    "actions": "Actions",
     "all": "All",
     "cancel": "Cancel",
     "empty": "No participants match your selection.",
@@ -9,6 +10,7 @@
     "none": "No restrictions",
     "restricted": "With restrictions",
     "roster": "Participants",
+    "rosterFilter": "Meal preferences status",
     "search": "Search participants",
     "title": "Edit meal preferences",
     "view": "Edit meal preferences"
@@ -33,6 +35,7 @@
     "notes": "Allergies and notes",
     "optionColumn": "Meal",
     "overlapNote": "Restrictions may overlap.",
+    "participantColumn": "Participant",
     "participantNotesTitle": "Allergies and other requests",
     "personDiet": "Participant / diet",
     "portions": "Portions",
@@ -62,6 +65,7 @@
   "own": {
     "allergiesLabel": "Allergies and other dietary requirements",
     "back": "Back to application",
+    "closed": "All terms of the application are over or cancelled, the meals can no longer be changed.",
     "multiple": "You can select more than one option.",
     "noRestrictions": "I have no dietary restriction",
     "pageTitle": "Meals",

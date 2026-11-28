@@ -59,6 +59,7 @@ const application: PaymentApplication = {
   gender: "FEMALE",
   email: "eva@example.com",
   phone: null,
+  pronouns: null,
   isEditable: true,
   bankAccount: "123456789/0000",
   amountDueCzk: 1000,
