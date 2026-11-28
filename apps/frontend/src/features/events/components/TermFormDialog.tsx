@@ -122,9 +122,18 @@ export function TermFormDialog({
   return (
     <Dialog
       open
-      onOpenChange={(isOpen) => (isOpen ? undefined : onClose())}
+      onOpenChange={(isOpen) => {
+        if (!isOpen && !mutation.isPending) onClose()
+      }}
     >
-      <DialogContent className="max-h-dvh max-w-full gap-4 overflow-y-auto p-4 sm:max-h-[calc(100dvh-2rem)] sm:max-w-[800px] sm:p-6">
+      <DialogContent
+        className="gap-4 p-4 max-sm:px-3 sm:max-w-200 sm:p-6"
+        closeButtonDisabled={mutation.isPending}
+        onInteractOutside={(event) => event.preventDefault()}
+        onEscapeKeyDown={(event) => {
+          if (mutation.isPending) event.preventDefault()
+        }}
+      >
         <DialogHeader>
           <p className="text-xs font-medium text-muted-foreground uppercase">{eventName}</p>
           <DialogTitle className="text-lg tracking-tight">
@@ -251,6 +260,7 @@ export function TermFormDialog({
                   variant="ghost"
                   size="lg"
                   className="text-destructive hover:text-destructive sm:mr-auto"
+                  disabled={mutation.isPending}
                   onClick={() => onCancelTerm(term)}
                 >
                   {t("terms.cancel")}
@@ -260,6 +270,7 @@ export function TermFormDialog({
                 type="button"
                 variant="outline"
                 size="lg"
+                disabled={mutation.isPending}
                 onClick={onClose}
               >
                 {t("terms.form.close")}

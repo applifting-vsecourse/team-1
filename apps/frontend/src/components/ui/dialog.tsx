@@ -105,10 +105,12 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  closeButtonDisabled = false,
   style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
+  closeButtonDisabled?: boolean
 }) {
   const { t } = useTranslation("common")
   const viewport = useDialogViewport()
@@ -133,7 +135,8 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="absolute top-[18px] right-6 inline-flex size-11 items-center justify-center rounded-control transition-colors outline-none hover:bg-action-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5"
+            disabled={closeButtonDisabled}
+            className="absolute top-[18px] right-6 inline-flex size-11 items-center justify-center rounded-control transition-colors outline-none hover:bg-action-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5"
           >
             <XIcon />
             <span className="sr-only">{t("close")}</span>
