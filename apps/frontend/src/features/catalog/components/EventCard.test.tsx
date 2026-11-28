@@ -5,7 +5,7 @@ import {
   createRouter,
   RouterProvider,
 } from "@tanstack/react-router"
-import { render, screen, within } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it } from "vitest"
 
@@ -54,38 +54,40 @@ async function renderCard(event: CatalogEvent) {
   await screen.findByRole("heading", { name: "Summer camp" })
 }
 
-const listedTerms = () => within(screen.getByRole("list")).getAllByRole("listitem")
+// The card sums its terms up in one line (#795), so a long list can't grow it (#732).
+const datesLines = () => screen.getAllByText(/\d+ terms? · /)
 
 describe("EventCard terms (#732)", () => {
-  it("lists up to three terms one under another with their names, nothing folded", async () => {
+  it("sums up to three terms in one line, nothing folded", async () => {
     await renderCard(makeEvent(3))
 
-    expect(listedTerms()).toHaveLength(3)
-    expect(screen.getByText("Week 1")).toBeInTheDocument()
+    expect(datesLines()).toHaveLength(1)
+    expect(screen.getByText("3 terms · January 2027")).toBeInTheDocument()
+    expect(screen.queryByRole("list")).not.toBeInTheDocument()
     expect(screen.queryByText(/more terms?/)).not.toBeInTheDocument()
   })
 
-  it("shows four terms in two columns and counts the rest from two hidden on", async () => {
+  it("keeps twelve terms in that one line without listing their dates", async () => {
     await renderCard(makeEvent(12))
 
-    expect(listedTerms()).toHaveLength(4)
-    expect(screen.getByRole("list")).toHaveClass("grid-cols-2")
-    expect(screen.getByText("and 8 more terms")).toBeInTheDocument()
+    expect(datesLines()).toHaveLength(1)
+    expect(screen.getByText("12 terms · January–March 2027")).toBeInTheDocument()
+    expect(screen.queryByRole("listitem")).not.toBeInTheDocument()
     expect(screen.queryByText("Week 1")).not.toBeInTheDocument()
   })
 
-  it("counts 96 hidden terms of a hundred", async () => {
+  it("counts all hundred terms and shows the lowest price", async () => {
     await renderCard(makeEvent(100))
 
-    expect(listedTerms()).toHaveLength(4)
-    expect(screen.getByText("and 96 more terms")).toBeInTheDocument()
-    expect(screen.getByText(/100 terms · from/)).toBeInTheDocument()
+    expect(datesLines()).toHaveLength(1)
+    expect(screen.getByText("100 terms · January 2027–December 2028")).toBeInTheDocument()
+    expect(screen.getByRole("link")).toHaveTextContent("from CZK 4,900 / participant")
   })
 
-  it("shows all five terms rather than hiding a single one", async () => {
+  it("counts five terms rather than hiding a single one", async () => {
     await renderCard(makeEvent(5))
 
-    expect(listedTerms()).toHaveLength(5)
+    expect(screen.getByText("5 terms · January–February 2027")).toBeInTheDocument()
     expect(screen.queryByText(/more terms?/)).not.toBeInTheDocument()
   })
 
@@ -95,5 +97,60 @@ describe("EventCard terms (#732)", () => {
     expect(screen.getByRole("link")).toHaveAttribute("href", "/events/tok")
     await userEvent.tab()
     expect(screen.getByRole("link")).toHaveFocus()
+  })
+})
+
+// System B (2026-11-27): HF/01 catalog 22640:12072, Datovka 27719:4271, Cenovka 27719:4276.
+describe("EventCard brand markers", () => {
+  it("shows the first term as a date tile in the photo corner, hidden from screen readers", async () => {
+    await renderCard(makeEvent(3))
+
+    const tile = document.querySelector('[data-slot="date-tile"]')
+    expect(tile).toHaveTextContent("Jan2")
+    expect(tile).toHaveAttribute("aria-hidden", "true")
+    expect(tile).toHaveClass("absolute", "top-3", "right-3", "border-border-strong", "bg-card")
+    expect(tile?.firstElementChild).toHaveClass("bg-brand-warm", "text-brand-warm-foreground")
+  })
+
+  it("says the date of the tile in text for screen readers when the card has several terms", async () => {
+    await renderCard(makeEvent(3))
+
+    expect(screen.getByText("First term starts 2 Jan 2027")).toHaveClass("sr-only")
+  })
+
+  it("leaves the tile's date to the visible dates line when there is one term", async () => {
+    await renderCard(makeEvent(1))
+
+    expect(screen.queryByText(/First term starts/)).not.toBeInTheDocument()
+  })
+
+  it("draws the placeholder symbol of an event without a photo in the logo colour", async () => {
+    await renderCard({ ...makeEvent(1), hasPhoto: false })
+
+    expect(document.querySelector("svg")).toHaveClass("text-logo-symbol")
+  })
+
+  it("puts the price in an orange price tag with ink text and no edge, the per-participant note beside it", async () => {
+    await renderCard(makeEvent(3))
+
+    const tag = document.querySelector('[data-slot="price-tag"]')
+    expect(tag).toHaveTextContent("from CZK 4,900")
+    expect(tag).toHaveClass("bg-brand-warm", "text-brand-warm-foreground")
+    expect(tag?.className).not.toMatch(/border/)
+    expect(tag?.parentElement).toHaveTextContent("from CZK 4,900 / participant")
+  })
+
+  it("marks open applications with a tonal positive pill, not the teal action colour", async () => {
+    await renderCard(makeEvent(1))
+
+    const status = screen.getByText("Applications open")
+    expect(status).toHaveClass("bg-status-success-bg")
+    expect(status.innerHTML).not.toMatch(/bg-primary/)
+  })
+
+  it("has no date tile for an event without terms", async () => {
+    await renderCard({ ...makeEvent(0), fromPriceCzk: null })
+
+    expect(document.querySelector('[data-slot="date-tile"]')).not.toBeInTheDocument()
   })
 })

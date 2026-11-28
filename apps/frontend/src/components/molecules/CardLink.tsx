@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 // Figma: Capacity metric · https://www.figma.com/design/P7CQo6rDSptsyLvCR55b8J/Design-system?node-id=12233-748
+// Brand look A (specimen, Karta klikací · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=27536-3708):
+// the whole card lifts onto the hard ink shadow on hover and settles back when pressed.
 export function CardLink({
   children,
   className,
@@ -14,11 +16,11 @@ export function CardLink({
   return (
     <Link
       {...props}
-      className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="group block lift rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid"
     >
       <Card
         className={cn(
-          "relative h-full transition-colors group-hover:border-primary group-hover:bg-muted [&_[data-slot=card-content]>h3]:pr-8 [&>h2]:pr-8 [&>h3]:pr-8",
+          "relative h-full [&_[data-slot=card-content]>h3]:pr-8 [&>h2]:pr-8 [&>h3]:pr-8",
           className,
         )}
       >

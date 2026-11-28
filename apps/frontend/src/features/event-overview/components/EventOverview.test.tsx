@@ -77,8 +77,6 @@ function renderOverview(attention: Attention, setup?: ReactNode, proposals: obje
     component: () => (
       <EventOverview
         eventId="e1"
-        events={[{ id: "e1", name: "Summer camp" }]}
-        onEventChange={() => undefined}
         setup={setup}
       />
     ),
@@ -124,7 +122,7 @@ describe("EventOverview", () => {
       expect.stringContaining("term=t1"),
     )
     expect(screen.getByRole("button", { name: "View waitlist" })).toBeDisabled()
-    expect(screen.getByRole("combobox", { name: "Event" })).toBeVisible()
+    expect(screen.queryByRole("combobox", { name: "Event" })).not.toBeInTheDocument()
   })
 
   it("shows the buttons to applications and the waitlist as outlined actions (#753)", async () => {
@@ -159,7 +157,7 @@ describe("EventOverview", () => {
     expect(await screen.findByText(/^Summer week · /)).toBeVisible()
   })
 
-  it("puts the setup steps the event still needs between the switcher and the cards", async () => {
+  it("puts the setup steps the event still needs before the cards", async () => {
     renderOverview(
       {
         toEvaluateCount: 0,
@@ -171,8 +169,6 @@ describe("EventOverview", () => {
     )
     const cards = await screen.findByRole("link", { name: /Awaiting evaluation/ })
     const setup = screen.getByText("Setup steps")
-    const switcher = screen.getByRole("combobox", { name: "Event" })
-    expect(switcher.compareDocumentPosition(setup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(setup.compareDocumentPosition(cards) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 

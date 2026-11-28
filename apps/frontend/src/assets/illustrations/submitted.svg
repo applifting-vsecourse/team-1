@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" aria-hidden="true">
+  <circle class="backdrop" cx="160" cy="116" r="88" fill="var(--illustration-subtle)"/>
+  <rect class="ground" x="56" y="190" width="208" height="6" rx="3" fill="var(--illustration-ink)"/>
+  <circle class="trail-3" cx="88" cy="178" r="3" fill="var(--brand-warm)"/>
+  <circle class="trail-2" cx="112" cy="170" r="4" fill="var(--brand-warm)"/>
+  <circle class="trail-1" cx="140" cy="158" r="5" fill="var(--brand-warm)"/>
+  <path class="arc-1" d="M170 124V96C170 83.8493 179.849 74 192 74H220C223.314 74 226 76.6863 226 80C226 83.3137 223.314 86 220 86H192C186.477 86 182 90.4767 182 96V124C182 127.314 179.314 130 176 130C172.686 130 170 127.314 170 124Z" fill="var(--illustration-primary)"/>
+  <path class="arc-2" d="M266 160V132C266 128.686 268.686 126 272 126C275.314 126 278 128.686 278 132V160C278 172.151 268.151 182 256 182H228C224.686 182 222 179.314 222 176C222 172.686 224.686 170 228 170H256C261.523 170 266 165.523 266 160Z" fill="var(--illustration-primary)"/>
+  <circle class="dot" cx="224" cy="128" r="16" fill="var(--brand-warm)"/>
+</svg>

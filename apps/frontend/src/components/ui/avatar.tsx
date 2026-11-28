@@ -33,6 +33,8 @@ function AvatarImage({ className, ...props }: React.ComponentProps<typeof Avatar
   )
 }
 
+// System B (DESIGN.md, Colour): the initials are the account's own mark, so they sit on solid orange in ink
+// (7.2:1), with no edge: an avatar is not something you press.
 function AvatarFallback({
   className,
   ...props
@@ -41,7 +43,7 @@ function AvatarFallback({
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
+        "flex size-full items-center justify-center rounded-full bg-brand-warm text-sm font-medium text-brand-warm-foreground group-data-[size=sm]/avatar:text-xs",
         className,
       )}
       {...props}

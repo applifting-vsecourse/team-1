@@ -51,14 +51,20 @@ describe("ChangeEmailSection", () => {
     await i18n.changeLanguage("en")
   })
 
-  it("starts closed: the current e-mail, the note under the cards and a button, no field", () => {
+  it("starts as a row with the current e-mail and a quiet Change, no field", () => {
     renderSection()
 
-    expect(screen.getByRole("heading", { name: "Sign-in e-mail" })).toBeInTheDocument()
+    expect(screen.getByText("Sign-in e-mail")).toBeInTheDocument()
     expect(screen.getByText("eva.mala@example.cz")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Change e-mail" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Change e-mail" })).toHaveTextContent("Change")
     expect(screen.queryByLabelText("New e-mail *")).not.toBeInTheDocument()
-    // The remark that applications stay on the account appears once, under the cards.
+  })
+
+  it("says once in the dialog that applications already sent keep their contact e-mail", async () => {
+    renderSection()
+
+    await userEvent.click(screen.getByRole("button", { name: "Change e-mail" }))
+
     expect(
       screen.getAllByText(/contact (address|e-mail) in applications already sent/),
     ).toHaveLength(1)
@@ -178,7 +184,7 @@ describe("ChangeEmailSection", () => {
     await i18n.changeLanguage("cs")
     renderSection()
 
-    expect(screen.getByRole("heading", { name: "Přihlašovací e-mail" })).toBeInTheDocument()
+    expect(screen.getByText("Přihlašovací e-mail")).toBeInTheDocument()
     await userEvent.click(screen.getByRole("button", { name: "Změnit e-mail" }))
     expect(screen.getByLabelText("Nový e-mail *")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Odeslat ověřovací odkaz" })).toBeInTheDocument()

@@ -96,7 +96,7 @@ function OptionsForm({
         title={t("options.title")}
         description={eventName ? t("kitchen.description", { event: eventName }) : undefined}
       />
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1fr)]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1fr)]">
         <Card className="gap-4 p-4">
           <h2 className="text-2xl font-bold">{t("options.cardTitle")}</h2>
           <p>{t("options.instructions")}</p>

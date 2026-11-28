@@ -55,6 +55,7 @@ export type PaymentApplication = {
   number: number
   firstName: string
   lastName: string
+  pronouns: string | null
   individualAccommodation: boolean
   accommodationRequest: string | null
   birthDate: Date

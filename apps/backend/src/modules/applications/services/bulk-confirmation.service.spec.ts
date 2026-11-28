@@ -82,6 +82,7 @@ describe("BulkConfirmationService", () => {
       to: "CONFIRMED",
       actorId: "u1",
       isOverCapacityConfirmed: false,
+      isEmailQueued: true,
     })
     expect(result.confirmed).toEqual(["adam", "jana"])
     expect(result.unchanged.sort()).toEqual(["gone", "petr"])

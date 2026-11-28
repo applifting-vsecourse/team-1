@@ -106,7 +106,7 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
   return (
     <RegistrationLayout>
       <Seo title={title} />
-      <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+      <h1 className="text-center text-2xl font-bold tracking-tight">{title}</h1>
       <BrandDivider />
       {isResent && (
         <p
@@ -155,8 +155,9 @@ export function VerifyOrganizerEmail({ email, error }: Props) {
       {isExpired ? null : <p className="text-muted-foreground">{t("registration.checkSpam")}</p>}
       <Button
         asChild
-        variant="ghost"
-        className="self-start"
+        variant="outline"
+        size="lg"
+        className="h-12 w-full"
       >
         <Link to={ROUTES.organizer.register}>{t("registration.correctEmail")}</Link>
       </Button>

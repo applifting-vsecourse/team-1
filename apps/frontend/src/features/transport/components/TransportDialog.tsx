@@ -150,7 +150,7 @@ export function TransportDialog({
       <DialogContent
         aria-describedby={undefined}
         className={cn(
-          "max-h-[90dvh] overflow-y-auto bg-card shadow-md",
+          "max-h-[90dvh] overflow-y-auto bg-card",
           transport ? "sm:max-w-[530px]" : "sm:max-w-170",
         )}
       >

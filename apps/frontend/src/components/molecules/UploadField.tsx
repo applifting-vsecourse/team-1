@@ -57,7 +57,7 @@ export function UploadField({
             aria-valuenow={
               uploadFraction === undefined ? undefined : Math.round(uploadFraction * 100)
             }
-            className="flex flex-col items-center gap-2 text-primary"
+            className="flex flex-col items-center gap-2 text-logo-symbol"
           >
             <LogoSymbol
               className="upload-symbol size-13"
@@ -72,7 +72,7 @@ export function UploadField({
             className="h-48 w-full rounded-md object-cover"
           />
         ) : (
-          <LogoSymbol className="size-13 text-primary" />
+          <LogoSymbol className="size-13 text-logo-symbol" />
         )}
         <p className="text-xl leading-7 font-bold">{title}</p>
         <p className="text-base text-muted-foreground">{description}</p>

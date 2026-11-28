@@ -5,6 +5,7 @@ import { api } from "@/lib/api-client"
 export type ManualApplicationInput = {
   firstName: string
   lastName: string
+  pronouns?: string | null
   birthDate: string
   gender: "FEMALE" | "MALE"
   individualAccommodation?: boolean

@@ -35,7 +35,6 @@
   "characterCounter": "{{count}} / {{max}}",
   "clipboard": {
     "copied": "Copied to the clipboard",
-    "copiedField": "The value was copied.",
     "copyAccount": "Copy account number",
     "copyAmount": "Copy amount",
     "copyVariableSymbol": "Copy variable symbol",
@@ -75,30 +74,31 @@
     "toggle": "Change language"
   },
   "nav": {
+    "applicantRole": "Applicant",
     "applications": "Applications",
+    "catalog": "Event catalog",
     "eventSections": "Event sections",
     "events": "Events",
     "main": "Main navigation",
-    "openMenu": "Open navigation",
+    "myApplications": "My applications",
     "overview": "Overview"
   },
   "navigationPreferences": "Language and appearance",
   "pages": {
+    "actions": {
+      "applications": "My applications",
+      "catalog": "Browse events",
+      "events": "Go to events"
+    },
     "error": {
       "action": "Reload page",
-      "description": "We couldn’t display this page. Try reloading it, or return to the homepage.",
-      "homeAction": "Go to homepage",
       "title": "Something went wrong"
     },
     "forbidden": {
-      "action": "Go to homepage",
-      "description": "This page belongs to another account or another organization.",
-      "title": "You don’t have access to this content."
+      "title": "You don't have access to this content"
     },
     "notFound": {
-      "action": "Go to homepage",
-      "description": "The link may be incorrect or no longer valid. You can continue from the homepage.",
-      "title": "Page not found"
+      "title": "This link doesn't work"
     }
   },
   "pagination": {
@@ -115,8 +115,26 @@
     "hide": "Hide password",
     "show": "Show password"
   },
+  "preferences": {
+    "language": "Language",
+    "theme": "Appearance"
+  },
   "price": {
     "free": "Free"
+  },
+  "publicFooter": {
+    "catalog": "Event catalog",
+    "login": "Sign in",
+    "organizers": "For organizers",
+    "participants": "For participants",
+    "register": "Create an account",
+    "signature": "Togena · Managing multi-term events",
+    "tagline": "Managing multi-term events"
+  },
+  "publicHeader": {
+    "catalog": "Event catalog",
+    "organizers": "For organizers",
+    "signIn": "Sign in"
   },
   "state": {
     "connectionRestored": "Your device is back online.",
