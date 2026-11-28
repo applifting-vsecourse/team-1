@@ -10,6 +10,7 @@ import { termDatesLine, termLine } from "@/lib/term-label"
 
 import type { MyApplicationTerm } from "@/features/participant/api/applications"
 import { participantChangeRequestsQueryOptions } from "@/features/participant/api/changeRequests"
+import { termStatusDisplay } from "@/features/participant/lib/format"
 
 // Figma (Design system v2): #408 Detail · žádost odeslána · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=22640-39109 (mobile: 22640-39243)
 // Figma (Design system v2): US-114 Detail přihlášky · Žádost čeká / Změna schválená / Žádost zamítnutá · https://www.figma.com/design/6MuZPIqmrziZoZwyqEKsyK/Design-system-v2?node-id=15928-9271 (mobile: 15928-9331)
@@ -23,7 +24,7 @@ export function ChangeRequestNotice({
   applicationId: string
   terms: Pick<MyApplicationTerm, "termId" | "status">[]
 }) {
-  const { t } = useTranslation(["participant", "notifications"])
+  const { t } = useTranslation("participant")
   const query = useQuery(participantChangeRequestsQueryOptions(applicationId))
   if (query.isPending) return null
   if (query.isError) {
@@ -58,7 +59,9 @@ export function ChangeRequestNotice({
       .map((term) => {
         const attendance = terms.find((item) => item.termId === term.id)
         const label = termDatesLine(term)
-        return attendance ? `${label} · ${t(`notifications:status.${attendance.status}`)}` : label
+        return attendance
+          ? `${label} · ${t(`status.${termStatusDisplay[attendance.status].label}`)}`
+          : label
       })
     const hasConfirmedAttendance =
       currentIds.length > 0 &&
